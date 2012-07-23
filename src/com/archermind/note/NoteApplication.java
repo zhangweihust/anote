@@ -1,5 +1,8 @@
 package com.archermind.note;
 
+
+import com.archermind.note.Services.ServiceManager;
+
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
@@ -7,7 +10,7 @@ import android.util.Log;
 public class NoteApplication extends Application{
 	
 	private static NoteApplication instance;
-	private final static String TAG = "Schedule";
+	private final static String TAG = "Note";
 	
 	public NoteApplication(){
 		NoteApplication.instance = this;
@@ -20,6 +23,13 @@ public class NoteApplication extends Application{
 	 @Override
 		public void onCreate() {
 			super.onCreate();
+			 if (ServiceManager.isStarted()) {
+				} else {
+					if (!ServiceManager.start()) {
+						ServiceManager.exit();
+						return;
+					}
+				}
 		}
 	 
 	 @SuppressWarnings("rawtypes")

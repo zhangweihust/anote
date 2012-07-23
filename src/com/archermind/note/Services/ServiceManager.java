@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import com.archermind.note.NoteApplication;
+import com.archermind.note.Provider.DatabaseManager;
 
 public class ServiceManager extends Service {
 
 	private static final EventService eventService = new EventService();
 	private static boolean started;
+	private static DatabaseManager dbManager = new DatabaseManager(NoteApplication.getContext());
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -34,6 +36,8 @@ public class ServiceManager extends Service {
 		boolean success = true;
 
 		success &= eventService.start();
+		
+		dbManager.open();
 
 		if(!success){
 			NoteApplication.LogD(ServiceManager.class, "Failed to start services");
@@ -57,6 +61,8 @@ public class ServiceManager extends Service {
 
 		success &= eventService.stop();
 		
+		dbManager.close();
+		
 		if(!success){
 			NoteApplication.LogD(ServiceManager.class, "Failed to stop services");
 		}
@@ -66,6 +72,10 @@ public class ServiceManager extends Service {
 	
 	public static EventService getEventservice() {
 		return eventService;
+	}
+	
+	public static DatabaseManager getDbManager() {
+		return dbManager;
 	}
 	
 	public static boolean isStarted() {

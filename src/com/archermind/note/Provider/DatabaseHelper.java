@@ -6,17 +6,119 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper{
+	
+	public static final String NAME = "note.db";
+	private static final int version = 1;
+	
+	public static final String TAB_NOTE = "note";
+	public static final String COLUMN_NOTE_ID = "tid";//笔记ID
+	public static final String COLUMN_NOTE_USER_ID = "user_id";//用户ID
+	public static final String COLUMN_NOTE_SHARE = "share";//是否分享
+	public static final String COLUMN_NOTE_TYPE = "type";//笔记类别
+	public static final String COLUMN_NOTE_OPER_FLAG = "oper_flag";//笔记操作标志
+	public static final String COLUMN_NOTE_CREATE_TIME = "create_time";//笔记创建时间
+	public static final String COLUMN_NOTE_UPDATE_TIME = "update_time";//笔记更新时间
+	public static final String COLUMN_NOTE_WEATHER = "weather";//写笔记当天的天气
+	public static final String COLUMN_NOTE_TITLE = "title";//笔记标题
+	public static final String COLUMN_NOTE_CONTENT_TYPE = "content_type";//笔记内容的类型
+	public static final String COLUMN_NOTE_LOCAL_CONTENT = "local_content";//笔记本地的存储地址
+	public static final String COLUMN_NOTE_CONTENT = "content";//笔记服务器上的存储地址
 
-	public DatabaseHelper(Context context, String name, CursorFactory factory,
-			int version) {
-		super(context, name, factory, version);
+	private static final String CRETAE_TAB_NOTE = " CREATE TABLE IF NOT EXISTS "
+			+ TAB_NOTE
+			+ " ( "
+			+ COLUMN_NOTE_ID
+			+ " INTEGER PRIMARY KEY , "
+			+ COLUMN_NOTE_USER_ID
+			+ " INTEGER, "
+			+ COLUMN_NOTE_SHARE
+			+ " INTEGER, "
+			+ COLUMN_NOTE_TYPE
+			+ " INTEGER, "
+			+ COLUMN_NOTE_OPER_FLAG
+			+ " TEXT, "
+			+ COLUMN_NOTE_CREATE_TIME
+			+ " TEXT, "
+			+ COLUMN_NOTE_UPDATE_TIME
+			+ " TEXT, "
+			+ COLUMN_NOTE_WEATHER
+			+ " TEXT, "
+			+ COLUMN_NOTE_TITLE
+			+ " TEXT, "
+			+ COLUMN_NOTE_CONTENT_TYPE
+			+ " TEXT, "
+			+ COLUMN_NOTE_LOCAL_CONTENT
+			+ " TEXT, "
+			+ COLUMN_NOTE_CONTENT
+			+ " TEXT"
+			+ ")";
+	
+	public static final String TAB_USER = "user";
+	public static final String COLUMN_USER_USER_ID = "user_id";//用户ID
+	public static final String COLUMN_USER_INTEREST_TYPE = "interest_type";//被此用户关注OR关注此用户
+	public static final String COLUMN_USER_EMAIL = "email";//用户邮箱
+	public static final String COLUMN_USER_PHOTO_ID = "photo_id";//用户头像url
+	public static final String COLUMN_USER_PHOTO_CACHE = "photo_cache";//用户头像的本地缓存
+
+	private static final String CRETAE_TAB_USER = " CREATE TABLE IF NOT EXISTS "
+			+ TAB_USER
+			+ " ( "
+			+ COLUMN_USER_USER_ID
+			+ " INTEGER PRIMARY KEY , "
+			+ COLUMN_USER_INTEREST_TYPE
+			+ " INTEGER, "
+			+ COLUMN_USER_EMAIL
+			+ " TEXT, "
+			+ COLUMN_USER_PHOTO_ID
+			+ " TEXT, "
+			+ COLUMN_USER_PHOTO_CACHE
+			+ " TEXT"
+			+ ")";
+	
+	public static final String TAB_WEATHER = "weather";
+	public static final String COLUMN_WEATHER_ID = "wid";//天气ID，自动递增，主键，无实际意义
+	public static final String COLUMN_WEATHER_UPDATE_TIME = "update_type";//天气的更新时间
+	public static final String COLUMN_WEATHER_WEATHER = "weather";//天气，包含4天天气
+	public static final String COLUMN_WEATHER_CITY = "city";//所在城市
+
+	private static final String CRETAE_TAB_WEATHER = " CREATE TABLE IF NOT EXISTS "
+			+ TAB_WEATHER
+			+ " ( "
+			+ COLUMN_WEATHER_ID
+			+ " INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , "
+			+ COLUMN_WEATHER_UPDATE_TIME
+			+ " TEXT, "
+			+ COLUMN_WEATHER_WEATHER
+			+ " TEXT, "
+			+ COLUMN_WEATHER_CITY
+			+ " TEXT"
+			+ ")";
+	
+	public static final String TAB_NOTE_RELATION = "note_relation";
+	public static final String COLUMN_NOTE_RELATION_TID = "tid";//笔记ID
+	public static final String COLUMN_NOTE_RELATION_HOST = "host";//笔记序列号
+	public static final String COLUMN_NOTE_RELATION_SLAVE = "slave";//所属主贴
+
+	private static final String CRETAE_TAB_NOTE_RELATION = " CREATE TABLE IF NOT EXISTS "
+			+ TAB_NOTE_RELATION
+			+ " ( "
+			+ COLUMN_NOTE_RELATION_TID
+			+ " INTEGER PRIMARY KEY , "
+			+ COLUMN_NOTE_RELATION_HOST
+			+ " INTEGER, "
+			+ COLUMN_NOTE_RELATION_SLAVE
+			+ " INTEGER"
+			+ ")";
+	
+	public DatabaseHelper(Context context) {
+		super(context, NAME, null, version);
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		// TODO Auto-generated method stub
-		
+		createTabs(db);
 	}
 
 	@Override
@@ -25,4 +127,10 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 		
 	}
 
+	private void createTabs(SQLiteDatabase db) {
+		db.execSQL(CRETAE_TAB_NOTE);
+		db.execSQL(CRETAE_TAB_USER);
+		db.execSQL(CRETAE_TAB_WEATHER);
+		db.execSQL(CRETAE_TAB_NOTE_RELATION);
+	}
 }
