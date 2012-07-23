@@ -5,5 +5,8 @@
     <string name="app_name">微笔记</string>  
     <string name="home_screen_title">微笔记</string>
     <string name="home_screen_calendar_page_title">日历</string>
-
+<string name="menu_right_schedule">作息</string>
+<string name="menu_right_diary">日记</string>
+<string name="menu_right_mood">心情</string>
+<string name="menu_right_activity">活动</string>
 </resources>

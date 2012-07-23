@@ -19,5 +19,8 @@
 -->
 <resources>
 	<dimen name="home_screen_title_size">25dp</dimen>
+	<dimen name="menu_right_font_size">15dp</dimen>
+	<dimen name="menu_right_width">70dp</dimen>
+	<dimen name="menu_right_list_item_min_height">82dp</dimen>
 </resources>
 
