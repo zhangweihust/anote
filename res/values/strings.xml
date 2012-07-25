@@ -9,4 +9,5 @@
 <string name="menu_right_diary">日记</string>
 <string name="menu_right_mood">心情</string>
 <string name="menu_right_activity">活动</string>
+<string name="edit_pick_color">请选择颜色</string>
 </resources>

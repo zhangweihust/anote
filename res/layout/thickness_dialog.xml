@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="46px"
+    android:orientation="horizontal" >
+	        
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="46px"
+        android:gravity="center_vertical"
+        android:text="细"
+        />
+      
+    <SeekBar
+        android:id="@+id/thickness_setting_bar"
+        android:layout_width="200px"
+        android:layout_height="46px"
+        android:layout_marginLeft="5dp"
+        android:max="24"
+        android:progress="12"
+        android:secondaryProgress="24"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="46px"
+        android:gravity="center_vertical"
+        android:layout_marginLeft="5dp"
+        android:text="粗"
+        />
+
+</LinearLayout>

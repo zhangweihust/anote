@@ -96,19 +96,19 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	
 	public static final String TAB_NOTE_RELATION = "note_relation";
 	public static final String COLUMN_NOTE_RELATION_TID = "tid";//笔记ID
-	public static final String COLUMN_NOTE_RELATION_HOST = "host";//笔记序列号
-	public static final String COLUMN_NOTE_RELATION_SLAVE = "slave";//所属主贴
+ public static final String COLUMN_NOTE_RELATION_NO = "no";//笔记序列号
+ public static final String COLUMN_NOTE_RELATION_HOST = "host";//所属主贴
 
-	private static final String CRETAE_TAB_NOTE_RELATION = " CREATE TABLE IF NOT EXISTS "
-			+ TAB_NOTE_RELATION
-			+ " ( "
-			+ COLUMN_NOTE_RELATION_TID
-			+ " INTEGER PRIMARY KEY , "
-			+ COLUMN_NOTE_RELATION_HOST
-			+ " INTEGER, "
-			+ COLUMN_NOTE_RELATION_SLAVE
-			+ " INTEGER"
-			+ ")";
+ private static final String CRETAE_TAB_NOTE_RELATION = " CREATE TABLE IF NOT EXISTS "
+   + TAB_NOTE_RELATION
+   + " ( "
+   + COLUMN_NOTE_RELATION_TID
+   + " INTEGER PRIMARY KEY , "
+   + COLUMN_NOTE_RELATION_NO
+   + " INTEGER, "
+   + COLUMN_NOTE_RELATION_HOST
+   + " INTEGER"
+   + ")";
 	
 	public DatabaseHelper(Context context) {
 		super(context, NAME, null, version);

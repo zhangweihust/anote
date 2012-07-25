@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.archermind.note.R;
+import com.archermind.note.Screens.EditNoteScreen;
 
 import android.content.Context;
 import android.content.Intent;
@@ -107,6 +108,8 @@ public class MenuRightListAdapter extends BaseAdapter {
 			break;
 		/*----------------------------------------------------*/	
 		case 1:
+			intent.setClass(context, EditNoteScreen.class);
+			context.startActivity(intent);
 			break;
 		/*----------------------------------------------------*/
 		case 2:

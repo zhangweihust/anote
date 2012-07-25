@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    
+    <LinearLayout
+        android:id="@+id/bottom"
+        style="@android:style/ButtonBar"
+        android:layout_width="fill_parent"
+        android:layout_height="42.5dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/handwrite_btn_bg"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <ImageButton
+            android:id="@+id/pictureinsert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/tab_btn_selector"
+            android:scaleType="fitCenter" 
+            android:src="@drawable/edit_pricture_selector"/>
+
+        <ImageButton
+            android:id="@+id/facialexpressioninsert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/tab_btn_selector"
+            android:scaleType="fitCenter" 
+            android:src="@drawable/edit_facialexpression_selector"/>
+
+        <ImageButton
+            android:id="@+id/softinputinsert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/tab_btn_selector"
+            android:scaleType="fitCenter" 
+            android:src="@drawable/edit_softinput_selector"/>
+
+        <ImageButton
+            android:id="@+id/graffitiinsert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/tab_btn_selector"
+            android:scaleType="fitCenter" 
+            android:src="@drawable/edit_graffit_selector"/>
+
+        <ImageButton
+            android:id="@+id/handwritinginsert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/tab_btn_selector"
+            android:scaleType="fitCenter"
+            android:src="@drawable/edit_handwrite_selector" />
+    </LinearLayout>
+   
+    <FrameLayout
+    android:id="@+id/framelayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_above="@id/bottom" >
+    
+        <LinearLayout 
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+		    <RelativeLayout
+		        android:id="@+id/relativeLayout1"
+		        android:layout_width="fill_parent"
+		        android:layout_height="66px"
+		        android:background="@drawable/screen_top_bg"
+		        android:descendantFocusability="blocksDescendants"
+		        android:gravity="center_vertical"
+		        android:orientation="horizontal" >
+		
+		        <ImageButton
+		            android:id="@+id/screen_top_play_control_back"
+		            android:layout_width="76px"
+		            android:layout_height="46px"
+		            android:layout_alignParentLeft="true"
+		            android:layout_centerVertical="true"
+		            android:layout_marginLeft="14px"
+		            android:layout_weight="0"
+		            android:background="@drawable/screen_go_back" />
+		
+		        <TextView
+		            android:id="@+id/screen_top_play_control_activityTitle"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_centerInParent="true"
+		            android:layout_centerVertical="true"
+		            android:layout_weight="1"
+		            android:ellipsize="end"
+		            android:gravity="center_horizontal"
+		            android:singleLine="true"
+		            android:text="2012.7.1"
+		            android:textColor="#FFFFFF"
+		            android:textSize="30px" />
+		
+		        <LinearLayout
+		            android:id="@+id/screen_top_play_control_go_to_player"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_alignParentRight="true"
+		            android:layout_centerVertical="true"
+		            android:layout_marginRight="14px"
+		            android:layout_weight="0"
+		            android:focusable="false"
+		            android:gravity="center"
+		            android:orientation="vertical" >
+		        </LinearLayout>
+		    </RelativeLayout>
+	    
+		    <com.archermind.note.editnote.MyEditText
+		        android:id="@+id/editText_view"
+		        android:layout_width="fill_parent"
+		        android:layout_height="fill_parent"
+		        android:gravity="top"
+		        android:textSize="32px"
+		        android:background="@drawable/edit_background"
+		        android:layout_below="@id/relativeLayout1" >
+		    </com.archermind.note.editnote.MyEditText>
+	    </LinearLayout>
+	    
+	    <com.archermind.note.gesture.AmGestureOverlayView
+            android:id="@+id/gestureview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="#00000000">
+        </com.archermind.note.gesture.AmGestureOverlayView>
+	</FrameLayout>
+     
+       <LinearLayout 
+           android:id="@+id/handwrite_button_layout"
+           style="@android:style/ButtonBar"
+           android:layout_width="match_parent"
+           android:layout_height="42.5dp"
+           android:orientation="horizontal"
+           android:gravity="center_vertical"
+           android:layout_above="@id/bottom"
+           android:background="#6EAAD9"
+           >
+        <ImageButton
+            android:id="@+id/cursor_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/handwrite_graffit_btn_selector"
+            android:scaleType="fitCenter" 
+            android:src="@drawable/handwrite_cursor_back"/>
+
+        <ImageButton
+            android:id="@+id/cursor_forward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/handwrite_graffit_btn_selector"
+            android:scaleType="fitCenter" 
+            android:src="@drawable/handwrite_cursor_forward"/>
+
+        <ImageButton
+            android:id="@+id/handwrite_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/handwrite_graffit_btn_selector"
+            android:scaleType="fitCenter" 
+            android:src="@drawable/handwrite_delete"/>
+
+        <ImageButton
+            android:id="@+id/color_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/handwrite_graffit_btn_selector"
+            android:scaleType="fitCenter" 
+            android:src="@drawable/edit_color_setting"/>
+
+        <ImageButton
+            android:id="@+id/thickness_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/handwrite_graffit_btn_selector"
+            android:scaleType="fitCenter"
+            android:src="@drawable/thickness_setting" />
+       </LinearLayout>
+       
+       <LinearLayout 
+           android:id="@+id/graffit_button_layout"
+           style="@android:style/ButtonBar"
+           android:layout_width="match_parent"
+           android:layout_height="42.5dp"
+           android:orientation="horizontal"
+           android:gravity="center_vertical"
+           android:layout_above="@id/bottom"
+           android:background="#6EAAD9"
+           >
+        <ImageButton
+            android:id="@+id/graffit_revocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/handwrite_graffit_btn_selector"
+            android:scaleType="fitCenter" 
+            android:src="@drawable/graffit_revocation"/>
+
+        <ImageButton
+            android:id="@+id/graffit_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/handwrite_graffit_btn_selector"
+            android:scaleType="fitCenter" 
+            android:src="@drawable/graffit_pen"/>
+
+        <ImageButton
+            android:id="@+id/graffit_erase"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/handwrite_graffit_btn_selector"
+            android:scaleType="fitCenter" 
+            android:src="@drawable/graffit_erase"/>
+
+        <ImageButton
+            android:id="@+id/graffit_color_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/handwrite_graffit_btn_selector"
+            android:scaleType="fitCenter" 
+            android:src="@drawable/edit_color_setting"/>
+
+        <ImageButton
+            android:id="@+id/graffit_thickness_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/handwrite_graffit_btn_selector"
+            android:scaleType="fitCenter"
+            android:src="@drawable/thickness_setting" />
+       </LinearLayout>
+        
+        <GridView
+	        android:id="@+id/face_gridview"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:gravity="center"
+	        android:layout_gravity="center"
+	        android:layout_above="@id/bottom"
+	        android:listSelector="@android:color/transparent"
+	        android:horizontalSpacing="11px"
+	        android:numColumns="4"
+	        android:padding="10px"
+	        android:stretchMode="columnWidth"
+	        android:verticalSpacing="11px" >
+        </GridView>
+        
+        <LinearLayout
+	        android:id="@+id/handwrite_show_hide"
+	        android:layout_width="wrap_content"
+	        android:layout_height="30.5dp"
+	        android:layout_marginLeft="8dp"
+	        android:orientation="horizontal"
+	        android:gravity="center_vertical"
+	        android:layout_above="@id/handwrite_button_layout"
+	        android:background="@drawable/handwrite_hide"
+	        >
+        
+	        <TextView
+	            android:layout_width="wrap_content"
+	            android:layout_height="30.5dp"
+	            android:layout_marginLeft="3dp"
+	            android:text="手写输入"
+	            android:gravity="center_vertical"
+	            android:textSize="14dp"
+	            android:textColor="#ffffff"
+	            />
+	        <ImageView 
+	            android:layout_width="wrap_content"
+	            android:layout_height="30.5dp"
+	            android:layout_marginLeft="8dp"
+	            android:src="@drawable/edit_hidelayout"/>
+        </LinearLayout>
+        
+        <LinearLayout
+	        android:id="@+id/graffit_show_hide"
+	        android:layout_width="wrap_content"
+	        android:layout_height="30.5dp"
+	        android:layout_marginLeft="8dp"
+	        android:orientation="horizontal"
+	        android:gravity="center_vertical"
+	        android:layout_above="@id/graffit_button_layout"
+	        android:background="@drawable/handwrite_hide"
+	        >
+	       
+	        <TextView
+	            android:layout_width="wrap_content"
+	            android:layout_height="30.5dp"
+	            android:layout_marginLeft="3dp"
+	            android:text="涂鸦模式"
+	            android:gravity="center_vertical"
+	            android:textSize="14dp"
+	            android:textColor="#ffffff"
+	            />
+	        <ImageView 
+	            android:layout_width="wrap_content"
+	            android:layout_height="30.5dp"
+	            android:layout_marginLeft="8dp"
+	            android:src="@drawable/edit_hidelayout"/>
+        </LinearLayout>
+    
+</RelativeLayout>
