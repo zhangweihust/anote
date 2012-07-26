@@ -18,9 +18,16 @@
 */
 -->
 <resources>
-	<dimen name="home_screen_title_size">25dp</dimen>
+    <!-- main_screen -->
+	<dimen name="main_screen_title_size">25dp</dimen>
 	<dimen name="menu_right_font_size">15dp</dimen>
 	<dimen name="menu_right_width">70dp</dimen>
 	<dimen name="menu_right_list_item_min_height">82dp</dimen>
+	
+	<!-- home_screen -->
+	<dimen name="home_screen_middle_bar_margin_left">35dp</dimen>
+	<dimen name="home_screen_cur_month_text_size">20dp</dimen>
+	<dimen name="home_screen_bottom_info_margin_left">10dp</dimen>
+	<dimen name="home_screen_my_phote_size">60dp</dimen>
 </resources>
 

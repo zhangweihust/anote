@@ -11,7 +11,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	private static final int version = 1;
 	
 	public static final String TAB_NOTE = "note";
-	public static final String COLUMN_NOTE_ID = "tid";//笔记ID
+	public static final String COLUMN_NOTE_ID = "_id";//笔记ID
 	public static final String COLUMN_NOTE_USER_ID = "user_id";//用户ID
 	public static final String COLUMN_NOTE_SHARE = "share";//是否分享
 	public static final String COLUMN_NOTE_TYPE = "type";//笔记类别
@@ -21,6 +21,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	public static final String COLUMN_NOTE_WEATHER = "weather";//写笔记当天的天气
 	public static final String COLUMN_NOTE_TITLE = "title";//笔记标题
 	public static final String COLUMN_NOTE_CONTENT_TYPE = "content_type";//笔记内容的类型
+	public static final String COLUMN_NOTE_CONTENT_SIGNED = "content_signed";//笔记是否被标记为重要，0／1
 	public static final String COLUMN_NOTE_LOCAL_CONTENT = "local_content";//笔记本地的存储地址
 	public static final String COLUMN_NOTE_CONTENT = "content";//笔记服务器上的存储地址
 
@@ -47,12 +48,14 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 			+ " TEXT, "
 			+ COLUMN_NOTE_CONTENT_TYPE
 			+ " TEXT, "
+			+ COLUMN_NOTE_CONTENT_SIGNED
+			+ "INTEGER, "
 			+ COLUMN_NOTE_LOCAL_CONTENT
 			+ " TEXT, "
 			+ COLUMN_NOTE_CONTENT
 			+ " TEXT"
 			+ ")";
-	
+/*	
 	public static final String TAB_USER = "user";
 	public static final String COLUMN_USER_USER_ID = "user_id";//用户ID
 	public static final String COLUMN_USER_INTEREST_TYPE = "interest_type";//被此用户关注OR关注此用户
@@ -96,20 +99,20 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	
 	public static final String TAB_NOTE_RELATION = "note_relation";
 	public static final String COLUMN_NOTE_RELATION_TID = "tid";//笔记ID
- public static final String COLUMN_NOTE_RELATION_NO = "no";//笔记序列号
- public static final String COLUMN_NOTE_RELATION_HOST = "host";//所属主贴
+	public static final String COLUMN_NOTE_RELATION_NO = "no";//笔记序列号
+	public static final String COLUMN_NOTE_RELATION_HOST = "host";//所属主贴
 
- private static final String CRETAE_TAB_NOTE_RELATION = " CREATE TABLE IF NOT EXISTS "
-   + TAB_NOTE_RELATION
-   + " ( "
-   + COLUMN_NOTE_RELATION_TID
-   + " INTEGER PRIMARY KEY , "
-   + COLUMN_NOTE_RELATION_NO
-   + " INTEGER, "
-   + COLUMN_NOTE_RELATION_HOST
-   + " INTEGER"
-   + ")";
-	
+	private static final String CRETAE_TAB_NOTE_RELATION = " CREATE TABLE IF NOT EXISTS "
+			+ TAB_NOTE_RELATION
+			+ " ( "
+			+ COLUMN_NOTE_RELATION_TID
+			+ " INTEGER PRIMARY KEY , "
+			+ COLUMN_NOTE_RELATION_NO
+			+ " INTEGER, "
+			+ COLUMN_NOTE_RELATION_HOST
+			+ " INTEGER"
+			+ ")";
+*/	
 	public DatabaseHelper(Context context) {
 		super(context, NAME, null, version);
 		// TODO Auto-generated constructor stub
@@ -129,8 +132,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
 	private void createTabs(SQLiteDatabase db) {
 		db.execSQL(CRETAE_TAB_NOTE);
-		db.execSQL(CRETAE_TAB_USER);
-		db.execSQL(CRETAE_TAB_WEATHER);
-		db.execSQL(CRETAE_TAB_NOTE_RELATION);
+		//db.execSQL(CRETAE_TAB_USER);
+		//db.execSQL(CRETAE_TAB_WEATHER);
+		//db.execSQL(CRETAE_TAB_NOTE_RELATION);
 	}
 }

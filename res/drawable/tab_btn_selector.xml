@@ -3,6 +3,6 @@
 
     <item android:state_pressed="true"
 		android:drawable="@drawable/handwrite_btn_press_bg" />
-	<item android:drawable="@color/transparent" />
+<!-- 	<item android:drawable="@color/transparent" /> -->
 
 </selector>

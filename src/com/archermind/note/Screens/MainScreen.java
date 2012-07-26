@@ -20,12 +20,13 @@ import com.archermind.note.R;
 import com.archermind.note.Adapter.MenuRightListAdapter;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.EventTypes;
+import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Services.EventService;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Views.MenuRightHorizontalScrollView;
 
 public class MainScreen extends TabActivity implements OnTabChangeListener,
-		OnClickListener {
+		OnClickListener, IEventHandler {
 	/** Called when the activity is first created. */
 	private TabHost mTabHost;
 	private int mCurSelectTabIndex; // 记录当前的Tab是第几个
@@ -52,10 +53,20 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	public static String TYPE_CALENDAR = "calender";
 	private static String type;
 
+	public static EventService eventService;
+
+	public MainScreen(){
+		super();
+		eventService = ServiceManager.getEventservice();
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_screen);
+		
+		eventService.add(this);
+		
 		mTabHost = this.getTabHost();
 		mTabHost.addTab(buildTabSpec(TAB_DYNAMIC,
 				R.drawable.tabhost_dynamic_selector, new Intent(this,
@@ -207,13 +218,9 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 					EventTypes.TITLE_BAR_CALENDER_CLICKED));
 			break;
 		case R.id.btn_title_bar_add_menu:
-			if (mScrollMenu.MenuOut()) {
-				mScrollMenu.scrollBy(-MENU_RIGHT_WIDTH_PX, 0);
-				mScrollMenu.MenuOut(false);
-			} else {
-				mScrollMenu.scrollBy(MENU_RIGHT_WIDTH_PX, 0);
-				mScrollMenu.MenuOut(true);
-			}
+			System.out.println("~~~~~~~~~~btn_title_bar_notebook~~~~~~~~~~~");
+			MainScreen.eventService.onUpdateEvent(new EventArgs(
+					EventTypes.NEW_NOTE_BUTTON_CLICKED));
 			break;
 		case R.id.btn_title_bar_notebook:
 			MainScreen.this.runOnUiThread(new Runnable() {
@@ -256,5 +263,28 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		default:
 
 		}
+	}
+
+	@Override
+	public boolean onEvent(Object sender, EventArgs e) {
+		// TODO Auto-generated method stub
+		switch(e.getType()){
+		case NEW_NOTE_BUTTON_CLICKED:
+			System.out.println("~~~~~~~~~~NEW_NOTE_BUTTON_CLICKED~~~~~~~~~~~``");
+			MainScreen.this.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					if (mScrollMenu.MenuOut()) {
+						mScrollMenu.scrollBy(-MENU_RIGHT_WIDTH_PX, 0);
+						mScrollMenu.MenuOut(false);
+					} else {
+						mScrollMenu.scrollBy(MENU_RIGHT_WIDTH_PX, 0);
+						mScrollMenu.MenuOut(true);
+					}
+			}
+			});
+			break;
+		}
+		return true;
 	}
 }

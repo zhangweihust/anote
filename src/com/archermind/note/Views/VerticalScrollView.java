@@ -216,7 +216,7 @@ public class VerticalScrollView extends ViewGroup {
             	if(i == 0) {
             		child.getHeight();
                     child.layout(0, measuredHeight, right - left, measuredHeight + (int)(pageHeight*.75));
-                    measuredHeight +=  (pageHeight*.75);
+                    measuredHeight +=  (pageHeight*.72);
             	} else {
             		height = pageHeight * (int)Math.ceil((double)child.getMeasuredHeight()/(double)pageHeight);
             		height = Math.max(pageHeight, height);

@@ -35,8 +35,9 @@ public class DatabaseManager {
 
 	public Cursor queryLocalNotes() {
 		return database.query(DatabaseHelper.TAB_NOTE, null, null, null,
-				null, null, null);
+				null, null, DatabaseHelper.COLUMN_NOTE_CREATE_TIME + " ASC");
 	}
+	
 	public boolean deleteLocalNOTEs(int id) {
 		return database.delete(DatabaseHelper.TAB_NOTE,
 				DatabaseHelper.COLUMN_NOTE_ID + " =? ",

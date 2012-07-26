@@ -4,5 +4,4 @@
     <item android:state_pressed="true"
 		android:drawable="@drawable/edit_facialexpression_insert_press" />
 	<item android:drawable="@drawable/edit_facialexpression_insert" />
-
 </selector>

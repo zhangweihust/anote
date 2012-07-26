@@ -3,4 +3,7 @@
 	<color name="white">#ffffff</color>
 	<color name="transparent">#00000000</color>
 	<color name="handwrite_btn_press_bg">#b1d4ef</color>
+    <color name="blue">#5793c7</color>
+    <color name="content_background">#e7e7e7</color>
+    <color name="note_info_text_color">#7e7e7e</color>
 </resources>

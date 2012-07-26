@@ -28,7 +28,7 @@
 					<TextView android:id="@+id/tv_title_bar_title"
 						android:layout_width="wrap_content" android:layout_height="wrap_content"
 						android:layout_gravity="center" android:text="@string/home_screen_title"
-						android:textSize="@dimen/home_screen_title_size"
+						android:textSize="@dimen/main_screen_title_size"
 						android:textColor="@color/white" />
 					<Button android:id="@+id/btn_title_bar_add_menu"
 						android:layout_width="wrap_content" android:layout_height="wrap_content"

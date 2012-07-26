@@ -6,6 +6,7 @@
 	    android:id="@+id/ll_home_page"
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
+	    android:visibility="gone"
 	    >
 	  	<TextView
 	    android:layout_width="wrap_content"
@@ -18,15 +19,14 @@
         android:id="@+id/ll_calendar_page"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:visibility="gone"
         >
         <ViewFlipper android:id="@+id/flipper"
 		android:layout_width="fill_parent" 
 		android:layout_height="fill_parent"
-		 android:gravity="center"
-         android:background="#0a0"
-		android:focusable="true" />
+		android:gravity="center"
+        android:background="#0a0"
+		android:focusable="true"
+		/>
         <ListView
             android:id="@+id/list"
             android:layout_width="fill_parent"
