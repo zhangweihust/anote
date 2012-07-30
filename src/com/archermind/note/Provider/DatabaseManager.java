@@ -29,49 +29,87 @@ public class DatabaseManager {
 		database.close();
 	}
 	
-	public boolean insertLocalNotes(ContentValues values) {
+	public boolean insertLocalNotes(ContentValues values, long timeInMillis) {
+		Cursor c = queryTodayLocalNOTEs(timeInMillis);
+		values.put(DatabaseHelper.COLUMN_NOTE_LAST_FLAG, true);
+		if(c.getCount()>0){
+			c.moveToFirst();
+			int _id = c.getInt(c.getColumnIndex(DatabaseHelper.COLUMN_NOTE_ID));
+			ContentValues v = new ContentValues();
+			v.put(DatabaseHelper.COLUMN_NOTE_LAST_FLAG, false);
+			updateLocalNotes(v, _id);
+			c.close();
+		}
 		return database.insert(DatabaseHelper.TAB_NOTE, null, values) > 0;
 	}
 
 	public Cursor queryLocalNotes() {
 		return database.query(DatabaseHelper.TAB_NOTE, null, null, null,
-				null, null, DatabaseHelper.COLUMN_NOTE_CREATE_TIME + " ASC");
+				null, null, DatabaseHelper.COLUMN_NOTE_CREATE_TIME + " DESC");
 	}
 	
-	public boolean deleteLocalNOTEs(int id) {
-		return database.delete(DatabaseHelper.TAB_NOTE,
-				DatabaseHelper.COLUMN_NOTE_ID + " =? ",
-				new String[] { String.valueOf(id) }) >= 0;
+	
+	public void updateLocalNotes(ContentValues values, int id){
+	    database.update(DatabaseHelper.TAB_NOTE, values, DatabaseHelper.COLUMN_NOTE_ID + " =? ", new String[] { String.valueOf(id)});
+	}
+	
+	public void deleteLocalNOTEs(int id, boolean lastFlag, long timeInMillis) {
+		   database.delete(DatabaseHelper.TAB_NOTE,
+					DatabaseHelper.COLUMN_NOTE_ID + " =? ",
+					new String[] { String.valueOf(id) });
+		   if(lastFlag){//如果该日程是一天的第一条日程，则修改该天的第二条日程的标志位
+				Cursor c = queryTodayLocalNOTEs(timeInMillis);
+				if(c.getCount() > 0){
+					c.moveToFirst();
+					int _id = c.getInt(c.getColumnIndex(DatabaseHelper.COLUMN_NOTE_ID));
+					ContentValues values = new ContentValues();
+					values.put(DatabaseHelper.COLUMN_NOTE_LAST_FLAG, true);
+					updateLocalNotes(values, _id);
+					c.close();
+				}
+			}
 	}
 
-	public Cursor queryWeekLocalNOTEs() {
+	public Cursor queryWeekLocalNOTEs(long timeInMillis) {
 		return database
 				.query(DatabaseHelper.TAB_NOTE,
 						null,
 						DatabaseHelper.COLUMN_NOTE_CREATE_TIME
 								+ " BETWEEN ? AND ? ",
-						new String[] { String.valueOf(DateTimeUtils.getDayOfWeek(Calendar.MONDAY)), String.valueOf(DateTimeUtils.getDayOfWeek(Calendar.SUNDAY)) },
-						null, null, DatabaseHelper.COLUMN_NOTE_CREATE_TIME + " ASC");
+						new String[] { String.valueOf(DateTimeUtils.getDayOfWeek(Calendar.MONDAY, timeInMillis)), String.valueOf(DateTimeUtils.getDayOfWeek(Calendar.SUNDAY, timeInMillis)) },
+						null, null, DatabaseHelper.COLUMN_NOTE_CREATE_TIME + " DESC");
 	}
 	
-	public Cursor queryTodayLocalNOTEs() {
+	
+	
+	public Cursor queryTodayLocalNOTEs(long timeInMillis) {
 		return database
 				.query(DatabaseHelper.TAB_NOTE,
 						null,
 						DatabaseHelper.COLUMN_NOTE_CREATE_TIME
 								+ " BETWEEN ? AND ? ",
-						new String[] { String.valueOf(DateTimeUtils.getToday(Calendar.AM)), String.valueOf(DateTimeUtils.getToday(Calendar.PM)) },
-						null, null, null);
+						new String[] { String.valueOf(DateTimeUtils.getToday(Calendar.AM, timeInMillis)), String.valueOf(DateTimeUtils.getToday(Calendar.PM, timeInMillis)) },
+						null, null, DatabaseHelper.COLUMN_NOTE_CREATE_TIME + " DESC");
 	}
 	
 
-	public Cursor query3DaysBeforeLocalNOTEs() {
+	public Cursor queryMonthLocalNOTES(int month, int year){
 		return database
 				.query(DatabaseHelper.TAB_NOTE,
 						null,
 						DatabaseHelper.COLUMN_NOTE_CREATE_TIME
 								+ " BETWEEN ? AND ? ",
-						new String[] { String.valueOf(DateTimeUtils.getThreeDaysBefore()), String.valueOf(DateTimeUtils.getYesterdayEnd()) },
-						null, null, DatabaseHelper.COLUMN_NOTE_CREATE_TIME + " ASC");
+						new String[] { String.valueOf(DateTimeUtils.getMonthStart(month, year)), String.valueOf(DateTimeUtils.getMonthStart(month+1, year)) },
+						null, null, DatabaseHelper.COLUMN_NOTE_CREATE_TIME + " DESC");
+	}
+	
+	public Cursor query3DaysBeforeLocalNOTEs(long timeInMillis) {
+		return database
+				.query(DatabaseHelper.TAB_NOTE,
+						null,
+						DatabaseHelper.COLUMN_NOTE_CREATE_TIME
+								+ " BETWEEN ? AND ? ",
+						new String[] { String.valueOf(DateTimeUtils.getThreeDaysBefore(timeInMillis)), String.valueOf(DateTimeUtils.getYesterdayEnd(timeInMillis)) },
+						null, null, DatabaseHelper.COLUMN_NOTE_CREATE_TIME + " DESC");
 	}
 }

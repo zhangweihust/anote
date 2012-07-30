@@ -19,6 +19,7 @@
         android:id="@+id/ll_calendar_page"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:background="@color/content_background"
         >
         <ViewFlipper android:id="@+id/flipper"
 		android:layout_width="fill_parent" 
@@ -28,9 +29,10 @@
 		android:focusable="true"
 		/>
         <ListView
-            android:id="@+id/list"
+            android:id="@+id/lv_month_note_list"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:divider="@color/content_background"
             >
         </ListView>
     </com.archermind.note.Views.VerticalScrollView>

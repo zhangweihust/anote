@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" 
+    android:background="@color/content_background"
+    >
+    <View
+		android:id="@+id/v_div0_first_note_only"
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="@drawable/listview_divider"
+        android:visibility="gone" /> 
+    
+	<LinearLayout 
+	    android:id="@+id/ll_first_note_only"
+		android:layout_width="fill_parent"
+    	android:layout_height="@dimen/home_screen_day_info_height"
+    	android:orientation="horizontal"
+    	android:gravity="center"
+    	android:visibility="gone" 
+    	>
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="wrap_content"
+    		android:layout_height="wrap_content"
+    		android:textColor="@color/note_info_text_color"
+    		android:textSize="@dimen/home_screen_day_info_text_size"
+            />
+        <TextView
+            android:id="@+id/tv_week_day"
+            android:layout_width="wrap_content"
+    		android:layout_height="wrap_content"
+    		android:textColor="@color/note_info_text_color"
+    		android:layout_marginLeft="@dimen/home_screen_first_note_margin_left"
+    		android:textSize="@dimen/home_screen_day_info_text_size"
+            />
+        <TextView
+            android:id="@+id/tv_note_count"
+            android:layout_width="wrap_content"
+    		android:layout_height="wrap_content"
+    		android:textColor="@color/note_info_text_color"
+    		android:layout_marginLeft="@dimen/home_screen_first_note_margin_left"
+    		android:textSize="@dimen/home_screen_day_info_text_size"
+            />
+	    </LinearLayout>
+	    
+		<View
+		    android:id="@+id/v_div1_first_note_only"
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="@drawable/listview_divider" 
+            android:visibility="gone" /> 
+		
+		<LinearLayout 
+			android:layout_width="fill_parent"
+    		android:layout_height="wrap_content"
+    		android:orientation="horizontal"
+    		android:layout_margin="2dip"
+    	>
+			<ImageView
+		  	  	android:id="@+id/iv_note_type"
+		   	 	android:layout_width="wrap_content"
+    			android:layout_height="wrap_content"
+    			android:src="@drawable/menu_right_activity"
+    			android:layout_gravity="left|center"
+		   	 	/>
+			
+			<LinearLayout 
+			android:layout_width="fill_parent"
+    		android:layout_height="wrap_content"
+    		android:orientation="horizontal"
+    		android:background="@drawable/note_info_background"
+    		>
+    			<TextView 
+    			    android:id="@+id/tv_note_title"
+    			    android:layout_width="wrap_content"
+    			    android:layout_height="wrap_content"
+    			    android:layout_weight="2"
+    			    android:textColor="@color/note_title_color"
+    			    android:layout_gravity="left|center"
+    			    android:textSize="@dimen/home_screen_note_title_text_size"
+    			    />
+    			<View
+		    	    android:layout_width="1dip"
+            		android:layout_height="fill_parent"
+            		android:background="@drawable/vertical_divider"
+            		android:layout_gravity="right|center"
+            		/>
+    			<LinearLayout
+    			    android:layout_width="wrap_content"
+    			    android:layout_height="wrap_content"
+    			    android:layout_weight="1"
+    			    android:orientation="horizontal"
+    			    android:layout_gravity="right"
+    			    > 
+<!-- 	    			<ImageView 
+	    			    android:layout_width="wrap_content"
+	    			    android:layout_height="wrap_content"
+	    			    android:src="@drawable/comments"
+	    			    />
+	    			
+	    			 <TextView 
+	    			    android:id="@+id/tv_comment_count"
+	    			    android:layout_width="wrap_content"
+	    			    android:layout_height="wrap_content"
+	    			    android:textColor="@color/note_info_text_color"
+	    			    /> -->
+	    			 <ImageView 
+	    			    android:id="@+id/iv_is_signed"
+	    			    android:layout_width="wrap_content"
+	    			    android:layout_height="wrap_content"
+	    			    android:src="@drawable/signed"
+	    			    android:layout_gravity="top"
+	    			    android:layout_marginLeft="15dip"
+	    			    />
+    			 </LinearLayout>
+    		</LinearLayout>
+		
+		 </LinearLayout>   
+</LinearLayout>

@@ -11,6 +11,10 @@ public class NoteApplication extends Application{
 	
 	private static NoteApplication instance;
 	private final static String TAG = "Note";
+	public static int ACTIVITY = 0;
+	public static int MOOD = 1;
+	public static int DIARY = 2;
+	public static int SCHEDULE = 3;
 	
 	public NoteApplication(){
 		NoteApplication.instance = this;
