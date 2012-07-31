@@ -21,10 +21,6 @@
 						android:layout_width="wrap_content" android:layout_height="wrap_content"
 						android:layout_gravity="left|center_vertical" android:background="@drawable/title_bar_notebook_selector"
 						android:visibility="gone" />
-					<Button android:id="@+id/btn_title_bar_note_album"
-						android:layout_width="wrap_content" android:layout_height="wrap_content"
-						android:layout_gravity="center" android:background="@drawable/title_bar_note"
-						android:visibility="gone" />
 					<TextView android:id="@+id/tv_title_bar_title"
 						android:layout_width="wrap_content" android:layout_height="wrap_content"
 						android:layout_gravity="center" android:text="@string/home_screen_title"
@@ -37,13 +33,29 @@
 				<FrameLayout android:id="@android:id/tabcontent"
 					android:layout_width="fill_parent" android:layout_height="0.0dip"
 					android:layout_weight="2.0" />
-				<RelativeLayout android:layout_width="fill_parent"
-					android:layout_height="wrap_content">
+				<LinearLayout android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal"
+					android:gravity="center_vertical"
+					android:background="@drawable/tab_bottom_background">
 					<TabWidget android:id="@android:id/tabs"
-						android:layout_width="fill_parent" android:layout_height="wrap_content"
-						android:layout_weight="0.0" android:background="@drawable/tab_bottom_background"
-						android:padding="0dip" />
-				</RelativeLayout>
+						android:layout_width="@dimen/tab_widget_width"
+						android:layout_height="wrap_content"
+						android:layout_marginLeft="1dip"
+						android:layout_marginRight="1dip"/>
+					<LinearLayout 
+					    android:layout_width="@dimen/btn_more_width"
+					    android:layout_height="wrap_content"
+					    android:gravity="center"
+					    >
+					<Button
+					    android:id="@+id/btn_more"
+					    android:layout_width="wrap_content"
+					    android:layout_height="wrap_content"
+					    android:background="@drawable/tabhost_btn_more_selector"
+					    />
+					</LinearLayout>
+				</LinearLayout>
 			</LinearLayout>
 		</TabHost>
 		<LinearLayout android:layout_width="@dimen/menu_right_width"

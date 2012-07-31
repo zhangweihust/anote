@@ -108,8 +108,8 @@ public class MenuRightListAdapter extends BaseAdapter {
 			break;
 		/*----------------------------------------------------*/	
 		case 1:
-			intent.setClass(context, EditNoteScreen.class);
-			context.startActivity(intent);
+			/*intent.setClass(context, EditNoteScreen.class);
+			context.startActivity(intent);*/
 			break;
 		/*----------------------------------------------------*/
 		case 2:
@@ -141,20 +141,20 @@ public class MenuRightListAdapter extends BaseAdapter {
 		for(int i = 0; i < this.itemCount; i++){
 			Map<String, Object> map = new HashMap<String, Object>();
 			if(i == 0){
-				map.put("menuIcon", R.drawable.menu_right_schedule);
-				map.put("menuText", R.string.menu_right_schedule);
+				map.put("menuIcon", R.drawable.menu_right_count);
+				map.put("menuText", R.string.menu_right_count);
 			}
 			else if(i == 1){
-				map.put("menuIcon", R.drawable.menu_right_diary);
-				map.put("menuText", R.string.menu_right_diary);
+				map.put("menuIcon", R.drawable.menu_right_info);
+				map.put("menuText", R.string.menu_right_info);
 			}
 			else if(i == 2){
-				map.put("menuIcon", R.drawable.menu_right_mood);
-				map.put("menuText", R.string.menu_right_mood);
+				map.put("menuIcon", R.drawable.menu_right_feedback);
+				map.put("menuText", R.string.menu_right_feedback);
 			}
 			else{
-				map.put("menuIcon", R.drawable.menu_right_activity);
-				map.put("menuText", R.string.menu_right_activity);
+				map.put("menuIcon", R.drawable.menu_right_setting);
+				map.put("menuText", R.string.menu_right_setting);
 			}
 			this.listItems.add(map);
 			this.isPressed[i] = false;

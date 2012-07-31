@@ -1,6 +1,7 @@
 package com.archermind.note.Screens;
 
 import android.app.TabActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -26,38 +27,35 @@ import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Views.MenuRightHorizontalScrollView;
 
 public class MainScreen extends TabActivity implements OnTabChangeListener,
-		OnClickListener, IEventHandler {
+		OnClickListener {
 	/** Called when the activity is first created. */
 	private TabHost mTabHost;
-	private int mCurSelectTabIndex; // 记录当前的Tab是第几个
 	private final int INIT_SELECT = 0;
 	private final int MENU_RIGHT_WIDTH_DP = 70;
 	private int MENU_RIGHT_WIDTH_PX;
 	private boolean flag = false;
-	private String TAB_DYNAMIC = "dynamic";
 	private String TAB_HOME = "home";
 	private String TAB_PLAZA = "plaza";
-	private String TAB_FRIEND = "friend";
-	private String TAB_MORE = "more";
 
 	private Button mbtnTitleBarCalendar;
 	private Button mbtnTitleBarAddMenu;
 	private Button mbtnTitleBarNotebook;
-	private Button mbtnTitleBarNoteAlbum;
 	private TextView mtvTitleBarTitle;
 	private ListView mMenuList;
 	private MenuRightHorizontalScrollView mScrollMenu;
-
+	
+	private Button mbtnMore;
+	
 	public static String TYPE_NOTE = "note";
-	public static String TYPE_ALBUM = "album";
 	public static String TYPE_CALENDAR = "calender";
 	private static String type;
+	
+	private static Context mContext;
 
-	public static EventService eventService;
 
 	public MainScreen(){
 		super();
-		eventService = ServiceManager.getEventservice();
+		mContext = this;
 	}
 	
 	@Override
@@ -65,33 +63,17 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_screen);
 		
-		eventService.add(this);
 		
 		mTabHost = this.getTabHost();
-		mTabHost.addTab(buildTabSpec(TAB_DYNAMIC,
-				R.drawable.tabhost_dynamic_selector, new Intent(this,
-						DynamicScreen.class)));
 		mTabHost.addTab(buildTabSpec(TAB_HOME,
 				R.drawable.tabhost_home_selector, new Intent(this,
 						HomeScreen.class)));
 		mTabHost.addTab(buildTabSpec(TAB_PLAZA,
 				R.drawable.tabhost_plaza_selector, new Intent(this,
 						PlazaScreen.class)));
-		mTabHost.addTab(buildTabSpec(TAB_FRIEND,
-				R.drawable.tabhost_friend_selector, new Intent(this,
-						FriendScreen.class)));
-		mTabHost.addTab(buildTabSpec(TAB_MORE,
-				R.drawable.tabhost_more_selector, new Intent(this,
-						MoreScreen.class)));
 		mTabHost.setCurrentTab(INIT_SELECT);
 		mTabHost.setOnTabChangedListener(this);
-
-		mCurSelectTabIndex = INIT_SELECT;
-		View currentTab = mTabHost.getCurrentTabView();
-		ImageView tabPressed = (ImageView) currentTab
-				.findViewById(R.id.tab_pressed);
-		tabPressed.setVisibility(View.VISIBLE);
-
+		
 		mbtnTitleBarCalendar = (Button) findViewById(R.id.btn_title_bar_calendar);
 		mbtnTitleBarCalendar.setOnClickListener(this);
 
@@ -101,11 +83,11 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		mbtnTitleBarNotebook = (Button) findViewById(R.id.btn_title_bar_notebook);
 		mbtnTitleBarNotebook.setOnClickListener(this);
 
-		mbtnTitleBarNoteAlbum = (Button) findViewById(R.id.btn_title_bar_note_album);
-		mbtnTitleBarNoteAlbum.setOnClickListener(this);
-
 		mtvTitleBarTitle = (TextView) findViewById(R.id.tv_title_bar_title);
 
+		mbtnMore = (Button)findViewById(R.id.btn_more);
+		mbtnMore.setOnClickListener(this);
+		
 		mMenuList = (ListView)findViewById(R.id.menuList);
 		mMenuList.setAdapter(new MenuRightListAdapter(this));
 		
@@ -138,59 +120,30 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	@Override
 	public void onTabChanged(String tabId) {
 		// TODO Auto-generated method stub
-		int selectIndex = 0;
-		if (tabId.equalsIgnoreCase(TAB_DYNAMIC)) {
-			selectIndex = 0;
-		} else if (tabId.equalsIgnoreCase(TAB_HOME)) {
-			selectIndex = 1;
-		} else if (tabId.equalsIgnoreCase(TAB_PLAZA)) {
-			selectIndex = 2;
-		} else if (tabId.equalsIgnoreCase(TAB_FRIEND)) {
-			selectIndex = 3;
-		} else if (tabId.equalsIgnoreCase(TAB_MORE)) {
-			selectIndex = 4;
-		}
-
 		if (tabId.equalsIgnoreCase(TAB_HOME)) {
-			if (!type.equals(TYPE_CALENDAR)) {
-				MainScreen.this.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						mbtnTitleBarNoteAlbum.setVisibility(View.VISIBLE);
-						mtvTitleBarTitle.setVisibility(View.GONE);
+			MainScreen.this.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					if (type.equals(TYPE_CALENDAR)) {
+						mtvTitleBarTitle.setText(MainScreen.this.getResources()
+								.getText(R.string.home_screen_calendar_page_title));
+					}else{
+						mtvTitleBarTitle.setText(MainScreen.this.getResources()
+								.getText(R.string.home_screen_title));
 					}
-				});
-			} else {
-				mbtnTitleBarNoteAlbum.setVisibility(View.GONE);
-				mtvTitleBarTitle.setVisibility(View.VISIBLE);
-				mtvTitleBarTitle.setText(MainScreen.this.getResources()
-						.getText(R.string.home_screen_calendar_page_title));
-			}
-		} else {
+				}
+			});
+		}else {
 			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					mbtnTitleBarNoteAlbum.setVisibility(View.GONE);
-					mtvTitleBarTitle.setVisibility(View.VISIBLE);
 					mtvTitleBarTitle.setText(MainScreen.this.getResources()
-							.getText(R.string.home_screen_title));
+							.getText(R.string.plaza_screen_title));
 
 				}
 			});
 		}
-		View lastTab = mTabHost.getTabWidget().getChildTabViewAt(
-				mCurSelectTabIndex);
-		ImageView lastTabPressed = (ImageView) lastTab
-				.findViewById(R.id.tab_pressed);
-		lastTabPressed.setVisibility(View.INVISIBLE);
-		mCurSelectTabIndex = selectIndex;
-
-		View currentTab = mTabHost.getCurrentTabView();
-		ImageView tabPressed = (ImageView) currentTab
-				.findViewById(R.id.tab_pressed);
-		tabPressed.setVisibility(View.VISIBLE);
 
 	}
 
@@ -206,21 +159,17 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 					type = TYPE_CALENDAR;
 					mbtnTitleBarCalendar.setVisibility(View.GONE);
 					mbtnTitleBarNotebook.setVisibility(View.VISIBLE);
-					mbtnTitleBarNoteAlbum.setVisibility(View.GONE);
-					mtvTitleBarTitle.setVisibility(View.VISIBLE);
 					mtvTitleBarTitle.setText(MainScreen.this.getResources()
 							.getText(R.string.home_screen_calendar_page_title));
 				}
 			});
-			System.out.println("=CCC=" + ServiceManager.getEventservice());
-			System.out.println("=CCC=" + HomeScreen.eventService);
 			HomeScreen.eventService.onUpdateEvent(new EventArgs(
 					EventTypes.TITLE_BAR_CALENDER_CLICKED));
 			break;
 		case R.id.btn_title_bar_add_menu:
-			System.out.println("~~~~~~~~~~btn_title_bar_notebook~~~~~~~~~~~");
-			MainScreen.eventService.onUpdateEvent(new EventArgs(
-					EventTypes.NEW_NOTE_BUTTON_CLICKED));
+			Intent intent = new Intent();
+			intent.setClass(mContext, EditNoteScreen.class);
+			mContext.startActivity(intent);
 			break;
 		case R.id.btn_title_bar_notebook:
 			MainScreen.this.runOnUiThread(new Runnable() {
@@ -230,47 +179,14 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 					type = TYPE_NOTE;
 					mbtnTitleBarCalendar.setVisibility(View.VISIBLE);
 					mbtnTitleBarNotebook.setVisibility(View.GONE);
-					mtvTitleBarTitle.setVisibility(View.GONE);
-					mbtnTitleBarNoteAlbum.setVisibility(View.VISIBLE);
-					mbtnTitleBarNoteAlbum
-							.setBackgroundResource(R.drawable.title_bar_note);
+					mtvTitleBarTitle.setText(MainScreen.this.getResources()
+							.getText(R.string.home_screen_title));
 				}
 			});
 			HomeScreen.eventService.onUpdateEvent(new EventArgs(
 					EventTypes.TITLE_BAR_NOTEBOOK_CLICKED));
 			break;
-		case R.id.btn_title_bar_note_album:
-			final int rid;
-			if (type.equals(TYPE_NOTE)) {
-				type = TYPE_ALBUM;
-				rid = R.drawable.title_bar_album;
-			} else {
-				type = TYPE_NOTE;
-				rid = R.drawable.title_bar_note;
-			}
-
-			MainScreen.this.runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					mbtnTitleBarNoteAlbum.setBackgroundResource(rid);
-				}
-			});
-			HomeScreen.eventService.onUpdateEvent(new EventArgs(
-					EventTypes.TITLE_BAR_NOTE_ALBUM_CLICKED).putExtra("type",
-					type));
-			break;
-		default:
-
-		}
-	}
-
-	@Override
-	public boolean onEvent(Object sender, EventArgs e) {
-		// TODO Auto-generated method stub
-		switch(e.getType()){
-		case NEW_NOTE_BUTTON_CLICKED:
-			System.out.println("~~~~~~~~~~NEW_NOTE_BUTTON_CLICKED~~~~~~~~~~~``");
+		case R.id.btn_more:
 			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
@@ -284,7 +200,9 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			}
 			});
 			break;
+		default:
+
 		}
-		return true;
 	}
+
 }

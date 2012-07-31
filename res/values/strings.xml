@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+  <!-- home_screen & main_screen -->
     <string name="hello">Hello World, MainActivity!</string>
     <string name="app_name">微笔记</string>  
-    <string name="home_screen_title">微笔记</string>
+    <string name="home_screen_title">笔记本</string>
+    <string name="plaza_screen_title">广场</string>
     <string name="home_screen_calendar_page_title">日历</string>
-<string name="menu_right_schedule">作息</string>
-<string name="menu_right_diary">日记</string>
-<string name="menu_right_mood">心情</string>
-<string name="menu_right_activity">活动</string>
-<string name="edit_pick_color">请选择颜色</string>
+	<string name="menu_right_count">账户</string>
+	<string name="menu_right_info">通知</string>
+	<string name="menu_right_feedback">反馈</string>
+	<string name="menu_right_setting">设置</string>
+	<string name="edit_pick_color">请选择颜色</string>
+	
+	<!-- calendar -->
+	<string name="calendar_mon">周一</string>
+	<string name="calendar_tue">周二</string>
+	<string name="calendar_wed">周三</string>
+	<string name="calendar_thu">周四</string>
+	<string name="calendar_fri">周五</string>
+	<string name="calendar_sat">周六</string>
+	<string name="calendar_sun">周日</string>
 </resources>

@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" 
     android:background="@color/content_background"
+    android:padding="2dip"
     >
     <View
 		android:id="@+id/v_div0_first_note_only"
@@ -50,72 +51,85 @@
             android:layout_width="fill_parent"
             android:layout_height="1dip"
             android:background="@drawable/listview_divider" 
+            android:layout_marginBottom="2dip"
             android:visibility="gone" /> 
 		
-		<LinearLayout 
+		<FrameLayout 
 			android:layout_width="fill_parent"
     		android:layout_height="wrap_content"
-    		android:orientation="horizontal"
-    		android:layout_margin="2dip"
+			android:background="@drawable/note_info_background"
     	>
-			<ImageView
-		  	  	android:id="@+id/iv_note_type"
-		   	 	android:layout_width="wrap_content"
-    			android:layout_height="wrap_content"
-    			android:src="@drawable/menu_right_activity"
-    			android:layout_gravity="left|center"
-		   	 	/>
+ 			 <ImageView 
+ 			    android:id="@+id/iv_is_signed"
+ 			    android:layout_width="wrap_content"
+ 			    android:layout_height="wrap_content"
+ 			    android:src="@drawable/signed"
+ 			    android:layout_gravity="top"
+ 			    android:layout_marginLeft="3dip"
+ 			    android:visibility="gone"
+ 			    />
 			
 			<LinearLayout 
 			android:layout_width="fill_parent"
     		android:layout_height="wrap_content"
     		android:orientation="horizontal"
-    		android:background="@drawable/note_info_background"
     		>
     			<TextView 
     			    android:id="@+id/tv_note_title"
-    			    android:layout_width="wrap_content"
+    			    android:layout_width="@dimen/note_title_width"
     			    android:layout_height="wrap_content"
-    			    android:layout_weight="2"
     			    android:textColor="@color/note_title_color"
     			    android:layout_gravity="left|center"
     			    android:textSize="@dimen/home_screen_note_title_text_size"
+    			    android:layout_marginLeft="20dip"
     			    />
-    			<View
-		    	    android:layout_width="1dip"
-            		android:layout_height="fill_parent"
-            		android:background="@drawable/vertical_divider"
-            		android:layout_gravity="right|center"
-            		/>
     			<LinearLayout
-    			    android:layout_width="wrap_content"
+    			    android:layout_width="@dimen/note_edit_bar_width"
     			    android:layout_height="wrap_content"
-    			    android:layout_weight="1"
     			    android:orientation="horizontal"
     			    android:layout_gravity="right"
+    			    android:gravity="center"
     			    > 
-<!-- 	    			<ImageView 
+	    			<Button
+	    			    android:id="@+id/btn_share"
+	    			    android:layout_weight="1"
 	    			    android:layout_width="wrap_content"
 	    			    android:layout_height="wrap_content"
-	    			    android:src="@drawable/comments"
+	    			    android:background="@drawable/btn_share_selector"
 	    			    />
-	    			
-	    			 <TextView 
-	    			    android:id="@+id/tv_comment_count"
+	    			<FrameLayout 
 	    			    android:layout_width="wrap_content"
 	    			    android:layout_height="wrap_content"
-	    			    android:textColor="@color/note_info_text_color"
-	    			    /> -->
-	    			 <ImageView 
-	    			    android:id="@+id/iv_is_signed"
+        			    android:layout_weight="1"
+	    			    >
+	    			  
+	    			   <ImageView 
+	    			       android:id="@+id/iv_btn_sign_pressed"
+	    			       android:layout_width="wrap_content"
+	    			       android:layout_height="wrap_content"
+	    			       android:background="@drawable/note_item_btn_pressed"
+	    			       />
+	    			    
+	    			   <Button
+	    			    android:id="@+id/btn_sign"
+	    			    android:layout_weight="1"
 	    			    android:layout_width="wrap_content"
 	    			    android:layout_height="wrap_content"
-	    			    android:src="@drawable/signed"
-	    			    android:layout_gravity="top"
-	    			    android:layout_marginLeft="15dip"
+	    			    android:layout_gravity="center"
+	    			    android:background="@drawable/btn_sign_selector"
 	    			    />
+	    			    
+	    			</FrameLayout>
+
+	    			 <Button 
+	    			     android:id="@+id/btn_delete"
+	    			     android:layout_width="wrap_content"
+	    			     android:layout_height="wrap_content"
+	    			     android:background="@drawable/btn_delete_selector"
+	    			     />
+
     			 </LinearLayout>
     		</LinearLayout>
 		
-		 </LinearLayout>   
+		 </FrameLayout>   
 </LinearLayout>

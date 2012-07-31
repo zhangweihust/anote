@@ -6,7 +6,6 @@
 	    android:id="@+id/ll_home_page"
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
-	    android:visibility="gone"
 	    >
 	  	<TextView
 	    android:layout_width="wrap_content"
@@ -20,14 +19,91 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@color/content_background"
+        android:visibility="gone"
         >
-        <ViewFlipper android:id="@+id/flipper"
-		android:layout_width="fill_parent" 
-		android:layout_height="fill_parent"
-		android:gravity="center"
-        android:background="#0a0"
-		android:focusable="true"
-		/>
+         <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <ViewFlipper
+                android:id="@+id/flipper"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="@dimen/flipper_marginTop" />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="@dimen/calendar_height"
+                android:orientation="vertical" >
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="@string/calendar_mon"
+                        android:textColor="@android:color/black" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="@string/calendar_tue"
+                        android:textColor="@android:color/black" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="@string/calendar_wed"
+                        android:textColor="@android:color/black" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="@string/calendar_thu"
+                        android:textColor="@android:color/black" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="@string/calendar_fri"
+                        android:textColor="@android:color/black" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="@string/calendar_sat"
+                        android:textColor="@android:color/black" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="@string/calendar_sun"
+                        android:textColor="@android:color/black" />
+                </LinearLayout>
+            </LinearLayout>
+        </RelativeLayout>
+
+         
         <ListView
             android:id="@+id/lv_month_note_list"
             android:layout_width="fill_parent"
@@ -36,17 +112,4 @@
             >
         </ListView>
     </com.archermind.note.Views.VerticalScrollView>
-    
-		<LinearLayout 
-		    android:id="@+id/ll_album_page"
-		    android:layout_width="fill_parent"
-		    android:layout_height="fill_parent"
-		    android:visibility="gone"
-		    >
-		  	<TextView
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:text="this is album"
-			/> 	    
-	</LinearLayout>
 </LinearLayout>

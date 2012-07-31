@@ -6,7 +6,6 @@ import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DateTimeUtils;
-import com.archermind.note.Utils.NoteTypes;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -14,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -32,7 +32,6 @@ public class LocalNoteAdapter  extends CursorAdapter {
 		final NoteItem item = (NoteItem) view.getTag(R.layout.home_screen_listview_item);
 		String title = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_TITLE));
 		long time = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CREATE_TIME));
-		int type = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_TYPE));
 		boolean first = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_LAST_FLAG)) == 1;
 		boolean isSigned = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED)) == 1;
 		item.title.setText(title);
@@ -50,19 +49,21 @@ public class LocalNoteAdapter  extends CursorAdapter {
 			item.firstNoteOnly.setVisibility(View.GONE);
 		}
 		if(isSigned){
-			item.isSigned.setImageResource(R.drawable.signed);
+			item.isSigned.setVisibility(View.VISIBLE);
+			item.iv_is_signed.setVisibility(View.VISIBLE);
 		} else {
-			item.isSigned.setImageResource(R.drawable.unsigned);
+			item.isSigned.setVisibility(View.GONE);
+			item.iv_is_signed.setVisibility(View.GONE);
 		}
-		if(type == NoteTypes.ACTIVITY){
-			item.typeIcon.setImageResource(R.drawable.menu_right_activity);
+/*		if(type == NoteTypes.ACTIVITY){
+			item.typeIcon.setImageResource(R.drawable.menu_right_info);
 		}else if(type == NoteTypes.MOOD){
-			item.typeIcon.setImageResource(R.drawable.menu_right_mood);
+			item.typeIcon.setImageResource(R.drawable.menu_right_info);
 		}else if(type == NoteTypes.SCHEDULE){
-			item.typeIcon.setImageResource(R.drawable.menu_right_schedule);
+			item.typeIcon.setImageResource(R.drawable.menu_right_info);
 		}else{
-			item.typeIcon.setImageResource(R.drawable.menu_right_diary);
-		}
+			item.typeIcon.setImageResource(R.drawable.menu_right_info);
+		}*/
 			
 		/*item.commentCount.setText("50");*/
 		
@@ -79,13 +80,16 @@ public class LocalNoteAdapter  extends CursorAdapter {
 		item.date = (TextView) view.findViewById(R.id.tv_date);
 		item.weekDay = (TextView) view.findViewById(R.id.tv_week_day);
 		item.noteCount = (TextView) view.findViewById(R.id.tv_note_count);
-		item.typeIcon = (ImageView) view.findViewById(R.id.iv_note_type);
 		item.firstNoteDiv0 = (View) view.findViewById(R.id.v_div0_first_note_only);
 		item.firstNoteDiv1 = (View) view.findViewById(R.id.v_div1_first_note_only);
 		item.title = (TextView) view.findViewById(R.id.tv_note_title);
 		/*item.commentCount = (TextView) view.findViewById(R.id.tv_comment_count);*/
 		item.isSigned = (ImageView) view.findViewById(R.id.iv_is_signed);
 		item.firstNoteOnly= (LinearLayout) view.findViewById(R.id.ll_first_note_only);
+		item.btn_sign = (Button)view.findViewById(R.id.btn_sign);
+		item.btn_share = (Button)view.findViewById(R.id.btn_share);
+		item.btn_delete = (Button)view.findViewById(R.id.btn_delete);
+		item.iv_is_signed = (ImageView)view.findViewById(R.id.iv_btn_sign_pressed);
 		view.setTag(R.layout.home_screen_listview_item,item);
 		return view;
 	}
@@ -97,11 +101,13 @@ public class LocalNoteAdapter  extends CursorAdapter {
 		private View firstNoteDiv1;
 		private View firstNoteDiv0;
 		private TextView title;
-		private ImageView typeIcon;
 		private ImageView isSigned;
+		private Button btn_share;
+		private Button btn_sign;
+		private Button btn_delete;
+		private ImageView iv_is_signed;
 		/*private TextView commentCount;*/
 		private LinearLayout firstNoteOnly;
-		private int type;
 	}
 
 

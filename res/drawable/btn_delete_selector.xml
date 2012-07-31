@@ -4,16 +4,16 @@
 	>
 	<item
 		android:state_pressed="true"
-		android:drawable="@drawable/bottom_info_new_note_pressed"
+		android:drawable="@drawable/btn_delete_pressed"
 		>
 	</item>
 	<item
 		android:state_focused="true"
-		android:drawable="@drawable/bottom_info_new_note_pressed"
+		android:drawable="@drawable/btn_delete_pressed"
 		>
 	</item>
 	<item
-		android:drawable="@drawable/bottom_info_new_note"
+		android:drawable="@drawable/btn_delete"
 		>
 	</item>
 </selector>

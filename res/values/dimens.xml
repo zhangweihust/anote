@@ -23,6 +23,8 @@
 	<dimen name="menu_right_font_size">15dp</dimen>
 	<dimen name="menu_right_width">70dp</dimen>
 	<dimen name="menu_right_list_item_min_height">82dp</dimen>
+	<dimen name="tab_widget_width">267dp</dimen>
+	<dimen name="btn_more_width">51dp</dimen>
 	
 	<!-- home_screen -->
 	<dimen name="home_screen_middle_bar_margin_left">35dp</dimen>
@@ -33,5 +35,12 @@
 	<dimen name="home_screen_day_info_text_size">17dp</dimen>
 	<dimen name="home_screen_day_info_height">35dp</dimen>
 	<dimen name="home_screen_note_title_text_size">18dp</dimen>
+	<dimen name="flipper_marginTop">63dp</dimen>
+	<dimen name="calendar_height">73dp</dimen>
+	
+	<!-- home_screen time note list -->
+	<dimen name="note_title_width">180dip</dimen>
+	<dimen name="note_edit_bar_width">110dip</dimen>
+	
 </resources>
 

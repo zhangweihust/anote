@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 import com.archermind.note.R;
 import com.archermind.note.Adapter.LocalNoteAdapter;
@@ -30,17 +31,14 @@ import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Services.EventService;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DateTimeUtils;
-import com.archermind.note.Utils.NoteTypes;
 import com.archermind.note.Views.VerticalScrollView;
 
 
-public class HomeScreen extends Screen  implements IEventHandler{
+public class HomeScreen extends Screen  implements IEventHandler, OnClickListener{
     /** Called when the activity is first created. */
 	private VerticalScrollView mllCalendarPage;
 	private LinearLayout mllHomePage;
-	private LinearLayout mllAlbumPage;
 	private LinearLayout mListHeader;
-	private Button mBtnNewNote;
 	private LinearLayout mllBottomInfo;
 	private ImageView mIvMyNoteInfo;
 	private TextView mTvNoNoteDays;
@@ -54,6 +52,8 @@ public class HomeScreen extends Screen  implements IEventHandler{
 	private ListView list;
 	private Context mContext;
 	private TextView mTvCurMonth;
+	private ViewFlipper flipper = null;
+	
 	
 	public static final EventService eventService = ServiceManager.getEventservice();;
 
@@ -66,7 +66,7 @@ public class HomeScreen extends Screen  implements IEventHandler{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_screen);
         
-        if(ServiceManager.getDbManager().queryLocalNotes().getCount() == 0){
+        if(ServiceManager.getDbManager().queryTodayLocalNOTEs(System.currentTimeMillis()).getCount() == 0){
         	insert();
         }
         
@@ -74,7 +74,6 @@ public class HomeScreen extends Screen  implements IEventHandler{
         
         mllHomePage = (LinearLayout)findViewById(R.id.ll_home_page);
         mllCalendarPage = (VerticalScrollView)findViewById(R.id.ll_calendar_page);
-        mllAlbumPage = (LinearLayout)findViewById(R.id.ll_album_page);
         
         list = (ListView) findViewById(R.id.lv_month_note_list);
         
@@ -85,80 +84,19 @@ public class HomeScreen extends Screen  implements IEventHandler{
         mTvNoteCountToday = (TextView)mListHeader.findViewById(R.id.tv_note_count_today);
         mTvCurMonth = (TextView)mListHeader.findViewById(R.id.tv_cur_month);
         
-        mBtnNewNote = (Button)mListHeader.findViewById(R.id.btn_new_note);
-        mBtnNewNote.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-				MainScreen.eventService.onUpdateEvent(new EventArgs(
-						EventTypes.NEW_NOTE_BUTTON_CLICKED));
-			}
-        	
-        });
         
         mBtnPreMonth = (Button)mListHeader.findViewById(R.id.btn_pre_month);
-        mBtnPreMonth.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-				if(mCurMonth == Calendar.JANUARY){
-					mCurMonth = Calendar.DECEMBER;
-					mCurYear = mCurYear -1;
-				}else{
-					mCurMonth = mCurMonth - 1;
-				}
-				
-				Calendar time = Calendar.getInstance(Locale.CHINA); 
-				time.set(Calendar.YEAR, mCurYear);
-				time.set(Calendar.MONTH, mCurMonth);				
-				mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月", time.getTimeInMillis()));
-				
-				String tag = mListHeader.getTag().toString();
-				if(tag != null){
-					if(tag.equals(tagCalendar)){
-					   
-					} else if(tag.equals(tagTimeList)) {
-						list.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
-								.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
-					}
-				}
-			}
-        	
-        });
+        mBtnPreMonth.setOnClickListener(this);
 
         mBtnNextMonth = (Button)mListHeader.findViewById(R.id.btn_next_month);
-        mBtnNextMonth.setOnClickListener(new OnClickListener(){
+        mBtnNextMonth.setOnClickListener(this);
+        
+        mListHeader.setTag(tagCalendar);
+        mListHeader.setOnClickListener(new OnClickListener(){
+
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				if(mCurMonth == Calendar.DECEMBER){
-					mCurMonth = Calendar.JANUARY;
-					mCurYear = mCurYear + 1;
-				}else{
-					mCurMonth = mCurMonth + 1;
-				}
-				Calendar time = Calendar.getInstance(Locale.CHINA); 
-				time.set(Calendar.YEAR, mCurYear);
-				time.set(Calendar.MONTH, mCurMonth);				
-				mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月", time.getTimeInMillis()));
-				
-				String tag = mListHeader.getTag().toString();
-				if(tag != null){
-					if(tag.equals(tagCalendar)){
-					   
-					} else if(tag.equals(tagTimeList)) {
-						list.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
-								.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
-					}
-				}
-			}
-        	
-        });
-        
-        mListHeader.setTag(tagCalendar);
-        mListHeader.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
 				String tag = mListHeader.getTag().toString();
 				if(tag != null){
 					if(tag.equals(tagCalendar)){
@@ -171,13 +109,16 @@ public class HomeScreen extends Screen  implements IEventHandler{
 					}
 				}
 			}
-		});
+        	
+        });
+        
 		list.addHeaderView(mListHeader);
 		Calendar time = Calendar.getInstance(Locale.CHINA); 
 		time.setTimeInMillis(System.currentTimeMillis());
 		mCurMonth = time.get(Calendar.MONTH);
 		mCurYear = time.get(Calendar.YEAR);
 		
+		System.out.println(mCurMonth);
 		mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月", System.currentTimeMillis()));
         list.setAdapter(new LocalNoteAdapter(this, ServiceManager
 				.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
@@ -262,7 +203,6 @@ public class HomeScreen extends Screen  implements IEventHandler{
 					public void run() {
 						mllHomePage.setVisibility(View.GONE);
 						mllCalendarPage.setVisibility(View.VISIBLE);
-						mllAlbumPage.setVisibility(View.GONE);
 					}});
 				break;
 			case TITLE_BAR_NOTEBOOK_CLICKED:
@@ -271,7 +211,6 @@ public class HomeScreen extends Screen  implements IEventHandler{
 					public void run() {
 						mllHomePage.setVisibility(View.VISIBLE);
 						mllCalendarPage.setVisibility(View.GONE);
-						mllAlbumPage.setVisibility(View.GONE);
 					}});
 				break;
 			case TITLE_BAR_NOTE_ALBUM_CLICKED:
@@ -281,11 +220,9 @@ public class HomeScreen extends Screen  implements IEventHandler{
 						if(e.getExtra("type").equals(MainScreen.TYPE_NOTE)){
 							mllHomePage.setVisibility(View.VISIBLE);
 							mllCalendarPage.setVisibility(View.GONE);
-							mllAlbumPage.setVisibility(View.GONE);
 						}else{
 							mllHomePage.setVisibility(View.GONE);
 							mllCalendarPage.setVisibility(View.GONE);
-							mllAlbumPage.setVisibility(View.VISIBLE);
 						}
 					}});
 				break;
@@ -308,7 +245,6 @@ public class HomeScreen extends Screen  implements IEventHandler{
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, 1000);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT, "hello,1");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, DateTimeUtils.getMonthStart(Calendar.JULY, 2012)-30000);
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_TYPE, NoteTypes.SCHEDULE);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, DateTimeUtils.getMonthStart(Calendar.JULY, 2012)-30000);
 	
 		contentValues = new ContentValues();
@@ -343,7 +279,6 @@ public class HomeScreen extends Screen  implements IEventHandler{
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, 1000);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT, "hello,1");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())-30000);
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_TYPE, NoteTypes.SCHEDULE);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())-30000);
 		
 		contentValues = new ContentValues();
@@ -376,7 +311,6 @@ public class HomeScreen extends Screen  implements IEventHandler{
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, 1000);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT, "hello,1");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, System.currentTimeMillis()-30000);
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_TYPE, NoteTypes.SCHEDULE);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, System.currentTimeMillis()-30000);
 	
 		contentValues = new ContentValues();
@@ -403,4 +337,59 @@ public class HomeScreen extends Screen  implements IEventHandler{
 
 
 }
+
+	@Override
+	public void onClick(View arg0) {
+		// TODO Auto-generated method stub
+		int resId = arg0.getId();
+		Calendar time = Calendar.getInstance(Locale.CHINA);
+		String tag = null;
+		switch(resId){
+		case R.id.btn_pre_month:
+			if(mCurMonth == Calendar.JANUARY){
+				mCurMonth = Calendar.DECEMBER;
+				mCurYear = mCurYear -1;
+			}else{
+				mCurMonth = mCurMonth - 1;
+			} 
+			time.set(Calendar.YEAR, mCurYear);
+			time.set(Calendar.MONTH, mCurMonth);	
+			time.set(Calendar.DATE, 15);
+			mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月", time.getTimeInMillis()));
+			
+			tag = mListHeader.getTag().toString();
+			if(tag != null){
+				if(tag.equals(tagCalendar)){
+				   
+				} else if(tag.equals(tagTimeList)) {
+					list.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
+							.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
+				}
+			}	
+			break;
+		case R.id.btn_next_month:
+			if(mCurMonth == Calendar.DECEMBER){
+				mCurMonth = Calendar.JANUARY;
+				mCurYear = mCurYear + 1;
+			}else{
+				mCurMonth = mCurMonth + 1;
+			}
+			time.set(Calendar.YEAR, mCurYear);
+			time.set(Calendar.MONTH, mCurMonth);	
+			time.set(Calendar.DATE, 15);
+			mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月", time.getTimeInMillis()));		
+			tag = mListHeader.getTag().toString();
+			if(tag != null){
+				if(tag.equals(tagCalendar)){
+				   
+				} else if(tag.equals(tagTimeList)) {
+					list.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
+							.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
+				}
+			}
+			break;
+		default:
+			
+		}
+	}
 }

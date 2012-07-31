@@ -22,10 +22,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Screens.DynamicScreen"/>
-        <activity android:name=".Screens.FriendScreen"/>
-        <activity android:name=".Screens.CalendarScreen"/>
-        <activity android:name=".Screens.MoreScreen"/>
         <activity android:name=".Screens.PlazaScreen"/>
         <activity android:name=".Screens.HomeScreen"/>
         <activity android:name=".Screens.EditNoteScreen"/>
