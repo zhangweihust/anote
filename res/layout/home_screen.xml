@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
-	<LinearLayout 
+ 	<LinearLayout 
 	    android:id="@+id/ll_home_page"
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
@@ -13,7 +13,7 @@
 	    android:layout_height="wrap_content"
 	    android:text="this is note"
 		/> 	    
-	</LinearLayout>
+	</LinearLayout> 
 
 	<com.archermind.note.Views.VerticalScrollView
         android:id="@+id/ll_calendar_page"
@@ -24,17 +24,19 @@
          <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <ViewFlipper
                 android:id="@+id/flipper"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:gravity="center_horizontal"
+                android:background="@color/holiday_color"
                 android:layout_marginTop="@dimen/flipper_marginTop" 
  			/>
 
                 <LinearLayout
+                    android:id="@+id/ll_weekdays"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
@@ -104,15 +106,33 @@
                         android:text="@string/calendar_sun"
                         android:textColor="@android:color/black" />
                 </LinearLayout>
+                
+               <ImageView 
+			    android:layout_width="fill_parent"
+			    android:layout_height="wrap_content"
+			    android:src="@drawable/calendar_top"
+			    android:layout_below="@id/ll_weekdays"
+			    />
         </RelativeLayout>
 
-         
-        <ListView
-            android:id="@+id/lv_month_note_list"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:divider="@color/content_background"
-            >
-        </ListView>
+           <RelativeLayout 
+               android:layout_width="fill_parent"
+	           android:layout_height="wrap_content"
+               >
+		        <ListView
+		            android:id="@+id/lv_month_note_list"
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+		            android:divider="@color/content_background"
+		            >
+		        </ListView>
+		        
+		        <View
+		          	android:layout_below="@id/lv_month_note_list"
+			        android:layout_width="fill_parent"
+			        android:layout_height="1dip"
+			        android:background="@drawable/listview_divider"
+			        /> 
+		    </RelativeLayout>
     </com.archermind.note.Views.VerticalScrollView>
 </LinearLayout>

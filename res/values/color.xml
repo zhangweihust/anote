@@ -5,7 +5,10 @@
 	<color name="handwrite_btn_press_bg">#b1d4ef</color>
     <color name="blue">#5793c7</color>
     <color name="content_background">#e7e7e7</color>
+    <color name="note_info_date_color">#7d7d7d</color>
     <color name="note_info_text_color">#7e7e7e</color>
     <color name="note_title_color">#3f444a</color>
+    <color name="note_time_color">#9a9fa5</color>
     <color name="holiday_color">#b55a6c</color>
+    
 </resources>

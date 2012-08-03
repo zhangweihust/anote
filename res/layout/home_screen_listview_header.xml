@@ -11,7 +11,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1" 
             android:orientation="horizontal"
-            android:gravity="center"
+            android:gravity="center_horizontal"
+            android:paddingTop="10dp"
             android:background="@drawable/home_middle_bar_background"
             >
             <Button
@@ -27,6 +28,7 @@
                 android:textSize="@dimen/home_screen_cur_month_text_size"
 				android:textColor="@color/blue"
 				android:layout_marginLeft="@dimen/home_screen_middle_bar_margin_left"
+				android:textStyle="bold"
                 />
             <Button
                 android:id="@+id/btn_next_month"
@@ -43,15 +45,8 @@
             android:layout_weight="2"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginBottom="2dp"
+            android:layout_marginBottom="10dp"
             >
-            <Button 
-                android:id="@+id/btn_my_photo"
-                android:layout_width="@dimen/home_screen_my_phote_size"
-                android:layout_height="@dimen/home_screen_my_phote_size"
-                android:background="@drawable/my_photo"
-                android:layout_marginRight="@dimen/home_screen_bottom_info_margin_left"
-             />
             <TextView 
                 android:id="@+id/tv_no_note_days"
                 android:layout_width="wrap_content"

@@ -4,16 +4,16 @@
 	>
 	<item
 		android:state_pressed="true"
-		android:drawable="@drawable/title_bar_add_menu_pressed"
+		android:drawable="@drawable/note_info_month_item_pressed"
 		>
 	</item>
 	<item
 		android:state_focused="true"
-		android:drawable="@drawable/title_bar_add_menu_pressed"
+		android:drawable="@drawable/note_info_month_item_pressed"
 		>
 	</item>
 	<item
-		android:drawable="@drawable/title_bar_add_menu"
+		android:drawable="@drawable/note_info_month_item"
 		>
 	</item>
 </selector>

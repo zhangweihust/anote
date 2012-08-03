@@ -1,20 +1,30 @@
 package com.archermind.note.Screens;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.TabActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
@@ -23,11 +33,13 @@ import android.widget.TextView;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Adapter.MenuRightListAdapter;
+import com.archermind.note.Adapter.MoreAdapter;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Services.EventService;
 import com.archermind.note.Services.ServiceManager;
+import com.archermind.note.Utils.PxAndDip;
 import com.archermind.note.Views.MenuRightHorizontalScrollView;
 
 public class MainScreen extends TabActivity implements OnTabChangeListener,
@@ -41,9 +53,9 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	private String TAB_HOME = "home";
 	private String TAB_PLAZA = "plaza";
 
-	private Button mbtnTitleBarCalendar;
-	private Button mbtnTitleBarAddMenu;
-	private Button mbtnTitleBarNotebook;
+/*	private Button mbtnTitleBarCalendar;*/
+	private Button mbtnNewNote;
+/*	private Button mbtnTitleBarNotebook;*/
 	private TextView mtvTitleBarTitle;
 	private ListView mMenuList;
 	private MenuRightHorizontalScrollView mScrollMenu;
@@ -59,6 +71,9 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	private static String type;
 	
 	private static Context mContext;
+	
+	private ListView mlvSetting;
+	private PopupWindow mMorePopupWindow;
 	
 	public static GestureDetector mGestureDetector = null;
 
@@ -83,14 +98,14 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		mTabHost.setCurrentTab(INIT_SELECT);
 		mTabHost.setOnTabChangedListener(this);
 		
-		mbtnTitleBarCalendar = (Button) findViewById(R.id.btn_title_bar_calendar);
-		mbtnTitleBarCalendar.setOnClickListener(this);
+/*		mbtnTitleBarCalendar = (Button) findViewById(R.id.btn_title_bar_calendar);
+		mbtnTitleBarCalendar.setOnClickListener(this);*/
 
-		mbtnTitleBarAddMenu = (Button) findViewById(R.id.btn_title_bar_add_menu);
-		mbtnTitleBarAddMenu.setOnClickListener(this);
+		mbtnNewNote = (Button) findViewById(R.id.btn_new_note);
+		mbtnNewNote.setOnClickListener(this);
 
-		mbtnTitleBarNotebook = (Button) findViewById(R.id.btn_title_bar_notebook);
-		mbtnTitleBarNotebook.setOnClickListener(this);
+	/*	mbtnTitleBarNotebook = (Button) findViewById(R.id.btn_title_bar_notebook);
+		mbtnTitleBarNotebook.setOnClickListener(this);*/
 
 		mtvTitleBarTitle = (TextView) findViewById(R.id.tv_title_bar_title);
 
@@ -106,6 +121,8 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		type = TYPE_NOTE;
 		
 		mGestureDetector = new GestureDetector(this);
+		
+		initPopupwindow();
 	}
 
 	private TabSpec buildTabSpec(String tag, int iconId, Intent intent) {
@@ -114,11 +131,18 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 				R.layout.tab_item_view, null);
 		ImageView icon = (ImageView) tabSpecView.findViewById(R.id.imageview);
 		icon.setImageResource(iconId);
+		if(iconId == R.drawable.tabhost_home_selector){
+			tabSpecView.setPadding(PxAndDip.dip2px(mContext, 20), 0, 0, 0);
+		}else{
+			tabSpecView.setPadding(PxAndDip.dip2px(mContext, 102), 0, 0, 0);
+		}
 		TabSpec tabSpec = this.mTabHost.newTabSpec(tag).setIndicator(
 				tabSpecView).setContent(intent);
 		return tabSpec;
 	}
 
+	
+	
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
@@ -162,7 +186,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	public void onClick(View arg0) {
 		// TODO Auto-generated method stub
 		switch (arg0.getId()) {
-		case R.id.btn_title_bar_calendar:
+/*		case R.id.btn_title_bar_calendar:
 			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
@@ -176,13 +200,13 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			});
 			HomeScreen.eventService.onUpdateEvent(new EventArgs(
 					EventTypes.TITLE_BAR_CALENDER_CLICKED));
-			break;
-		case R.id.btn_title_bar_add_menu:
+			break;*/
+		case R.id.btn_new_note:
 			Intent intent = new Intent();
 			intent.setClass(mContext, EditNoteScreen.class);
 			mContext.startActivity(intent);
 			break;
-		case R.id.btn_title_bar_notebook:
+/*		case R.id.btn_title_bar_notebook:
 			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
@@ -196,18 +220,27 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			});
 			HomeScreen.eventService.onUpdateEvent(new EventArgs(
 					EventTypes.TITLE_BAR_NOTEBOOK_CLICKED));
-			break;
+			break;*/
 		case R.id.btn_more:
 			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					if (mScrollMenu.MenuOut()) {
+/*					if (mScrollMenu.MenuOut()) {
 						mScrollMenu.scrollBy(-MENU_RIGHT_WIDTH_PX, 0);
 						mScrollMenu.MenuOut(false);
 					} else {
 						mScrollMenu.scrollBy(MENU_RIGHT_WIDTH_PX, 0);
 						mScrollMenu.MenuOut(true);
-					}
+					}*/
+					System.out.println("more is clicked");
+						if (mMorePopupWindow.isShowing()) {
+							mMorePopupWindow.dismiss();
+						} else {
+							mMorePopupWindow.showAsDropDown(mbtnMore, -mMorePopupWindow.getWidth() / 2
+									- (int) (1.5 * mbtnMore.getWidth()) + 3, -3);
+						}
+					
+					
 			}
 			});
 			break;
@@ -274,5 +307,42 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	public void initPopupwindow() {
+		
+		View view = getLayoutInflater().inflate(R.layout.more_popup_window,
+				null);
+		mlvSetting = (ListView) view.findViewById(R.id.lv_setting);
+		MoreAdapter adapter = new MoreAdapter(mContext);
+		mlvSetting.setAdapter(adapter);
+		mlvSetting.setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_MENU
+						|| keyCode == KeyEvent.KEYCODE_BACK) {
+					if (mMorePopupWindow.isShowing()
+							&& event.getAction() != KeyEvent.ACTION_UP) {
+						mMorePopupWindow.dismiss();
+					}
+				}
+				return false;
+			}
+		});
+	mlvSetting.setOnItemClickListener(new OnItemClickListener() {
+
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+				long arg3) {
+			// TODO Auto-generated method stub
+			
+		}
+	});
+	DisplayMetrics dm = new DisplayMetrics();
+	dm = mContext.getApplicationContext().getResources().getDisplayMetrics();
+	mMorePopupWindow = new PopupWindow(view, 200,
+			(int) (52 * dm.density * 2), false);
+	mMorePopupWindow.setOutsideTouchable(true);
+	}
+	
 
 }

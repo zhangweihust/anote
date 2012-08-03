@@ -93,7 +93,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
         }
         
         mContext = HomeScreen.this;
-        
+       
         mllHomePage = (LinearLayout)findViewById(R.id.ll_home_page);
         mllCalendarPage = (VerticalScrollView)findViewById(R.id.ll_calendar_page);
         

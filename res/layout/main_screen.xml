@@ -14,48 +14,46 @@
 				<FrameLayout android:layout_width="fill_parent"
 					android:layout_height="wrap_content" android:background="@drawable/title_bar_background"
 					android:paddingLeft="5dip" android:paddingRight="5dip">
-					<Button android:id="@+id/btn_title_bar_calendar"
+<!-- 					<Button android:id="@+id/btn_title_bar_calendar"
 						android:layout_width="wrap_content" android:layout_height="wrap_content"
 						android:layout_gravity="left|center_vertical" android:background="@drawable/title_bar_calendar_selector" />
 					<Button android:id="@+id/btn_title_bar_notebook"
 						android:layout_width="wrap_content" android:layout_height="wrap_content"
 						android:layout_gravity="left|center_vertical" android:background="@drawable/title_bar_notebook_selector"
-						android:visibility="gone" />
+						android:visibility="gone" /> -->
 					<TextView android:id="@+id/tv_title_bar_title"
 						android:layout_width="wrap_content" android:layout_height="wrap_content"
 						android:layout_gravity="center" android:text="@string/home_screen_title"
 						android:textSize="@dimen/main_screen_title_size"
 						android:textColor="@color/white" />
-					<Button android:id="@+id/btn_title_bar_add_menu"
-						android:layout_width="wrap_content" android:layout_height="wrap_content"
-						android:layout_gravity="right|center_vertical" android:background="@drawable/title_bar_add_menu_selector" />
-				</FrameLayout>
-				<FrameLayout android:id="@android:id/tabcontent"
-					android:layout_width="fill_parent" android:layout_height="0.0dip"
-					android:layout_weight="2.0" />
-				<LinearLayout android:layout_width="fill_parent"
-					android:layout_height="wrap_content"
-					android:orientation="horizontal"
-					android:gravity="center_vertical"
-					android:background="@drawable/tab_bottom_background">
-					<TabWidget android:id="@android:id/tabs"
-						android:layout_width="@dimen/tab_widget_width"
-						android:layout_height="wrap_content"
-						android:layout_marginLeft="1dip"
-						android:layout_marginRight="1dip"/>
-					<LinearLayout 
-					    android:layout_width="@dimen/btn_more_width"
-					    android:layout_height="wrap_content"
-					    android:gravity="center"
-					    >
 					<Button
 					    android:id="@+id/btn_more"
 					    android:layout_width="wrap_content"
 					    android:layout_height="wrap_content"
+					    android:layout_gravity="center_vertical|right"
 					    android:background="@drawable/tabhost_btn_more_selector"
 					    />
-					</LinearLayout>
-				</LinearLayout>
+					
+				</FrameLayout>
+				<FrameLayout android:id="@android:id/tabcontent"
+					android:layout_width="fill_parent" android:layout_height="0.0dip"
+					android:layout_weight="2.0" />
+				<FrameLayout android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal"
+					android:gravity="center"
+					android:background="@drawable/tab_bottom_background">
+					<TabWidget android:id="@android:id/tabs"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginLeft="1dip"
+						android:layout_marginRight="1dip"
+						android:layout_gravity="center"/>
+
+					<Button android:id="@+id/btn_new_note"
+						android:layout_width="wrap_content" android:layout_height="wrap_content"
+						android:layout_gravity="center" android:background="@drawable/new_note_selector" />
+				</FrameLayout>
 			</LinearLayout>
 		</TabHost>
 		<LinearLayout android:layout_width="@dimen/menu_right_width"

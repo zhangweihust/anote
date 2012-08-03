@@ -31,12 +31,12 @@
 	<dimen name="home_screen_cur_month_text_size">20dp</dimen>
 	<dimen name="home_screen_bottom_info_margin_left">10dp</dimen>
 	<dimen name="home_screen_my_phote_size">60dp</dimen>
-	<dimen name="home_screen_first_note_margin_left">50dp</dimen>
-	<dimen name="home_screen_day_info_text_size">17dp</dimen>
-	<dimen name="home_screen_day_info_height">35dp</dimen>
-	<dimen name="home_screen_note_title_text_size">18dp</dimen>
-	<dimen name="flipper_marginTop">45dp</dimen>
-	<dimen name="calendar_height">73dp</dimen>
+	<dimen name="home_screen_day_info_margin_left">52dp</dimen>
+	<dimen name="home_screen_date_info_text_size">33dp</dimen>
+	<dimen name="home_screen_weekday_info_text_size">12dp</dimen>
+	<dimen name="home_screen_note_title_text_size">15dp</dimen>
+	<dimen name="home_screen_note_time_info_text_size">11dp</dimen>
+	<dimen name="flipper_marginTop">40dp</dimen>
 	
 	<!-- home_screen time note list -->
 	<dimen name="note_title_width">180dip</dimen>

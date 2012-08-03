@@ -1,135 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical" 
-    android:background="@color/content_background"
-    android:padding="2dip"
-    >
+    android:background="@color/content_background" >
+
     <View
-		android:id="@+id/v_div0_first_note_only"
+		android:id="@+id/v_div_first_note_only"
         android:layout_width="fill_parent"
         android:layout_height="1dip"
+        android:layout_marginTop="5dip"
         android:background="@drawable/listview_divider"
-        android:visibility="gone" /> 
+        android:layout_alignParentTop="true" /> 
     
-	<LinearLayout 
-	    android:id="@+id/ll_first_note_only"
-		android:layout_width="fill_parent"
-    	android:layout_height="@dimen/home_screen_day_info_height"
-    	android:orientation="horizontal"
-    	android:gravity="center"
-    	android:visibility="gone" 
+	<RelativeLayout 
+	    android:id="@+id/rl_day"
+		android:layout_width="@dimen/home_screen_day_info_margin_left"
+    	android:layout_height="wrap_content" 
     	>
         <TextView
             android:id="@+id/tv_date"
             android:layout_width="wrap_content"
     		android:layout_height="wrap_content"
-    		android:textColor="@color/note_info_text_color"
-    		android:textSize="@dimen/home_screen_day_info_text_size"
+    		android:textColor="@color/note_info_date_color"
+    		android:textSize="@dimen/home_screen_date_info_text_size"
+    		android:text="25"
+    		android:layout_centerHorizontal="true"
+    		android:layout_alignParentTop="true"
+            android:gravity="center"
+            android:textStyle="bold"
             />
         <TextView
             android:id="@+id/tv_week_day"
             android:layout_width="wrap_content"
     		android:layout_height="wrap_content"
-    		android:textColor="@color/note_info_text_color"
-    		android:layout_marginLeft="@dimen/home_screen_first_note_margin_left"
-    		android:textSize="@dimen/home_screen_day_info_text_size"
+    		android:textColor="@color/note_info_date_color"
+    		android:textSize="@dimen/home_screen_weekday_info_text_size"
+    		android:layout_below="@id/tv_date"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:text="星期六"
             />
-        <TextView
-            android:id="@+id/tv_note_count"
-            android:layout_width="wrap_content"
-    		android:layout_height="wrap_content"
-    		android:textColor="@color/note_info_text_color"
-    		android:layout_marginLeft="@dimen/home_screen_first_note_margin_left"
-    		android:textSize="@dimen/home_screen_day_info_text_size"
-            />
-	    </LinearLayout>
+	    </RelativeLayout>
 	    
-		<View
-		    android:id="@+id/v_div1_first_note_only"
-            android:layout_width="fill_parent"
-            android:layout_height="1dip"
-            android:background="@drawable/listview_divider" 
-            android:layout_marginBottom="2dip"
-            android:visibility="gone" /> 
-		
-		<FrameLayout 
-			android:layout_width="fill_parent"
-    		android:layout_height="wrap_content"
-			android:background="@drawable/note_info_background"
-    	>
- 			 <ImageView 
- 			    android:id="@+id/iv_is_signed"
- 			    android:layout_width="wrap_content"
- 			    android:layout_height="wrap_content"
- 			    android:src="@drawable/signed"
- 			    android:layout_gravity="top"
- 			    android:layout_marginLeft="3dip"
- 			    android:visibility="gone"
- 			    />
-			
-			<LinearLayout 
-			android:layout_width="fill_parent"
-    		android:layout_height="wrap_content"
-    		android:orientation="horizontal"
-    		>
-    			<TextView 
-    			    android:id="@+id/tv_note_title"
-    			    android:layout_width="@dimen/note_title_width"
-    			    android:layout_height="wrap_content"
-    			    android:textColor="@color/note_title_color"
-    			    android:layout_gravity="left|center"
-    			    android:textSize="@dimen/home_screen_note_title_text_size"
-    			    android:layout_marginLeft="20dip"
-    			    />
-    			<LinearLayout
-    			    android:layout_width="@dimen/note_edit_bar_width"
-    			    android:layout_height="wrap_content"
-    			    android:orientation="horizontal"
-    			    android:layout_gravity="right"
-    			    android:gravity="center"
-    			    > 
-	    			<Button
-	    			    android:id="@+id/btn_share"
-	    			    android:layout_weight="1"
-	    			    android:layout_width="wrap_content"
-	    			    android:layout_height="wrap_content"
-	    			    android:background="@drawable/btn_share_selector"
-	    			    />
-	    			<FrameLayout 
-	    			    android:layout_width="wrap_content"
-	    			    android:layout_height="wrap_content"
-        			    android:layout_weight="1"
-	    			    >
-	    			  
-	    			   <ImageView 
-	    			       android:id="@+id/iv_btn_sign_pressed"
-	    			       android:layout_width="wrap_content"
-	    			       android:layout_height="wrap_content"
-	    			       android:background="@drawable/note_item_btn_pressed"
-	    			       />
-	    			    
-	    			   <Button
-	    			    android:id="@+id/btn_sign"
-	    			    android:layout_weight="1"
-	    			    android:layout_width="wrap_content"
-	    			    android:layout_height="wrap_content"
-	    			    android:layout_gravity="center"
-	    			    android:background="@drawable/btn_sign_selector"
-	    			    />
-	    			    
-	    			</FrameLayout>
+	    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/rl_day"
+        android:layout_centerVertical="true"
+        android:orientation="horizontal" >
 
-	    			 <Button 
-	    			     android:id="@+id/btn_delete"
-	    			     android:layout_width="wrap_content"
-	    			     android:layout_height="wrap_content"
-	    			     android:background="@drawable/btn_delete_selector"
-	    			     />
-
-    			 </LinearLayout>
-    		</LinearLayout>
-		
-		 </FrameLayout>   
-</LinearLayout>
+		        <ImageView
+		            android:id="@+id/iv_dot"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_marginLeft="6.0dip"
+		            android:layout_marginRight="3.0dip"
+		            android:layout_centerVertical="true"
+		            android:src="@drawable/note_info_item_dot" />
+		        <RelativeLayout 
+		            android:layout_width="fill_parent"
+			        android:layout_height="wrap_content"
+			        android:layout_toRightOf="@id/iv_dot"
+			        android:background="@drawable/note_info_month_item_selector"
+			        android:layout_centerVertical="true"
+			        android:layout_marginRight="8.0dip"
+		            >
+		            <TextView
+		                android:id="@+id/tv_title"
+		                android:layout_width="wrap_content"
+			        	android:layout_height="wrap_content"
+			        	android:textColor="@color/note_title_color"
+			        	android:textSize="@dimen/home_screen_note_title_text_size"
+		                android:layout_alignParentLeft="true"
+		                android:layout_centerVertical="true"
+		                android:layout_marginLeft="4dip"
+		                android:text="alalalla"
+		                />
+		            <TextView 
+		              	android:id="@+id/tv_time"
+		                android:layout_width="wrap_content"
+			        	android:layout_height="wrap_content"
+			        	android:textColor="@color/note_time_color"
+			        	android:textSize="@dimen/home_screen_note_time_info_text_size"
+		                android:layout_alignParentRight="true"
+		                android:layout_centerVertical="true"
+		                android:layout_marginRight="4dip"
+		                android:text="10:30AM"
+		                android:textStyle="bold"
+		                />
+		            <ImageView 
+		                android:id="@+id/iv_is_signed"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:src="@drawable/note_info_item_signed"
+		                android:layout_alignParentRight="true"
+		                android:layout_marginRight="2dip"
+		                />
+		        </RelativeLayout>
+        </RelativeLayout>		
+	
+</RelativeLayout>
