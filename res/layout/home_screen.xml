@@ -6,6 +6,7 @@
 	    android:id="@+id/ll_home_page"
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
+	    android:visibility="gone"
 	    >
 	  	<TextView
 	    android:layout_width="wrap_content"
@@ -19,7 +20,6 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@color/content_background"
-        android:visibility="gone"
         >
          <RelativeLayout
             android:layout_width="fill_parent"
@@ -31,20 +31,18 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:gravity="center_horizontal"
-                android:layout_marginTop="@dimen/flipper_marginTop" />
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="@dimen/calendar_height"
-                android:orientation="vertical" >
+                android:layout_marginTop="@dimen/flipper_marginTop" 
+ 			/>
 
                 <LinearLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
-                    android:orientation="horizontal" >
+                    android:orientation="horizontal"
+                    android:background="@drawable/calendar_top_bar_background" >
 
                     <TextView
+                        android:id="@+id/tv_calendar_weekday0"
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
                         android:layout_weight="1"
@@ -53,6 +51,7 @@
                         android:textColor="@android:color/black" />
 
                     <TextView
+                        android:id="@+id/tv_calendar_weekday1"
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
                         android:layout_weight="1"
@@ -61,6 +60,7 @@
                         android:textColor="@android:color/black" />
 
                     <TextView
+                        android:id="@+id/tv_calendar_weekday2"
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
                         android:layout_weight="1"
@@ -69,6 +69,7 @@
                         android:textColor="@android:color/black" />
 
                     <TextView
+                        android:id="@+id/tv_calendar_weekday3"
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
                         android:layout_weight="1"
@@ -77,6 +78,7 @@
                         android:textColor="@android:color/black" />
 
                     <TextView
+                        android:id="@+id/tv_calendar_weekday4"
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
                         android:layout_weight="1"
@@ -85,6 +87,7 @@
                         android:textColor="@android:color/black" />
 
                     <TextView
+                        android:id="@+id/tv_calendar_weekday5"
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
                         android:layout_weight="1"
@@ -93,6 +96,7 @@
                         android:textColor="@android:color/black" />
 
                     <TextView
+                        android:id="@+id/tv_calendar_weekday6"
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
                         android:layout_weight="1"
@@ -100,7 +104,6 @@
                         android:text="@string/calendar_sun"
                         android:textColor="@android:color/black" />
                 </LinearLayout>
-            </LinearLayout>
         </RelativeLayout>
 
          

@@ -1,35 +1,43 @@
 package com.archermind.note.Screens;
 
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
+import android.view.ViewGroup.LayoutParams;
+import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
+import android.widget.AdapterView.OnItemClickListener;
 
 import com.archermind.note.R;
+import com.archermind.note.Adapter.CalendarAdapter;
 import com.archermind.note.Adapter.LocalNoteAdapter;
 import com.archermind.note.Events.EventArgs;
-import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Services.EventService;
 import com.archermind.note.Services.ServiceManager;
+import com.archermind.note.Utils.Constant;
 import com.archermind.note.Utils.DateTimeUtils;
 import com.archermind.note.Views.VerticalScrollView;
 
@@ -52,10 +60,24 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	private ListView list;
 	private Context mContext;
 	private TextView mTvCurMonth;
+	
+	//calendar
 	private ViewFlipper flipper = null;
+	private CalendarAdapter mCalendarAdapter = null;
+	private GridView mGridView = null;
 	
+	public static int PRE_MONTH = 0;
+	public static int NEXT_MONTH = 1;
 	
-	public static final EventService eventService = ServiceManager.getEventservice();;
+	private TextView tvCalendarWeekday0;
+	private TextView tvCalendarWeekday1;
+	private TextView tvCalendarWeekday2;
+	private TextView tvCalendarWeekday3;
+	private TextView tvCalendarWeekday4;
+	private TextView tvCalendarWeekday5;
+	private TextView tvCalendarWeekday6;
+	
+	public static final EventService eventService = ServiceManager.getEventservice();
 
 	public HomeScreen(){
 		super();
@@ -66,7 +88,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_screen);
         
-        if(ServiceManager.getDbManager().queryTodayLocalNOTEs(System.currentTimeMillis()).getCount() == 0){
+        if(ServiceManager.getDbManager().queryLocalNotes().getCount() == 0){
         	insert();
         }
         
@@ -118,22 +140,20 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		mCurMonth = time.get(Calendar.MONTH);
 		mCurYear = time.get(Calendar.YEAR);
 		
-		System.out.println(mCurMonth);
 		mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月", System.currentTimeMillis()));
         list.setAdapter(new LocalNoteAdapter(this, ServiceManager
 				.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
-        mllCalendarPage.addOnScrollListener(new VerticalScrollView.OnScrollListener() {
+         mllCalendarPage.addOnScrollListener(new VerticalScrollView.OnScrollListener() {
             public void onScroll(int scrollX) {
             }
 
             public void onViewScrollFinished(int currentPage) {
-            	System.out.println("currentPage : " + currentPage);
+            	//System.out.println("currentPage : " + currentPage);
             	
             }
 
 			@Override
 			public void snapToPage(int whichPage) {
-				 Log.e("TestActivity", "whichPage=" + whichPage);
 	            	if(whichPage  == 1){
 	            		 mListHeader.setTag(tagTimeList);
 	            		 mllBottomInfo.setVisibility(View.GONE);
@@ -147,10 +167,80 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
         });
         
         eventService.add(this);
-    }
+        
+        flipper = (ViewFlipper) findViewById(R.id.flipper);
+        flipper.removeAllViews();
 
+        tvCalendarWeekday0 = (TextView)findViewById(R.id.tv_calendar_weekday0);
+        tvCalendarWeekday1 = (TextView)findViewById(R.id.tv_calendar_weekday1);
+        tvCalendarWeekday2 = (TextView)findViewById(R.id.tv_calendar_weekday2);
+        tvCalendarWeekday3 = (TextView)findViewById(R.id.tv_calendar_weekday3);
+        tvCalendarWeekday4 = (TextView)findViewById(R.id.tv_calendar_weekday4);
+        tvCalendarWeekday5 = (TextView)findViewById(R.id.tv_calendar_weekday5);
+        tvCalendarWeekday6 = (TextView)findViewById(R.id.tv_calendar_weekday6);
+    }
+    @Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		System.out.println("onWindowFocusChanged flipper height : " + flipper.getHeight());
+       
+		if(Constant.flagType == 1){
+			tvCalendarWeekday0.setText(R.string.calendar_mon);
+			tvCalendarWeekday1.setText(R.string.calendar_tue);
+			tvCalendarWeekday2.setText(R.string.calendar_wed);
+			tvCalendarWeekday3.setText(R.string.calendar_thu);
+			tvCalendarWeekday4.setText(R.string.calendar_fri);
+			tvCalendarWeekday5.setText(R.string.calendar_sat);
+			tvCalendarWeekday6.setText(R.string.calendar_sun);
+		}else{
+			tvCalendarWeekday1.setText(R.string.calendar_mon);
+			tvCalendarWeekday2.setText(R.string.calendar_tue);
+			tvCalendarWeekday3.setText(R.string.calendar_wed);
+			tvCalendarWeekday4.setText(R.string.calendar_thu);
+			tvCalendarWeekday5.setText(R.string.calendar_fri);
+			tvCalendarWeekday6.setText(R.string.calendar_sat);
+			tvCalendarWeekday0.setText(R.string.calendar_sun);
+		}
+		
+		mCalendarAdapter = new CalendarAdapter(this, getResources(), mCurYear, mCurMonth, flipper.getHeight(), Constant.flagType);
+		addGridView();
+	    mGridView.setAdapter(mCalendarAdapter);
+	    flipper.addView(mGridView,0);
+
+    }
     
-    
+	private void addGridView() {
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+		params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		//取得屏幕的宽度和高度
+		WindowManager windowManager = getWindowManager();
+        Display display = windowManager.getDefaultDisplay();
+        int Width = display.getWidth(); 
+        int Height = display.getHeight();
+        
+        mGridView = new GridView(this);
+        mGridView.setSelector(new ColorDrawable(Color.TRANSPARENT));
+        mGridView.setNumColumns(7);
+        mGridView.setColumnWidth(Width/7 + 1);
+        mGridView.setGravity(Gravity.CENTER);	
+        mGridView.setOnItemClickListener(new OnItemClickListener() {
+            //gridView中的每一个item的点击事件
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int position,
+					long arg3) {
+				  //点击任何一个item，得到这个item的日期（排除点击的是周日到周六（点击不响应））
+				  int startPosition = mCalendarAdapter.getStartPositon();
+				  int endPosition = mCalendarAdapter.getEndPosition();
+				  if(startPosition <= position  && position <= endPosition){
+					  System.out.println(mCalendarAdapter.getDateByClickItem(position));
+				  }
+			}
+		});
+        mGridView.setLayoutParams(params);
+	}
+	
+	
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
@@ -189,8 +279,6 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
         	mTvNoteCountToday.setVisibility(View.GONE);
         	mTvNoNoteDays.setVisibility(View.GONE);
 		}
-
-		
 	}
 
 	@Override
@@ -223,6 +311,33 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 						}else{
 							mllHomePage.setVisibility(View.GONE);
 							mllCalendarPage.setVisibility(View.GONE);
+						}
+					}});
+				break;
+			case HOMESCREEN_FLING:
+				final String tag = mListHeader.getTag().toString();
+				HomeScreen.this.runOnUiThread(new Runnable(){
+					@Override
+					public void run() {
+						String directory = e.getExtra("direction").toString();
+						if (directory.equals(MainScreen.LEFT)) {
+				            //向左滑动
+							gotoNextMonth();
+							if(tag.equals(tagCalendar)){
+								showCalendarMonth(NEXT_MONTH);
+							}else{
+								list.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
+										.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
+							}
+						} else {
+				            //向右滑动
+							gotoPreMonth();
+							if(tag.equals(tagCalendar)){
+								showCalendarMonth(PRE_MONTH);
+							}else{
+								list.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
+										.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
+							}
 						}
 					}});
 				break;
@@ -342,25 +457,14 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	public void onClick(View arg0) {
 		// TODO Auto-generated method stub
 		int resId = arg0.getId();
-		Calendar time = Calendar.getInstance(Locale.CHINA);
 		String tag = null;
 		switch(resId){
 		case R.id.btn_pre_month:
-			if(mCurMonth == Calendar.JANUARY){
-				mCurMonth = Calendar.DECEMBER;
-				mCurYear = mCurYear -1;
-			}else{
-				mCurMonth = mCurMonth - 1;
-			} 
-			time.set(Calendar.YEAR, mCurYear);
-			time.set(Calendar.MONTH, mCurMonth);	
-			time.set(Calendar.DATE, 15);
-			mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月", time.getTimeInMillis()));
-			
+			gotoPreMonth();			
 			tag = mListHeader.getTag().toString();
 			if(tag != null){
 				if(tag.equals(tagCalendar)){
-				   
+					showCalendarMonth(PRE_MONTH);
 				} else if(tag.equals(tagTimeList)) {
 					list.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
 							.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
@@ -368,20 +472,11 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 			}	
 			break;
 		case R.id.btn_next_month:
-			if(mCurMonth == Calendar.DECEMBER){
-				mCurMonth = Calendar.JANUARY;
-				mCurYear = mCurYear + 1;
-			}else{
-				mCurMonth = mCurMonth + 1;
-			}
-			time.set(Calendar.YEAR, mCurYear);
-			time.set(Calendar.MONTH, mCurMonth);	
-			time.set(Calendar.DATE, 15);
-			mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月", time.getTimeInMillis()));		
+			gotoNextMonth();		
 			tag = mListHeader.getTag().toString();
 			if(tag != null){
 				if(tag.equals(tagCalendar)){
-				   
+					showCalendarMonth(NEXT_MONTH);
 				} else if(tag.equals(tagTimeList)) {
 					list.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
 							.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
@@ -391,5 +486,53 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		default:
 			
 		}
+	}
+	
+	private void gotoPreMonth(){
+		if(mCurMonth == Calendar.JANUARY){
+			mCurMonth = Calendar.DECEMBER;
+			mCurYear = mCurYear -1;
+		}else{
+			mCurMonth = mCurMonth - 1;
+		} 
+
+		Calendar time = Calendar.getInstance(Locale.CHINA);
+		time.set(Calendar.YEAR, mCurYear);
+		time.set(Calendar.MONTH, mCurMonth);	
+		time.set(Calendar.DATE, 15);
+		mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月", time.getTimeInMillis()));
+	}
+	
+	private void gotoNextMonth(){
+		if(mCurMonth == Calendar.DECEMBER){
+			mCurMonth = Calendar.JANUARY;
+			mCurYear = mCurYear + 1;
+		}else{
+			mCurMonth = mCurMonth + 1;
+		}
+		Calendar time = Calendar.getInstance(Locale.CHINA);
+		time.set(Calendar.YEAR, mCurYear);
+		time.set(Calendar.MONTH, mCurMonth);	
+		time.set(Calendar.DATE, 15);
+		mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月", time.getTimeInMillis()));
+	}
+	
+	private void showCalendarMonth(int preORnext){
+		int gvFlag = 0;
+		addGridView();   //添加一个gridview
+		mCalendarAdapter = new CalendarAdapter(this, getResources(), mCurYear, mCurMonth,flipper.getHeight(), Constant.flagType);
+	    mGridView.setAdapter(mCalendarAdapter);
+	    gvFlag++;
+	    flipper.addView(mGridView,gvFlag);
+        
+	    if(preORnext == NEXT_MONTH){
+	    	flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_in));
+	    	flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_out));
+	    }else{
+	    	flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_in));
+			flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_out));
+	    }
+		flipper.showPrevious();
+		flipper.removeViewAt(0);
 	}
 }

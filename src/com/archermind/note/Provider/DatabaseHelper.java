@@ -10,6 +10,9 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	public static final String NAME = "note.db";
 	private static final int version = 1;
 	
+	public static int NOT_SIGN = 0;
+	public static int SIGNED = 1;
+	
 	public static final String TAB_NOTE = "note";
 	public static final String COLUMN_NOTE_ID = "_id";//笔记ID
 	public static final String COLUMN_NOTE_USER_ID = "user_id";//用户ID

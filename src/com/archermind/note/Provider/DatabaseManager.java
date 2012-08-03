@@ -14,6 +14,10 @@ public class DatabaseManager {
 	private Context context;
 	private DatabaseHelper databaseHelper;
 	private SQLiteDatabase database;
+	
+	public static int NO_NOTE = 0;
+	public static int HAS_NOTE = 1;
+	public static int HAS_SIGNED = 2;
 
 	public DatabaseManager(Context context) {
 		this.context = context;
@@ -112,4 +116,25 @@ public class DatabaseManager {
 						new String[] { String.valueOf(DateTimeUtils.getThreeDaysBefore(timeInMillis)), String.valueOf(DateTimeUtils.getYesterdayEnd(timeInMillis)) },
 						null, null, DatabaseHelper.COLUMN_NOTE_CREATE_TIME + " DESC");
 	}
+	
+	public int queryTodayLocalNotesStatus(long timeInMillis){
+		Cursor c = queryTodayLocalNOTEs(timeInMillis);
+		int count = c.getCount();
+		if(count == 0){
+			c.close();
+			return NO_NOTE;
+		}else{
+			int i = 0; 
+			while(c.moveToNext()){
+				i = c.getInt(c.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED));
+				if(i == DatabaseHelper.SIGNED){
+					c.close();
+					return HAS_SIGNED;
+				}
+			}
+			c.close();
+			return HAS_NOTE;
+		}
+	}
+	
 }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:background="@drawable/calendar_item_selector"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
+  
+  <TextView 
+      android:id="@+id/tv_date"
+	  android:gravity="center"
+	  android:layout_width="fill_parent"
+	  android:layout_height="fill_parent"
+	  />
+  
+  <ImageView 
+      android:id="@+id/iv_has_note"
+      android:layout_width="wrap_content"
+	  android:layout_height="wrap_content"
+	  android:src="@drawable/unsigned"
+	  android:layout_alignParentRight="true"
+	  android:visibility="gone"/>
+</RelativeLayout>

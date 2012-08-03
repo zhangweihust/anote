@@ -4,9 +4,13 @@ import android.app.TabActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,7 +31,7 @@ import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Views.MenuRightHorizontalScrollView;
 
 public class MainScreen extends TabActivity implements OnTabChangeListener,
-		OnClickListener {
+		OnClickListener,OnGestureListener {
 	/** Called when the activity is first created. */
 	private TabHost mTabHost;
 	private final int INIT_SELECT = 0;
@@ -48,10 +52,15 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	
 	public static String TYPE_NOTE = "note";
 	public static String TYPE_CALENDAR = "calender";
+	
+	public static String RIGHT = "right";
+	public static String LEFT = "left";
+	
 	private static String type;
 	
 	private static Context mContext;
-
+	
+	public static GestureDetector mGestureDetector = null;
 
 	public MainScreen(){
 		super();
@@ -95,6 +104,8 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		MENU_RIGHT_WIDTH_PX = (int) (getResources().getDisplayMetrics().density
 				* MENU_RIGHT_WIDTH_DP + 0.5f);
 		type = TYPE_NOTE;
+		
+		mGestureDetector = new GestureDetector(this);
 	}
 
 	private TabSpec buildTabSpec(String tag, int iconId, Intent intent) {
@@ -203,6 +214,65 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		default:
 
 		}
+	}	
+
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent ev) {
+		// TODO Auto-generated method stub 
+	    mGestureDetector.onTouchEvent(ev);
+	    return super.dispatchTouchEvent(ev);
+	}
+
+	@Override
+	public boolean onDown(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean onFling(MotionEvent arg0, MotionEvent arg1, float arg2,
+			float arg3) {
+		// TODO Auto-generated method stub
+		System.out.println("mainscreen onfling ");
+		if(mTabHost.getCurrentTabTag().equalsIgnoreCase(TAB_HOME)){
+			 String direction = null;
+			if (arg0.getX() - arg1.getX() > 50) {
+				direction = this.LEFT;
+				HomeScreen.eventService.onUpdateEvent(new EventArgs(
+						EventTypes.HOMESCREEN_FLING).putExtra("direction", direction));
+			}else if(arg0.getX() - arg1.getX() < -50){
+				direction = this.RIGHT;
+				HomeScreen.eventService.onUpdateEvent(new EventArgs(
+						EventTypes.HOMESCREEN_FLING).putExtra("direction", direction));
+			}
+			
+		}
+		return false;
+	}
+
+	@Override
+	public void onLongPress(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2,
+			float arg3) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void onShowPress(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean onSingleTapUp(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
