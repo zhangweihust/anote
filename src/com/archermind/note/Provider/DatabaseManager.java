@@ -137,4 +137,13 @@ public class DatabaseManager {
 		}
 	}
 	
+	public boolean insertLocalPhoto(ContentValues values) {
+		return database.insert(DatabaseHelper.TAB_PHOTO, null, values) > 0;
+	}
+
+	public Cursor queryPhotoData() {
+		return database.query(DatabaseHelper.TAB_PHOTO, null, null, null, null,
+				null, null);
+	}
+	
 }

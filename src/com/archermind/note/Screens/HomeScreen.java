@@ -123,7 +123,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				if(tag != null){
 					if(tag.equals(tagCalendar)){
 						mllCalendarPage.snapToPage(1);
-						 mllBottomInfo.setVisibility(View.GONE);
+						mllBottomInfo.setVisibility(View.GONE);
 						
 					} else if(tag.equals(tagTimeList)) {
 						mllCalendarPage.snapToPage(0);
@@ -155,13 +155,16 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 			@Override
 			public void snapToPage(int whichPage) {
 	            	if(whichPage  == 1){
+	            		System.out.println("====snapTOPage 1====");
 	            		 mListHeader.setTag(tagTimeList);
 	            		 mllBottomInfo.setVisibility(View.GONE);
 						 list.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
 									.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
 	            	} else {
+	            		System.out.println("====snapTOPage 0====");
 	            		 mListHeader.setTag(tagCalendar);
 	            		 mllBottomInfo.setVisibility(View.VISIBLE);
+	            		 showCalendarMonth(NEXT_MONTH);
 	            	}
 			}
         });
@@ -324,8 +327,10 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				            //向左滑动
 							gotoNextMonth();
 							if(tag.equals(tagCalendar)){
+								System.out.println("====next tagCalendar====");
 								showCalendarMonth(NEXT_MONTH);
 							}else{
+								System.out.println("====next taglistview====");
 								list.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
 										.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
 							}
@@ -333,8 +338,10 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				            //向右滑动
 							gotoPreMonth();
 							if(tag.equals(tagCalendar)){
+								System.out.println("====pre tagCalendar====");
 								showCalendarMonth(PRE_MONTH);
 							}else{
+								System.out.println("====pre tagCalendar====");
 								list.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
 										.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
 							}
@@ -464,8 +471,10 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 			tag = mListHeader.getTag().toString();
 			if(tag != null){
 				if(tag.equals(tagCalendar)){
+					System.out.println("====pre tagCalendar onclick====");
 					showCalendarMonth(PRE_MONTH);
 				} else if(tag.equals(tagTimeList)) {
+					System.out.println("====pre tagListview onclick====");
 					list.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
 							.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
 				}
@@ -476,8 +485,10 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 			tag = mListHeader.getTag().toString();
 			if(tag != null){
 				if(tag.equals(tagCalendar)){
+					System.out.println("====next tagCalendar onclick====");
 					showCalendarMonth(NEXT_MONTH);
 				} else if(tag.equals(tagTimeList)) {
+					System.out.println("====next tagLIstVIew onclick====");
 					list.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
 							.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
 				}
@@ -489,6 +500,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	}
 	
 	private void gotoPreMonth(){
+		System.out.println("====gotoPreMonth====");
 		if(mCurMonth == Calendar.JANUARY){
 			mCurMonth = Calendar.DECEMBER;
 			mCurYear = mCurYear -1;
@@ -504,6 +516,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	}
 	
 	private void gotoNextMonth(){
+		System.out.println("====gotoNextMonth====");
 		if(mCurMonth == Calendar.DECEMBER){
 			mCurMonth = Calendar.JANUARY;
 			mCurYear = mCurYear + 1;

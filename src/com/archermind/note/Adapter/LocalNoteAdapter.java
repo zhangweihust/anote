@@ -6,7 +6,7 @@ import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DateTimeUtils;
-import com.archermind.note.Utils.PxAndDip;
+import com.archermind.note.Utils.DensityUtil;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -48,7 +48,7 @@ public class LocalNoteAdapter  extends CursorAdapter {
 			item.tvDate.setText(DateTimeUtils.time2String("dd", time));
 			view.setPadding(0, 0, 0, 0);
 		} else {
-			view.setPadding(0, 0, 0, PxAndDip.dip2px(context, 15));
+			view.setPadding(0, 0, 0, DensityUtil.dip2px(context, 15));
 			item.vFirstNoteDiv.setVisibility(View.GONE);
 			item.tvDate.setVisibility(View.GONE);
 			item.tvWeekDay.setVisibility(View.GONE);

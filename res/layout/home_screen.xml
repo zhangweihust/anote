@@ -31,7 +31,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:gravity="center_horizontal"
-                android:background="@color/holiday_color"
                 android:layout_marginTop="@dimen/flipper_marginTop" 
  			/>
 
@@ -130,7 +129,7 @@
 		        <View
 		          	android:layout_below="@id/lv_month_note_list"
 			        android:layout_width="fill_parent"
-			        android:layout_height="1dip"
+			        android:layout_height="2dip"
 			        android:background="@drawable/listview_divider"
 			        /> 
 		    </RelativeLayout>

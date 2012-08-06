@@ -4,6 +4,48 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="46dp"
+        android:background="@drawable/title_bar_background"
+        android:descendantFocusability="blocksDescendants"
+        android:layout_alignParentTop="true"
+        android:orientation="horizontal" >
+
+        <ImageButton
+            android:id="@+id/screen_top_play_control_back"
+            android:layout_width="48dp"
+            android:layout_height="30dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="0"
+            android:background="@drawable/screen_go_back_selector" />
+        
+       
+            
+        <TextView 
+            android:id="@+id/edit_dropdown_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_centerVertical="true"
+            android:layout_centerInParent="true"
+            android:text="写笔记"
+            android:textSize="@dimen/main_screen_title_size"
+            android:textColor="@color/white"
+            />
+        
+        <ImageButton
+            android:id="@+id/screen_top_control_save"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="6dp"
+            android:background="@drawable/edit_save_selector" />
+    </RelativeLayout>
     
     <LinearLayout
         android:id="@+id/bottom"
@@ -16,7 +58,7 @@
         android:orientation="horizontal" >
 
         <ImageButton
-            android:id="@+id/pictureinsert"
+            android:id="@+id/edit_insert"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -25,16 +67,16 @@
             android:src="@drawable/edit_pricture_selector"/>
 
         <ImageButton
-            android:id="@+id/facialexpressioninsert"
+            android:id="@+id/edit_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/tab_btn_selector"
             android:scaleType="fitCenter" 
-            android:src="@drawable/edit_facialexpression_selector"/>
+            android:src="@drawable/edit_delete_1_selector"/>
 
         <ImageButton
-            android:id="@+id/softinputinsert"
+            android:id="@+id/edit_inputtype"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -43,280 +85,393 @@
             android:src="@drawable/edit_softinput_selector"/>
 
         <ImageButton
-            android:id="@+id/graffitiinsert"
+            android:id="@+id/edit_setting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/tab_btn_selector"
             android:scaleType="fitCenter" 
-            android:src="@drawable/edit_graffit_selector"/>
-
-        <ImageButton
-            android:id="@+id/handwritinginsert"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/tab_btn_selector"
-            android:scaleType="fitCenter"
-            android:src="@drawable/edit_handwrite_selector" />
+            android:src="@drawable/edit_setting_selector"/>
     </LinearLayout>
    
-    <FrameLayout
-    android:id="@+id/framelayout1"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:layout_above="@id/bottom" >
     
-        <LinearLayout 
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-		    <RelativeLayout
-		        android:id="@+id/relativeLayout1"
-		        android:layout_width="fill_parent"
-		        android:layout_height="66px"
-		        android:background="@drawable/screen_top_bg"
-		        android:descendantFocusability="blocksDescendants"
-		        android:gravity="center_vertical"
-		        android:orientation="horizontal" >
-		
-		        <ImageButton
-		            android:id="@+id/screen_top_play_control_back"
-		            android:layout_width="76px"
-		            android:layout_height="46px"
-		            android:layout_alignParentLeft="true"
-		            android:layout_centerVertical="true"
-		            android:layout_marginLeft="14px"
-		            android:layout_weight="0"
-		            android:background="@drawable/screen_go_back" />
-		
-		        <TextView
-		            android:id="@+id/screen_top_play_control_activityTitle"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:layout_centerInParent="true"
-		            android:layout_centerVertical="true"
-		            android:layout_weight="1"
-		            android:ellipsize="end"
-		            android:gravity="center_horizontal"
-		            android:singleLine="true"
-		            android:text="2012.7.1"
-		            android:textColor="#FFFFFF"
-		            android:textSize="30px" />
-		
-		        <LinearLayout
-		            android:id="@+id/screen_top_play_control_go_to_player"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:layout_alignParentRight="true"
-		            android:layout_centerVertical="true"
-		            android:layout_marginRight="14px"
-		            android:layout_weight="0"
-		            android:focusable="false"
-		            android:gravity="center"
-		            android:orientation="vertical" >
-		        </LinearLayout>
-		    </RelativeLayout>
-	    
+    
+     <LinearLayout 
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         android:orientation="vertical"
+         android:layout_above="@id/bottom"
+         android:layout_below="@id/relativeLayout1"
+         android:background="@drawable/edit_background">
+         
+         <RelativeLayout 
+          android:layout_width="match_parent"
+          android:layout_height="32dp"
+          android:orientation="horizontal"
+          android:gravity="center_vertical"
+          android:background="@color/transparent">
+          
+             <TextView 
+                 android:id="@+id/edit_date_textview"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:gravity="center_vertical"
+                 android:text="2012.7.1"
+                 android:layout_marginLeft="18dp"
+                 android:textColor="@color/toptextcolor"
+                 />
+             
+             <TextView 
+                 android:id="@+id/edit_week_textview"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:gravity="center_vertical"
+                 android:text="星期一"
+                 android:layout_toRightOf="@id/edit_date_textview"
+                 android:layout_marginLeft="75dp"
+                 android:textColor="@color/toptextcolor"
+                 />
+             
+             <LinearLayout 
+                 android:id="@+id/edit_weather_linearlayout"
+                 style="@android:style/ButtonBar"
+                 android:layout_width="70dp"
+                 android:layout_height="30dp"
+                 android:gravity="center_vertical"
+                 android:layout_alignParentRight="true"
+                 android:layout_marginRight="6dp"
+                 android:orientation="horizontal"
+                 android:background="@drawable/edit_click_effect_selector"
+                 >
+                 
+                 <ImageButton 
+                     android:id="@+id/edit_weather_image"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:src="@drawable/weather_sunny"
+                     android:background="@color/transparent"
+                     android:layout_weight="1"
+                     />
+                 <TextView
+                  android:id="@+id/edit_weather_textview"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:textColor="@color/toptextcolor"
+                  android:text="@string/weather_sunny"
+                  android:layout_weight="1"
+                  />
+             </LinearLayout>
+             
+         </RelativeLayout>
+         
+         <FrameLayout
+		    android:id="@+id/framelayout1"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:orientation="vertical"
+		     >
 		    <com.archermind.note.editnote.MyEditText
 		        android:id="@+id/editText_view"
 		        android:layout_width="fill_parent"
 		        android:layout_height="fill_parent"
-		        android:gravity="top"
+		        android:lines="9"
 		        android:textSize="32px"
-		        android:background="@drawable/edit_background"
-		        android:layout_below="@id/relativeLayout1" >
-		    </com.archermind.note.editnote.MyEditText>
+		        android:lineSpacingExtra="0dp"
+                android:lineSpacingMultiplier="1.0"
+                android:includeFontPadding="false"
+                android:gravity="top"
+		        android:background="@color/transparent"
+		        >
+    		</com.archermind.note.editnote.MyEditText>
+  
+  
+		    <com.archermind.note.gesture.AmGestureOverlayView
+		           android:id="@+id/gestureview"
+		           android:layout_width="fill_parent"
+		           android:layout_height="fill_parent"
+		           android:background="#00000000">
+		    </com.archermind.note.gesture.AmGestureOverlayView>
+         </FrameLayout>
+
+     </LinearLayout>
+     
+       
+    <LinearLayout 
+        android:id="@+id/edit_input_type"
+        style="@android:style/ButtonBar"
+        android:layout_width="196dp"
+        android:layout_height="80dp"
+        android:orientation="horizontal"
+        android:layout_marginLeft="98dp"
+        android:layout_above="@id/bottom"
+        android:background="@drawable/pop_layout_bg"
+        >
+	    
+        <LinearLayout 
+	        android:id="@+id/edit_type_graffit"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:orientation="vertical"
+	        android:gravity="center"
+	        android:layout_weight="1"
+	        android:background="@drawable/edit_click_effect_selector"
+	        >
+	        <ImageButton
+	          android:layout_width="wrap_content"
+	          android:layout_height="wrap_content"
+	          android:background="@color/transparent"
+	          android:scaleType="fitCenter" 
+	          android:gravity="center|center_vertical"
+	          android:src="@drawable/edit_graffit_input"/>
+	        
+	        <TextView 
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="涂鸦"
+	            android:textColor="@color/toptextcolor"
+	            android:gravity="center"/>
+        </LinearLayout>
+        
+        <LinearLayout 
+	        android:id="@+id/edit_type_soft"
+	        android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+	        android:orientation="vertical"
+	        android:background="@drawable/edit_click_effect_selector"
+	        >
+
+	        <ImageButton
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:background="@color/transparent"
+	            android:scaleType="fitCenter" 
+	            android:gravity="center|center_vertical"
+	            android:src="@drawable/edit_soft_input"/>
+	        <TextView 
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="键盘"
+	            android:textColor="@color/toptextcolor"
+	            android:gravity="center"/>
+        </LinearLayout>
+
+        <LinearLayout 
+	        android:id="@+id/edit_type_handwrite"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+	        android:gravity="center"
+	        android:orientation="vertical"
+	        android:background="@drawable/edit_click_effect_selector"
+	        >
+	        <ImageButton
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:background="@color/transparent"
+	            android:scaleType="fitCenter" 
+	            android:gravity="center|center_vertical"
+	            android:src="@drawable/edit_handwrite_input"/>
+	        <TextView 
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="手写"
+	            android:textColor="@color/toptextcolor"
+	            android:gravity="center"/>
+        </LinearLayout>
+    </LinearLayout>
+    
+    <LinearLayout 
+        android:id="@+id/edit_pic_type"
+        style="@android:style/ButtonBar"
+        android:layout_width="200dp"
+        android:layout_height="80dp"
+        android:orientation="horizontal"
+        android:layout_above="@id/bottom"
+        android:background="@drawable/pop_layout_bg_left"
+        >
+        <LinearLayout 
+	        android:id="@+id/edit_insert_pic"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:orientation="vertical"
+	        android:gravity="center"
+	        android:layout_weight="1"
+	        android:clickable="true"
+	        android:background="@drawable/edit_click_effect_selector"
+	        >
+	        <ImageButton
+	          android:layout_width="wrap_content"
+	          android:layout_height="wrap_content"
+	          android:background="@color/transparent"
+	          android:scaleType="fitCenter" 
+	          android:gravity="center|center_vertical"
+	          android:src="@drawable/edit_pic_pic"
+	          />
+	        
+	        <TextView 
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="图片"
+	            android:textColor="@color/toptextcolor"
+	            android:gravity="center"/>
+        </LinearLayout>
+        
+        <LinearLayout 
+	        android:id="@+id/edit_insert_face"
+	        android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:clickable="true"
+	        android:orientation="vertical"
+	        android:background="@drawable/edit_click_effect_selector"
+	        >
+
+	        <ImageButton
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:background="@color/transparent"
+	            android:scaleType="fitCenter" 
+	            android:gravity="center|center_vertical"
+	            android:src="@drawable/edit_face_pic"/>
+	        <TextView 
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="表情"
+	            android:textColor="@color/toptextcolor"
+	            android:gravity="center"/>
+        </LinearLayout>
+        
+        <LinearLayout 
+            android:id="@+id/edit_insert_space"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:background="@drawable/edit_click_effect_selector"
+            >
+
+	        <ImageButton
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:background="@color/transparent"
+	            android:scaleType="fitCenter" 
+	            android:gravity="center|center_vertical"
+	            android:src="@drawable/edit_space"/>
+	        <TextView 
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="空格"
+	            android:textColor="@color/toptextcolor"
+	            android:gravity="center"/>
 	    </LinearLayout>
 	    
-	    <com.archermind.note.gesture.AmGestureOverlayView
-            android:id="@+id/gestureview"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:background="#00000000">
-        </com.archermind.note.gesture.AmGestureOverlayView>
-	</FrameLayout>
-     
-       <LinearLayout 
-           android:id="@+id/handwrite_button_layout"
-           style="@android:style/ButtonBar"
-           android:layout_width="match_parent"
-           android:layout_height="42.5dp"
-           android:orientation="horizontal"
-           android:gravity="center_vertical"
-           android:layout_above="@id/bottom"
-           android:background="#6EAAD9"
-           >
-        <ImageButton
-            android:id="@+id/cursor_back"
+        <LinearLayout 
+            android:id="@+id/edit_insert_newline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/handwrite_graffit_btn_selector"
-            android:scaleType="fitCenter" 
-            android:src="@drawable/handwrite_cursor_back"/>
+            android:gravity="center"
+            android:clickable="true"
+            android:orientation="vertical"
+            android:background="@drawable/edit_click_effect_selector"
+            >
 
-        <ImageButton
-            android:id="@+id/cursor_forward"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/handwrite_graffit_btn_selector"
-            android:scaleType="fitCenter" 
-            android:src="@drawable/handwrite_cursor_forward"/>
-
-        <ImageButton
-            android:id="@+id/handwrite_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/handwrite_graffit_btn_selector"
-            android:scaleType="fitCenter" 
-            android:src="@drawable/handwrite_delete"/>
-
-        <ImageButton
-            android:id="@+id/color_setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/handwrite_graffit_btn_selector"
-            android:scaleType="fitCenter" 
-            android:src="@drawable/edit_color_setting"/>
-
-        <ImageButton
-            android:id="@+id/thickness_setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/handwrite_graffit_btn_selector"
-            android:scaleType="fitCenter"
-            android:src="@drawable/thickness_setting" />
-       </LinearLayout>
-       
-       <LinearLayout 
-           android:id="@+id/graffit_button_layout"
-           style="@android:style/ButtonBar"
-           android:layout_width="match_parent"
-           android:layout_height="42.5dp"
-           android:orientation="horizontal"
-           android:gravity="center_vertical"
-           android:layout_above="@id/bottom"
-           android:background="#6EAAD9"
-           >
-        <ImageButton
-            android:id="@+id/graffit_revocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/handwrite_graffit_btn_selector"
-            android:scaleType="fitCenter" 
-            android:src="@drawable/graffit_revocation"/>
-
-        <ImageButton
-            android:id="@+id/graffit_back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/handwrite_graffit_btn_selector"
-            android:scaleType="fitCenter" 
-            android:src="@drawable/graffit_pen"/>
-
-        <ImageButton
-            android:id="@+id/graffit_erase"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/handwrite_graffit_btn_selector"
-            android:scaleType="fitCenter" 
-            android:src="@drawable/graffit_erase"/>
-
-        <ImageButton
-            android:id="@+id/graffit_color_setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/handwrite_graffit_btn_selector"
-            android:scaleType="fitCenter" 
-            android:src="@drawable/edit_color_setting"/>
-
-        <ImageButton
-            android:id="@+id/graffit_thickness_setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/handwrite_graffit_btn_selector"
-            android:scaleType="fitCenter"
-            android:src="@drawable/thickness_setting" />
-       </LinearLayout>
-        
-        <GridView
-	        android:id="@+id/face_gridview"
-	        android:layout_width="fill_parent"
+	        <ImageButton
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:background="@color/transparent"
+	            android:scaleType="fitCenter" 
+	            android:gravity="center|center_vertical"
+	            android:src="@drawable/edit_newline"/>
+	        <TextView 
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="换行"
+	            android:textColor="@color/toptextcolor"
+	            android:gravity="center"/>
+	    </LinearLayout>
+    </LinearLayout>
+    
+    <LinearLayout 
+        android:id="@+id/edit_setting_type"
+        style="@android:style/ButtonBar"
+        android:layout_width="120dp"
+        android:layout_height="80dp"
+        android:orientation="horizontal"
+        android:layout_above="@id/bottom"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="6dp"
+        android:background="@drawable/pop_layout_bg_right"
+        >
+        <LinearLayout 
+	        android:id="@+id/edit_setting_color"
+	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
+	        android:orientation="vertical"
 	        android:gravity="center"
-	        android:layout_gravity="center"
-	        android:layout_above="@id/bottom"
-	        android:listSelector="@android:color/transparent"
-	        android:horizontalSpacing="11px"
-	        android:numColumns="4"
-	        android:padding="10px"
-	        android:stretchMode="columnWidth"
-	        android:verticalSpacing="11px" >
-        </GridView>
-        
-        <LinearLayout
-	        android:id="@+id/handwrite_show_hide"
-	        android:layout_width="wrap_content"
-	        android:layout_height="30.5dp"
-	        android:layout_marginLeft="8dp"
-	        android:orientation="horizontal"
-	        android:gravity="center_vertical"
-	        android:layout_above="@id/handwrite_button_layout"
-	        android:background="@drawable/handwrite_hide"
+	        android:layout_weight="1"
+	        android:background="@drawable/edit_click_effect_selector"
 	        >
-        
-	        <TextView
+	        <ImageButton
+	          android:layout_width="wrap_content"
+	          android:layout_height="wrap_content"
+	          android:background="@color/transparent"
+	          android:scaleType="fitCenter" 
+	          android:src="@drawable/edit_setting_color"/>
+	        
+	        <TextView 
 	            android:layout_width="wrap_content"
-	            android:layout_height="30.5dp"
-	            android:layout_marginLeft="3dp"
-	            android:text="手写输入"
-	            android:gravity="center_vertical"
-	            android:textSize="14dp"
-	            android:textColor="#ffffff"
-	            />
-	        <ImageView 
-	            android:layout_width="wrap_content"
-	            android:layout_height="30.5dp"
-	            android:layout_marginLeft="8dp"
-	            android:src="@drawable/edit_hidelayout"/>
+	            android:layout_height="wrap_content"
+	            android:text="颜色"
+	            android:textColor="@color/toptextcolor"
+	            android:gravity="center"/>
         </LinearLayout>
         
-        <LinearLayout
-	        android:id="@+id/graffit_show_hide"
+        <LinearLayout 
+	        android:id="@+id/edit_setting_thickness"
 	        android:layout_width="wrap_content"
-	        android:layout_height="30.5dp"
-	        android:layout_marginLeft="8dp"
-	        android:orientation="horizontal"
-	        android:gravity="center_vertical"
-	        android:layout_above="@id/graffit_button_layout"
-	        android:background="@drawable/handwrite_hide"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_weight="1"
+	        android:orientation="vertical"
+	        android:background="@drawable/edit_click_effect_selector"
 	        >
-	       
-	        <TextView
+
+	        <ImageButton
 	            android:layout_width="wrap_content"
-	            android:layout_height="30.5dp"
-	            android:layout_marginLeft="3dp"
-	            android:text="涂鸦模式"
-	            android:gravity="center_vertical"
-	            android:textSize="14dp"
-	            android:textColor="#ffffff"
-	            />
-	        <ImageView 
+	            android:layout_height="wrap_content"
+	            android:scaleType="fitCenter" 
+	            android:background="@color/transparent"
+	            android:gravity="center"
+	            android:src="@drawable/edit_setting_thickness"/>
+	        <TextView 
 	            android:layout_width="wrap_content"
-	            android:layout_height="30.5dp"
-	            android:layout_marginLeft="8dp"
-	            android:src="@drawable/edit_hidelayout"/>
+	            android:layout_height="wrap_content"
+	            android:text="粗细"
+	            android:textColor="@color/toptextcolor"
+	            android:gravity="center"/>
         </LinearLayout>
+    </LinearLayout>
+        
+    <GridView
+      android:id="@+id/face_gridview"
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center"
+      android:layout_gravity="center"
+      android:layout_above="@id/bottom"
+      android:listSelector="@android:color/transparent"
+      android:horizontalSpacing="11px"
+      android:numColumns="4"
+      android:padding="10px"
+      android:stretchMode="columnWidth"
+      android:verticalSpacing="11px" >
+    </GridView>
     
 </RelativeLayout>

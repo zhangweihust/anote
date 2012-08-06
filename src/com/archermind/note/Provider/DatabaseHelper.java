@@ -119,6 +119,19 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 			+ " INTEGER"
 			+ ")";
 */	
+	public static final String TAB_PHOTO = "photo";
+	public static final String COLUMN_PHOTO_ID = "_id";//照片ID
+	 public static final String COLUMN_PHOTO_NAME = "name";//照片名称
+	 public static final String COLUMN_PHOTO_FILEPATH = "filepath";//照片filepath
+ private static final String CRETAE_TAB_PHOTO = " CREATE TABLE IF NOT EXISTS "
+	 + TAB_PHOTO 
+	 + " (["+ COLUMN_PHOTO_ID
+	 + "]AUTOINC PRIMARY KEY, ["
+	 + COLUMN_PHOTO_NAME
+	 + "]VARCHAR2(20) NOT NULL,"
+	 + COLUMN_PHOTO_FILEPATH
+	 + " TEXT"
+	   + ")";
 	public DatabaseHelper(Context context) {
 		super(context, NAME, null, version);
 		// TODO Auto-generated constructor stub
@@ -141,5 +154,6 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 		//db.execSQL(CRETAE_TAB_USER);
 		//db.execSQL(CRETAE_TAB_WEATHER);
 		//db.execSQL(CRETAE_TAB_NOTE_RELATION);
+		db.execSQL(CRETAE_TAB_PHOTO);
 	}
 }

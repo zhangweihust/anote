@@ -21,8 +21,51 @@
 	<string name="calendar_fri">周五</string>
 	<string name="calendar_sat">周六</string>
 	<string name="calendar_sun">周日</string>
-	
+
+	<string-array name="diary_category_array">  
+	    <item>乐享美食</item>  
+	    <item>旅游玩乐</item>  
+	    <item>浪漫婚恋</item>  
+	    <item>辣妈萌宝</item>  
+	    <item>幸福居家</item>  
+    </string-array>
+    <string name="diary_category1">乐享美食</string>
+    <string name="diary_category2">旅游玩乐</string>
+    <string name="diary_category3">浪漫婚恋</string>
+    <string name="diary_category4">辣妈萌宝</string>
+    <string name="diary_category5">幸福居家</string>
+    
+    <string name="weather_sunny">晴</string>
+    <string name="weather_cloudy">多云</string>
+    <string name="weather_rain">雨</string>
+    <string name="weather_snow">雪</string>
+
 	<!-- setting -->
 	<string name="more_info">消息</string>
 	<string name="more_setting">设置</string>
+	<string name="setting_title">设置</string>
+	<string name="photo_add_sel">请选择来源</string>
+	
+	
+	<!-- account -->
+	<string name="account_title">我的帐号</string>
+	<string name="account_user_account">微笔记帐号</string>
+	<string name="account_change_passwd">更改密码</string>
+	<string name="account_new_passwd">新密码</string>
+	<string name="account_confirm_passwd">确认密码</string>
+	<string name="account_confirm_change">确认修改</string>
+	
+	<!-- album -->
+	<string name="album_title">我的相册</string>
+	<string name="photo_gallery_title">第%1$d张/供%2$d张</string>
+	<string name="image_file_name_format" translatable="false">"'IMG'_yyyyMMdd_HHmmss"</string>
+	
+	<!-- personal_info_title -->
+	<string name="personal_info_title">个人信息</string>
+	<string name="personal_info_set_avatar">设置头像</string>
+	<string name="personal_info_name">名字</string>
+	<string name="personal_info_sex">性别</string>
+	<string name="personal_info_sex_female">女</string>
+	<string name="personal_info_sex_male">男</string>
+	<string name="personal_info_region">地区</string>
 </resources>

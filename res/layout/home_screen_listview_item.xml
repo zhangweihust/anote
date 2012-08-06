@@ -7,7 +7,7 @@
     <View
 		android:id="@+id/v_div_first_note_only"
         android:layout_width="fill_parent"
-        android:layout_height="1dip"
+        android:layout_height="2dip"
         android:layout_marginTop="5dip"
         android:background="@drawable/listview_divider"
         android:layout_alignParentTop="true" /> 

@@ -39,7 +39,7 @@ import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Services.EventService;
 import com.archermind.note.Services.ServiceManager;
-import com.archermind.note.Utils.PxAndDip;
+import com.archermind.note.Utils.DensityUtil;
 import com.archermind.note.Views.MenuRightHorizontalScrollView;
 
 public class MainScreen extends TabActivity implements OnTabChangeListener,
@@ -56,9 +56,9 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 /*	private Button mbtnTitleBarCalendar;*/
 	private Button mbtnNewNote;
 /*	private Button mbtnTitleBarNotebook;*/
-	private TextView mtvTitleBarTitle;
+	private TextView mtvTitleBarTitle;/*
 	private ListView mMenuList;
-	private MenuRightHorizontalScrollView mScrollMenu;
+	private MenuRightHorizontalScrollView mScrollMenu;*/
 	
 	private Button mbtnMore;
 	
@@ -112,10 +112,10 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		mbtnMore = (Button)findViewById(R.id.btn_more);
 		mbtnMore.setOnClickListener(this);
 		
-		mMenuList = (ListView)findViewById(R.id.menuList);
+/*		mMenuList = (ListView)findViewById(R.id.menuList);
 		mMenuList.setAdapter(new MenuRightListAdapter(this));
 		
-		mScrollMenu = (MenuRightHorizontalScrollView) findViewById(R.id.scroll_menu);
+		mScrollMenu = (MenuRightHorizontalScrollView) findViewById(R.id.scroll_menu);*/
 		MENU_RIGHT_WIDTH_PX = (int) (getResources().getDisplayMetrics().density
 				* MENU_RIGHT_WIDTH_DP + 0.5f);
 		type = TYPE_NOTE;
@@ -132,9 +132,9 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		ImageView icon = (ImageView) tabSpecView.findViewById(R.id.imageview);
 		icon.setImageResource(iconId);
 		if(iconId == R.drawable.tabhost_home_selector){
-			tabSpecView.setPadding(PxAndDip.dip2px(mContext, 20), 0, 0, 0);
+			tabSpecView.setPadding(DensityUtil.dip2px(mContext, 20), 0, 0, 0);
 		}else{
-			tabSpecView.setPadding(PxAndDip.dip2px(mContext, 102), 0, 0, 0);
+			tabSpecView.setPadding(DensityUtil.dip2px(mContext, 102), 0, 0, 0);
 		}
 		TabSpec tabSpec = this.mTabHost.newTabSpec(tag).setIndicator(
 				tabSpecView).setContent(intent);
@@ -236,8 +236,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 						if (mMorePopupWindow.isShowing()) {
 							mMorePopupWindow.dismiss();
 						} else {
-							mMorePopupWindow.showAsDropDown(mbtnMore, -mMorePopupWindow.getWidth() / 2
-									- (int) (1.5 * mbtnMore.getWidth()) + 3, -3);
+							mMorePopupWindow.showAsDropDown(mbtnMore, 0, -3);
 						}
 					
 					
@@ -334,13 +333,17 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 				long arg3) {
 			// TODO Auto-generated method stub
-			
+			if(arg2 == 1){
+			Intent i = new Intent(MainScreen.this, PreferencesScreen.class);
+			mContext.startActivity(i);
+			}
 		}
 	});
 	DisplayMetrics dm = new DisplayMetrics();
 	dm = mContext.getApplicationContext().getResources().getDisplayMetrics();
-	mMorePopupWindow = new PopupWindow(view, 200,
-			(int) (52 * dm.density * 2), false);
+	mMorePopupWindow = new PopupWindow(view, DensityUtil.dip2px(mContext, 150),
+			(int) (52 * dm.density * 2), true);
+	mMorePopupWindow.setBackgroundDrawable(mContext.getResources().getDrawable(R.drawable.more_pop));
 	mMorePopupWindow.setOutsideTouchable(true);
 	}
 	

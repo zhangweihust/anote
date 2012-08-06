@@ -1,6 +1,15 @@
 package com.archermind.note.editnote;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
 import com.archermind.note.Screens.EditNoteScreen;
+import com.archermind.note.gesture.AmGesture;
+import com.archermind.note.gesture.AmGestureLibraries;
+import com.archermind.note.gesture.AmGestureLibrary;
+import com.archermind.note.gesture.AmGesturePoint;
+import com.archermind.note.gesture.AmGestureStroke;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -12,7 +21,10 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.inputmethod.BaseInputConnection;
 import android.widget.EditText;
+
 
 public class MyEditText extends EditText implements ColorPickerDialog.OnColorChangedListener {
 	private Rect mRect;
@@ -55,16 +67,26 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
      */
     private Paint mClearPaint = null;
     
+    private Paint mTempPaint = null;
+    
+    private int mFingerColor = 0x00000000;
+    private int mFingerStrokeWidth = 12;
+    
     private float mPointX = 0;
     
     private float mPointY = 0;
     
-    private Canvas mCanvas = null;
-    
     private Bitmap mBmp = null;
 	private Paint mBitmapPaint;
+	private Canvas mCanvas = null;
     
-    private static final float TOUCH_TOLERANCE = 4.0F;
+	private AmGesture mCurrentGesture;
+	private final ArrayList<AmGesturePoint> mStrokeBuffer = new ArrayList<AmGesturePoint>(100);
+    
+    private File graffitFile = null;
+	private AmGestureLibrary mStore = null;
+
+	private static final float TOUCH_TOLERANCE = 4.0F;
     
     // we need this constructor for LayoutInflater
     public MyEditText(Context context, AttributeSet attrs) {
@@ -80,7 +102,11 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
         mPath = new Path();
         mFingerPen = new Paint();
         mFingerPen.setColor(0xFFFF0000);
+        mFingerColor = 0xFFFF0000;
         mFingerPen.setStrokeWidth(12);
+        mFingerStrokeWidth = 12;
+        mFingerPen.setAntiAlias(true);
+        
         mFingerPen.setStyle(Paint.Style.STROKE);
         mFingerPen.setStrokeJoin(Paint.Join.ROUND);
         mFingerPen.setStrokeCap(Paint.Cap.ROUND);
@@ -90,11 +116,20 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
         mClearPaint = new Paint();
         mClearPaint.setColor(0x00000000);
         
+        mTempPaint = new Paint();
+        mTempPaint.setColor(0xFFFF0000);
+        mTempPaint.setStrokeWidth(12);
+        mTempPaint.setAntiAlias(true);
+        mTempPaint.setStyle(Paint.Style.STROKE);
+        mTempPaint.setStrokeJoin(Paint.Join.ROUND);
+        mTempPaint.setStrokeCap(Paint.Cap.ROUND);
+        
+        
     }
     
     @Override
     protected void onDraw(Canvas canvas) {
-        Rect r = mRect;
+    	Rect r = mRect;
         Paint paint = mPaint;
         int lineHeight = getLineHeight();
         int height = getLineBounds(getLineCount() - 1, r);
@@ -103,45 +138,155 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
         }
     	int count = (int) (initNoteHight / lineHeight + 2);
         int baseline = 0;
+        canvas.drawLine(r.left, baseline + 8, r.right, baseline + 8, paint);
         for (int i = 0; i < count; i++) {
         	baseline += lineHeight;
             canvas.drawLine(r.left, baseline + 8, r.right, baseline + 8, paint);
         }
+        
+    	super.onDraw(canvas);
+        
         if (mBmp != null) {
             canvas.drawBitmap(mBmp, 0, 0, mBitmapPaint);
         }
+        
         canvas.drawPath(mPath, mFingerPen);
-        super.onDraw(canvas);
+        
+        if (mCurrentGesture != null) {
+//        	canvas.drawPath(mCurrentGesture.toPath(), mFingerPen);
+//        	drawGesture(canvas);
+        }
+        
     }
     
-    public void setIsGraffit(boolean flag) {
+    private void drawGesture(Canvas canvas) {
+    	ArrayList<AmGestureStroke> mStrokes = mCurrentGesture.getStrokes();
+    	Log.d("=FFF=","length = " + mStrokes.size());
+    	for(AmGestureStroke stroke:mStrokes) {
+    		Log.d("=FFF=","point count = " + stroke.length + " color = " + stroke.getFingerColor() + " width = " + stroke.getFingerStrokeWidth() + " path = " + stroke.getPath().isEmpty());
+    		mTempPaint.setColor(stroke.getFingerColor());
+    		mTempPaint.setStrokeWidth(stroke.getFingerStrokeWidth());
+    		
+//    		canvas.drawPath(stroke.getPath(), mTempPaint);
+    		stroke.draw(canvas, mTempPaint);
+    	}
+    }
+    
+
+    
+    @Override
+	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+		// TODO Auto-generated method stub
+		super.onScrollChanged(l, t, oldl, oldt);
+    	Log.d("=HHH="," l = " + l + " t = " + t + " oldl = " + oldl + " oldt = " + oldt);
+//    	setText("");
+//    	scrollTo(0,0);
+	}
+
+	public void setIsGraffit(boolean flag) {
     	isGraffiting = flag;
+    	invalidate();
     }
     
     public void setFingerColor(int color) {
-    	mFingerPen.setColor(color);
+    	mFingerColor = color;
+//    	mTempPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.XOR));
     }
     
-    public void setFingerStrokeWidt(int width) {
+    public void setFingerStrokeWidth(int width) {
     	mFingerPen.setStrokeWidth(width);
+    	mFingerStrokeWidth = width;
     }
-    
-    
     
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		// TODO Auto-generated method stub
 		super.onSizeChanged(w, h, oldw, oldh);
-	    if (mBmp == null) {
+		if (mBmp == null) {
 	    	mBmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
 	        mCanvas = new Canvas(mBmp);
 	    }
+		reloadGraffit();
+	}
+	
+	public void reload() {
+		mPath = mCurrentGesture.toPath();
+		invalidate();
+	}
+	
+	
+
+//	@Override
+//	public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+//		// TODO Auto-generated method stub
+//		return super.onCreateInputConnection(outAttrs);
+////		return new MyInputConnection(this, false);
+//	}
+	
+	public boolean save() {
+		if (mCurrentGesture == null) {
+            return false;
+        }
+		if (graffitFile == null) {
+			graffitFile = new File("/sdcard/aNote/graffit");
+    	}
+    	
+    	if (!graffitFile.exists()) {
+			try {
+				graffitFile.getParentFile().mkdirs();
+				graffitFile.createNewFile();
+				Log.d("=NNN=","createfile successed");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+    	
+    	if (mStore == null) {
+            mStore = AmGestureLibraries.fromFile(graffitFile);
+        }
+    	
+    	mStore.addGesture("page1", mCurrentGesture);
+    	mStore.save(true);
+    	return true;
+	}
+	
+	public void reloadGraffit() {
+		if (graffitFile == null) {
+			graffitFile = new File("/sdcard/aNote/graffit");
+    	}
+    	
+    	if (!graffitFile.exists()) {
+    		return;
+		}
+    	
+    	if (mStore == null) {
+            mStore = AmGestureLibraries.fromFile(graffitFile);
+        }
+    	
+    	mStore.load(true);
+    	if (mCurrentGesture == null) {
+            mCurrentGesture = new AmGesture();
+        }
+    	mCurrentGesture = mStore.getGestures("page1").get(0);
+    	ArrayList<AmGestureStroke> mStrokes = mCurrentGesture.getStrokes();
+    	Log.d("=FFF=","length = " + mStrokes.size());
+    	for(AmGestureStroke stroke:mStrokes) {
+    		Log.d("=FFF=","point count = " + stroke.length + " color = " + stroke.getFingerColor() + " width = " + stroke.getFingerStrokeWidth() + " path = " + stroke.getPath().isEmpty());
+    		mTempPaint.setColor(stroke.getFingerColor());
+    		mTempPaint.setStrokeWidth(stroke.getFingerStrokeWidth());
+    		
+//    		canvas.drawPath(stroke.getPath(), mTempPaint);
+    		stroke.draw(mCanvas, mTempPaint);
+    	}
+    	graffitFile.delete();
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		// TODO Auto-generated method stub
 		if (EditNoteScreen.mState != EditNoteScreen.GRAFFITINSERTSTATE) {
+			Log.d("=MMM=","x = " + event.getX() + " y = " + event.getY());
 		    return super.onTouchEvent(event);
 		} else {
 			switch (event.getAction()) {
@@ -166,9 +311,10 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
     
     private void touch_down(MotionEvent event) {
     	mPath.reset();
-    	mPath.moveTo(event.getX(), event.getY());
     	mPointX = event.getX();
     	mPointY = event.getY();
+    	mPath.moveTo(mPointX, mPointY);
+    	mStrokeBuffer.add(new AmGesturePoint(mPointX, mPointY));
     }
     
     private void touch_move(MotionEvent event) {
@@ -182,15 +328,24 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
     	    mPath.quadTo(mPointX, mPointY, (x + mPointX)/2.0F, (y + mPointY)/2.0F);
     	    mPointX = x;
         	mPointY = y;
+        	mStrokeBuffer.add(new AmGesturePoint(mPointX, mPointY));
     	}
     	
     }
     
     private void touch_up(MotionEvent event) {
     	mPath.lineTo(mPointX, mPointY);
+    	if (mCurrentGesture == null) {
+            mCurrentGesture = new AmGesture();
+        }
     	if (mCanvas != null) {
     	    mCanvas.drawPath(mPath, mFingerPen);
     	}
+    	AmGestureStroke gestureStroke = new AmGestureStroke(mStrokeBuffer);
+    	gestureStroke.setFingerColor(mFingerColor);
+    	gestureStroke.setFingerStrokeWidth(mFingerStrokeWidth);
+    	mCurrentGesture.addStroke(gestureStroke);
+    	mStrokeBuffer.clear();
     	mPath.reset();
     }
 
@@ -198,10 +353,23 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 	public void colorChanged(int color) {
 		// TODO Auto-generated method stub
 		mFingerPen.setColor(color);
+		mFingerColor = color;
 	}
 	
 	public Paint getFingerPen() {
 		return mFingerPen;
 	}
 }
+
+class MyInputConnection extends BaseInputConnection{
+    public MyInputConnection(View targetView, boolean fullEditor) {
+		super(targetView, fullEditor);
+		// TODO Auto-generated constructor stub
+	}
+
+	public boolean commitText(CharSequence text, int newCursorPosition) {
+        //提交字符到需要输入的控件，可在此次监听输入的字符值
+		return false;
+    }
+} 
 

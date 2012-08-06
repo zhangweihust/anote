@@ -15,6 +15,7 @@
 	<!--无标题-->
 	<item name="android:backgroundDimEnabled">true</item>
 	<!--模糊-->
+	<item name="android:windowBackground">@color/transparent</item>
 </style>
 
 </resources>

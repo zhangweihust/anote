@@ -10,9 +10,8 @@ public abstract class AmGestureLibrary {
         mStore = new AmGestureStore();
     }
 
-    public abstract boolean save();
-
-    public abstract boolean load();
+    public abstract boolean save(boolean flag);
+    public abstract boolean load(boolean flag);
 
     public boolean isReadOnly() {
         return false;

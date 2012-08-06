@@ -178,10 +178,10 @@ public class AmGestureStore {
      * Save the gesture library
      */
     public void save(OutputStream stream) throws IOException {
-        save(stream, false);
+        save(stream, false,false);
     }
 
-    public void save(OutputStream stream, boolean closeStream) throws IOException {
+    public void save(OutputStream stream, boolean closeStream,boolean flag) throws IOException {
         DataOutputStream out = null;
 
         try {
@@ -210,7 +210,7 @@ public class AmGestureStore {
                 out.writeInt(count);
 
                 for (int i = 0; i < count; i++) {
-                    examples.get(i).serialize(out);
+                    examples.get(i).serialize(out,flag);
                 }
             }
 
@@ -226,15 +226,17 @@ public class AmGestureStore {
             if (closeStream) AmGestureUtils.closeStream(out);
         }
     }
+    
 
     /**
      * Load the gesture library
      */
     public void load(InputStream stream) throws IOException {
-        load(stream, false);
+        load(stream, false,false);
     }
 
-    public void load(InputStream stream, boolean closeStream) throws IOException {
+    
+    public void load(InputStream stream, boolean closeStream,boolean flag) throws IOException {
         DataInputStream in = null;
         try {
             in = new DataInputStream((stream instanceof BufferedInputStream) ? stream :
@@ -249,7 +251,7 @@ public class AmGestureStore {
             final short versionNumber = in.readShort();
             switch (versionNumber) {
                 case 1:
-                    readFormatV1(in);
+                    readFormatV1(in,flag);
                     break;
             }
 
@@ -261,8 +263,9 @@ public class AmGestureStore {
             if (closeStream) AmGestureUtils.closeStream(in);
         }
     }
+    
 
-    private void readFormatV1(DataInputStream in) throws IOException {
+    private void readFormatV1(DataInputStream in,boolean flag) throws IOException {
         final AmLearner classifier = mClassifier;
         final HashMap<String, ArrayList<AmGesture>> namedGestures = mNamedGestures;
         namedGestures.clear();
@@ -278,7 +281,7 @@ public class AmGestureStore {
 
             final ArrayList<AmGesture> gestures = new ArrayList<AmGesture>(gestureCount);
             for (int j = 0; j < gestureCount; j++) {
-                final AmGesture gesture = AmGesture.deserialize(in);
+                final AmGesture gesture = AmGesture.deserialize(in,flag);
                 gestures.add(gesture);
                 classifier.addInstance(
                 		AmInstance.createInstance(mSequenceType, mOrientationStyle, gesture, name));
@@ -287,6 +290,7 @@ public class AmGestureStore {
             namedGestures.put(name, gestures);
         }
     }
+    
     
     AmLearner getLearner() {
         return mClassifier;

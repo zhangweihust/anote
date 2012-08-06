@@ -48,7 +48,7 @@ public class AmGestureLibraries {
             return !mPath.canWrite();
         }
 
-        public boolean save() {
+        public boolean save(boolean flag) {
             if (!mStore.hasChanged()) return true;
 
             final File file = mPath;
@@ -69,7 +69,7 @@ public class AmGestureLibraries {
                 zipOut = new ZipOutputStream(out);  
 	            ZipEntry entry = new ZipEntry("hello");  
 	            zipOut.putNextEntry(entry); 
-                mStore.save(/*new FileOutputStream(file)*/zipOut, true);
+                mStore.save(/*new FileOutputStream(file)*/zipOut, true,flag);
                 result = true;
             } catch (FileNotFoundException e) {
                 Log.d(LOG_TAG, "Could not save the gesture library in " + mPath, e);
@@ -87,8 +87,9 @@ public class AmGestureLibraries {
 
             return result;
         }
+        
 
-        public boolean load() {
+        public boolean load(boolean flag) {
             boolean result = false;
             final File file = mPath;
             ZipInputStream zis = null;
@@ -97,7 +98,7 @@ public class AmGestureLibraries {
                 	FileInputStream fis = new FileInputStream(file);
     	     	    zis = new ZipInputStream(new BufferedInputStream(fis));
     	     	    ZipEntry entry = zis.getNextEntry();
-    	     	    mStore.load(/*new FileInputStream(file)*/zis, true);
+    	     	    mStore.load(/*new FileInputStream(file)*/zis, true,flag);
                     result = true;
                 } catch (FileNotFoundException e) {
                     Log.d(LOG_TAG, "Could not load the gesture library from " + mPath, e);
@@ -113,9 +114,9 @@ public class AmGestureLibraries {
 					}
                 }
             }
-
             return result;
         }
+
     }
 
     private static class ResourceGestureLibrary extends AmGestureLibrary {
@@ -132,25 +133,25 @@ public class AmGestureLibraries {
             return true;
         }
 
-        public boolean save() {
+        public boolean save(boolean flag) {
             return false;
         }
 
-        public boolean load() {
+        public boolean load(boolean flag) {
             boolean result = false;
             final Context context = mContext.get();
             if (context != null) {
                 final InputStream in = context.getResources().openRawResource(mResourceId);
                 try {
-                    mStore.load(in, true);
+                    mStore.load(in, true,flag);
                     result = true;
                 } catch (IOException e) {
                     Log.d(LOG_TAG, "Could not load the gesture library from raw resource " +
                             context.getResources().getResourceName(mResourceId), e);
                 }
             }
-
             return result;
         }
+
     }
 }

@@ -41,6 +41,7 @@
 	<!-- home_screen time note list -->
 	<dimen name="note_title_width">180dip</dimen>
 	<dimen name="note_edit_bar_width">110dip</dimen>
+	<dimen name="photo_item_font_size">20dp</dimen>
 	
 </resources>
 

@@ -93,7 +93,6 @@ public class AmGesture implements Parcelable {
         for (int i = 0; i < count; i++) {
             len += strokes.get(i).length;
         }
-
         return len;
     }
 
@@ -233,7 +232,7 @@ public class AmGesture implements Parcelable {
         return bitmap;
     }
 
-    void serialize(DataOutputStream out) throws IOException {
+    void serialize(DataOutputStream out,boolean flag) throws IOException {
         final ArrayList<AmGestureStroke> strokes = mStrokes;
         final int count = strokes.size();
 
@@ -248,11 +247,12 @@ public class AmGesture implements Parcelable {
         out.writeInt(count);
 
         for (int i = 0; i < count; i++) {
-            strokes.get(i).serialize(out);
+            strokes.get(i).serialize(out,flag);
         }
     }
+    
 
-    static AmGesture deserialize(DataInputStream in) throws IOException {
+    static AmGesture deserialize(DataInputStream in,boolean flag) throws IOException {
         final AmGesture gesture = new AmGesture();
 
         // Gesture ID
@@ -266,11 +266,12 @@ public class AmGesture implements Parcelable {
         final int count = in.readInt();
 
         for (int i = 0; i < count; i++) {
-            gesture.addStroke(AmGestureStroke.deserialize(in));
+            gesture.addStroke(AmGestureStroke.deserialize(in,flag));
         }
 
         return gesture;
     }
+    
     
     public static final Parcelable.Creator<AmGesture> CREATOR = new Parcelable.Creator<AmGesture>() {
         public AmGesture createFromParcel(Parcel in) {
@@ -281,7 +282,7 @@ public class AmGesture implements Parcelable {
                     new ByteArrayInputStream(in.createByteArray()));
 
             try {
-                gesture = deserialize(inStream);
+                gesture = deserialize(inStream,false);
             } catch (IOException e) {
                 Log.e(AmGestureConstants.LOG_TAG, "Error reading Gesture from parcel:", e);
             } finally {
@@ -309,7 +310,7 @@ public class AmGesture implements Parcelable {
         final DataOutputStream outStream = new DataOutputStream(byteStream);
 
         try {
-            serialize(outStream);
+            serialize(outStream,false);
             result = true;
         } catch (IOException e) {
             Log.e(AmGestureConstants.LOG_TAG, "Error writing Gesture to parcel:", e);

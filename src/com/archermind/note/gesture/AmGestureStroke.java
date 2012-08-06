@@ -77,7 +77,7 @@ public class AmGestureStroke extends AmGestureMeta {
      * 
      * @param canvas
      */
-    void draw(Canvas canvas, Paint paint) {
+    public void draw(Canvas canvas, Paint paint) {
         if (mCachedPath == null) {
             makePath();
         }
@@ -173,12 +173,16 @@ public class AmGestureStroke extends AmGestureMeta {
         return path;
     }
 
-    void serialize(DataOutputStream out) throws IOException {
+    void serialize(DataOutputStream out,boolean flag) throws IOException {
         final float[] pts = points;
         final int count = points.length;
 
         // Write number of points
         out.writeInt(count / 2);
+        if (flag) {
+        	out.writeInt(getFingerColor());
+            out.writeInt(getFingerStrokeWidth());
+        }
 
         for (int i = 0; i < count; i += 2) {
             // Write X
@@ -187,18 +191,31 @@ public class AmGestureStroke extends AmGestureMeta {
             out.writeFloat(pts[i + 1]);
         }
     }
+    
 
-    static AmGestureStroke deserialize(DataInputStream in) throws IOException {
+    static AmGestureStroke deserialize(DataInputStream in,boolean flag) throws IOException {
         // Number of points
         final int count = in.readInt();
+        
+        int color = 0;
+        int width = 0;
+        if (flag) {
+        	color = in.readInt();
+            width = in.readInt();
+        }
 
         final ArrayList<AmGesturePoint> points = new ArrayList<AmGesturePoint>(count);
         for (int i = 0; i < count; i++) {
             points.add(AmGesturePoint.deserialize(in));
         }
+        AmGestureStroke gesturesStroke = new AmGestureStroke(points);
+        if (flag) {
+	        gesturesStroke.setFingerColor(color);
+	        gesturesStroke.setFingerStrokeWidth(width);
+        }
+        return gesturesStroke;
+    } 
 
-        return new AmGestureStroke(points);
-    }    
 
     /**
      * Invalidates the cached path that is used to render the stroke.
