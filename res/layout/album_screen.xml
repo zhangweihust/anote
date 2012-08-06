@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<LinearLayout android:id="@+id/p_grid_layout"
+		android:orientation="vertical" android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+		<RelativeLayout android:layout_width="match_parent"
+			android:layout_height="match_parent" android:orientation="vertical">
+			<LinearLayout 
+				android:id="@+id/p_grid_bottom"
+				style="@android:style/ButtonBar" 
+				android:layout_width="fill_parent"
+				android:layout_height="42.5dp" 
+				android:layout_alignParentBottom="true"
+				android:background="@drawable/handwrite_btn_bg" 
+				android:gravity="center_horizontal"
+				android:orientation="horizontal">
+				<ImageButton 
+					android:id="@+id/p_grid_insert_image"
+					android:layout_width="wrap_content" 
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_horizontal" 
+					android:background="@drawable/album_camera_selector" />
+			</LinearLayout>
+			<FrameLayout 
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" 
+				android:orientation="vertical"
+				android:layout_above="@id/p_grid_bottom">
+				<LinearLayout 
+					android:layout_width="match_parent"
+					android:layout_height="match_parent" 
+					android:orientation="vertical"
+					android:background="@drawable/album_background" >
+					<RelativeLayout 
+						android:id="@+id/p_grid_relativeLayout1"
+						android:layout_width="fill_parent" 
+						android:layout_height="46dip"
+						android:background="@drawable/title_bar_background"
+						android:descendantFocusability="blocksDescendants"
+						android:gravity="center_vertical" 
+						android:orientation="horizontal">
+						<ImageButton 
+							android:id="@+id/p_grid_back"
+							android:layout_width="wrap_content" 
+							android:layout_height="wrap_content"
+							android:layout_alignParentLeft="true"
+							android:layout_centerVertical="true" 
+							android:layout_marginLeft="9dip"
+							android:layout_weight="0" 
+							android:background="@drawable/screen_go_back" />
+						<TextView android:id="@+id/p_grid_activityTitle"
+							android:layout_width="wrap_content" 
+							android:layout_height="wrap_content"
+							android:layout_centerInParent="true"
+							android:layout_centerVertical="true" 
+							android:layout_weight="1"
+							android:ellipsize="end" 
+							android:gravity="center_horizontal"
+							android:singleLine="true" 
+							android:text="@string/album_title"
+							android:textColor="#FFFFFF" 
+							android:textSize="@dimen/main_screen_title_size" />
+						<LinearLayout
+							android:layout_width="wrap_content" 
+							android:layout_height="wrap_content"
+							android:layout_alignParentRight="true"
+							android:layout_centerVertical="true" 
+							android:layout_marginRight="9dip"
+							android:layout_weight="0" 
+							android:focusable="false"
+							android:gravity="center" 
+							android:orientation="vertical">
+						</LinearLayout>
+					</RelativeLayout>
+					<GridView android:id="@+id/p_grid_gridview"
+						android:layout_width="fill_parent" 
+						android:layout_height="fill_parent"
+						android:columnWidth="90dp" 
+						android:numColumns="3"
+						android:verticalSpacing="10dp" 
+						android:horizontalSpacing="10dp"
+						android:stretchMode="columnWidth" 
+						android:gravity="center"
+						android:layout_marginTop="8dp"
+						android:layout_gravity="center_horizontal" 
+						android:scrollbars="none"
+						android:layout_below="@id/p_grid_relativeLayout1" />
+				</LinearLayout>
+			</FrameLayout>
+		</RelativeLayout>
+	</LinearLayout>
+	<LinearLayout android:id="@+id/p_gallery_layout"
+		android:orientation="vertical" android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:visibility="gone">
+				<RelativeLayout android:layout_width="match_parent"
+			android:layout_height="match_parent" android:orientation="vertical">
+			<LinearLayout 
+				android:id="@+id/p_gallery_bottom"
+				style="@android:style/ButtonBar" 
+				android:layout_width="fill_parent"
+				android:layout_height="42.5dp" 
+				android:layout_alignParentBottom="true"
+				android:background="@drawable/handwrite_btn_bg" 
+				android:gravity="center_horizontal"
+				android:orientation="horizontal"
+				android:visibility="gone">
+				<ImageButton 
+					android:id="@+id/p_gallery_set_avatar"
+					android:layout_width="wrap_content" 
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_horizontal" 
+					android:background="@drawable/album_set_avatar_selector" />
+			</LinearLayout>
+			<FrameLayout 
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" 
+				android:orientation="vertical"
+				android:layout_above="@id/p_gallery_bottom">
+				<LinearLayout 
+					android:layout_width="match_parent"
+					android:layout_height="match_parent" 
+					android:orientation="vertical">
+					<RelativeLayout 
+						android:id="@+id/p_gallery_relativeLayout1"
+						android:layout_width="fill_parent" 
+						android:layout_height="46dp"
+						android:background="@drawable/title_bar_background"
+						android:descendantFocusability="blocksDescendants"
+						android:gravity="center_vertical" 
+						android:orientation="horizontal">
+						<ImageButton 
+							android:id="@+id/p_gallery_back"
+							android:layout_width="wrap_content" 
+							android:layout_height="wrap_content"
+							android:layout_alignParentLeft="true"
+							android:layout_centerVertical="true" 
+							android:layout_marginLeft="9dp"
+							android:layout_weight="0" 
+							android:background="@drawable/screen_go_back" />
+						<TextView android:id="@+id/p_gallery_activityTitle"
+							android:layout_width="wrap_content" 
+							android:layout_height="wrap_content"
+							android:layout_centerInParent="true"
+							android:layout_centerVertical="true" 
+							android:layout_weight="1"
+							android:ellipsize="end" 
+							android:gravity="center_horizontal"
+							android:singleLine="true"
+							android:textColor="#FFFFFF" 
+							android:textSize="@dimen/main_screen_title_size" />
+						<LinearLayout
+							android:layout_width="wrap_content" 
+							android:layout_height="wrap_content"
+							android:layout_alignParentRight="true"
+							android:layout_centerVertical="true" 
+							android:layout_marginRight="9dp"
+							android:layout_weight="0" 
+							android:focusable="false"
+							android:gravity="center" 
+							android:orientation="vertical">
+						</LinearLayout>
+					</RelativeLayout>
+					<Gallery android:id="@+id/p_gallery_gallery"
+					      android:layout_width="match_parent"
+					      android:layout_height="fill_parent"
+					      android:gravity="center_vertical"
+					      android:layout_gravity="center_vertical"
+					      android:spacing="16dp"
+					  />
+				</LinearLayout>
+			</FrameLayout>
+		</RelativeLayout>
+	</LinearLayout>
+</LinearLayout>

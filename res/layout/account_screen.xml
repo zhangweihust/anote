@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent" android:layout_height="match_parent"
+	android:orientation="vertical">
+	<LinearLayout android:id="@+id/bottom" style="@android:style/ButtonBar"
+		android:layout_width="fill_parent" android:layout_height="42.5dp"
+		android:layout_alignParentBottom="true" android:background="@drawable/handwrite_btn_bg"
+		android:gravity="center_horizontal" android:orientation="horizontal"
+		android:visibility="gone">
+	</LinearLayout>
+	<FrameLayout android:layout_width="match_parent"
+		android:layout_height="match_parent" android:orientation="vertical"
+		android:layout_above="@id/bottom">
+		<LinearLayout android:layout_width="match_parent"
+			android:layout_height="match_parent" android:orientation="vertical"
+			android:gravity="center_horizontal" android:background="@drawable/album_background">
+			<RelativeLayout android:id="@+id/relativeLayout1"
+				android:layout_width="fill_parent" android:layout_height="46dp"
+				android:background="@drawable/title_bar_background"
+				android:descendantFocusability="blocksDescendants" android:gravity="center_vertical"
+				android:orientation="horizontal">
+				<ImageButton android:id="@+id/back"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_alignParentLeft="true"
+					android:layout_centerVertical="true" android:layout_marginLeft="9dp"
+					android:layout_weight="0" android:background="@drawable/screen_go_back" />
+				<TextView android:id="@+id/activityTitle"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_centerInParent="true" android:layout_centerVertical="true"
+					android:layout_weight="1" android:ellipsize="end" android:gravity="center_horizontal"
+					android:singleLine="true" android:text="@string/account_title"
+					android:textColor="#FFFFFF" android:textSize="@dimen/main_screen_title_size" />
+				<LinearLayout android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentRight="true"
+					android:layout_centerVertical="true" android:layout_marginRight="9dp"
+					android:layout_weight="0" android:focusable="false"
+					android:gravity="center" android:orientation="vertical">
+				</LinearLayout>
+			</RelativeLayout>
+			<LinearLayout android:id="@+id/set_avatar_layout"
+				android:layout_width="300dp" android:layout_height="46dp"
+				android:gravity="center_vertical" android:layout_marginTop="8dp"
+				android:background="@drawable/setting_background">
+				<TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_weight="0.3" android:ellipsize="end"
+					android:layout_marginLeft="12dp" android:singleLine="true"
+					android:text="@string/account_user_account" android:textColor="#555555"
+					android:textSize="24px" />
+				<EditText android:id="@+id/user_account"
+					android:layout_width="180dp" android:layout_height="wrap_content"
+					android:layout_marginLeft="12dp" android:singleLine="true"
+					android:textColor="#555555"
+					android:textSize="24px" 
+					android:background="#00000000" />
+			</LinearLayout>
+			<LinearLayout
+				android:layout_width="300dp" android:layout_height="42dp"
+				android:gravity="center_vertical" android:layout_marginTop="8dp">
+				<CheckBox android:id="@+id/use_change_passwd"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:focusable="true" android:clickable="true" />
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:layout_marginLeft="12dp"
+					android:singleLine="true" android:text="@string/account_change_passwd"
+					android:textColor="#555555" android:textSize="24px" />
+			</LinearLayout>
+			
+			<LinearLayout android:layout_width="300dp"
+				android:layout_height="wrap_content" android:orientation="vertical"
+				android:layout_marginTop="8dp" android:background="@drawable/setting_background">
+				<LinearLayout android:id="@+id/sex_layout"
+					android:layout_width="fill_parent" android:layout_height="42dp"
+					android:gravity="center_vertical" android:background="@android:drawable/list_selector_background">
+					<TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+						android:layout_weight="1" android:ellipsize="end"
+						android:layout_marginLeft="12dp" android:singleLine="true"
+						android:text="@string/account_new_passwd" android:textColor="#555555"
+						android:textSize="24px" />
+					<EditText android:id="@+id/new_passwd"
+						android:layout_width="180dp" android:layout_height="wrap_content"
+						android:layout_marginLeft="12dp" android:singleLine="true"
+						android:textColor="#555555"
+						android:textSize="24px" android:password="true" 
+						android:background="#00000000" />
+				</LinearLayout>
+				<ImageView android:layout_width="fill_parent"
+					android:layout_height="1.0px" android:scaleType="fitXY"
+					android:src="@drawable/new_track" />
+				<LinearLayout android:layout_width="fill_parent"
+					android:layout_height="42dp" android:gravity="center_vertical"
+					android:background="@android:drawable/list_selector_background">
+					<TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+						android:layout_weight="1" android:ellipsize="end"
+						android:layout_marginLeft="12dp" android:singleLine="true"
+						android:text="@string/account_confirm_passwd" android:textColor="#555555" 
+						android:textSize="24px" />
+					<EditText android:id="@+id/confirm_passwd"
+						android:layout_width="180dp" android:layout_height="wrap_content"
+						android:layout_marginLeft="12dp" android:singleLine="true"
+						android:textColor="#555555"
+						android:textSize="24px" android:password="true" 
+						android:background="#00000000"/>
+				</LinearLayout>
+			</LinearLayout>
+			<Button android:id="@+id/confirm_change" android:layout_marginTop="10dp"
+				android:layout_height="wrap_content" android:layout_width="fill_parent"
+				android:text="@string/account_confirm_change" android:textColor="#555555"
+				android:textSize="24px" />
+		</LinearLayout>
+	</FrameLayout>
+</RelativeLayout>
