@@ -197,7 +197,7 @@ public class VerticalScrollView extends ViewGroup {
            	if(i == 0){
         		  getChildAt(i).measure(MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY),
         				  MeasureSpec.makeMeasureSpec((int)(pageHeight*.75), MeasureSpec.EXACTLY));
-        	} else {
+        	} else if(i == 1) {
         		  getChildAt(i).measure(MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.EXACTLY),
                   		MeasureSpec.makeMeasureSpec(pageHeight, MeasureSpec.EXACTLY));
         	}

@@ -23,6 +23,10 @@
 						android:layout_width="wrap_content" android:layout_height="wrap_content"
 						android:layout_gravity="left|center_vertical" android:background="@drawable/title_bar_notebook_selector"
 						android:visibility="gone" /> -->
+					<Button android:id="@+id/btn_title_bar_back"
+						android:layout_width="wrap_content" android:layout_height="wrap_content"
+						android:layout_gravity="left|center_vertical" android:background="@drawable/screen_go_back_selector"
+						android:visibility="gone" />
 					<TextView android:id="@+id/tv_title_bar_title"
 						android:layout_width="wrap_content" android:layout_height="wrap_content"
 						android:layout_gravity="center" android:text="@string/home_screen_title"

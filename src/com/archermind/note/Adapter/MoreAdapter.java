@@ -1,6 +1,9 @@
 package com.archermind.note.Adapter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.archermind.note.R;
 
@@ -17,17 +20,18 @@ import android.widget.TextView;
 public class MoreAdapter extends BaseAdapter
 {
 	private Context mCtx;
-	private LayoutInflater inflater;		
+	private List<Map<String, Object>> listItems;
+	private static int mCount = 2;
 	
 	public MoreAdapter(Context ctx)
 	{
 		mCtx = ctx;
-		inflater = LayoutInflater.from(ctx);
+		init();
 	}
 	
 	@Override
 	public int getCount() {
-		return 2;
+		return this.mCount;
 	}
 
 	@Override
@@ -48,15 +52,32 @@ public class MoreAdapter extends BaseAdapter
 		 }
 		TextView tvItemTitle = (TextView) convertView.findViewById(R.id.tv_item_title);
 		ImageView ivItemIcon = (ImageView) convertView.findViewById(R.id.iv_item_icon);
-		if (position == 0) {
-			tvItemTitle.setText(R.string.more_info);
-			ivItemIcon.setImageResource(R.drawable.more_info);
-		}else{
-			tvItemTitle.setText(R.string.more_setting);
-			ivItemIcon.setImageResource(R.drawable.more_setting);
-		}
+		tvItemTitle.setText(mCtx.getString((Integer)this.listItems.get(position).get("menuText")));
+		ivItemIcon.setImageResource((Integer)this.listItems.get(position).get("menuIcon"));
+		
 		return convertView;
 	}
 
+	
+	private void init(){
+		this.listItems =  new ArrayList<Map<String, Object>>();
+		for(int i = 0; i < this.mCount; i++){
+			Map<String, Object> map = new HashMap<String, Object>();
+			if(i == 0){
+				map.put("menuIcon", R.drawable.more_info);
+				map.put("menuText", R.string.more_info);
+			}
+			else if(i == 1){
+				map.put("menuIcon", R.drawable.more_setting);
+				map.put("menuText", R.string.more_setting);
+			}
+			this.listItems.add(map);
+		}
+	}
+	
+	public final class ListItemsView{
+		public ImageView menuIcon;
+		public TextView menuText;
+	}
 	
 }

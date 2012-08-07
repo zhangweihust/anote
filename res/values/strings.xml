@@ -57,7 +57,7 @@
 	
 	<!-- album -->
 	<string name="album_title">我的相册</string>
-	<string name="photo_gallery_title">第%1$d张/供%2$d张</string>
+	<string name="photo_gallery_title">第%1$d张/共%2$d张</string>
 	<string name="image_file_name_format" translatable="false">"'IMG'_yyyyMMdd_HHmmss"</string>
 	
 	<!-- personal_info_title -->
@@ -68,4 +68,9 @@
 	<string name="personal_info_sex_female">女</string>
 	<string name="personal_info_sex_male">男</string>
 	<string name="personal_info_region">地区</string>
+	
+	<!-- dialog local_note_item_transact -->
+	<string name="share">分享</string>
+	<string name="sign">标记</string>
+	<string name="delete">删除</string>
 </resources>

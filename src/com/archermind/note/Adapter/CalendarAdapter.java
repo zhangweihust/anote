@@ -8,7 +8,10 @@ import java.util.Date;
 import java.util.Locale;
 
 import com.archermind.note.R;
+import com.archermind.note.Events.EventArgs;
+import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Provider.DatabaseManager;
+import com.archermind.note.Screens.HomeScreen;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.calendar.LunarCalendar;
 import com.archermind.note.calendar.SpecialCalendar;
@@ -25,6 +28,7 @@ import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.BaseAdapter;
@@ -158,22 +162,48 @@ public class CalendarAdapter extends BaseAdapter {
 			}
 
 		}
+		int hasNote = 0;
 		if(noteFlag != null && noteFlag.length >0){
 				if(noteFlag[position] == DatabaseManager.HAS_NOTE ){
 					ivHasNote.setVisibility(View.VISIBLE);
 					ivHasNote.setImageResource(R.drawable.unsigned);
+					hasNote = 1;
 				}else if(noteFlag[position] == DatabaseManager.HAS_SIGNED){
 					ivHasNote.setVisibility(View.VISIBLE);
 					ivHasNote.setImageResource(R.drawable.signed);
+					hasNote = 1;
 				}else{
 					ivHasNote.setVisibility(View.GONE);
+					hasNote = 0;
 				}
 		}
 		
+		final int fHasNote = hasNote;
 		if(currentFlag == position){ 
 			//设置当天的背景
-			tvDate.setBackgroundResource(R.drawable.calendar_pressed);
+			//tvDate.setBackgroundResource(R.drawable.calendar_pressed);
+			convertView.setBackgroundResource(R.drawable.calendar_pressed);
 		}
+		
+		Calendar time = Calendar.getInstance(Locale.CHINA); 
+		time.set(Calendar.YEAR, showYear);
+		time.set(Calendar.MONTH, showMonth);
+		time.set(Calendar.DATE, Integer.parseInt(day));
+		time.set(Calendar.HOUR, 10);
+		final long t = time.getTimeInMillis();
+		
+		tvDate.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				if(fHasNote == 1){
+					System.out.println("time is " + t);
+					HomeScreen.eventService.onUpdateEvent(new EventArgs(
+							EventTypes.SHOW_ONEDAY_NOTES).putExtra("time", t));
+				}
+			}
+		});
 		return convertView;
 	}
 	
@@ -210,7 +240,7 @@ public class CalendarAdapter extends BaseAdapter {
 		String lunarDay = "";
 		
 		//得到当前月是否有笔记
-		Cursor mCursor = ServiceManager.getDbManager().queryMonthLocalNOTES(month, year);		
+		Cursor mCursor = ServiceManager.getDbManager().queryMonthLocalNOTES(HomeScreen.USRID, month, year);		
 		if(mCursor.getCount() > 0){
 			noteFlag = new int[42];
 		}
@@ -238,7 +268,7 @@ public class CalendarAdapter extends BaseAdapter {
 				time.set(Calendar.DATE, day);
 				time.set(Calendar.HOUR, 10);
 				if(noteFlag != null){
-					noteFlag[i] = ServiceManager.getDbManager().queryTodayLocalNotesStatus(time.getTimeInMillis());
+					noteFlag[i] = ServiceManager.getDbManager().queryTodayLocalNotesStatus(HomeScreen.USRID, time.getTimeInMillis());
 				}
 				
 /*				setAnimalsYear(lc.animalsYear(year));

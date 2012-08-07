@@ -10,6 +10,6 @@
     <color name="note_title_color">#3f444a</color>
     <color name="note_time_color">#9a9fa5</color>
     <color name="holiday_color">#b55a6c</color>
-
+	<color name="note_info_line_color">#cecece</color>
     <color name="toptextcolor">#6EAAD9</color>
 </resources>

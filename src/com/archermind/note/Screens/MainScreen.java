@@ -43,7 +43,7 @@ import com.archermind.note.Utils.DensityUtil;
 import com.archermind.note.Views.MenuRightHorizontalScrollView;
 
 public class MainScreen extends TabActivity implements OnTabChangeListener,
-		OnClickListener,OnGestureListener {
+		OnClickListener,OnGestureListener, IEventHandler {
 	/** Called when the activity is first created. */
 	private TabHost mTabHost;
 	private final int INIT_SELECT = 0;
@@ -61,6 +61,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	private MenuRightHorizontalScrollView mScrollMenu;*/
 	
 	private Button mbtnMore;
+	private Button mbtnBack;
 	
 	public static String TYPE_NOTE = "note";
 	public static String TYPE_CALENDAR = "calender";
@@ -76,6 +77,8 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	private PopupWindow mMorePopupWindow;
 	
 	public static GestureDetector mGestureDetector = null;
+	
+	public static final EventService eventService = ServiceManager.getEventservice();
 
 	public MainScreen(){
 		super();
@@ -122,6 +125,9 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		
 		mGestureDetector = new GestureDetector(this);
 		
+		mbtnBack = (Button)findViewById(R.id.btn_title_bar_back);
+		mbtnBack.setOnClickListener(this);
+		eventService.add(this);
 		initPopupwindow();
 	}
 
@@ -206,21 +212,18 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			intent.setClass(mContext, EditNoteScreen.class);
 			mContext.startActivity(intent);
 			break;
-/*		case R.id.btn_title_bar_notebook:
+		case R.id.btn_title_bar_back:
 			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					type = TYPE_NOTE;
-					mbtnTitleBarCalendar.setVisibility(View.VISIBLE);
-					mbtnTitleBarNotebook.setVisibility(View.GONE);
-					mtvTitleBarTitle.setText(MainScreen.this.getResources()
-							.getText(R.string.home_screen_title));
+					mbtnBack.setVisibility(View.GONE);
+					mtvTitleBarTitle.setText(mContext.getResources().getString(R.string.home_screen_title));
 				}
 			});
 			HomeScreen.eventService.onUpdateEvent(new EventArgs(
-					EventTypes.TITLE_BAR_NOTEBOOK_CLICKED));
-			break;*/
+					EventTypes.HOME_SCREEN_ONEDAY_NOTE_BACK_PRESSED));
+			break;
 		case R.id.btn_more:
 			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override
@@ -345,6 +348,35 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			(int) (52 * dm.density * 2), true);
 	mMorePopupWindow.setBackgroundDrawable(mContext.getResources().getDrawable(R.drawable.more_pop));
 	mMorePopupWindow.setOutsideTouchable(true);
+	}
+
+	@Override
+	public boolean onEvent(Object sender, final EventArgs e) {
+		// TODO Auto-generated method stub
+		System.out.println("-----------main onEvent" + e.getType());
+		switch (e.getType()) {
+		case SHOW_OR_HIDE_BUTTON_BACK:
+			MainScreen.this.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					if(mbtnBack.getVisibility() != View.VISIBLE){
+						mbtnBack.setVisibility(View.VISIBLE);
+					}else{
+						mbtnBack.setVisibility(View.GONE);
+					}
+				}});
+			break;
+		case MAIN_SCREEN_UPDATE_TITLE:
+			MainScreen.this.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mtvTitleBarTitle.setText(e.getExtra("title").toString());
+				}});
+			break;
+		default:
+			break;
+		}
+		return false;
 	}
 	
 
