@@ -6,6 +6,7 @@ import android.os.IBinder;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.Provider.DatabaseManager;
+import com.archermind.note.Utils.BitmapCache;
 
 public class ServiceManager extends Service {
 
@@ -63,6 +64,7 @@ public class ServiceManager extends Service {
 		
 		dbManager.close();
 		
+		BitmapCache.getInstance().clearCache();
 		if(!success){
 			NoteApplication.LogD(ServiceManager.class, "Failed to stop services");
 		}

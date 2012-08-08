@@ -29,6 +29,7 @@
         <activity android:name=".Screens.AccountScreen"/>
         <activity android:name=".Screens.AlbumScreen"/>
         <activity android:name=".Screens.PersonalInfoScreen"/>
+        <activity android:name=".Screens.PersonalInfoRegionScreen"/>
         <service android:name=".Services.ServiceManager" />
     </application>
 <uses-permission android:name="android.permission.INTERNET" />
