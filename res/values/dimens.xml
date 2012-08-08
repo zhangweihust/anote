@@ -35,8 +35,9 @@
 	<dimen name="home_screen_date_info_text_size">33dp</dimen>
 	<dimen name="home_screen_weekday_info_text_size">12dp</dimen>
 	<dimen name="home_screen_note_title_text_size">15dp</dimen>
-	<dimen name="home_screen_note_time_info_text_size">11dp</dimen>
+	<dimen name="home_screen_note_time_info_text_size">13dp</dimen>
 	<dimen name="flipper_marginTop">40dp</dimen>
+	<dimen name="calendar_title">13dp</dimen>
 	
 	<!-- home_screen time note list -->
 	<dimen name="note_title_width">180dip</dimen>

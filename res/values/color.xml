@@ -3,13 +3,16 @@
 	<color name="white">#ffffff</color>
 	<color name="transparent">#00000000</color>
 	<color name="handwrite_btn_press_bg">#b1d4ef</color>
-    <color name="blue">#5793c7</color>
+    <color name="blue">#6aa7d8</color>
     <color name="content_background">#e7e7e7</color>
     <color name="note_info_date_color">#7d7d7d</color>
     <color name="note_info_text_color">#7e7e7e</color>
-    <color name="note_title_color">#3f444a</color>
+    <color name="note_title_color">#3f4449</color>
     <color name="note_time_color">#9a9fa5</color>
     <color name="holiday_color">#b55a6c</color>
 	<color name="note_info_line_color">#cecece</color>
     <color name="toptextcolor">#6EAAD9</color>
+    <color name="calendar_weekday_color">#373737</color>
+    <color name="other_month_days_color">#b4b4b4</color>
+    <color name="lunarday_color">#5d5d5d</color>
 </resources>

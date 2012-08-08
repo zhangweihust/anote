@@ -14,7 +14,7 @@
                     android:layout_height="fill_parent"
                     android:layout_weight="0" >
 
-                    <RelativeLayout
+<!--                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent" >
 
@@ -25,7 +25,7 @@
                             android:background="#ffff0000"
                             android:scaleType="fitXY"
                             android:src="@drawable/note_item_track" />
-                    </RelativeLayout>
+                    </RelativeLayout> -->
   
 		        <ListView
 		            android:id="@+id/lv_day_note_list"
@@ -90,7 +90,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="@string/calendar_mon"
-                        android:textColor="@android:color/black" />
+                        android:textColor="@color/calendar_weekday_color"
+                        android:textSize="@dimen/calendar_title" />
 
                     <TextView
                         android:id="@+id/tv_calendar_weekday1"
@@ -99,7 +100,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="@string/calendar_tue"
-                        android:textColor="@android:color/black" />
+                        android:textSize="@dimen/calendar_title" 
+                        android:textColor="@color/calendar_weekday_color"/>
 
                     <TextView
                         android:id="@+id/tv_calendar_weekday2"
@@ -108,7 +110,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="@string/calendar_wed"
-                        android:textColor="@android:color/black" />
+                        android:textSize="@dimen/calendar_title"
+                        android:textColor="@color/calendar_weekday_color" />
 
                     <TextView
                         android:id="@+id/tv_calendar_weekday3"
@@ -117,7 +120,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="@string/calendar_thu"
-                        android:textColor="@android:color/black" />
+                        android:textSize="@dimen/calendar_title"
+                        android:textColor="@color/calendar_weekday_color" />
 
                     <TextView
                         android:id="@+id/tv_calendar_weekday4"
@@ -126,7 +130,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="@string/calendar_fri"
-                        android:textColor="@android:color/black" />
+                        android:textSize="@dimen/calendar_title"
+                        android:textColor="@color/calendar_weekday_color" />
 
                     <TextView
                         android:id="@+id/tv_calendar_weekday5"
@@ -135,7 +140,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="@string/calendar_sat"
-                        android:textColor="@android:color/black" />
+                        android:textSize="@dimen/calendar_title"
+                        android:textColor="@color/calendar_weekday_color" />
 
                     <TextView
                         android:id="@+id/tv_calendar_weekday6"
@@ -144,7 +150,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="@string/calendar_sun"
-                        android:textColor="@android:color/black" />
+                        android:textSize="@dimen/calendar_title"
+                        android:textColor="@color/calendar_weekday_color" />
                 </LinearLayout>
                 
                <ImageView 
@@ -181,7 +188,7 @@
 		            android:layout_height="wrap_content"
 		            android:divider="@color/content_background"
 		            android:background="@color/transparent"
-		            android:cacheColorHint="#00000000"  
+		            android:cacheColorHint="#00000000"
 		            >
 		        </ListView>
 <!-- 		        

@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import com.archermind.note.R;
+import com.archermind.note.R.color;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Provider.DatabaseManager;
@@ -23,6 +24,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
@@ -143,7 +145,7 @@ public class CalendarAdapter extends BaseAdapter {
             sp.setSpan(new RelativeSizeSpan(0.75f), day.length()+1, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
 		tvDate.setText(sp);
-		tvDate.setTextColor(Color.GRAY);
+		tvDate.setTextColor(res.getColor(R.color.other_month_days_color));
 		
 		
 		if (position < daysOfMonth + dayOfWeek && position >= dayOfWeek) {
@@ -151,13 +153,17 @@ public class CalendarAdapter extends BaseAdapter {
 				if(lunarDay.contains(LunarCalendar.suffix) || (position+1)%7 == 0 || (position+1)%7 == 1 ){
 					tvDate.setTextColor(res.getColor(R.color.holiday_color));
 				}else{
-					tvDate.setTextColor(Color.BLACK);
+					sp.setSpan(new ForegroundColorSpan(Color.BLACK), 0, day.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+					sp.setSpan(new ForegroundColorSpan(res.getColor(R.color.lunarday_color)), day.length()+1, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+					tvDate.setText(sp);
 				}
 			}else{
 				if(lunarDay.contains(LunarCalendar.suffix) || (position+1)%7 == 6 || (position+1)%7 == 0 ){
 					tvDate.setTextColor(res.getColor(R.color.holiday_color));
 				}else{
-					tvDate.setTextColor(Color.BLACK);
+					sp.setSpan(new ForegroundColorSpan(Color.BLACK), 0, day.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+					sp.setSpan(new ForegroundColorSpan(res.getColor(R.color.lunarday_color)), day.length()+1, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+					tvDate.setText(sp);
 				}
 			}
 

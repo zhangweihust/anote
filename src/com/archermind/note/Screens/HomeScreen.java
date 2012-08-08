@@ -43,6 +43,7 @@ import com.archermind.note.Services.EventService;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.Constant;
 import com.archermind.note.Utils.DateTimeUtils;
+import com.archermind.note.Utils.DensityUtil;
 import com.archermind.note.Views.VerticalScrollView;
 
 
@@ -90,7 +91,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	private TextView tvCalendarWeekday5;
 	private TextView tvCalendarWeekday6;
 	
-	public static int USRID = 1002;
+	public static int USRID = 1000;
 	
 	public static final EventService eventService = ServiceManager.getEventservice();
 
@@ -113,7 +114,10 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
         mllCalendarPage = (VerticalScrollView)findViewById(R.id.ll_calendar_page);
         
         mlvMonthNotes = (ListView) findViewById(R.id.lv_month_note_list);
-        mlvDayNotes = (ListView) findViewById(R.id.lv_day_note_list);
+        
+        mlvDayNotes = (ListView) findViewById(R.id.lv_day_note_list);        
+        mlvDayNotes.setDividerHeight(DensityUtil.dip2px(mContext, 5));
+        
         mListHeader = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.home_screen_listview_header, null);
         mllBottomInfo = (LinearLayout)mListHeader.findViewById(R.id.ll_bottom_info);
     	mIvMyNoteInfo = (ImageView)mListHeader.findViewById(R.id.iv_my_note_info);
@@ -384,7 +388,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 						    	}else{
 						    		mbtnBackRecent.setVisibility(View.GONE);
 						    	}
-								MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra("title", DateTimeUtils.time2String("yyyy年MM月", mCurTime)));
+								MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra("title", DateTimeUtils.time2String("yyyy.MM.dd", mCurTime)));
 								}
 						} else {
 				            //向右滑动
@@ -414,7 +418,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 						    	}else{
 						    		mbtnBackRecent.setVisibility(View.GONE);
 						    	}
-								MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra("title", DateTimeUtils.time2String("yyyy年MM月", mCurTime)));
+								MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra("title", DateTimeUtils.time2String("yyyy.MM.dd", mCurTime)));
 							}
 						}
 					}});
@@ -434,7 +438,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				    		mbtnBackRecent.setVisibility(View.GONE);
 				    	}
 						MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHOW_OR_HIDE_BUTTON_BACK));
-						MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra("title", DateTimeUtils.time2String("yyyy年MM月", time)));
+						MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra("title", DateTimeUtils.time2String("yyyy.MM.dd", time)));
 					}});
 				break;
 			case HOME_SCREEN_ONEDAY_NOTE_BACK_PRESSED:
@@ -595,6 +599,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 			mlvDayNotes.setAdapter(new LocalNoteOnedayAdapter(mContext, ServiceManager
 					.getDbManager().queryTodayLocalNOTEs(HomeScreen.USRID, mRecentTime)));
 			mbtnBackRecent.setVisibility(View.GONE);
+			MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra("title", DateTimeUtils.time2String("yyyy.MM.dd", mRecentTime)));
 			break;
 		default:
 			

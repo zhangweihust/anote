@@ -54,12 +54,12 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 		final boolean lastFlag = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_LAST_FLAG)) == 1;
 		final int isSigned = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED));
 		item.tvTitle.setText(title);
-		item.tvTime.setText(DateTimeUtils.time2String("hh:mm aa", time));
+		item.tvTime.setText(DateTimeUtils.time2String("HH:mm", time));
 		
 		
 		if(lastFlag){
 			item.tvDays.setVisibility(View.VISIBLE);
-			item.tvDate.setVisibility(View.VISIBLE);
+			//item.tvDate.setVisibility(View.VISIBLE);
 			long duration = (DateTimeUtils.getToday(Calendar.PM, System.currentTimeMillis()) - time)/(1000 * 60 * 60 * 24);
 			if(duration == 0){
 				item.tvDays.setText("今天");
@@ -67,18 +67,18 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 				item.tvDays.setText(duration+"天前");
 			}
 			//item.tvWeekDay.setVisibility(View.VISIBLE);
-			String weekday = DateTimeUtils.time2String("EEEE", time);
+/*			String weekday = DateTimeUtils.time2String("EEEE", time);
 			String day = DateTimeUtils.time2String("dd", time);
 			SpannableString sp = new SpannableString(day + "\n" + weekday);
 			sp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, day.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			sp.setSpan(new AbsoluteSizeSpan((int) context.getResources().getDimension(R.dimen.home_screen_date_info_text_size)) , 0, day.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			sp.setSpan(new AbsoluteSizeSpan((int) context.getResources().getDimension(R.dimen.home_screen_weekday_info_text_size)) , day.length() + 1, day.length()+weekday.length()+1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-			item.tvDate.setText(sp);
+			item.tvDate.setText(sp);*/
 /*			view.setPadding(0, DensityUtil.dip2px(context, 15), 0, 0);*/
 		} else {
 		/*	view.setPadding(0, 0, 0, 0);*/
 			item.tvDays.setVisibility(View.GONE);
-			item.tvDate.setVisibility(View.INVISIBLE);
+			//item.tvDate.setVisibility(View.INVISIBLE);
 			//item.tvWeekDay.setVisibility(View.GONE);
 			
 		}
@@ -88,7 +88,7 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 			item.ivIsSigned.setVisibility(View.GONE);
 		}
 		
-		item.rlNoteItem.setPadding(DensityUtil.dip2px(context, 5) + 1, DensityUtil.dip2px(context, 10), 0, 0);
+		//item.rlNoteItem.setPadding(DensityUtil.dip2px(context, 5) + 1, DensityUtil.dip2px(context, 10), 0, 0);
 		final int id = cursor.getInt((cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_ID)));
 		
 		item.rlNoteItem.setOnLongClickListener(new OnLongClickListener() {
@@ -141,12 +141,12 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
 		View view = mInflater.inflate(R.layout.note_oneday_listview_item, null);
 		NoteOneDayItem item = new NoteOneDayItem();
-		item.tvDate = (TextView) view.findViewById(R.id.tv_oneday_date);
+		//item.tvDate = (TextView) view.findViewById(R.id.tv_oneday_date);
 		item.tvDays = (TextView) view.findViewById(R.id.tv_oneday_days);
 		item.tvTitle = (TextView) view.findViewById(R.id.tv_oneday_title);
 		item.ivIsSigned = (ImageView) view.findViewById(R.id.iv_oneday_is_signed);
 		item.tvTime = (TextView) view.findViewById(R.id.tv_oneday_time);
-		item.rlDay= (RelativeLayout) view.findViewById(R.id.rl_day);
+		//item.rlDay= (RelativeLayout) view.findViewById(R.id.rl_day);
 		item.rlNoteItem = (RelativeLayout) view.findViewById(R.id.rl_note_item);
 		item.tvNoteContent = (TextView) view.findViewById(R.id.tv_note_content);
 		view.setTag(R.layout.note_oneday_listview_item,item);
@@ -154,13 +154,13 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 	}
 	
 	private class NoteOneDayItem{
-		private TextView tvDate;
+		//private TextView tvDate;
 		private TextView tvDays;
 		private TextView tvTitle;
 		private ImageView ivIsSigned;
 		private TextView tvTime;
 		private TextView tvNoteContent;
-		private RelativeLayout rlDay;
+		//private RelativeLayout rlDay;
 		private RelativeLayout rlNoteItem;
 	}
 

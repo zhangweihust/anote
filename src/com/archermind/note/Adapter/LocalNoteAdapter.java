@@ -48,7 +48,7 @@ public class LocalNoteAdapter  extends CursorAdapter {
 		final boolean lastFlag = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_LAST_FLAG)) == 1;
 		final int isSigned = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED));
 		item.tvTitle.setText(title);
-		item.tvTime.setText(DateTimeUtils.time2String("hh:mm aa", time));
+		item.tvTime.setText(DateTimeUtils.time2String("HH:mm", time));
 		
 		if(lastFlag){
 			item.vFirstNoteDiv.setVisibility(View.VISIBLE);
