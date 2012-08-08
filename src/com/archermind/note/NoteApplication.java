@@ -11,6 +11,7 @@ public class NoteApplication extends Application{
 	
 	private static NoteApplication instance;
 	private final static String TAG = "Note";
+	private static boolean isLogin = false;
 	
 	public NoteApplication(){
 		NoteApplication.instance = this;
@@ -20,7 +21,17 @@ public class NoteApplication extends Application{
 	        return NoteApplication.instance;
 	    }
 	 
-	 @Override
+	 
+	 
+	 public static boolean isLogin() {
+		return isLogin;
+	}
+
+	public static void setLogin(boolean isLogin) {
+		NoteApplication.isLogin = isLogin;
+	}
+
+	@Override
 		public void onCreate() {
 			super.onCreate();
 			 if (ServiceManager.isStarted()) {

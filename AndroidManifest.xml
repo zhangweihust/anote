@@ -25,11 +25,13 @@
         <activity android:name=".Screens.PlazaScreen"/>
         <activity android:name=".Screens.HomeScreen"/>
         <activity android:name=".Screens.EditNoteScreen"/>
+        <activity android:name=".Screens.LoginScreen"/>
+        <activity android:name=".Screens.RegisterScreen" />
         <activity android:name=".Screens.PreferencesScreen"/>
         <activity android:name=".Screens.AccountScreen"/>
         <activity android:name=".Screens.AlbumScreen"/>
         <activity android:name=".Screens.PersonalInfoScreen"/>
-        <activity android:name=".Screens.PersonalInfoRegionScreen"/>
+        <activity android:name=".Screens.PersonalInfoRegionScreen" />
         <service android:name=".Services.ServiceManager" />
     </application>
 <uses-permission android:name="android.permission.INTERNET" />
