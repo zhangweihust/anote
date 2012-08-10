@@ -1,26 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" 
-    android:background="#ffffffff">
-
-	<ListView
-         android:id="@+id/region_province"
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content"
-         android:divider="@drawable/new_track"
-         >
-    </ListView>
-
-	<ListView
-         android:id="@+id/region_city"
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content"
-         android:divider="@color/content_background"
-         android:visibility="gone"
-         >
-     </ListView>
-
-    
-</LinearLayout>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent" android:layout_height="match_parent"
+	android:orientation="vertical" android:background="@color/content_background">
+	<LinearLayout android:id="@+id/bottom" style="@android:style/ButtonBar"
+		android:layout_width="fill_parent" android:layout_height="42.5dp"
+		android:layout_alignParentBottom="true" android:background="@drawable/handwrite_btn_bg"
+		android:gravity="center_horizontal" android:orientation="horizontal"
+		android:visibility="gone">
+	</LinearLayout>
+	<FrameLayout android:layout_width="match_parent"
+		android:layout_height="match_parent" android:orientation="vertical"
+		android:layout_above="@id/bottom">
+		<LinearLayout android:layout_width="match_parent"
+			android:layout_height="match_parent" android:orientation="vertical"
+			android:gravity="center_horizontal" android:background="@drawable/album_background">
+			<RelativeLayout android:id="@+id/relativeLayout1"
+				android:layout_width="fill_parent" android:layout_height="46dp"
+				android:background="@drawable/title_bar_background"
+				android:descendantFocusability="blocksDescendants" android:gravity="center_vertical"
+				android:orientation="horizontal">
+				<ImageButton android:id="@+id/back"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_alignParentLeft="true"
+					android:layout_centerVertical="true" android:layout_marginLeft="9dp"
+					android:layout_weight="0" android:background="@drawable/screen_go_back" />
+				<TextView android:id="@+id/activityTitle"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_centerInParent="true" android:layout_centerVertical="true"
+					android:layout_weight="1" android:ellipsize="end" android:gravity="center_horizontal"
+					android:singleLine="true"
+					android:textColor="#FFFFFF" android:textSize="@dimen/main_screen_title_size" />
+				<LinearLayout android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentRight="true"
+					android:layout_centerVertical="true" android:layout_marginRight="9dp"
+					android:layout_weight="0" android:focusable="false"
+					android:gravity="center" android:orientation="vertical">
+				</LinearLayout>
+			</RelativeLayout>
+			<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			    android:layout_width="fill_parent"
+			    android:layout_height="fill_parent"
+			    android:orientation="vertical" 
+			    android:gravity="center_horizontal"
+			    android:background="@color/content_background">
+			
+				<ListView
+			         android:id="@+id/region_province"
+			         android:layout_width="280dp"
+			         android:layout_height="wrap_content"
+			         android:layout_marginTop="20dp" 
+					 android:layout_marginBottom="20dp" 
+			         android:divider="@drawable/new_track"
+			         android:cacheColorHint="#00000000"
+			   	     android:scrollingCache="false"
+			   	     android:scrollbars="none"
+			   	     android:background="@drawable/setting_background"
+			         >
+			    </ListView>
+			
+				<ListView
+			         android:id="@+id/region_city"
+			         android:layout_width="280dp"
+			         android:layout_height="wrap_content"
+			         android:layout_marginTop="20dp" 
+					 android:layout_marginBottom="20dp" 
+			         android:divider="@drawable/new_track"
+			         android:cacheColorHint="#00000000"
+			   	     android:scrollingCache="false"
+			   	     android:scrollbars="none"
+			   	     android:background="@drawable/setting_background"
+			         >
+			     </ListView>
+			     
+			</LinearLayout>
+		</LinearLayout>
+	</FrameLayout>
+</RelativeLayout>

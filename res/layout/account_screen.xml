@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent" android:layout_height="match_parent"
-	android:orientation="vertical" android:background="#ffffffff">
+	android:orientation="vertical" android:background="@color/content_background">
 	<LinearLayout android:id="@+id/bottom" style="@android:style/ButtonBar"
 		android:layout_width="fill_parent" android:layout_height="42.5dp"
 		android:layout_alignParentBottom="true" android:background="@drawable/handwrite_btn_bg"
@@ -60,21 +60,22 @@
 				<CheckBox android:id="@+id/use_change_passwd"
 					android:layout_width="wrap_content" android:layout_height="wrap_content"
 					android:focusable="true" android:clickable="true" 
-					android:button="@null"
-					android:background="@drawable/checkbox"/>
+					style="@style/CustomLeftCheckBoxBtn" />
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" android:layout_marginLeft="12dp"
 					android:singleLine="true" android:text="@string/account_change_passwd"
 					android:textColor="#555555" android:textSize="16dp" />
 			</LinearLayout>
 			
-			<LinearLayout android:layout_width="300dp"
+			<LinearLayout android:id="@+id/user_passwd_layout"
+				android:layout_width="300dp"
 				android:layout_height="wrap_content" android:orientation="vertical"
-				android:layout_marginTop="8dp" android:background="@drawable/setting_background">
+				android:layout_marginTop="8dp" android:background="@drawable/setting_background_gray">
 				<LinearLayout android:id="@+id/sex_layout"
 					android:layout_width="fill_parent" android:layout_height="42dp"
 					android:gravity="center_vertical" android:background="@android:drawable/list_selector_background">
-					<TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+					<TextView android:id="@+id/new_passwd_label"
+						android:layout_width="wrap_content" android:layout_height="wrap_content"
 						android:layout_weight="1" android:ellipsize="end"
 						android:layout_marginLeft="12dp" android:singleLine="true"
 						android:text="@string/account_new_passwd" android:textColor="#555555"
@@ -93,7 +94,8 @@
 				<LinearLayout android:layout_width="fill_parent"
 					android:layout_height="42dp" android:gravity="center_vertical"
 					android:background="@android:drawable/list_selector_background">
-					<TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+					<TextView android:id="@+id/confirm_passwd_label"
+						android:layout_width="wrap_content" android:layout_height="wrap_content"
 						android:layout_weight="1" android:ellipsize="end"
 						android:layout_marginLeft="12dp" android:singleLine="true"
 						android:text="@string/account_confirm_passwd" android:textColor="#555555" 

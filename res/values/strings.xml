@@ -53,10 +53,11 @@
     <string name="account_new_passwd">新密码</string>
     <string name="account_confirm_passwd">确认密码</string>
     <string name="account_confirm_change">确认修改</string>
+	<string name="passed_txt">最少六位</string>
 
     <!-- album -->
     <string name="album_title">我的相册</string>
-    <string name="photo_gallery_title">第%1$d张/供%2$d张</string>
+	<string name="photo_gallery_title">第%1$d张/共%2$d张</string>
     <string name="image_file_name_format" translatable="false">"'IMG'_yyyyMMdd_HHmmss"</string>
 
     <!-- personal_info_title -->
