@@ -16,6 +16,10 @@ public class ServerInterface {
 	public static final String URL_LOGIN = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/login";
 	public static final String URL_REGISTER = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/register";
 	public static final String URL_CHECK = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/test_bin_acc";
+	public static final String URL_uploadAlbum = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/send_url";
+	public static final String URL_getAlbumUrl = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_url";
+	public static final String URL_setPhotoUrl ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/set_portrait_url";
+	public static final String URL_getPhotoUrl ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_portrait_url";
 	public static final String URL_MODIFYPASSWORD = "";
 
 	public static final String app_id = "0ba7932602af4a45bd866bad93be0e50";
@@ -130,7 +134,7 @@ public class ServerInterface {
 	 * 参数 ：上下文参数(this)，用户名，文件路径
 	 * 返回值：void
 	 */
-	public void updateFile(Context context, String username, String filepath) {
+	public void uploadFile(Context context, String username, String filepath) {
 		AmtFileObject fileObj = new AmtFileObject(context);
 		fileObj.uploadFile(app_id, username, filepath);
 	}
@@ -150,5 +154,82 @@ public class ServerInterface {
 				+ filename
 				+ "&mediaType=" + expandname;
 		return url;
+	}
+	
+	/**
+	 * 上传相册 输入参数：用户id，相册名，用户名，文件路径，文件名，文件扩展名 
+	 * 返回值： 0 成功  -1 url为空  -2：数据库操作失败
+	 */
+	public static int uploadAlbum(Context context,String user_id, String albumname,
+			String username, String filepath ,String filename,String expandname) {
+		AmtFileObject fileObj = new AmtFileObject(context);
+		fileObj.uploadFile(app_id, username, filepath);
+		String url = "http://yun.archermind.com/mobile/service/showMedia?appId="
+			+ app_id
+			+ "&userName="
+			+ username
+			+ "&mediaName="
+			+ filename
+			+ "&mediaType=" + expandname;
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("user_id", user_id);
+		map.put("albumname", albumname);
+		map.put("albumurl", url);
+		String res= HttpUtils.doPost(map, URL_uploadAlbum);
+		
+		int result =0;
+		try{
+			result =Integer.parseInt(res);
+		}catch (Exception e){
+			result =-3;   //其他异常情况
+		}
+		return result;
+	}
+	/**
+	 * 获取相册里的照片 输入参数：用户id，相册名
+	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
+	 */
+	public static String getAlbumDownloadUrl(String user_id, String albumname) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("user_id", user_id);
+		map.put("albumname", albumname);
+		String res= HttpUtils.doPost(map, URL_getAlbumUrl);		
+		return res;
+	}
+	/**
+	 * 上传相册 输入参数：用户id,用户名，文件路径，文件名，文件扩展名 
+	 * 返回值： 0 成功  -1 url为空  -2：数据库操作失败
+	 */
+	public static int uploadPhoto(Context context,String user_id,String username,String filepath,String filename,String expandname) {
+		AmtFileObject fileObj = new AmtFileObject(context);
+		fileObj.uploadFile(app_id, username, filepath);
+		String url = "http://yun.archermind.com/mobile/service/showMedia?appId="
+			+ app_id
+			+ "&userName="
+			+ username
+			+ "&mediaName="
+			+ filename
+			+ "&mediaType=" + expandname;
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("user_id", user_id);
+		map.put("portrait", url);
+		String res= HttpUtils.doPost(map, URL_setPhotoUrl);		
+		int result =0;
+		try{
+			result =Integer.parseInt(res);
+		}catch (Exception e){
+			result =-3;   //其他异常情况
+		}
+		return result;
+	}
+	/**
+	 * 获取相册里的照片 输入参数：用户id，相册名
+	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
+	 */
+	public static String getPhoto(String user_id) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("user_id", user_id);
+		String res= HttpUtils.doPost(map, URL_getPhotoUrl);		
+		return res;
 	}
 }

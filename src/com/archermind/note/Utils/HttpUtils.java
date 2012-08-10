@@ -51,7 +51,7 @@ public class HttpUtils {
 
 			if (response.getStatusLine().getStatusCode() == 200) {
 				String strResult = EntityUtils.toString(response.getEntity(),HTTP.UTF_8);
-				strResult = strResult.replace("\"", "");
+				//strResult = strResult.replace("\"", "");
 				Log.i("HttpUtils", "strResult:" + strResult);
 				return strResult;
 			}
