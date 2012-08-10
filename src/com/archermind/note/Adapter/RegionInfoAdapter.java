@@ -72,7 +72,6 @@ public class RegionInfoAdapter extends BaseAdapter {
 			listItemsView = new ViewHandle();
 			convertView = this.listInflater.inflate(R.layout.region_info_item, null);
 			listItemsView.menuText = (TextView)convertView.findViewById(R.id.region_txt);
-			System.out.println("=CCC----" + listItemsView.menuText + "  " + convertView);
 			convertView.setTag(listItemsView);
 		}
 		else{
