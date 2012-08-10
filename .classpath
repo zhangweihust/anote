@@ -5,5 +5,6 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="lib" path="lib/com_weibo_android.jar"/>
+	<classpathentry kind="lib" path="lib/amtcloud_sdk_alpha0.8.1.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

@@ -4,7 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import com.amtcloud.mobile.android.core.AmtApplication;
+import com.amtcloud.mobile.android.file.AmtFileObject;
+
 import android.R.integer;
+import android.content.Context;
 import android.util.Log;
 
 public class ServerInterface {
@@ -13,6 +17,9 @@ public class ServerInterface {
 	public static final String URL_REGISTER = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/register";
 	public static final String URL_CHECK = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/test_bin_acc";
 	public static final String URL_MODIFYPASSWORD = "";
+
+	public static final String app_id = "0ba7932602af4a45bd866bad93be0e50";
+	public static final String app_secret = "2411edd1a2c44249a98e6451592062bc";
 
 	public static final int SUCCESS = 0;
 
@@ -43,7 +50,7 @@ public class ServerInterface {
 	 * 用户注册 输入参数：用户名，用户密码 返回值： SUCCESS 注册成功
 	 */
 	public static int register(int type, String bin_uid, String username,
-			String password, String nickname,int sex) {
+			String password, String nickname, int sex) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user", username);
 		map.put("password", password);
@@ -109,5 +116,39 @@ public class ServerInterface {
 				.doPost(map,
 						"http://player.archermind.com/ci/index.php/aschedule/getWeather");
 		return weather;
+	}
+	/*
+	 * 初始化 在主界面启动的时候调用
+	 * 参数 ：上下文参数(this)
+	 * 返回值：void
+	 */
+	public void InitAmtCloud(Context context) {
+		AmtApplication.amtAppInitialize(context, app_id, app_secret);
+	}
+	/*
+	 * 上传文件：
+	 * 参数 ：上下文参数(this)，用户名，文件路径
+	 * 返回值：void
+	 */
+	public void updateFile(Context context, String username, String filepath) {
+		AmtFileObject fileObj = new AmtFileObject(context);
+		fileObj.uploadFile(app_id, username, filepath);
+	}
+
+	/*
+	 * 获取文件的下载地址
+	 * 参数 ：用户名，文件名（不带扩展名），扩展名
+	 * 返回值：外链下载地址
+	 */
+	public String makeDownloadUrl(String username, String filename,
+			String expandname) {
+		String url = "http://yun.archermind.com/mobile/service/showMedia?appId="
+				+ app_id
+				+ "&userName="
+				+ username
+				+ "&mediaName="
+				+ filename
+				+ "&mediaType=" + expandname;
+		return url;
 	}
 }
