@@ -29,6 +29,7 @@ import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
@@ -379,5 +380,26 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		return false;
 	}
 	
-
+	private boolean mExit_Flag;// 退出标记
+	private long mExit_time = 0; //第一次点击退出的时间 
+	 
+		@Override
+		public boolean dispatchKeyEvent(KeyEvent event) {
+			System.out.println("mainscreen ondispatchKeyEvent");
+			if(event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP){
+				if(HomeScreen.isSubPage() == View.VISIBLE){
+					return super.dispatchKeyEvent(event);
+				}else if (mExit_Flag && (System.currentTimeMillis() - mExit_time < 3000 )) {
+					this.finish();
+					ServiceManager.exit();
+				} else {
+					Toast.makeText(this, getString(R.string.exit), Toast.LENGTH_SHORT)
+							.show();
+					mExit_Flag = true;
+					mExit_time = System.currentTimeMillis();
+				}
+		        return true;
+	        }
+	        return super.dispatchKeyEvent(event);
+		}
 }

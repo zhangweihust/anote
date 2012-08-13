@@ -3,7 +3,7 @@
 
     <!-- home_screen & main_screen -->
     <string name="hello">Hello World, MainActivity!</string>
-    <string name="app_name">微笔记</string>
+    <string name="app_name">分享笔记</string>
     <string name="home_screen_title">笔记本</string>
     <string name="plaza_screen_title">广场</string>
     <string name="home_screen_calendar_page_title">日历</string>
@@ -508,5 +508,7 @@
     <string name="city_32_2">石嘴山</string>
     <string name="city_32_3">吴忠</string>
     <string name="city_32_4">固原</string>
+    
+    <string name="exit">再次点击退出分享笔记</string>
 
 </resources>

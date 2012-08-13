@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.text.format.Time;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -50,7 +51,7 @@ import com.archermind.note.Views.VerticalScrollView;
 public class HomeScreen extends Screen  implements IEventHandler, OnClickListener{
     /** Called when the activity is first created. */
 	private VerticalScrollView mllCalendarPage;
-	private LinearLayout mllHomePage;
+	private static LinearLayout mllHomePage;
 	private LinearLayout mListHeader;
 	private LinearLayout mllBottomInfo;
 	private ImageView mIvMyNoteInfo;
@@ -668,5 +669,20 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		}else{
 			super.onBackPressed();
 		}
+	}
+	
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		System.out.println("homescreen ondispatchKeyEvent");
+		if(mllHomePage.getVisibility() == View.VISIBLE && event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP){
+			System.out.println("homescreen ondispatchKeyEvent000");
+			this.onBackPressed();
+			return true;
+		}
+        return super.dispatchKeyEvent(event);
+	}
+	
+	public static int isSubPage(){
+		return mllHomePage.getVisibility();
 	}
 }
