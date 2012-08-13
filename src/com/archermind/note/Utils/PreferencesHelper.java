@@ -23,6 +23,12 @@ public class PreferencesHelper {
 	public static final String XML_USER_REGION_CITY = "region_city";
 	public static final String XML_USER_ACCOUNT = "account";
 	public static final String XML_USER_PASSWD = "passwd";
+	public static final String XML_SINA_ACCTSS_TOKEN = "sina_access_token";
+	public static final String XML_SINA_EXPIRES_IN = "sina_expires_in";
+	public static final String XML_QQ_ACCTSS_TOKEN = "qq_access_token";
+	public static final String XML_QQ_EXPIRES_IN = "qq_expires_in";
+	public static final String XML_RENREN_ACCTSS_TOKEN = "renren_access_token";
+	public static final String XML_RENREN_EXPIRES_IN = "renren_expires_in";
 	
 	private static Bitmap mUserAvatarBitmap;
 	private static ArrayList<Map<String, Object>> mProvinceLists;

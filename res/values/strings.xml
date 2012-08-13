@@ -45,6 +45,9 @@
     <string name="more_setting">设置</string>
     <string name="setting_title">设置</string>
     <string name="photo_add_sel">请选择来源</string>
+    <string name="setting_title_share">分享设置</string>
+    <string name="share_binded">已关联</string>
+    <string name="share_unbind">未关联</string>
 
     <!-- account -->
     <string name="account_title">我的帐号</string>
@@ -53,11 +56,11 @@
     <string name="account_new_passwd">新密码</string>
     <string name="account_confirm_passwd">确认密码</string>
     <string name="account_confirm_change">确认修改</string>
-	<string name="passed_txt">最少六位</string>
+    <string name="passed_txt">最少六位</string>
 
     <!-- album -->
     <string name="album_title">我的相册</string>
-	<string name="photo_gallery_title">第%1$d张/共%2$d张</string>
+    <string name="photo_gallery_title">第%1$d张/共%2$d张</string>
     <string name="image_file_name_format" translatable="false">"'IMG'_yyyyMMdd_HHmmss"</string>
 
     <!-- personal_info_title -->
@@ -508,7 +511,6 @@
     <string name="city_32_2">石嘴山</string>
     <string name="city_32_3">吴忠</string>
     <string name="city_32_4">固原</string>
-    
     <string name="exit">再次点击退出分享笔记</string>
 
 </resources>

@@ -3,6 +3,9 @@ package com.archermind.note.Screens;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Utils.ImageCapture;
@@ -10,6 +13,7 @@ import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -29,6 +33,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class RegisterScreen extends Screen implements OnClickListener {
@@ -38,9 +43,11 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	private EditText mUserName;
 	private EditText mNickName;
 	private RadioGroup mSex;
+	private TextView mRegion;
 	private EditText mPassWord;
 	private EditText mPswdConfirm;
 	private Button mRegisterButton;
+	private ProgressDialog mProgressDialog;
 	private static final int ALBUM_RESULT = 1;
 	private static final int CAMERA_RESULT = 2;
 	private static final int CROP_RESULT = 3;
@@ -54,30 +61,47 @@ public class RegisterScreen extends Screen implements OnClickListener {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-			switch (msg.what) {
-			case ServerInterface.SUCCESS:
-				SharedPreferences sp = getSharedPreferences("userInfo", 0);
-				Editor editor = sp.edit();
-				editor.putString("uname", mUserName.getText().toString().trim());
-				editor.putString("pswd", mPassWord.getText().toString().trim());
-				editor.commit();
-				NoteApplication.setLogin(true);
-				Toast.makeText(RegisterScreen.this, "注册成功！", Toast.LENGTH_SHORT)
-						.show();
-				break;
-			case ServerInterface.ERROR_ACCOUNT_EXIST:
-				Toast.makeText(RegisterScreen.this,
-						R.string.register_err_account_exist, Toast.LENGTH_SHORT)
-						.show();
-				break;
-			case ServerInterface.ERROR_SERVER_INTERNAL:
+			String result = (String) msg.obj;
+			if (result.equals("" + ServerInterface.ERROR_SERVER_INTERNAL)) {
 				Toast.makeText(RegisterScreen.this,
 						R.string.register_err_server_internal,
 						Toast.LENGTH_SHORT).show();
-				break;
-			default:
-				break;
+				mProgressDialog.dismiss();
+			} else if (result.equals("" + ServerInterface.ERROR_ACCOUNT_EXIST)) {
+				Toast.makeText(RegisterScreen.this,
+						R.string.register_err_account_exist, Toast.LENGTH_SHORT)
+						.show();
+				mProgressDialog.dismiss();
+			} else {
+				mProgressDialog.dismiss();
+				try {
+					JSONObject jsonObject = new JSONObject(result);
+					if (jsonObject.optString("flag").equals(
+							"" + ServerInterface.SUCCESS)) {
+						// 保存本地
+						SharedPreferences sp = getSharedPreferences(
+								PreferencesHelper.XML_NAME, 0);
+						Editor editor = sp.edit();
+						editor.putString(PreferencesHelper.XML_USER_ACCOUNT,
+								jsonObject.optString("email"));
+						editor.putString(PreferencesHelper.XML_USER_PASSWD,
+								jsonObject.getString("pswd"));
+						editor.commit();
+						// 保存至Application
+						NoteApplication noteApplication = NoteApplication
+								.getInstance();
+						noteApplication.setUserName(jsonObject
+								.optString("email"));
+						noteApplication.setUserId(jsonObject.optInt("user_id"));
+						noteApplication.setLogin(true);
+						Log.i(TAG, "register success");
+					}
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
+
 		}
 
 	};
@@ -100,12 +124,16 @@ public class RegisterScreen extends Screen implements OnClickListener {
 			mUserAvatar.setImageBitmap(image);
 		}
 	}
+
 	private void initViews() {
 		mSetAvatar = (LinearLayout) findViewById(R.id.register_set_avatar_layout);
 		mSetAvatar.setOnClickListener(this);
 		mUserAvatar = (ImageView) findViewById(R.id.register_imageview_avatar);
 		mUserName = (EditText) findViewById(R.id.register_editText_username);
 		mNickName = (EditText) findViewById(R.id.register_edittext_nickname);
+		mSex = (RadioGroup) findViewById(R.id.register_ridiogroup_sex);
+		mRegion = (TextView) findViewById(R.id.register_tv_region);
+		mRegion.setOnClickListener(this);
 		mPassWord = (EditText) findViewById(R.id.register_editText_password);
 		mPswdConfirm = (EditText) findViewById(R.id.register_editText_pswdconfirm);
 		mRegisterButton = (Button) findViewById(R.id.btn_register);
@@ -117,6 +145,9 @@ public class RegisterScreen extends Screen implements OnClickListener {
 		switch (v.getId()) {
 		case R.id.register_set_avatar_layout:
 			showSelImageDialog();
+			break;
+		case R.id.register_tv_region:
+
 			break;
 		case R.id.btn_register:
 			register();
@@ -167,6 +198,12 @@ public class RegisterScreen extends Screen implements OnClickListener {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+	private void showProgressDialog(){
+		mProgressDialog = new ProgressDialog(this);
+		mProgressDialog.setMessage("正在登录...");
+		mProgressDialog.show();
+	}
+	
 	private String getFilepathFromUri(Uri uri) {
 		Cursor cursor = mContentResolver.query(uri, null, null, null, null);
 		cursor.moveToFirst();
@@ -269,20 +306,23 @@ public class RegisterScreen extends Screen implements OnClickListener {
 					Toast.LENGTH_SHORT).show();
 			return;
 		}
+		showProgressDialog();//显示进度框
 		new Thread() {
 
 			@Override
 			public void run() {
-				int result = ServerInterface
+				String result = ServerInterface
 						.register(
-								getIntent().getExtras().getInt("login_type"),
+								getIntent().getExtras().getInt("type"),
 								getIntent().getExtras().getString("uid"),
 								username,
 								password,
 								nickname,
 								mSex.getCheckedRadioButtonId() == R.id.register_ridiogroup_man ? 1
 										: 0);
-				mHandler.sendEmptyMessage(result);
+				Message message = new Message();
+				message.obj = result;
+				mHandler.sendMessage(message);
 			}
 
 		}.start();

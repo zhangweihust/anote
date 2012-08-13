@@ -30,7 +30,9 @@ public class ServerInterface {
 
 	public static final int SUCCESS = 0;
 
-	public static final int LOGIN_TYPE_SINA = 10;
+	public static final int LOGIN_TYPE_SINA = 1;
+	public static final int LOGIN_TYPE_QQ = 2;
+	public static final int LOGIN_TYPE_RENREN = 3;
 
 	public static final int ERROR_ACCOUNT_OR_PASSWORD_EMPTY = 1;
 	public static final int ERROR_ACCOUNT_EXIST = 2;
@@ -56,7 +58,7 @@ public class ServerInterface {
 	/**
 	 * 用户注册 输入参数：用户名，用户密码 返回值： SUCCESS 注册成功
 	 */
-	public static int register(int type, String bin_uid, String username,
+	public static String register(int type, String bin_uid, String username,
 			String password, String nickname, int sex) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user", username);
@@ -64,17 +66,17 @@ public class ServerInterface {
 		map.put("nickname", nickname);
 		map.put("acc_type", String.valueOf(type));
 		map.put("bin_acc", bin_uid);
-		return Integer.valueOf(HttpUtils.doPost(map, URL_REGISTER));
+		return HttpUtils.doPost(map, URL_REGISTER);
 	}
 
 	/**
 	 * 用户登录 输入参数：用户名，用户密码 返回值： SUCCESS 登录成功 ERROR_PASSWORD_WRONG 密码错误
 	 */
-	public static int login(String username, String password) {
+	public static String login(String username, String password) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user", username);
 		map.put("password", password);
-		return Integer.valueOf(HttpUtils.doPost(map, URL_LOGIN));
+		return HttpUtils.doPost(map, URL_LOGIN);
 
 	}
 

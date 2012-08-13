@@ -48,6 +48,7 @@
             android:textColor="@color/login_text_color" />
 
         <TextView
+            android:id="@+id/btn_login_qq"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
@@ -57,6 +58,7 @@
             android:textColor="@color/login_text_color" />
 
         <TextView
+            android:id="@+id/btn_login_renren"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -144,7 +146,7 @@
             android:background="@drawable/btn_login_selector"
             android:text="@string/login_btn"
             android:textColor="@color/white"
-            android:textSize="18dp" />
+            android:textSize="18sp" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -161,7 +163,7 @@
                 android:button="@drawable/checkbox_selector"
                 android:text="@string/login_auto"
                 android:textColor="@color/login_text_color"
-                android:textSize="16dp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -170,7 +172,7 @@
                 android:layout_centerVertical="true"
                 android:text="@string/login_findpassword"
                 android:textColor="@color/login_text_color"
-                android:textSize="16dp" />
+                android:textSize="16sp" />
         </RelativeLayout>
     </LinearLayout>
 

@@ -156,6 +156,7 @@
                 android:textColor="@color/register_text_title" />
 
             <TextView
+                android:id="@+id/register_tv_region"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawablePadding="10dp"

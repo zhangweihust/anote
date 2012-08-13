@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/content_background"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/title_bar_background"
+        android:paddingLeft="5dip"
+        android:paddingRight="5dip" >
+
+        <TextView
+            android:id="@+id/tv_title_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:text="@string/setting_title_share"
+            android:textColor="@color/white"
+            android:textSize="@dimen/main_screen_title_size" />
+
+        <Button
+            android:id="@+id/screen_top_play_control_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/screen_go_back_selector" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="@drawable/login_edit_background"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/setting_sina"
+                android:drawablePadding="5dp"
+                android:gravity="center_vertical"
+                android:text="@string/login_sina"
+                android:textColor="@color/register_text_title" />
+
+            <TextView
+                android:id="@+id/share_setting_tv_sina"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:drawablePadding="8dp"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical|right"
+                android:text="@string/share_unbind"
+                android:textColor="@color/register_text_content" />
+
+            <TextView
+                android:id="@+id/share_setting_tv_sina_cancel"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:drawablePadding="8dp"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical|right"
+                android:text="@string/share_binded"
+                android:textColor="@color/toptextcolor"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="2dp"
+            android:layout_gravity="center"
+            android:background="@drawable/listview_divider" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="3dp" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/setting_qq"
+                android:drawablePadding="5dp"
+                android:gravity="center_vertical"
+                android:text="@string/login_qq"
+                android:textColor="@color/register_text_title" />
+
+            <TextView
+                android:id="@+id/share_setting_tv_qq"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:drawablePadding="8dp"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical|right"
+                android:text="@string/share_unbind"
+                android:textColor="@color/register_text_content" />
+            <TextView
+                android:id="@+id/share_setting_tv_qq_cancel"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:drawablePadding="8dp"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical|right"
+                android:text="@string/share_binded"
+                android:textColor="@color/toptextcolor"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="2dp"
+            android:layout_gravity="center"
+            android:background="@drawable/listview_divider" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="3dp" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/setting_renren"
+                android:drawablePadding="5dp"
+                android:gravity="center_vertical"
+                android:text="@string/login_renren"
+                android:textColor="@color/register_text_title" />
+
+            <TextView
+                android:id="@+id/share_setting_tv_renren"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:drawablePadding="8dp"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical|right"
+                android:text="@string/share_unbind"
+                android:textColor="@color/register_text_content" />
+             <TextView
+                android:id="@+id/share_setting_tv_renren_cancel"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:drawablePadding="8dp"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical|right"
+                android:text="@string/share_binded"
+                android:textColor="@color/toptextcolor"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
