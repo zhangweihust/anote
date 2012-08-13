@@ -20,6 +20,9 @@ public class ServerInterface {
 	public static final String URL_getAlbumUrl = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_url";
 	public static final String URL_setPhotoUrl ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/set_portrait_url";
 	public static final String URL_getPhotoUrl ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_portrait_url";
+	public static final String URL_get_info ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_info";
+	public static final String URL_set_info ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/三et_info";
+	
 	public static final String URL_MODIFYPASSWORD = "";
 
 	public static final String app_id = "0ba7932602af4a45bd866bad93be0e50";
@@ -85,11 +88,10 @@ public class ServerInterface {
 	/**
 	 * 修改密码 输入参数：用户名，原密码，新密码 返回值： SUCCESS 修改成功
 	 */
-	public static int modifyPassword(String username, String oldpassword,
-			String newpassword) {
+	public static int modifyPassword(String username,String newpassword) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user", username);
-		map.put("password", oldpassword);
+		//map.put("password", oldpassword);
 		map.put("newpass", newpassword);
 		return Integer.valueOf(HttpUtils.doPost(map, URL_MODIFYPASSWORD));
 	}
@@ -197,7 +199,7 @@ public class ServerInterface {
 		return res;
 	}
 	/**
-	 * 上传相册 输入参数：用户id,用户名，文件路径，文件名，文件扩展名 
+	 * 上传头像 输入参数：用户id,用户名，文件路径，文件名，文件扩展名 
 	 * 返回值： 0 成功  -1 url为空  -2：数据库操作失败
 	 */
 	public static int uploadPhoto(Context context,String user_id,String username,String filepath,String filename,String expandname) {
@@ -223,7 +225,7 @@ public class ServerInterface {
 		return result;
 	}
 	/**
-	 * 获取相册里的照片 输入参数：用户id，相册名
+	 * 获取头像 输入参数：用户id
 	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
 	 */
 	public static String getPhoto(String user_id) {
@@ -231,5 +233,36 @@ public class ServerInterface {
 		map.put("user_id", user_id);
 		String res= HttpUtils.doPost(map, URL_getPhotoUrl);		
 		return res;
+	}
+	
+	/**
+	 * 获取用户信息 输入参数：用户id
+	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
+	 */
+	public static String get_info(String user_id) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("user_id", user_id);
+		String res= HttpUtils.doPost(map, URL_get_info);		
+		return res;
+	}
+	/**
+	 * 获取用户信息 输入参数：用户id
+	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
+	 */
+	public static int set_info(String user_id,String nickname,String gender,String province_id,String city_id) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("user_id", user_id);
+		map.put("nickname", nickname);
+		map.put("gender", gender);
+		map.put("province_id", province_id);
+		map.put("city_id", city_id);
+		String res= HttpUtils.doPost(map, URL_set_info);
+		int result =0;
+		try{
+			result =Integer.parseInt(res);
+		}catch (Exception e){
+			result =-3;   //其他异常情况
+		}
+		return result;
 	}
 }
