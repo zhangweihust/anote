@@ -50,7 +50,7 @@ public class CalendarAdapter extends BaseAdapter {
 	private int dayOfWeek = 0;        //具体某一天是星期几
 	private int lastDaysOfMonth = 0;  //上一个月的总天数
 	private Context context;
-	private String[] dayNumber = new String[42];  //一个gridview中的日期存入此数组中
+	private String[] dayNumber = null;  //一个gridview中的日期存入此数组中
 	private LunarCalendar lc = null; 
 	private Resources res = null;
 	
@@ -86,6 +86,7 @@ public class CalendarAdapter extends BaseAdapter {
 		this.context= context;
 		lc = new LunarCalendar();
 		this.res = rs;
+		System.out.println("year : " + year + ", month : " + month);
 		showYear = year;;  //得到跳转到的年份
 		showMonth = month;  //得到跳转到的月份		
 		flipperHeight = height;
@@ -113,20 +114,26 @@ public class CalendarAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-
+	public View getView(int position, View convertView, ViewGroup parent) {	
+		ViewItem item = null;
 		if(convertView == null){
 			convertView = LayoutInflater.from(context).inflate(R.layout.calendar_item, null);
+			item = new ViewItem();
+			item.tvDate = (TextView) convertView.findViewById(R.id.tv_date);
+			item.ivHasNote = (ImageView) convertView.findViewById(R.id.iv_has_note);
+			convertView.setTag(item);
+		 }else{
+			 item = (ViewItem)convertView.getTag();
 		 }
-		TextView tvDate = (TextView) convertView.findViewById(R.id.tv_date);
+		
+		//System.out.println("dayNumber : " + dayNumber[position]);
 		
 		if(position < 7){
-			tvDate.setHeight(flipperHeight/6 + flipperHeight%6);
+			item.tvDate.setHeight(flipperHeight/6 + flipperHeight%6);
 		}else{
-			tvDate.setHeight(flipperHeight/6);
+			item.tvDate.setHeight(flipperHeight/6);
 		}
 		
-		ImageView ivHasNote = (ImageView) convertView.findViewById(R.id.iv_has_note);
 		String day = dayNumber[position].split("\\.")[0];
 		String lunarDay = dayNumber[position].split("\\.")[1];
 		String holiday = null;
@@ -144,26 +151,26 @@ public class CalendarAdapter extends BaseAdapter {
 		if(holiday != null || holiday != ""){
             sp.setSpan(new RelativeSizeSpan(0.75f), day.length()+1, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
-		tvDate.setText(sp);
-		tvDate.setTextColor(res.getColor(R.color.other_month_days_color));
+		item.tvDate.setText(sp);
+		item.tvDate.setTextColor(res.getColor(R.color.other_month_days_color));
 		
 		
 		if (position < daysOfMonth + dayOfWeek && position >= dayOfWeek) {
 			if(constantFlag == 0){
 				if(lunarDay.contains(LunarCalendar.suffix) || (position+1)%7 == 0 || (position+1)%7 == 1 ){
-					tvDate.setTextColor(res.getColor(R.color.holiday_color));
+					item.tvDate.setTextColor(res.getColor(R.color.holiday_color));
 				}else{
 					sp.setSpan(new ForegroundColorSpan(Color.BLACK), 0, day.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 					sp.setSpan(new ForegroundColorSpan(res.getColor(R.color.lunarday_color)), day.length()+1, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-					tvDate.setText(sp);
+					item.tvDate.setText(sp);
 				}
 			}else{
 				if(lunarDay.contains(LunarCalendar.suffix) || (position+1)%7 == 6 || (position+1)%7 == 0 ){
-					tvDate.setTextColor(res.getColor(R.color.holiday_color));
+					item.tvDate.setTextColor(res.getColor(R.color.holiday_color));
 				}else{
 					sp.setSpan(new ForegroundColorSpan(Color.BLACK), 0, day.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 					sp.setSpan(new ForegroundColorSpan(res.getColor(R.color.lunarday_color)), day.length()+1, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-					tvDate.setText(sp);
+					item.tvDate.setText(sp);
 				}
 			}
 
@@ -171,15 +178,15 @@ public class CalendarAdapter extends BaseAdapter {
 		int hasNote = 0;
 		if(noteFlag != null && noteFlag.length >0){
 				if(noteFlag[position] == DatabaseManager.HAS_NOTE ){
-					ivHasNote.setVisibility(View.VISIBLE);
-					ivHasNote.setImageResource(R.drawable.unsigned);
+					item.ivHasNote.setVisibility(View.VISIBLE);
+					item.ivHasNote.setImageResource(R.drawable.unsigned);
 					hasNote = 1;
 				}else if(noteFlag[position] == DatabaseManager.HAS_SIGNED){
-					ivHasNote.setVisibility(View.VISIBLE);
-					ivHasNote.setImageResource(R.drawable.signed);
+					item.ivHasNote.setVisibility(View.VISIBLE);
+					item.ivHasNote.setImageResource(R.drawable.signed);
 					hasNote = 1;
 				}else{
-					ivHasNote.setVisibility(View.GONE);
+					item.ivHasNote.setVisibility(View.GONE);
 					hasNote = 0;
 				}
 		}
@@ -187,7 +194,8 @@ public class CalendarAdapter extends BaseAdapter {
 		final int fHasNote = hasNote;
 		if(currentFlag == position){ 
 			//设置当天的背景
-			//tvDate.setBackgroundResource(R.drawable.calendar_pressed);
+			//item.tvDate.setBackgroundResource(R.drawable.calendar_pressed);
+			item.tvDate.setBackgroundColor(Color.TRANSPARENT);
 			convertView.setBackgroundResource(R.drawable.calendar_pressed);
 		}
 		
@@ -198,7 +206,7 @@ public class CalendarAdapter extends BaseAdapter {
 		time.set(Calendar.HOUR, 10);
 		final long t = time.getTimeInMillis();
 		
-		tvDate.setOnClickListener(new OnClickListener() {
+		item.tvDate.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View arg0) {
@@ -210,6 +218,7 @@ public class CalendarAdapter extends BaseAdapter {
 				}
 			}
 		});
+		
 		return convertView;
 	}
 	
@@ -251,6 +260,7 @@ public class CalendarAdapter extends BaseAdapter {
 			noteFlag = new int[42];
 		}
 		
+		dayNumber = new String[42];
 		
 		for (int i = 0; i < dayNumber.length; i++) {
 			int k = 1; //因程序计数从0开始，而日期计数从1开始，所以有个差值1			
@@ -345,5 +355,10 @@ public class CalendarAdapter extends BaseAdapter {
 
 	public void setCyclical(String cyclical) {
 		this.cyclical = cyclical;
+	}
+	
+	private class ViewItem{
+		private TextView tvDate;
+		private ImageView ivHasNote;
 	}
 }

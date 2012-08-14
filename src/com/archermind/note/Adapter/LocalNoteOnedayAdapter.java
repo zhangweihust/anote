@@ -7,6 +7,7 @@ import com.archermind.note.R;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Provider.DatabaseManager;
+import com.archermind.note.Screens.HomeScreen;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DateTimeUtils;
 import com.archermind.note.Utils.DensityUtil;
@@ -49,13 +50,12 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 	public void bindView(View view, final Context context, final Cursor cursor) {
 		final NoteOneDayItem item = (NoteOneDayItem) view.getTag(R.layout.note_oneday_listview_item);
 		String title = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_TITLE));
-		System.out.println(title);
+		System.out.println("LocalNoteOnedayAdapter " + title);
 		final long time = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CREATE_TIME));
 		final boolean lastFlag = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_LAST_FLAG)) == 1;
 		final int isSigned = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED));
 		item.tvTitle.setText(title);
 		item.tvTime.setText(DateTimeUtils.time2String("HH:mm", time));
-		
 		
 		if(lastFlag){
 			item.tvDays.setVisibility(View.VISIBLE);

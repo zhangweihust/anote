@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import com.archermind.note.NoteApplication;
+import com.archermind.note.R.id;
 
 public class DateTimeUtils {
 	public static String time2String(String formatter, long date) {
@@ -52,17 +53,24 @@ public class DateTimeUtils {
 		return time.getTimeInMillis();
 	}
 	
-	public static long getYesterdayEnd(long timeInMillis) {
+	public static long getYesterday(int amORpm, long timeInMillis) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a EEEE"); 
 		Calendar time = Calendar.getInstance(Locale.CHINA); 
 		time.setTimeInMillis(timeInMillis);
 		NoteApplication.LogD(DateTimeUtils.class, "当前时间:"+sdf.format(time.getTime()));
 		int nowDay = time.get(Calendar.DAY_OF_MONTH);
 		time.set(Calendar.DATE, nowDay - 1);
-		time.set(Calendar.HOUR_OF_DAY,23);
-		time.set(Calendar.MINUTE,59);
-		time.set(Calendar.SECOND,59);
-		NoteApplication.LogD(DateTimeUtils.class, "昨天结束时间:"+sdf.format(time.getTime()));
+		if(amORpm == Calendar.AM){
+			time.set(Calendar.HOUR_OF_DAY,0);
+			time.set(Calendar.MINUTE,0);
+			time.set(Calendar.SECOND,0);
+			NoteApplication.LogD(DateTimeUtils.class, "今天开始时间:"+sdf.format(time.getTime()));
+		} else {
+			time.set(Calendar.HOUR_OF_DAY,23);
+			time.set(Calendar.MINUTE,59);
+			time.set(Calendar.SECOND,59);
+			NoteApplication.LogD(DateTimeUtils.class, "今天结束时间:"+sdf.format(time.getTime()));
+		}
 		return time.getTimeInMillis();
 	}
 	

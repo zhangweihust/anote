@@ -64,7 +64,7 @@ public class VerticalScrollView extends ViewGroup {
 
     private boolean mAllowLongPress;
 
-    private Set<OnScrollListener> mListeners = new HashSet<OnScrollListener>();
+   // private Set<OnScrollListener> mListeners = new HashSet<OnScrollListener>();
 
     /**
      * Used to inflate the Workspace from XML.
@@ -173,13 +173,13 @@ public class VerticalScrollView extends ViewGroup {
             drawChild(canvas, getChildAt(i), drawingTime);
         }
 
-        for (OnScrollListener mListener : mListeners) {
+        /*for (OnScrollListener mListener : mListeners) {
             int adjustedScrollY = getScrollY() + pageHeightPadding();
             mListener.onScroll(adjustedScrollY);
             if (adjustedScrollY % pageHeight == 0) {
                 mListener.onViewScrollFinished(adjustedScrollY / pageHeight);
             }
-        }
+        }*/
     }
 
     int pageHeightPadding() {
@@ -361,9 +361,10 @@ public class VerticalScrollView extends ViewGroup {
 
     public void snapToPage(final int whichPage) {
     	snapToPage(whichPage, TOP);
-    	 for (OnScrollListener mListener : mListeners) {
+    	
+/*    	 for (OnScrollListener mListener : mListeners) {
     		 mListener.snapToPage(whichPage);
-         }
+         }*/
     	
     }
 
@@ -447,13 +448,13 @@ public class VerticalScrollView extends ViewGroup {
             };
     }
 
-    public void addOnScrollListener(OnScrollListener listener) {
+/*    public void addOnScrollListener(OnScrollListener listener) {
         mListeners.add(listener);
     }
 
     public void removeOnScrollListener(OnScrollListener listener) {
         mListeners.remove(listener);
-    }
+    }*/
 
     /**
      * Implement to receive events on scroll position and page snaps.

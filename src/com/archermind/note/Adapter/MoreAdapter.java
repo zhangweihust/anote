@@ -46,14 +46,18 @@ public class MoreAdapter extends BaseAdapter
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		
+		ListItemsView item = null;
 		if(convertView == null){
 			convertView = LayoutInflater.from(mCtx).inflate(R.layout.more_popup_window_item, null);
-		 }
-		TextView tvItemTitle = (TextView) convertView.findViewById(R.id.tv_item_title);
-		ImageView ivItemIcon = (ImageView) convertView.findViewById(R.id.iv_item_icon);
-		tvItemTitle.setText(mCtx.getString((Integer)this.listItems.get(position).get("menuText")));
-		ivItemIcon.setImageResource((Integer)this.listItems.get(position).get("menuIcon"));
+			item = new ListItemsView();
+			item.menuIcon = (ImageView) convertView.findViewById(R.id.iv_item_icon);
+			item.menuText = (TextView) convertView.findViewById(R.id.tv_item_title);
+			convertView.setTag(item);
+		}else{
+			item = (ListItemsView)convertView.getTag();
+		}
+		item.menuText.setText(mCtx.getString((Integer)this.listItems.get(position).get("menuText")));
+		item.menuIcon.setImageResource((Integer)this.listItems.get(position).get("menuIcon"));
 		
 		return convertView;
 	}
@@ -79,5 +83,6 @@ public class MoreAdapter extends BaseAdapter
 		public ImageView menuIcon;
 		public TextView menuText;
 	}
+	
 	
 }

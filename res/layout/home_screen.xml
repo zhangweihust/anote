@@ -33,6 +33,7 @@
 		            android:layout_height="wrap_content"
 		            android:divider="@color/content_background"
 		            android:background="@color/transparent"
+		            android:listSelector="@drawable/listview_selector"
 		            android:cacheColorHint="#00000000"  
 		            >
 		        </ListView>
@@ -188,6 +189,7 @@
 		            android:layout_height="wrap_content"
 		            android:divider="@color/content_background"
 		            android:background="@color/transparent"
+		            android:listSelector="@drawable/listview_selector"
 		            android:cacheColorHint="#00000000"
 		            >
 		        </ListView>

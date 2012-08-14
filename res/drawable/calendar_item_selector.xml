@@ -13,6 +13,7 @@
 		>
 	</item>
 	<item
+	    android:state_window_focused="false" 
 		android:drawable="@drawable/calendar_background"
 		>
 	</item>

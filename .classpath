@@ -5,5 +5,7 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="lib" path="libs/amtcloud_sdk_alpha0.8.1.jar"/>
+	<classpathentry kind="lib" path="libs/Android_SDK_v1.2.jar"/>
+	<classpathentry kind="lib" path="libs/renren_android_connect.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
