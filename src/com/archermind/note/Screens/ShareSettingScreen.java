@@ -122,8 +122,9 @@ public class ShareSettingScreen extends Screen implements OnClickListener {
 					mQQView.setVisibility(View.GONE);
 					mQQView_Cancel.setVisibility(View.VISIBLE);
 				} else {
-					Toast.makeText(this, "呃，出现了点问题，再试一次吧！", Toast.LENGTH_SHORT)
-							.show();
+					Toast.makeText(this,
+							getString(R.string.login_err_server_internal),
+							Toast.LENGTH_SHORT).show();
 				}
 			}
 		}
@@ -157,28 +158,32 @@ public class ShareSettingScreen extends Screen implements OnClickListener {
 	 */
 	private void unbindSinaweibo() {
 		new AlertDialog.Builder(this)
-				.setTitle("确定解除关联？")
-				.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+				.setTitle(R.string.share_unbind_title)
+				.setPositiveButton(R.string.setting_ok,
+						new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						SharedPreferences sp = getSharedPreferences(
-								PreferencesHelper.XML_NAME, 0);
-						Editor editor = sp.edit();
-						editor.remove(PreferencesHelper.XML_SINA_ACCTSS_TOKEN);
-						editor.remove(PreferencesHelper.XML_SINA_EXPIRES_IN);
-						editor.commit();
-						mSinaView.setVisibility(View.VISIBLE);
-						mSinaView_Cancel.setVisibility(View.GONE);
-					}
-				})
-				.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								SharedPreferences sp = getSharedPreferences(
+										PreferencesHelper.XML_NAME, 0);
+								Editor editor = sp.edit();
+								editor.remove(PreferencesHelper.XML_SINA_ACCTSS_TOKEN);
+								editor.remove(PreferencesHelper.XML_SINA_EXPIRES_IN);
+								editor.commit();
+								mSinaView.setVisibility(View.VISIBLE);
+								mSinaView_Cancel.setVisibility(View.GONE);
+							}
+						})
+				.setNegativeButton(R.string.setting_cancel,
+						new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
 
-					}
-				}).create().show();
+							}
+						}).create().show();
 
 	}
 
@@ -200,28 +205,32 @@ public class ShareSettingScreen extends Screen implements OnClickListener {
 	 */
 	private void unbindQQweibo() {
 		new AlertDialog.Builder(this)
-				.setTitle("确定解除关联？")
-				.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+				.setTitle(R.string.share_unbind_title)
+				.setPositiveButton(R.string.setting_ok,
+						new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						SharedPreferences sp = getSharedPreferences(
-								PreferencesHelper.XML_NAME, 0);
-						Editor editor = sp.edit();
-						editor.remove(PreferencesHelper.XML_QQ_ACCTSS_TOKEN);
-						editor.remove(PreferencesHelper.XML_QQ_EXPIRES_IN);
-						editor.commit();
-						mQQView.setVisibility(View.VISIBLE);
-						mQQView_Cancel.setVisibility(View.GONE);
-					}
-				})
-				.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								SharedPreferences sp = getSharedPreferences(
+										PreferencesHelper.XML_NAME, 0);
+								Editor editor = sp.edit();
+								editor.remove(PreferencesHelper.XML_QQ_ACCTSS_TOKEN);
+								editor.remove(PreferencesHelper.XML_QQ_EXPIRES_IN);
+								editor.commit();
+								mQQView.setVisibility(View.VISIBLE);
+								mQQView_Cancel.setVisibility(View.GONE);
+							}
+						})
+				.setNegativeButton(R.string.setting_cancel,
+						new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
 
-					}
-				}).create().show();
+							}
+						}).create().show();
 
 	}
 
@@ -279,28 +288,32 @@ public class ShareSettingScreen extends Screen implements OnClickListener {
 	 */
 	private void unbindRenren() {
 		new AlertDialog.Builder(this)
-				.setTitle("确定解除关联？")
-				.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+				.setTitle(R.string.share_unbind_title)
+				.setPositiveButton(R.string.setting_ok,
+						new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						SharedPreferences sp = getSharedPreferences(
-								PreferencesHelper.XML_NAME, 0);
-						Editor editor = sp.edit();
-						editor.remove(PreferencesHelper.XML_RENREN_ACCTSS_TOKEN);
-						editor.remove(PreferencesHelper.XML_RENREN_EXPIRES_IN);
-						editor.commit();
-						mRenrenView.setVisibility(View.VISIBLE);
-						mRenrenView_Cancel.setVisibility(View.GONE);
-					}
-				})
-				.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								SharedPreferences sp = getSharedPreferences(
+										PreferencesHelper.XML_NAME, 0);
+								Editor editor = sp.edit();
+								editor.remove(PreferencesHelper.XML_RENREN_ACCTSS_TOKEN);
+								editor.remove(PreferencesHelper.XML_RENREN_EXPIRES_IN);
+								editor.commit();
+								mRenrenView.setVisibility(View.VISIBLE);
+								mRenrenView_Cancel.setVisibility(View.GONE);
+							}
+						})
+				.setNegativeButton(R.string.setting_cancel,
+						new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
 
-					}
-				}).create().show();
+							}
+						}).create().show();
 
 	}
 

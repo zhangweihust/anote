@@ -53,6 +53,9 @@
     <string name="setting_title_share">分享设置</string>
     <string name="share_binded">已关联</string>
     <string name="share_unbind">未关联</string>
+    <string name="share_unbind_title">确定解除关联？</string>
+    <string name="setting_ok">确定</string>
+    <string name="setting_cancel">取消</string>
 
     <!-- account -->
     <string name="account_title">我的帐号</string>
@@ -86,13 +89,16 @@
     <string name="login_username">请输入微笔记帐号</string>
     <string name="login_password">请输入密码</string>
     <string name="login_btn">账号登录</string>
+    <string name="logout_btn">退出登录</string>
     <string name="login_auto">自动登录</string>
+    <string name="login_failed">呃，网络可能出了点问题！</string>
     <string name="login_err_username_format">请输入正确格式的邮箱！</string>
     <string name="login_err_password_format">密码为6至16位的数字和字母组合！</string>
     <string name="login_err_username_not_exist">用户名不存在！</string>
     <string name="login_err_password_wrong">用户名或密码错误！</string>
     <string name="login_err_server_internal">服务器连接错误，请稍候再试！</string>
     <string name="login_findpassword">忘记密码？</string>
+    <string name="logout_title">确定退出登录？</string>
 
     <!-- register -->
     <string name="register_title">补充个人信息</string>

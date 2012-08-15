@@ -44,8 +44,8 @@
 
         <ImageView
             android:id="@+id/register_imageview_avatar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:src="@drawable/my_photo" />
 
         <TextView
@@ -161,7 +161,7 @@
                 android:layout_height="wrap_content"
                 android:drawablePadding="10dp"
                 android:drawableRight="@drawable/icon_arrow"
-                android:text="湖北武汉"
+                android:textSize="15sp"
                 android:textColor="@color/register_text_content" />
         </LinearLayout>
     </LinearLayout>

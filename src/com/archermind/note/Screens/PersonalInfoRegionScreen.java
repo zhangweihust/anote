@@ -57,9 +57,10 @@ public class PersonalInfoRegionScreen extends Screen implements OnClickListener 
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
 				// TODO Auto-generated method stub
-				mProvinceList.setVisibility(View.GONE); 
+				mProvinceList.setVisibility(View.GONE);
 				mCityList.setVisibility(View.VISIBLE);
 				adapter2.setProvince(arg2);
+				adapter2.notifyDataSetChanged();
 				
 				if (adapter2.getCount() == 0) {
 					saveRegion(arg2, 0);

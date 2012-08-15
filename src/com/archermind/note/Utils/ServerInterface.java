@@ -21,7 +21,7 @@ public class ServerInterface {
 	public static final String URL_setPhotoUrl ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/set_portrait_url";
 	public static final String URL_getPhotoUrl ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_portrait_url";
 	public static final String URL_get_info ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_info";
-	public static final String URL_set_info ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/三et_info";
+	public static final String URL_set_info ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/set_info";
 	
 	public static final String URL_MODIFYPASSWORD = "";
 
@@ -59,13 +59,16 @@ public class ServerInterface {
 	 * 用户注册 输入参数：用户名，用户密码 返回值： SUCCESS 注册成功
 	 */
 	public static String register(int type, String bin_uid, String username,
-			String password, String nickname, int sex) {
+			String password, String nickname, int sex, int provinceId, int cityId) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user", username);
 		map.put("password", password);
 		map.put("nickname", nickname);
 		map.put("acc_type", String.valueOf(type));
 		map.put("bin_acc", bin_uid);
+		map.put("sex", String.valueOf(sex));
+		map.put("province_id", String.valueOf(provinceId));
+		map.put("city_id", String.valueOf(cityId));
 		return HttpUtils.doPost(map, URL_REGISTER);
 	}
 

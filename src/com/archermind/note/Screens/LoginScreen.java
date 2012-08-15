@@ -80,13 +80,14 @@ public class LoginScreen extends Screen implements OnClickListener {
 							RegisterScreen.class);
 					intent.putExtras(msg.getData());
 					startActivity(intent);
+					finish();
 				} else {
 					mProgressDialog.dismiss();
 					try {
 						JSONObject jsonObject = new JSONObject(result);
 						if (jsonObject.optString("flag").equals(
 								"" + ServerInterface.SUCCESS)) {
-							//保存本地
+							// 保存本地
 							SharedPreferences sp = getSharedPreferences(
 									PreferencesHelper.XML_NAME, 0);
 							Editor editor = sp.edit();
@@ -96,15 +97,21 @@ public class LoginScreen extends Screen implements OnClickListener {
 							editor.putString(PreferencesHelper.XML_USER_PASSWD,
 									jsonObject.getString("pswd"));
 							editor.commit();
-							//保存至Application
-							NoteApplication noteApplication = NoteApplication.getInstance();
-							noteApplication.setUserName(jsonObject.optString("email"));
-							noteApplication.setUserId(jsonObject.optInt("user_id"));
+							// 保存至Application
+							NoteApplication noteApplication = NoteApplication
+									.getInstance();
+							noteApplication.setUserName(jsonObject
+									.optString("email"));
+							noteApplication.setUserId(jsonObject
+									.optInt("user_id"));
 							noteApplication.setLogin(true);
 							Log.i(TAG, "login success");
+							finish();
 						}
 					} catch (JSONException e) {
-						// TODO Auto-generated catch block
+						Toast.makeText(LoginScreen.this,
+								R.string.login_failed,
+								Toast.LENGTH_SHORT).show();
 						e.printStackTrace();
 					}
 				}
@@ -156,12 +163,12 @@ public class LoginScreen extends Screen implements OnClickListener {
 		}
 	}
 
-	private void showProgressDialog(){
+	private void showProgressDialog() {
 		mProgressDialog = new ProgressDialog(this);
 		mProgressDialog.setMessage("正在登录...");
 		mProgressDialog.show();
 	}
-	
+
 	/*
 	 * 普通登录：输入微笔记账号密码
 	 */
@@ -178,7 +185,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 					Toast.LENGTH_SHORT).show();
 			return;
 		}
-		showProgressDialog();//显示进度框
+		showProgressDialog();// 显示进度框
 		new Thread() {
 
 			@Override
@@ -198,7 +205,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 	private void login_others(int type, String uid) {
 		final int type_thread = type;
 		final String uid_thread = uid;
-		showProgressDialog();//显示进度框
+		showProgressDialog();// 显示进度框
 		new Thread() {
 
 			@Override
@@ -246,7 +253,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 	 * 绑定人人账号
 	 */
 	private void bindRenRen() {
-		Renren renren = new Renren(ShareSettingScreen.APPKEY_RENREN,
+		final Renren renren = new Renren(ShareSettingScreen.APPKEY_RENREN,
 				ShareSettingScreen.APPSECRET_RENREN,
 				ShareSettingScreen.APPID_RENREN, this);
 		renren.logout(this);
@@ -260,9 +267,9 @@ public class LoginScreen extends Screen implements OnClickListener {
 
 			@Override
 			public void onComplete(Bundle values) {
-				Log.e(TAG, values.toString());
-				Log.e(TAG, values.getString("access_token"));
-				Log.e(TAG, values.getString("expires_in"));
+				Log.i(TAG, values.toString());
+				Log.i(TAG, values.getString("access_token"));
+				Log.i(TAG, values.getString("expires_in"));
 				SharedPreferences sp = getSharedPreferences(
 						PreferencesHelper.XML_NAME, 0);
 				Editor editor = sp.edit();
@@ -274,7 +281,9 @@ public class LoginScreen extends Screen implements OnClickListener {
 								+ Long.parseLong(values.getString("expires_in"))
 								* 1000);
 				editor.commit();
-				login_others(ServerInterface.LOGIN_TYPE_RENREN, "");
+				Log.i(TAG, "renrenuid:" + renren.getCurrentUid());
+				login_others(ServerInterface.LOGIN_TYPE_RENREN,
+						String.valueOf(renren.getCurrentUid()));
 			}
 
 			@Override
