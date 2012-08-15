@@ -4,6 +4,8 @@ import com.archermind.note.R;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Provider.DatabaseManager;
+import com.archermind.note.Screens.EditNoteScreen;
+import com.archermind.note.Screens.MainScreen;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DateTimeUtils;
 
@@ -11,13 +13,16 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
@@ -122,6 +127,20 @@ public class LocalNoteAdapter  extends CursorAdapter {
 				madTransact = mbuilder.create(); 
 				madTransact.show();
 				return false;
+			}
+		});
+		
+		final String notePath = cursor.getString((cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT)));
+		item.rlNoteInfo.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Intent intent = new Intent();
+				intent.putExtra("notePath", notePath);
+				intent.putExtra("isNewNote", false);
+				intent.putExtra("noteID", id);
+				intent.setClass(MainScreen.mContext, EditNoteScreen.class);
+				MainScreen.mContext.startActivity(intent);
 			}
 		});
 		EventArgs args = new EventArgs();

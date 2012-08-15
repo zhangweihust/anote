@@ -12,8 +12,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -29,6 +34,7 @@ import com.archermind.note.Utils.SetSystemProperty;
 import com.archermind.note.editnote.ColorPickerDialog;
 import com.archermind.note.editnote.ColorPickerDialog.OnColorChangedListener;
 import com.archermind.note.editnote.MyEditText;
+import com.archermind.note.editnote.NoteSaveDialog;
 import com.archermind.note.gesture.AmGesture;
 import com.archermind.note.gesture.AmGestureLibraries;
 import com.archermind.note.gesture.AmGestureLibrary;
@@ -43,15 +49,19 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.Selection;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextWatcher;
 import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -88,6 +98,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
     
     private ImageButton saveButton = null;
     
+    private ImageButton backButton = null;
     private GridView faceGridview = null;
     private FaceAdapter faceAdapter = null;
     
@@ -125,6 +136,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 	private Dialog picchoose_dialog = null;
 //	private Dialog diary_category_dialog = null;
 	private Dialog weather_dialog = null;
+	private NoteSaveDialog save_dialog = null;
 	
 	public static final int PICINSERTSTATE = 1;
 	public static final int FACEINSERTSTATE = 2;
@@ -163,7 +175,20 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 	
 	private LinkedHashMap<String, String> mPicMap = null;
 	
+//	private StringBuffer mStrBuf = null;
 	
+    private ArrayList<String> mStrList = null;
+    private boolean isNeedSaveChange = true;
+    private int mCurPage = 0;
+    private int mLastPageEnd = 0;
+    private int mTotalPage = 0;
+    private boolean isInsert = false;
+    
+    private String mDiaryPath = "";
+    
+    private boolean hasChanged = false;
+    
+    private boolean isNewNote = true;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -233,10 +258,584 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 			}
 		}).start();
 		
+//		mStrBuf = new StringBuffer();
+		mStrList = new ArrayList<String>();
+		
 		saveButton = (ImageButton) findViewById(R.id.screen_top_control_save);
 		saveButton.setOnClickListener(this);
-		reload();
+		
+		backButton = (ImageButton) findViewById(R.id.screen_top_play_control_back);
+		backButton.setOnClickListener(this);
+		
+		String notePath = getIntent().getStringExtra("notePath");
+		if (notePath != null) {
+			mDiaryPath = notePath;
+		    reload(notePath);
+		}
+		
+		myEdit.addTextChangedListener(new TextWatcher() {
+			
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				// TODO Auto-generated method stub
+				hasChanged = true;
+				
+			    ImageSpan [] imgspans = myEdit.getText().getSpans(start, start+count, ImageSpan.class);
+			    if (count == 0) {
+			        imgspans = new ImageSpan[0];
+			    }
+			    if (!isNeedSaveChange) {
+					isNeedSaveChange = true;
+			    	return;
+			    }
+			   
+			    int position = findstartPosition(start);
+			    if (imgspans.length == 0) {//没有插入图片
+			    	String strItem = "";
+			    	if (mStrList.size() > mLastPageEnd + position) {
+			    		strItem = mStrList.get(mLastPageEnd + position);
+			    	}
+			    	try {
+			    		
+			    		String newString = getNewString(start);
+			    	    if (newString.length() != 0) {
+				    		if (strItem.startsWith("str:")) {
+				    	    	strItem = mStrList.set(mLastPageEnd + position, "str:" + newString);
+				    	    } else if (strItem.endsWith("")){
+				    	    	mStrList.add(mLastPageEnd + position, "str:" + newString);
+				    	    }
+			    	    } else {
+			    	    	if (strItem.startsWith("str:")) {
+			    	    		mStrList.remove(mLastPageEnd + position);
+			    	    	}
+			    	    }
+			    	    
+			    	} catch (Exception e) {
+			    		e.printStackTrace();
+			    	}
+			    } else {//插入的是图片，若图片在文字中间，则将文字分割。
+			    	ImageSpan span = imgspans[0];
+			    	int start_index = myEdit.getText().getSpanStart(span);
+					int end_index = myEdit.getText().getSpanEnd(span);
+					String spanStr = myEdit.getText().subSequence(start_index, end_index).toString();
+					String [] arrayStr = spanStr.split("_");
+					String beforeStr = "";
+					String afterStr = getNewString(end_index);
+					if (afterStr.length() != 0 && findEndIndex(start) < start) {
+						beforeStr = getNewString(start_index);
+					}
+					
+					int picindex = mLastPageEnd + position;
+					
+					if (findEndIndex(start) < start && afterStr.length() == 0) {
+						picindex = mLastPageEnd + position + 1;
+			    	}
+					
+					if (arrayStr.length == 2) {
+						if (arrayStr[0].equals("hw")) {
+							mStrList.add(picindex, "hw:" + spanStr);
+							if (beforeStr.length() != 0) {
+						        mStrList.add(picindex, "str:" + beforeStr);
+						        String str1 = mStrList.get(mLastPageEnd + position + 2);
+								if (str1.startsWith("str:")) {
+								    mStrList.set(mLastPageEnd + position + 2, "str:" + afterStr);
+								}
+							}
+						} else if (arrayStr[0].equals("pic")) {
+							mStrList.add(picindex, "pic:" + spanStr);
+							if (beforeStr.length() != 0) {
+						        mStrList.add(picindex, "str:" + beforeStr);
+						        String str1 = mStrList.get(mLastPageEnd + position + 2);
+								if (str1.startsWith("str:")) {
+								    mStrList.set(mLastPageEnd + position + 2, "str:" + afterStr);
+								}
+							}
+						} else if (arrayStr[0].equals("face")) {
+							mStrList.add(picindex, "face:" + spanStr);
+							if (beforeStr.length() != 0) {
+						        mStrList.add(picindex, "str:" + beforeStr);
+						        String str1 = mStrList.get(mLastPageEnd + position + 2);
+								if (str1.startsWith("str:")) {
+								    mStrList.set(mLastPageEnd + position + 2, "str:" + afterStr);
+								}
+							}
+						}
+					}
+			    }
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+			    if (!isNeedSaveChange) {
+			    	return;
+			    }
+			    ImageSpan [] imgspans = myEdit.getText().getSpans(start, start+count, ImageSpan.class);
+			    if (count == 0) {
+			        imgspans = new ImageSpan[0];
+			    }
+			    int position = findstartPosition(start);
+			    if (imgspans.length != 0) {//删除的是图片。
+					
+					int picindex = mLastPageEnd + position;
+					
+					if (findEndIndex(start) < start) {
+						picindex = mLastPageEnd + position + 1;
+			    	}
+					
+					
+					mStrList.remove(picindex);
+					if (mStrList.size() > picindex && picindex > mLastPageEnd  && mStrList.get(picindex - 1).startsWith("str:") && mStrList.get(picindex).startsWith("str:")) {
+						String tempStr = mStrList.get(picindex);
+						tempStr = tempStr.substring(tempStr.indexOf(":") + 1);
+						mStrList.set(picindex - 1, mStrList.get(picindex - 1) + tempStr);
+						mStrList.remove(picindex);
+					}
+			    }
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+				if (isInsert) {
+					return;
+				}
+		        int totalLine = myEdit.getLineCount();
+		        int i = countLinesHeight(totalLine);
+		        
+		        if (i != totalLine) {
+		        	int lineStart = myEdit.getLayout().getLineStart(i + 1);
+		        	int textLength = myEdit.getText().length();
+		        	if (lineStart < textLength) { //超出部分
+						
+						processWhenOutofbounds(i, lineStart, textLength);
+			    	    
+						int curLine = myEdit.getLayout().getLineForOffset(myEdit.getSelectionStart());
+						if (curLine >= i + 1) {
+							moveNextPage();
+						} else {
+						    myEdit.getText().delete(lineStart, textLength);
+						}
+		        	}
+		        } else {
+		        	if (mCurPage < mTotalPage) {
+		        		processWhenInBounds();
+		        	}
+		        }
+			}
+		});
+		
+		myEdit.setEditNote(this);
 	}
+	
+	private int countLinesHeight(int totalLine) {
+		int totalHeight = 0;
+        Rect rc = new Rect();
+        int i = 0;
+        for (i = 0;i < totalLine; i++) {
+        	myEdit.getLineBounds(i, rc);
+            int curLineHeight = rc.height();
+            totalHeight += curLineHeight;
+            if (totalHeight > myEdit.getHeight()) {
+            	return i;
+            }
+        }
+        return totalLine;
+	}
+	
+	private void processWhenOutofbounds(int i,int lineStart,int textLength) {
+    	isNeedSaveChange = false;
+		
+		int position = findstartPosition(lineStart);
+		String strItem = "";
+		if (mStrList.size() > mLastPageEnd + position) {
+    		strItem = mStrList.get(mLastPageEnd + position);
+    	}
+		
+		String newString = getNewString(lineStart);
+	    if (newString.length() != 0) {
+    		if (strItem.startsWith("str:")) {//超出部分本来就是字符串，则将字符串分割，一部分在当前页，一部分放在下一页。
+    			String strTemp = myEdit.getText().subSequence(findEndIndex(lineStart), lineStart).toString();
+    			strTemp = strTemp.replace("\n", "\\n");
+    			mStrList.set(mLastPageEnd + position, "str:" + strTemp);
+    			int nextPageIndex = findNextPage(position);
+    			if (nextPageIndex != -1) { //将新一页的标志清掉。然后重新插入新一页的标志
+    				mStrList.remove(nextPageIndex);
+    				mTotalPage--;
+    			}
+    			mStrList.add(mLastPageEnd + position + 1, "gft:"+"page"+String.valueOf(mCurPage));
+    			mTotalPage++;
+    			// 本页超出的本分
+    			mStrList.add(mLastPageEnd + position + 2,
+    					"str:" + myEdit.getText().subSequence(lineStart, findStartIndex(lineStart))
+    					.toString().replace("\n", "\\n"));
+    			mergerSentence(mLastPageEnd + position + 2);
+    		} else {
+    			int nextPageIndex = findNextPage(position);
+    			if (nextPageIndex != -1) { //将新一页的标志清掉。然后重新插入新一页的标志
+    				mStrList.remove(nextPageIndex);
+    				mTotalPage--;
+    			}
+    			mStrList.add(mLastPageEnd + position, "gft:"+"page"+String.valueOf(mCurPage));
+    			mTotalPage++;
+    			mStrList.add(mLastPageEnd + position + 1,"str:" + newString);
+    	    	mergerSentence(mLastPageEnd + position + 1);
+    		}
+	    } else {
+	    	int nextPageIndex = findNextPage(position);
+			if (nextPageIndex != -1) { //将新一页的标志清掉。然后重新插入新一页的标志
+				mStrList.remove(nextPageIndex);
+				mTotalPage--;
+			}
+	    	mStrList.add(mLastPageEnd + position, "gft:"+"page"+String.valueOf(mCurPage));
+	    	mTotalPage++;
+	    }
+	    
+	    
+	}
+	
+	private void processWhenInBounds() {
+		int textLength = myEdit.getText().length();
+		int position = findstartPosition(textLength);
+		
+		int pageStart = findNextPage(mLastPageEnd + position);
+		String pageStr = mStrList.get(pageStart);
+		if (pageStart == -1) {
+			return;
+		}
+		pageStart = pageStart + 1;
+		int pageEnd = findNextPage(pageStart);
+		if (pageEnd == -1) {
+			pageEnd = mStrList.size();
+		}
+		
+		
+		for (int i = pageStart;i < pageEnd;i++) {
+			isInsert = true;
+			addItemOfEditText(i);
+			int totalLine = myEdit.getLineCount();
+	        int j = countLinesHeight(totalLine);
+	        wrapItemOfList(mStrList.indexOf(pageStr),i);
+	        
+	        if (j != totalLine) {
+	        	int lineStart = myEdit.getLayout().getLineStart(j + 1);
+	        	int textLength2 = myEdit.getText().length();
+	        	if (lineStart < textLength2) { //超出本分
+					processWhenOutofbounds(i, lineStart, textLength);
+					myEdit.getText().delete(lineStart, textLength);
+	        	}
+	        	
+	        	isInsert = false;
+	        	break;
+	        }
+	        isInsert = false;
+		}
+		
+		if (pageStart > 1) {
+    	    mergerSentence(pageStart - 2);
+    	}
+	}
+	
+	private void wrapItemOfList(int i,int j) {
+		String str1 = mStrList.get(i);
+		String str2 = mStrList.get(j);
+		mStrList.set(i, str2);
+		mStrList.set(j, str1);
+	}
+	
+	private void addItemOfEditText(int i) {
+		String tempString = mStrList.get(i);
+		isNeedSaveChange = false;
+		if (tempString.startsWith("str:")) {
+    		String str = tempString.substring("str:".length()).replace("\\n", "\n");
+    	    myEdit.getEditableText().append(str);
+    	} else if (tempString.startsWith("hw:")) {
+    		String value = tempString.substring("hw:".length(), tempString.length());
+        	
+        	if (mStore == null) {
+        		if (gestureFile == null) {
+            		gestureFile = new File("/sdcard/aNote/gesture");
+            	}
+            	
+            	if (!gestureFile.exists()) {
+                    return;
+        		}
+                mStore = AmGestureLibraries.fromFile(gestureFile);
+                mStore.load(false);
+            }
+        	
+        	if (mStore != null && mStore.getGestures(value) != null) {
+	        	AmGesture gesture = mStore.getGestures(value).get(0);
+	        	Bitmap bmp = Bitmap.createBitmap(DensityUtil.dip2px(EditNoteScreen.this,50), DensityUtil.dip2px(EditNoteScreen.this,71), Bitmap.Config.ARGB_8888);;
+	        	bmp.eraseColor(0x00000000);
+	        	Canvas canvas = new Canvas(bmp);
+	        	canvas.drawBitmap(gesture.toBitmap(dip2px(44), dip2px(44), 0, gesture.getGesturePaintColor()), dip2px(3), dip2px(20), null);
+	        	Drawable drawable = new BitmapDrawable(bmp);
+	            drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
+	  		    ImageSpan span = new ImageSpan(drawable,ImageSpan.ALIGN_BOTTOM);
+	  			SpannableString spanStr = new SpannableString(value);
+	  			spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+	  			myEdit.getEditableText().append(spanStr);
+        	}
+    	} else if (tempString.startsWith("pic:")) {
+    		String value = tempString.substring("pic:".length(), tempString.length());
+    		String path = mPicMap.get(value);
+    		if (path == null) {
+    			return;
+    		}
+    		if (mPicMap == null) {
+    			mPicMap = new LinkedHashMap<String, String>();
+    		}
+    		Bitmap bmp = decodeFile(new File(path));
+	        ImageSpan span = new ImageSpan(bmp);
+			SpannableString spanStr = new SpannableString(value);
+			spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			myEdit.getText().append(spanStr);
+    	} else if (tempString.startsWith("face:")) {
+    		String value = tempString.substring("face:".length(), tempString.length());
+    		if (value.endsWith("face_a1")) {
+    			appendFace(R.drawable.face_a1);
+    		} else if (value.endsWith("face_a2")) {
+    			appendFace(R.drawable.face_a2);
+    		} else if (value.endsWith("face_a3")) {
+    			appendFace(R.drawable.face_a3);
+    		} else if (value.endsWith("face_a4")) {
+    			appendFace(R.drawable.face_a4);
+    		} else if (value.endsWith("face_a5")) {
+    			appendFace(R.drawable.face_a5);
+    		} else if (value.endsWith("face_a6")) {
+    			appendFace(R.drawable.face_a6);
+    		} else if (value.endsWith("face_a7")) {
+    			appendFace(R.drawable.face_a7);
+    		} else if (value.endsWith("face_a8")) {
+    			appendFace(R.drawable.face_a8);
+    		}
+    	}
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private int findstartPosition(int start) {
+		int newLineNum = 0;
+		if (start == 0) {
+			return 0;
+		}
+		ImageSpan [] imgspans = myEdit.getText().getSpans(0, start, ImageSpan.class);
+		Spanned textSpan = myEdit.getText();
+		int startIndex = 0;
+		int endIndex = 0;
+		Arrays.sort(imgspans, new SpanComparator());
+		for (ImageSpan span:imgspans) {
+			startIndex = textSpan.getSpanStart(span);
+		    if (endIndex != startIndex) {
+		    	newLineNum++;
+		    }
+			endIndex = textSpan.getSpanEnd(span);
+			newLineNum++;
+		}
+		
+		return newLineNum;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private class SpanComparator implements Comparator{
+
+		@Override
+		public int compare(Object o1, Object o2) {
+			// TODO Auto-generated method stub
+			int firstIndex =  myEdit.getText().getSpanStart((ImageSpan) o1);
+
+			int secondIndex = myEdit.getText().getSpanStart((ImageSpan) o2);
+			if (firstIndex > secondIndex) {
+				return 1;
+			} else if (firstIndex < secondIndex) {
+				return -1;
+			} else {
+			    return 0;
+			}
+		}
+		
+	}
+	
+	private int findEndIndex(int start) {
+		int endIndex = 0;
+		ImageSpan [] imgspans = myEdit.getText().getSpans(0, start, ImageSpan.class);
+		Arrays.sort(imgspans, new SpanComparator());
+		Spanned textSpan = myEdit.getText();
+		for (ImageSpan span:imgspans) {
+			int tempIndex = textSpan.getSpanEnd(span);
+			if (tempIndex > endIndex) {
+				endIndex = tempIndex;
+			}
+		}
+		return endIndex;
+	}
+	
+	private int findStartIndex(int start) {
+		int startIndex = myEdit.getText().length();
+		if (start >=  myEdit.getText().length()) {
+			return start;
+		}
+		ImageSpan [] imgspans = myEdit.getText().getSpans(start, myEdit.getText().length(), ImageSpan.class);
+		Arrays.sort(imgspans, new SpanComparator());
+		Spanned textSpan = myEdit.getText();
+		for (ImageSpan span:imgspans) {
+			int tempIndex = textSpan.getSpanStart(span);
+			if (tempIndex < startIndex) {
+				startIndex = tempIndex;
+			}
+		}
+		return startIndex;
+	}
+	
+	private int findNextPage(int start) {
+		if (start >= mStrList.size()) {
+			return -1;
+		}
+		int i = start;
+		for (;i < mStrList.size();i++) {
+			String strItem = mStrList.get(i);
+			if (strItem.startsWith("gft:")) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	private int findPrePage(int start) {
+		if (start <= 0) {
+			return -1;
+		}
+		int i = start;
+		for (;i > 0 ;i--) {
+			String strItem = mStrList.get(i);
+			if (strItem.startsWith("gft:")) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	private String getNewString(int start) {
+		ImageSpan [] imgspanstart = myEdit.getText().getSpans(0, start, ImageSpan.class);
+		ImageSpan [] imgSpanend = myEdit.getText().getSpans(start, myEdit.getText().length(), ImageSpan.class);
+		int startIndex = 0;
+		for (ImageSpan span :imgspanstart) {
+		    int tempIndex =  myEdit.getText().getSpanEnd(span);
+		    if (tempIndex > startIndex) {
+		    	startIndex = tempIndex;
+		    }
+		}
+		
+		int endIndex = myEdit.getText().length();
+		for (ImageSpan span :imgSpanend) {
+		    int tempIndex =  myEdit.getText().getSpanStart(span);
+		    if (tempIndex < endIndex && tempIndex >= startIndex) {
+		    	endIndex = tempIndex;
+		    }
+		}
+		
+		return myEdit.getText().subSequence(startIndex, endIndex).toString().replace("\n", "\\n");
+	}
+	
+	private void mergerSentence(int firstIndex) {
+		if (firstIndex >= mStrList.size() - 1) {
+			return;
+		}
+	
+		
+		int secondIndex = firstIndex + 1;
+		String firstStr = mStrList.get(firstIndex);
+		String secondStr = mStrList.get(secondIndex);
+		
+		String mergerStr = firstStr;
+		if (firstStr.startsWith("str:") && secondStr.startsWith("str:")) {
+			mergerStr = firstStr + secondStr.substring("str:".length());
+			mStrList.set(firstIndex, mergerStr);
+			mStrList.remove(secondIndex);
+		}
+		
+		
+	}
+	
+	public void moveNextPage() {
+		if (mCurPage < mTotalPage) {
+			int pageStart = findNextPage(mLastPageEnd);
+			if (pageStart == -1) {
+				return;
+			}
+			pageStart = pageStart + 1;
+			int pageEnd = findNextPage(pageStart);
+			if (pageEnd == -1) {
+				pageEnd = mStrList.size();
+			} /*else {
+				pageEnd = pageEnd - 1;
+			}*/
+			myEdit.addGraffit("page"+String.valueOf(mCurPage));
+			isNeedSaveChange = false;
+			isInsert = true;
+			myEdit.getEditableText().clear();
+			reInsert(pageStart,pageEnd);
+			isInsert = false;
+			mCurPage++;
+			mLastPageEnd = pageStart;
+			
+			myEdit.reloadGraffit("page"+String.valueOf(mCurPage));
+			
+			int totalLine = myEdit.getLineCount();
+	        int i = countLinesHeight(totalLine);
+	        
+	        if (i != totalLine) {
+	        	int lineStart = myEdit.getLayout().getLineStart(i + 1);
+	        	int textLength = myEdit.getText().length();
+	        	if (lineStart < textLength) { //超出本分
+					processWhenOutofbounds(i, lineStart, textLength);
+					myEdit.getText().delete(lineStart, textLength);
+	        	}
+	        } else {
+	        	if (mCurPage < mTotalPage) {
+	        		processWhenInBounds();
+	        	}
+	        }
+			Selection.setSelection(myEdit.getEditableText(), myEdit.getText().length());
+		}
+	}
+	
+	
+	
+	public void movePrePage() {
+		if (mCurPage > 0) {
+			int pageStart = findPrePage(mLastPageEnd - 2);
+			if (pageStart == -1) {
+				pageStart = 0;
+			}
+			int pageEnd = mLastPageEnd - 1;
+			myEdit.addGraffit("page"+String.valueOf(mCurPage));
+			isNeedSaveChange = false;
+			isInsert = true;
+			myEdit.getEditableText().clear();
+			reInsert(pageStart,pageEnd);
+			isInsert = false;
+			mCurPage--;
+			myEdit.reloadGraffit("page"+String.valueOf(mCurPage));
+			if (pageStart == 0) {
+				mLastPageEnd = pageStart;
+			} else {
+				mLastPageEnd = pageStart + 1;
+			}
+			Selection.setSelection(myEdit.getEditableText(), myEdit.getText().length());
+		}
+	}
+	
+	private void reInsert(int start,int end) {
+		isInsert = true;
+		for (int i = start ;i < end; i++) {
+	        addItemOfEditText(i);
+		}
+		isInsert = false;
+	}
+	
 	
 //	private void initSpinner(ListView lview) {
 //		final List<String> data = new ArrayList<String>();
@@ -274,7 +873,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 	    	String ttt =matcher.group();
 	    	ttt =ttt.replace("weather1:", "");
 	    	ttt =ttt.replace(",", "");
-	    	Log.d("=DDD=  ttt=",ttt);
 	    	String weather = "";
 	    	int imgId = 0;
 	    	if (ttt.contains("雨")) {
@@ -306,7 +904,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 			});
 	    	
 	    }
-		Log.d("=DDD=",result);
 	}
 	
 	private void resetState(View v) {
@@ -371,6 +968,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
         });
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
@@ -416,6 +1014,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 					return;
 				}
 				
+				Arrays.sort(imageSpans_delete, new SpanComparator());
 				ImageSpan imgSpan_delete = imageSpans_delete[imageSpans_delete.length - 1];
 				
 				if ( s_delete.getSpanEnd(imgSpan_delete) != delete_index) {
@@ -437,13 +1036,13 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 					}
 				}
 				
-				Log.d("=NNN=","source = " + spanStr + " start = " + start_index + " end = " + end_index);
 				myEdit.getText().delete(start_index, end_index);
 			} else {
 				if (isgraffit_erase) {
 					break;
 				}
 				mStrokeWidth = myEdit.getFingerPen().getStrokeWidth();
+				myEdit.setFingerStrokeWidth(MAX_STROKEWIDTH);
 				myEdit.getFingerPen().setStrokeWidth(MAX_STROKEWIDTH);
 				myEdit.getFingerPen().setXfermode(new PorterDuffXfermode(
 	                    PorterDuff.Mode.CLEAR));
@@ -452,7 +1051,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 			}
 			break;
 		case R.id.edit_type_handwrite:
-			Log.d("=MMM=","edit_type_handwrite");
 			if (handWriteListener == null) {
 			    handWriteListener = new GesturesProcessorHandWrite();
 			}
@@ -474,7 +1072,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 			isInputTypeShow = false;
 			
 			if (isgraffit_erase) {
-				myEdit.getFingerPen().setStrokeWidth(mStrokeWidth);
+				myEdit.setFingerStrokeWidth((int)mStrokeWidth);
 				myEdit.getFingerPen().setXfermode(null);
 				isgraffit_erase = false;
 				break;
@@ -624,7 +1222,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 				try {
 					imageFile.getParentFile().mkdirs();
 					imageFile.createNewFile();
-					Log.d("=NNN=","createfile successed");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -687,79 +1284,63 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		case R.id.screen_top_control_save:
 			save();
 			break;
+		case R.id.screen_top_play_control_back:
+			if (!hasChanged) {
+				String [] fileNames = {"/sdcard/aNote/picmap","/sdcard/aNote/text","/sdcard/aNote/gesture","/sdcard/aNote/graffit"};
+				deletefiles(fileNames);
+				finish();
+				break;
+			}
+			if (save_dialog == null) {
+			    save_dialog = new NoteSaveDialog(this);
+			}
+			save_dialog.show();
+			break;
 		}
 	}
 	
-	private void save() {
-		writeText();
+	public void save() {
+		// 保存图片资源
 		writePicMap();
-		
-		Spanned s_save = myEdit.getText();
-		ImageSpan[] imageSpans_save = s_save.getSpans(0, s_save.length(), ImageSpan.class);
-		if (imageSpans_save.length != 0) {
-			File f = new File("/sdcard/aNote/index");
-			FileWriter fw=null;
-			BufferedWriter bw = null;
-			try {
-				if (!f.exists()) {
-					f.getParentFile().mkdir();
-					f.createNewFile();
-				}
-			    fw=new FileWriter(f); 
-			    bw = new BufferedWriter(fw);
-			    bw.write("title:" + "2012.07.01");
-			    bw.write("\n");
-			    bw.write("page:" + "1");
-			    bw.write("\n");
-			    int start_index = 0;
-			    int end_index = 0;
-			    for (ImageSpan span : imageSpans_save) {
-			    	start_index = s_save.getSpanStart(span);
-			    	if (start_index != end_index) {
-			    		bw.write("str:" + String.valueOf(end_index) + "-" + String.valueOf(start_index));
-			    		bw.write("\n");
-			    	}
-			    	
-					end_index = s_save.getSpanEnd(span);
-					String spanStr = s_save.subSequence(start_index, end_index).toString();
-					String [] arrayStr = spanStr.split("_");
-					if (arrayStr.length == 2) {
-						if (arrayStr[0].equals("hw")) {
-							bw.write("hw:" + spanStr);
-							bw.write("\n");
-						} else if (arrayStr[0].equals("pic")) {
-							bw.write("pic:" + spanStr);
-							bw.write("\n");
-						} else if (arrayStr[0].equals("face")) {
-							bw.write("face:" + spanStr);
-							bw.write("\n");
-						}
-					}
-			    }
-			    if (end_index != s_save.length()) {
-			        bw.write("str:" + String.valueOf(end_index) + "-" + String.valueOf(s_save.length()));
-			        bw.write("\n");
-			    }
-			    if (myEdit.save()) {
-			    	bw.write("gft:" + "page1");
-			    	bw.write("\n");
-			    }
-			    
-			    bw.flush();
-		    } catch (FileNotFoundException e) {
-			    e.printStackTrace();
-			} catch (IOException e) {
-			    e.printStackTrace();
-		    } finally {
-			    try {
-			        bw.close();
-			    } catch (IOException e) {
-			        e.printStackTrace();
-			    }
+		// 保存手写笔记
+		saveGesture();
+		// 保存正文
+		File f = new File("/sdcard/aNote/text");
+		FileWriter fw=null;
+		BufferedWriter bw = null;
+		try {
+			if (!f.exists()) {
+				f.getParentFile().mkdir();
+				f.createNewFile();
 			}
+		    fw=new FileWriter(f); 
+		    bw = new BufferedWriter(fw);
+		    for(String str:mStrList) {
+				bw.write(str + "\n");
+			}
+	    } catch (FileNotFoundException e) {
+		    e.printStackTrace();
+		} catch (IOException e) {
+		    e.printStackTrace();
+	    } finally {
+		    try {
+		        bw.close();
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
 		}
-		String [] fileNames = {"/sdcard/aNote/index","/sdcard/aNote/gesture","/sdcard/aNote/picmap","/sdcard/aNote/graffit","/sdcard/aNote/text"};
-		zipFile(fileNames,"/sdcard/aNote/diary_1");
+		
+	    //压缩成一个文件
+		String [] fileNames = {"/sdcard/aNote/gesture","/sdcard/aNote/picmap","/sdcard/aNote/graffit","/sdcard/aNote/text"};
+		if ("".equals(mDiaryPath)) {
+		    mDiaryPath = "/sdcard/aNote/diary_" + MainScreen.snoteCreateTime;
+		}
+		zipFile(fileNames,mDiaryPath);
+		
+	}
+	
+	public String getDiaryPath() {
+		return mDiaryPath;
 	}
 	
 	private void zipFile(String[] fileFroms, String fileTo) {  
@@ -769,7 +1350,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
         	for (String fileFrom:fileFroms) {
 	        	File file = new File(fileFrom);
 	        	if (!file.exists()) {
-	        		Log.d("=MMM=","file not exist");
 	        		continue;
 	        	}
 	            FileInputStream in = new FileInputStream(fileFrom);  
@@ -780,7 +1360,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 	            byte[] buffer = new byte[512];  
 	            while ((nNumber = in.read(buffer)) != -1){  
 	                zipOut.write(buffer, 0, nNumber);  
-	                //countBuffer++;  
 	            }
 	            in.close();
 	            file.delete();
@@ -788,166 +1367,107 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
             zipOut.close();  
   
             out.close();  
-            //handlerCopy.sendEmptyMessage(2);  
         } catch (IOException e) {  
-            //handlerCopy.sendEmptyMessage(3);  
-            //System.out.println(e);
         	e.printStackTrace();
         }  
     }
 	
-	private void reload() {
-		Unzip("/sdcard/aNote/diary_1","");
-		File file = new File("/sdcard/aNote/index");
-        BufferedReader reader = null;
-        
-        if (!file.exists()) {
-        	return;
-        }
-        String textStr = "";
-        FileInputStream in = null;
-        try {
-        	in = new FileInputStream("/sdcard/aNote/text");
-        	byte[] readBytes = new byte[in.available()];
-            in.read(readBytes);
-            textStr = new String(readBytes);
-            in.close();
-        } catch (Exception e) {
-        	e.printStackTrace();
-        } finally {
-        	if (in != null) {
-        		try {
-					in.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-        	}
-        }
+	private void reload(String filePath) {
+		File noteFile = new File(filePath);
+		if (!noteFile.exists()) {
+			return;
+		}
+		Unzip(filePath,"");
         
         try {
         	
-            System.out.println("以行为单位读取文件内容，一次读一整行：");
-            reader = new BufferedReader(new FileReader(file));
-            String tempString = null;
-            // 一次读入一行，直到读入null为文件结束
-            while ((tempString = reader.readLine()) != null) {
-                // 显示行号
-            	if (tempString.startsWith("str:")) {
-            		String value = tempString.substring("str:".length(), tempString.length());
-            	    Log.d("=FFF=",value + "********");
-            	    String [] arrayStr = value.split("-");
-            	    if (arrayStr.length == 2) {
-            	    	int first = Integer.parseInt(arrayStr[0]);
-            	    	int second = Integer.parseInt(arrayStr[1]);
-            	    	if (first > second) {
-            	    		continue;
-            	    	}
-            	    	myEdit.getEditableText().insert(myEdit.getEditableText().length(), textStr.subSequence(first, second));
-            	    }
-            	} else if (tempString.startsWith("hw:")) {
-            		String value = tempString.substring("hw:".length(), tempString.length());
-            		if (gestureFile == null) {
-                		gestureFile = new File("/sdcard/aNote/gesture");
-                	}
-                	
-                	if (!gestureFile.exists()) {
-                        continue;
-            		}
-                	
-                	if (mStore == null) {
-                        mStore = AmGestureLibraries.fromFile(gestureFile);
-                        mStore.load(false);
-                    }
-                	
-                	AmGesture gesture = mStore.getGestures(value).get(0);
-                	addGesture(value, gesture);
-                	int curNum = 0;
-                	try {
-                	    curNum = Integer.parseInt(value.substring(value.indexOf("_") + 1),value.length());
-                	} catch (Exception e) {
-                		curNum = 0;
-                	}
-                	gestureName.setCurNum(curNum + 1);
-//                	Bitmap bmp = gesture.toBitmap(75, 110, 0, gesture.getGesturePaintColor());
-//                    bmp.eraseColor(0xff000000);
-//                	Bitmap bmp = Bitmap.createBitmap(DensityUtil.dip2px(EditNoteScreen.this,50), DensityUtil.dip2px(EditNoteScreen.this,71), Bitmap.Config.ARGB_8888);;
-//                	bmp.eraseColor(0xffffffff);
-//                	Canvas canvas = new Canvas(bmp);
-//                	Paint pt = new Paint();
-//                	pt.setColor(0xFF000000);
-//                	canvas.drawRect(dip2px(3), dip2px(20), dip2px(47), dip2px(64), pt);
-                	Bitmap bmp = Bitmap.createBitmap(DensityUtil.dip2px(EditNoteScreen.this,50), DensityUtil.dip2px(EditNoteScreen.this,71), Bitmap.Config.ARGB_8888);;
-                	bmp.eraseColor(0x00000000);
-                	Canvas canvas = new Canvas(bmp);
-                	canvas.drawBitmap(gesture.toBitmap(dip2px(44), dip2px(44), 0, gesture.getGesturePaintColor()), dip2px(3), dip2px(20), null);
-                	Drawable drawable = new BitmapDrawable(bmp);
-	                drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
-	      		    ImageSpan span = new ImageSpan(drawable,ImageSpan.ALIGN_BOTTOM);
-	      			SpannableString spanStr = new SpannableString(value);
-	      			spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-	      			myEdit.getEditableText().insert(myEdit.getEditableText().length(), spanStr);
-            	} else if (tempString.startsWith("pic:")) {
-            		String value = tempString.substring("pic:".length(), tempString.length());
-            		String path = SetSystemProperty.getKeyValue(value);
-            		if (path == null) {
-            			continue;
-            		}
-            		if (mPicMap == null) {
-            			mPicMap = new LinkedHashMap<String, String>();
-            		}
+        	// 加载图片资源，并保存到map中
+        	if (mPicMap == null) {
+    			mPicMap = new LinkedHashMap<String, String>();
+    		}
+        	SetSystemProperty.loadIntoMap("/sdcard/aNote/picmap", mPicMap);
+        	Iterator ite = mPicMap.entrySet().iterator();
+    		while(ite.hasNext()){
+    			Map.Entry<String, String> entry = (Entry<String, String>) ite.next();
+    			String key = entry.getKey();//map中的key
+    			String value = entry.getValue();//上面key对应的value
+    			
+    			int curNum = 0;
+            	try {
+            	    curNum = Integer.parseInt(value.substring(value.indexOf("_") + 1),value.length());
+            	} catch (Exception e) {
+            		curNum = 0;
+            	}
+            	if (curNum >= picName.getCurNum()) {
+            	    picName.setCurNum(curNum + 1);
+            	}
+    		}
+    		
+    		//加载手写笔记资源。
+    		if (gestureFile == null) {
+        		gestureFile = new File("/sdcard/aNote/gesture");
+        	}
+        	if (gestureFile.exists()) {
+        		if (mStore == null) {
+                    mStore = AmGestureLibraries.fromFile(gestureFile);
+                    mStore.load(false);
+                }
+            	for(String str:mStore.getGestureEntries()) {
             		int curNum = 0;
                 	try {
-                	    curNum = Integer.parseInt(value.substring(value.indexOf("_") + 1),value.length());
+                		String subStr = str.substring((str.indexOf("_") + 1),str.length());
+                	    curNum = Integer.parseInt(subStr);
                 	} catch (Exception e) {
                 		curNum = 0;
                 	}
-                	gestureName.setCurNum(curNum + 1);
-            		mPicMap.put(value, path);
-            		Bitmap bmp = decodeFile(new File(path));
-    		        ImageSpan span = new ImageSpan(bmp);
-    				SpannableString spanStr = new SpannableString(value);
-    				spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-    				myEdit.getText().insert(myEdit.getEditableText().length(), spanStr);
-            	} else if (tempString.startsWith("face:")) {
-            		String value = tempString.substring("face:".length(), tempString.length());
-            		if (value.endsWith("face_a1")) {
-            			insertFace(R.drawable.face_a1);
-            		} else if (value.endsWith("face_a2")) {
-            			insertFace(R.drawable.face_a2);
-            		} else if (value.endsWith("face_a3")) {
-            			insertFace(R.drawable.face_a3);
-            		} else if (value.endsWith("face_a4")) {
-            			insertFace(R.drawable.face_a4);
-            		} else if (value.endsWith("face_a5")) {
-            			insertFace(R.drawable.face_a5);
-            		} else if (value.endsWith("face_a6")) {
-            			insertFace(R.drawable.face_a6);
-            		} else if (value.endsWith("face_a7")) {
-            			insertFace(R.drawable.face_a7);
-            		} else if (value.endsWith("face_a8")) {
-            			insertFace(R.drawable.face_a8);
-            		}
-            	} else if (tempString.startsWith("gft:")) {
-//            		myEdit.reloadGraffit();
+                	if (curNum >= gestureName.getCurNum()) {
+                	    gestureName.setCurNum(curNum + 1);
+                	}
             	}
+    		}
+        	
+        	
+        	//加载正文部分
+        	File file = new File("/sdcard/aNote/text");
+        	if (!file.exists()) {
+        		return;
+        	}
+        	BufferedReader reader = null;
+        	reader = new BufferedReader(new FileReader(file));
+        	String tempString = null;
+            // 一次读入一行，直到读入null为文件结束
+            while ((tempString = reader.readLine()) != null) {
+           	    mStrList.add(tempString);
+           	    if (tempString.startsWith("gft:")) {
+           	    	mTotalPage++;
+           	    }
             }
             reader.close();
-        } catch (IOException e) {
+            
+            // 加载第一页
+            reloadFirstPage();
+        	
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                    String [] fileNames = {"/sdcard/aNote/index","/sdcard/aNote/gesture","/sdcard/aNote/picmap","/sdcard/aNote/text"};
-                    deletefiles(fileNames);
-                } catch (IOException e1) {
-                }
+            try {
+                String [] fileNames = {"/sdcard/aNote/picmap","/sdcard/aNote/text"};
+                deletefiles(fileNames);
+            } catch (Exception e1) {
             }
         }
 	}
 	
-	private void deletefiles(String [] fileName) {
+	private void reloadFirstPage() {
+		int pageEnd = findNextPage(0);
+		isInsert = true;
+		myEdit.getEditableText().clear();
+		reInsert(0,pageEnd);
+		isInsert = false;
+	}
+	
+	
+	public void deletefiles(String [] fileName) {
 		for (String filename : fileName) {
 			File file = new File(filename);
 			if (file.exists()) {
@@ -1087,7 +1607,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 			try {
 				gestureFile.getParentFile().mkdirs();
 				gestureFile.createNewFile();
-				Log.d("=NNN=","createfile successed");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1101,6 +1620,28 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
     	mStore.addGesture(name, gesture);
     	mStore.save(false);
     }
+	
+	private void saveGesture() {
+		if (gestureFile == null) {
+    		gestureFile = new File("/sdcard/aNote/gesture");
+    	}
+    	
+    	if (!gestureFile.exists()) {
+			try {
+				gestureFile.getParentFile().mkdirs();
+				gestureFile.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+    	
+    	if (mStore == null) {
+            mStore = AmGestureLibraries.fromFile(gestureFile);
+        }
+    	
+    	mStore.save(false);
+	}
 	
 	private int dip2px(int x) {
     	return DensityUtil.dip2px(EditNoteScreen.this,x);
@@ -1117,7 +1658,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		        int index = myEdit.getSelectionStart();
 		        myEdit.getText().insert(index, "\n");
 		        String pName = imageFilePath.substring(imageFilePath.lastIndexOf('/') + 1,imageFilePath.lastIndexOf('.'));
-		        Log.d("=DDD=","name = " + pName);
 		        addMapItem(pName);
 				SpannableString spanStr = new SpannableString(pName);
 				spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -1188,6 +1728,25 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
         return b;
     }
 	
+	
+	
+	@Override
+	public void onBackPressed() {
+		// TODO Auto-generated method stub
+//		super.onBackPressed();
+		if (!hasChanged) {
+			String [] fileNames = {"/sdcard/aNote/picmap","/sdcard/aNote/text","/sdcard/aNote/gesture","/sdcard/aNote/graffit"};
+			deletefiles(fileNames);
+			finish();
+			return;
+		}
+		
+		if (save_dialog == null) {
+		    save_dialog = new NoteSaveDialog(this);
+		}
+		save_dialog.show();
+	}
+
 	public void makeAdapters() {
 		ArrayList<Integer> faces = new ArrayList<Integer>();
 		faces.add(R.drawable.face_a1);
@@ -1253,7 +1812,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 	private void insertFace(int id) {
         String fname = this.getResources().getResourceName(id);
         fname = fname.substring(fname.lastIndexOf("/") + 1, fname.length());
-        Log.d("=NNN=","name = " + fname);
 		Drawable drawable =  this.getResources().getDrawable(id); 
 		drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
 		ImageSpan span = new ImageSpan(drawable);
@@ -1262,5 +1820,16 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		int index = myEdit.getSelectionStart();
 		index = index < 0 ? 0 : index;
 		myEdit.getText().insert(index, spanStr);
+	}
+	
+	private void appendFace(int id) {
+		String fname = this.getResources().getResourceName(id);
+        fname = fname.substring(fname.lastIndexOf("/") + 1, fname.length());
+		Drawable drawable =  this.getResources().getDrawable(id); 
+		drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+		ImageSpan span = new ImageSpan(drawable);
+		SpannableString spanStr = new SpannableString(fname);
+		spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		myEdit.getText().append(spanStr);
 	}
 }

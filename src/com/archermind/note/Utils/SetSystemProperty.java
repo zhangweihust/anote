@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;   
 import java.io.InputStream;   
 import java.io.OutputStream;   
+import java.util.LinkedHashMap;
 import java.util.Properties;   
 
  
@@ -71,6 +72,21 @@ public class SetSystemProperty {
             return null;   
         }   
     }   
+    
+    public static void loadIntoMap(String filePath,LinkedHashMap<String,String> picmap) {
+    	Properties props = new Properties();   
+        try {   
+            InputStream in = new BufferedInputStream(new FileInputStream(   
+                    filePath));   
+            props.load(in);
+            for (Object str :props.keySet()) {
+            	String value = props.getProperty((String)str);
+            	picmap.put((String) str, value);
+            }
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+    }
       
     /**  
     * 更新（或插入）一对properties信息(主键及其键值)  

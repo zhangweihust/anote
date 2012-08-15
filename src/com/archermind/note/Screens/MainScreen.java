@@ -72,12 +72,13 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	
 	private static String type;
 	
-	private static Context mContext;
+	public static Context mContext;
 	
 	private ListView mlvSetting;
 	private PopupWindow mMorePopupWindow;
 	
 	public static GestureDetector mGestureDetector = null;
+	public static long snoteCreateTime = 0;
 	
 	public static final EventService eventService = ServiceManager.getEventservice();
 
@@ -211,7 +212,9 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		case R.id.btn_new_note:
 			Intent intent = new Intent();
 			intent.setClass(mContext, EditNoteScreen.class);
+			intent.putExtra("isNewNote", true);
 			mContext.startActivity(intent);
+			snoteCreateTime = System.currentTimeMillis();
 			break;
 		case R.id.btn_title_bar_back:
 			MainScreen.this.runOnUiThread(new Runnable() {

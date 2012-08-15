@@ -10,7 +10,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.text.format.Time;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -448,6 +448,30 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 						}
 					}});
 				break;
+			case NOTE_INSERT_TO_DATABASE:
+				ContentValues contentValues = new ContentValues();
+				String noteTitle = (String) e.getExtra("noteTitle");
+				long updateTime = (Long)e.getExtra("updateTime");
+				String diaryPath = (String) e.getExtra("diaryPath");
+				contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,noteTitle);
+				contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, 1000);
+				contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, MainScreen.snoteCreateTime);
+				contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED, 1);
+				contentValues.put(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT, diaryPath);
+				contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
+				ServiceManager.getDbManager().insertLocalNotes(contentValues, System.currentTimeMillis()-30000);
+				Log.d("=RRR=","noteTitle = " + noteTitle + " updateTime = " + updateTime + " diaryPath = " + diaryPath + " createTime = " + MainScreen.snoteCreateTime);
+			    break;
+			case NOTE_UPDATE_TO_DATABASE:
+				String noteTitle2 = (String) e.getExtra("noteTitle");
+				long updateTime2 = (Long)e.getExtra("updateTime");
+				int noteId = (Integer) e.getExtra("noteID");
+				
+				ContentValues contentValues2 = new ContentValues();
+				contentValues2.put(DatabaseHelper.COLUMN_NOTE_TITLE,noteTitle2);
+				contentValues2.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime2);
+				ServiceManager.getDbManager().updateLocalNotes(contentValues2, noteId);
+				break;
 			case SHOW_ONEDAY_NOTES:
 				final long time = Long.parseLong(e.getExtra("time").toString());
 				mCurTime = time;
@@ -582,10 +606,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, System.currentTimeMillis()-20000);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED, 1);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, System.currentTimeMillis()-30000);
-
-
-
-}
+    }
 
 	@Override
 	public void onClick(View arg0) {

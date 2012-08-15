@@ -39,6 +39,11 @@
     <string name="weather_cloudy">多云</string>
     <string name="weather_rain">雨</string>
     <string name="weather_snow">雪</string>
+    <!-- 保存对话框 -->
+    <string name="save_and_share">保存并分享</string>
+    <string name="save_only">仅保存不分享</string>
+    <string name="not_save">不保存</string>
+
 
     <!-- setting -->
     <string name="more_info">消息</string>

@@ -17,12 +17,19 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
+import android.text.method.MovementMethod;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
 import android.view.inputmethod.BaseInputConnection;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 
@@ -87,6 +94,16 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 	private AmGestureLibrary mStore = null;
 
 	private static final float TOUCH_TOLERANCE = 4.0F;
+	
+	private VelocityTracker mVelocityTracker;
+	
+	private EditNoteScreen mEditNote;
+	
+	private InputMethodManager  imm = null;
+	
+	private boolean isChangePage = false;
+	
+	private int mVelocityX = 0;
     
     // we need this constructor for LayoutInflater
     public MyEditText(Context context, AttributeSet attrs) {
@@ -123,8 +140,6 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
         mTempPaint.setStyle(Paint.Style.STROKE);
         mTempPaint.setStrokeJoin(Paint.Join.ROUND);
         mTempPaint.setStrokeCap(Paint.Cap.ROUND);
-        
-        
     }
     
     @Override
@@ -152,18 +167,17 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
         
         canvas.drawPath(mPath, mFingerPen);
         
-        if (mCurrentGesture != null) {
-//        	canvas.drawPath(mCurrentGesture.toPath(), mFingerPen);
-//        	drawGesture(canvas);
-        }
         
+    }
+    
+    public void setEditNote(EditNoteScreen editnote) {
+    	mEditNote = editnote;
+    	imm = (InputMethodManager) mEditNote.getSystemService(Context.INPUT_METHOD_SERVICE);
     }
     
     private void drawGesture(Canvas canvas) {
     	ArrayList<AmGestureStroke> mStrokes = mCurrentGesture.getStrokes();
-    	Log.d("=FFF=","length = " + mStrokes.size());
     	for(AmGestureStroke stroke:mStrokes) {
-    		Log.d("=FFF=","point count = " + stroke.length + " color = " + stroke.getFingerColor() + " width = " + stroke.getFingerStrokeWidth() + " path = " + stroke.getPath().isEmpty());
     		mTempPaint.setColor(stroke.getFingerColor());
     		mTempPaint.setStrokeWidth(stroke.getFingerStrokeWidth());
     		
@@ -172,15 +186,13 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
     	}
     }
     
+    
 
     
     @Override
 	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
 		// TODO Auto-generated method stub
 		super.onScrollChanged(l, t, oldl, oldt);
-    	Log.d("=HHH="," l = " + l + " t = " + t + " oldl = " + oldl + " oldt = " + oldt);
-//    	setText("");
-//    	scrollTo(0,0);
 	}
 
 	public void setIsGraffit(boolean flag) {
@@ -190,7 +202,6 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
     
     public void setFingerColor(int color) {
     	mFingerColor = color;
-//    	mTempPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.XOR));
     }
     
     public void setFingerStrokeWidth(int width) {
@@ -206,7 +217,7 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 	    	mBmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
 	        mCanvas = new Canvas(mBmp);
 	    }
-		reloadGraffit();
+		reloadGraffit("page0");
 	}
 	
 	public void reload() {
@@ -224,9 +235,6 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 //	}
 	
 	public boolean save() {
-		if (mCurrentGesture == null) {
-            return false;
-        }
 		if (graffitFile == null) {
 			graffitFile = new File("/sdcard/aNote/graffit");
     	}
@@ -235,7 +243,6 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 			try {
 				graffitFile.getParentFile().mkdirs();
 				graffitFile.createNewFile();
-				Log.d("=NNN=","createfile successed");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -245,13 +252,40 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
     	if (mStore == null) {
             mStore = AmGestureLibraries.fromFile(graffitFile);
         }
-    	
-    	mStore.addGesture("page1", mCurrentGesture);
     	mStore.save(true);
     	return true;
 	}
 	
-	public void reloadGraffit() {
+	public void addGraffit(String name) {
+		if (mCurrentGesture == null || mCurrentGesture.getStrokes().size() == 0) {
+            return;
+        }
+		
+
+		if (graffitFile == null) {
+			graffitFile = new File("/sdcard/aNote/graffit");
+    	}
+    	
+    	if (!graffitFile.exists()) {
+			try {
+				graffitFile.getParentFile().mkdirs();
+				graffitFile.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+    	
+    	if (mStore == null) {
+            mStore = AmGestureLibraries.fromFile(graffitFile);
+        }
+    	mStore.addGesture(name, mCurrentGesture);
+    	mStore.save(true);
+    	
+        mCanvas.drawColor(Color.TRANSPARENT, Mode.CLEAR);
+	}
+	
+	public void reloadGraffit(String name) {
 		if (graffitFile == null) {
 			graffitFile = new File("/sdcard/aNote/graffit");
     	}
@@ -265,28 +299,70 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
         }
     	
     	mStore.load(true);
-    	if (mCurrentGesture == null) {
-            mCurrentGesture = new AmGesture();
-        }
-    	mCurrentGesture = mStore.getGestures("page1").get(0);
-    	ArrayList<AmGestureStroke> mStrokes = mCurrentGesture.getStrokes();
-    	Log.d("=FFF=","length = " + mStrokes.size());
-    	for(AmGestureStroke stroke:mStrokes) {
-    		Log.d("=FFF=","point count = " + stroke.length + " color = " + stroke.getFingerColor() + " width = " + stroke.getFingerStrokeWidth() + " path = " + stroke.getPath().isEmpty());
-    		mTempPaint.setColor(stroke.getFingerColor());
-    		mTempPaint.setStrokeWidth(stroke.getFingerStrokeWidth());
     		
-//    		canvas.drawPath(stroke.getPath(), mTempPaint);
-    		stroke.draw(mCanvas, mTempPaint);
-    	}
-    	graffitFile.delete();
+    	mCurrentGesture = null;
+        mCurrentGesture = new AmGesture();
+    	
+    	if (mStore.getGestures(name) != null) {
+	    	mCurrentGesture = mStore.getGestures(name).get(0);
+	    	ArrayList<AmGestureStroke> mStrokes = mCurrentGesture.getStrokes();
+	    	for(AmGestureStroke stroke:mStrokes) {
+	    		mTempPaint.setColor(stroke.getFingerColor());
+	    		mTempPaint.setStrokeWidth(stroke.getFingerStrokeWidth());
+	    		if (stroke.getFingerColor() == 0x00000000) {
+	    			mTempPaint.setXfermode(new PorterDuffXfermode(
+		                    PorterDuff.Mode.CLEAR));
+	    		} else {
+	    			mTempPaint.setXfermode(null);
+	    		}
+	    		stroke.draw(mCanvas, mTempPaint);
+	    	}
+	    }
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		// TODO Auto-generated method stub
 		if (EditNoteScreen.mState != EditNoteScreen.GRAFFITINSERTSTATE) {
-			Log.d("=MMM=","x = " + event.getX() + " y = " + event.getY());
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+				isChangePage = false;
+			case MotionEvent.ACTION_MOVE:
+				if (isChangePage) {
+					imm.hideSoftInputFromWindow(getWindowToken(), 0);
+					break;
+				}
+				if (mVelocityTracker == null) {
+					mVelocityTracker = VelocityTracker.obtain();
+				}
+				mVelocityTracker.addMovement(event);
+				final VelocityTracker velocityTracker = mVelocityTracker;
+				velocityTracker.computeCurrentVelocity(1000);
+				mVelocityX = (int) velocityTracker.getXVelocity();
+				int velocityY = (int) velocityTracker.getYVelocity();
+				if (Math.abs(mVelocityX) > 100 && Math.abs(mVelocityX) > Math.abs(velocityY)) {
+					isChangePage = true;
+					imm.hideSoftInputFromWindow(getWindowToken(), 0);
+					return true;
+				}
+			case MotionEvent.ACTION_UP:
+				if (isChangePage) {
+					if (mVelocityX > 0) {
+						if (mEditNote != null) {
+						    mEditNote.movePrePage();
+						    imm.hideSoftInputFromWindow(getWindowToken(), 0);
+						}
+					} else {
+						if (mEditNote != null) {
+						    mEditNote.moveNextPage();
+						    imm.hideSoftInputFromWindow(getWindowToken(), 0);
+						}
+					}
+					return true;
+				}
+				break;
+			}
+		
 		    return super.onTouchEvent(event);
 		} else {
 			switch (event.getAction()) {

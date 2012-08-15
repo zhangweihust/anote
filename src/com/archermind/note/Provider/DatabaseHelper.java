@@ -33,7 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 			+ TAB_NOTE
 			+ " ( "
 			+ COLUMN_NOTE_ID
-			+ " INTEGER PRIMARY KEY , "
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , "
 			+ COLUMN_NOTE_USER_ID
 			+ " INTEGER, "
 			+ COLUMN_NOTE_SHARE
