@@ -154,6 +154,6 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 		//db.execSQL(CRETAE_TAB_USER);
 		//db.execSQL(CRETAE_TAB_WEATHER);
 		//db.execSQL(CRETAE_TAB_NOTE_RELATION);
-		db.execSQL(CRETAE_TAB_PHOTO);
+		//db.execSQL(CRETAE_TAB_PHOTO);
 	}
 }

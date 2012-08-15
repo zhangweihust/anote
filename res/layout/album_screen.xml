@@ -74,19 +74,18 @@
 							android:orientation="vertical">
 						</LinearLayout>
 					</RelativeLayout>
-					<GridView android:id="@+id/p_grid_gridview"
+					<com.archermind.note.Views.AlbumScrollLayout
+				        xmlns:android="http://schemas.android.com/apk/res/android"
+				        android:id="@+id/ScrollLayoutTest"
+				        android:layout_weight="1"
 						android:layout_width="fill_parent" 
 						android:layout_height="fill_parent"
-						android:columnWidth="90dp" 
-						android:numColumns="3"
-						android:verticalSpacing="10dp" 
-						android:horizontalSpacing="10dp"
-						android:stretchMode="columnWidth" 
+				        android:layout_gravity="center_horizontal"
+				        android:layout_margin="15dip"
 						android:gravity="center"
-						android:layout_marginTop="8dp"
-						android:layout_gravity="center_horizontal" 
-						android:scrollbars="none"
-						android:layout_below="@id/p_grid_relativeLayout1" />
+				        android:layout_below="@id/p_grid_relativeLayout1"
+				        >
+				    </com.archermind.note.Views.AlbumScrollLayout>
 				</LinearLayout>
 			</FrameLayout>
 		</RelativeLayout>

@@ -63,13 +63,16 @@
     <string name="account_change_passwd">更改密码</string>
     <string name="account_new_passwd">新密码</string>
     <string name="account_confirm_passwd">确认密码</string>
-    <string name="account_confirm_change">确认修改</string>
-    <string name="passed_txt">最少六位</string>
+    <string name="confirm_change">确认修改</string>
+    <string name="confirm_success">修改成功</string>
 
     <!-- album -->
     <string name="album_title">我的相册</string>
     <string name="photo_gallery_title">第%1$d张/共%2$d张</string>
-    <string name="image_file_name_format" translatable="false">"'IMG'_yyyyMMdd_HHmmss"</string>
+    <string name="image_file_name_format" translatable="false">"_yyyyMMdd_HHmmss"</string>
+    <string name="upload_album_failed" translatable="false">上传图片失败，网络环境或服务器不可访问</string>
+    <string name="download_album_failed" translatable="false">下载图片失败，网络环境或服务器不可访问</string>
+    <string name="create_cache_file_failed" translatable="false">生成本地缓存文件失败，请检测是否未插入sdcard</string>
 
     <!-- personal_info_title -->
     <string name="personal_info_title">个人信息</string>
@@ -99,6 +102,7 @@
     <string name="login_err_server_internal">服务器连接错误，请稍候再试！</string>
     <string name="login_findpassword">忘记密码？</string>
     <string name="logout_title">确定退出登录？</string>
+    <string name="no_login_info">请先登录</string>
 
     <!-- register -->
     <string name="register_title">补充个人信息</string>

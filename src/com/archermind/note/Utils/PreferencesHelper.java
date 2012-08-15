@@ -32,6 +32,14 @@ public class PreferencesHelper {
 	
 	private static Bitmap mUserAvatarBitmap;
 	private static ArrayList<Map<String, Object>> mProvinceLists;
+	public static String getUserName(Context context) {
+		SharedPreferences sharedata = getSharedPreferences(context, 0);
+		return sharedata.getString(XML_USER_ACCOUNT, null);
+	}
+	public static String gePasswd(Context context) {
+		SharedPreferences sharedata = getSharedPreferences(context, 0);
+		return sharedata.getString(XML_USER_PASSWD, null);
+	}
 	
 	public static void UpdateAvatar(Context context, String newAvatarPath) {
 		SharedPreferences sharedata = getSharedPreferences(context, 0);

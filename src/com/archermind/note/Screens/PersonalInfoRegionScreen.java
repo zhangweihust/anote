@@ -63,7 +63,7 @@ public class PersonalInfoRegionScreen extends Screen implements OnClickListener 
 				adapter2.notifyDataSetChanged();
 				
 				if (adapter2.getCount() == 0) {
-					saveRegion(arg2, 0);
+					sendRegion(arg2, 0);
 					finish();
 				}
 			}});
@@ -74,20 +74,25 @@ public class PersonalInfoRegionScreen extends Screen implements OnClickListener 
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
 				// TODO Auto-generated method stub
-				saveRegion(adapter2.getProvince(), arg2);
+				sendRegion(adapter2.getProvince(), arg2);
 				finish();
 			}});
 		mCityList.setVisibility(View.GONE);
 	}
 	
-	private void saveRegion(int province, int city) {
-		SharedPreferences preferences = PreferencesHelper.getSharedPreferences(mContext, Context.MODE_WORLD_WRITEABLE);
-		Editor editor = preferences.edit();
+//	private void sendRegion(int province, int city) {
+//		SharedPreferences preferences = PreferencesHelper.getSharedPreferences(mContext, Context.MODE_WORLD_WRITEABLE);
+//		Editor editor = preferences.edit();
 		
-		editor.putInt(PreferencesHelper.XML_USER_REGION_PROVINCE, province);
-		editor.putInt(PreferencesHelper.XML_USER_REGION_CITY, city);
+//		editor.putInt(PreferencesHelper.XML_USER_REGION_PROVINCE, province);
+//		editor.putInt(PreferencesHelper.XML_USER_REGION_CITY, city);
 		
-		editor.commit();
+//		editor.commit();
+	private void sendRegion(int province, int city) {
+		Intent aintent = new Intent();
+		aintent.putExtra("province", province);
+		aintent.putExtra("city", city);
+		setResult(RESULT_OK,aintent);
 	}
 	
 	@Override

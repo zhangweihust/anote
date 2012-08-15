@@ -13,6 +13,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
@@ -74,6 +75,15 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 			mLogoutButton.setVisibility(View.GONE);
 		}
 	}
+	
+	private boolean isLogin() {
+		if(NoteApplication.getInstance().isLogin()){
+			return true;
+		}else {
+			Toast.makeText(PreferencesScreen.this, getString(R.string.no_login_info), Toast.LENGTH_SHORT).show();
+			return false;
+		}
+	}
 
 	@Override
 	public void onClick(View v) {
@@ -85,16 +95,22 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 			this.finish();
 			break;
 		case R.id.personal_info_layout:
-			intent.setClass(mContext, PersonalInfoScreen.class);
-			mContext.startActivity(intent);
+			if (isLogin()) {
+				intent.setClass(mContext, PersonalInfoScreen.class);
+				mContext.startActivity(intent);
+			}
 			break;
 		case R.id.album_layout:
-			intent.setClass(mContext, AlbumScreen.class);
-			mContext.startActivity(intent);
+			if (isLogin()) {
+				intent.setClass(mContext, AlbumScreen.class);
+				mContext.startActivity(intent);
+			}
 			break;
 		case R.id.account_layout:
-			intent.setClass(mContext, AccountScreen.class);
-			mContext.startActivity(intent);
+			if (isLogin()) {
+				intent.setClass(mContext, AccountScreen.class);
+				mContext.startActivity(intent);
+			}
 			break;
 		case R.id.btn_login:
 			intent.setClass(mContext, LoginScreen.class);

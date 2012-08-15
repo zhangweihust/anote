@@ -45,31 +45,21 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 	private static final int ALBUM_RESULT = 1;
 	private static final int CAMERA_RESULT = 2;
 	private static final int CROP_RESULT = 3;
+	private static final int REGION_RESULT = 4;
 	
 	private ContentResolver mContentResolver;
 	
 	private String mCameraImageFilePath;
+	private String mCropImageFilePath;
+	private String mUserNameTxt;
+	private int mProvinceId;
+	private int mCityId;
+	private int mSex;
  
     private ImageCapture mImgCapture;
     
     private SharedPreferences mPreferences;
-    
-    private OnSharedPreferenceChangeListener spcListener = new OnSharedPreferenceChangeListener() {
 
-		@Override
-		public void onSharedPreferenceChanged(
-				SharedPreferences sharedPreferences, String key) {
-			// TODO Auto-generated method stub
-			if (key.equals(PreferencesHelper.XML_USER_REGION_PROVINCE) || 
-					key.equals(PreferencesHelper.XML_USER_REGION_CITY)) {
-				int provinceId = sharedPreferences.getInt(PreferencesHelper.XML_USER_REGION_PROVINCE, -1);
-				int cityId = sharedPreferences.getInt(PreferencesHelper.XML_USER_REGION_CITY, -1);
-				String province = PreferencesHelper.getProvinceName(mContext, provinceId);
-				String city = PreferencesHelper.getCityName(mContext, provinceId, cityId);
-				
-				mUserRegion.setText(province + " " + city);
-			}
-		}};
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -91,14 +81,12 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 		mRadioFemale = (RadioButton) this.findViewById(R.id.radioFemale);
 		mRadioMale = (RadioButton) this.findViewById(R.id.radioMale);
 		
+		final Button btnConfirmChange = (Button) this.findViewById(R.id.confirm_change);
+		btnConfirmChange.setOnClickListener(this);
 		
-		mPreferences = PreferencesHelper.getSharedPreferences(mContext, 0);
-		String username = mPreferences.getString(PreferencesHelper.XML_USER_NAME, "");
-		int provinceId = mPreferences.getInt(PreferencesHelper.XML_USER_REGION_PROVINCE, -1);
-		int cityId = mPreferences.getInt(PreferencesHelper.XML_USER_REGION_CITY, -1);
-		int sex = mPreferences.getInt(PreferencesHelper.XML_USER_SEX, 0);
+		loadLocalPersonalInfo();
 		
-		if (sex == 0) {
+		if (mSex == 0) {
 			mRadioFemale.setChecked(true);
 			mRadioMale.setChecked(false);
 		} else {
@@ -106,12 +94,11 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 			mRadioMale.setChecked(true);
 		}
 		
-		mUserName.setText(username);
+		mUserName.setText(mUserNameTxt);
 		
-		mPreferences.registerOnSharedPreferenceChangeListener(spcListener);
 		
-		String province = PreferencesHelper.getProvinceName(mContext, provinceId);
-		String city = PreferencesHelper.getCityName(mContext, provinceId, cityId);
+		String province = PreferencesHelper.getProvinceName(mContext, mProvinceId);
+		String city = PreferencesHelper.getCityName(mContext, mProvinceId, mCityId);
 		
 		mUserRegion.setText(province + " " + city);
 		
@@ -125,31 +112,6 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 		
 		mContentResolver = this.getContentResolver();
 		mImgCapture = new ImageCapture(this, mContentResolver);
-	}
-	
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		SharedPreferences preferences = PreferencesHelper.getSharedPreferences(mContext, Context.MODE_WORLD_WRITEABLE);
-		Editor editor = preferences.edit();
-		
-		editor.putString(PreferencesHelper.XML_USER_NAME, mUserName.getText().toString());
-		
-		int sex = mRadioFemale.isChecked() ? 0 : 1;
-		editor.putInt(PreferencesHelper.XML_USER_SEX, sex);
-		editor.commit();
-		
-		mPreferences.unregisterOnSharedPreferenceChangeListener(spcListener);
-	}
-
-	@Override
-	protected void onResume() {
-		// TODO Auto-generated method stub
-		super.onResume();
-		Bitmap image = PreferencesHelper.getAvatarBitmap(this);
-		if (image != null) {
-			mUserAvatar.setImageBitmap(image);
-		}
 	}
 	
 	@Override
@@ -185,6 +147,17 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 			}
 			
 			break;
+		case REGION_RESULT:
+			if(data != null){
+				mProvinceId = data.getIntExtra("province", mProvinceId);
+				mCityId = data.getIntExtra("city", mCityId);
+				String province = PreferencesHelper.getProvinceName(mContext, mProvinceId);
+				String city = PreferencesHelper.getCityName(mContext, mProvinceId, mCityId);
+				
+				mUserRegion.setText(province + " " + city);
+			}
+			break;
+			
 		default:
 			break;
 
@@ -273,6 +246,49 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 		mPicChooseDialog.show();
 	}
 	
+	private boolean loadServerPersonalInfo() {
+		return true;
+	}
+	
+	private boolean saveServerPersonalInfo() {
+		
+		return true;
+	}
+	
+	private boolean loadLocalPersonalInfo() {
+		mPreferences = PreferencesHelper.getSharedPreferences(mContext, 0);
+		mUserNameTxt = mPreferences.getString(PreferencesHelper.XML_USER_NAME, "");
+		mProvinceId = mPreferences.getInt(PreferencesHelper.XML_USER_REGION_PROVINCE, -1);
+		mCityId = mPreferences.getInt(PreferencesHelper.XML_USER_REGION_CITY, -1);
+		mSex = mPreferences.getInt(PreferencesHelper.XML_USER_SEX, 0);
+		return true;
+	}
+	
+	private boolean saveLocalPersonalInfo() {
+		PreferencesHelper.UpdateAvatar(this, mCropImageFilePath);
+		SharedPreferences preferences = PreferencesHelper.getSharedPreferences(mContext, Context.MODE_WORLD_WRITEABLE);
+		Editor editor = preferences.edit();
+		
+		editor.putString(PreferencesHelper.XML_USER_NAME, mUserName.getText().toString());
+		editor.putInt(PreferencesHelper.XML_USER_REGION_PROVINCE, mProvinceId);
+		editor.putInt(PreferencesHelper.XML_USER_REGION_CITY, mCityId);
+		int sex = mRadioFemale.isChecked() ? 0 : 1;
+		editor.putInt(PreferencesHelper.XML_USER_SEX, sex);
+		editor.commit();
+		
+		return true;
+	}
+	
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		Bitmap image = PreferencesHelper.getAvatarBitmap(this);
+		if (image != null) {
+			mUserAvatar.setImageBitmap(image);
+		}
+	}
+	
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
@@ -285,7 +301,11 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 			break;
 		case R.id.region_layout:
 			Intent i = new Intent(mContext, PersonalInfoRegionScreen.class);
-			mContext.startActivity(i);
+			startActivityForResult(i, REGION_RESULT);
+		case R.id.confirm_change:
+			saveLocalPersonalInfo();
+
+			break;
 		}
 	}
 }

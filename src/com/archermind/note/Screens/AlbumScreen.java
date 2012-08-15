@@ -3,7 +3,15 @@ package com.archermind.note.Screens;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Dialog;
 import android.content.ContentResolver;
@@ -20,7 +28,11 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -30,9 +42,11 @@ import android.widget.Gallery;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 
+import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Adapter.PhotoAdapter;
 import com.archermind.note.Adapter.PhotoAdapter.ViewHolder;
@@ -40,11 +54,15 @@ import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.ImageCapture;
 import com.archermind.note.Utils.PreferencesHelper;
+import com.archermind.note.Utils.ServerInterface;
+import com.archermind.note.Views.AlbumScrollLayout;
+import com.archermind.note.Views.AlbumScrollLayout.OnScreenChangeListener;
+import com.archermind.note.Views.AlbumScrollLayout.OnScreenChangeListenerDataLoad;
 
 public class AlbumScreen extends Screen implements OnClickListener {
 
 	private Gallery mPhotoGallery;
-	private GridView mPhotoView;
+	private AlbumScrollLayout mPhotoView;
 	private View mPhotoGalleryLayout;
 	private View mPhotoGridLayout;
 	
@@ -62,26 +80,64 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	
 	private Dialog mPicChooseDialog;
 	
+	private static final float APP_PAGE_SIZE = 12.0f;
+	
 	private static final int ALBUM_RESULT = 1;
 	private static final int CAMERA_RESULT = 2;
 	private static final int CROP_RESULT = 3;
 	
+	private static final int DOWNLOAD_THUMB_ALBUM_JSON_OK = 0;
+	private static final int DOWNLOAD_THUMB_ALBUM_JSON_ERROR = -1;
+	private static final int DOWNLOAD_ALL_ALBUM_OK = 1;
+	private static final int DOWNLOAD_ALL_ALBUM_ERROR = 2;
+	
+	private static final int UPLOAD_ALBUM_OK = 3;
+	private static final int UPLOAD_ALBUM_ERROR = 4;
+	
+	private int mPageIndex;
+	
 	private ContentResolver mContentResolver;
 	
-	private String mCameraImageFilePath;
+	private String mCacheImageFilePath;
  
     private ImageCapture mImgCapture;
+    
+    private ServerInterface serverInterface;
+    
+    private Context mContext;
+    
+	private MyHandler myHandler;
+	private UpDownloadHandler handler;
+	private DataLoading dataLoad;
+	
+	private PhotoAdapter mLastChildAdapter;
+	private PhotoAdapter mGalleryPhotoAdapter;
+	
+	private String mAlbumUrllist;
+    
+    OnItemClickListener mItemClickListener = new OnItemClickListener() {
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+				long arg3) {
+			// TODO Auto-generated method stub
+			mPhotoGallery.setSelection(arg2
+					+ (int) (mPageIndex * APP_PAGE_SIZE));
+			mPhotoGalleryLayout.setVisibility(View.VISIBLE);
+			mPhotoGridLayout.setVisibility(View.GONE);
+		}
+	};
     
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.album_screen);
 		
+		mContext = AlbumScreen.this;
+		
 		mPhotoGallery = (Gallery) findViewById(R.id.p_gallery_gallery);
 		mPhotoGalleryLayout = (View) findViewById(R.id.p_gallery_layout);
 		
-		mPhotoView = (GridView) findViewById(R.id.p_grid_gridview);
-		mPhotoView.setSelector(new ColorDrawable(Color.TRANSPARENT));
+		mPhotoView = (AlbumScrollLayout) findViewById(R.id.ScrollLayoutTest);
 		mPhotoGridLayout = findViewById(R.id.p_grid_layout);
 		
 		mBtnGalleryBack = (ImageButton) findViewById(R.id.p_gallery_back);
@@ -96,17 +152,14 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		
 		mGalleryTitle = (TextView) findViewById(R.id.p_gallery_activityTitle);
 		
-		
-		mPhotoView.setOnItemClickListener(new OnItemClickListener() {
+		mPhotoView.setOnScreenChangeListener(new OnScreenChangeListener(){
 
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-					long arg3) {
+			public void onScreenChange(int currentIndex) {
 				// TODO Auto-generated method stub
-				mPhotoGallery.setSelection(arg2);
-				mPhotoGalleryLayout.setVisibility(View.VISIBLE);
-				mPhotoGridLayout.setVisibility(View.GONE);
+				mPageIndex = currentIndex;
 			}});
+
 
 		mPhotoGallery.setCallbackDuringFling(false);
 		mPhotoGallery.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -133,10 +186,11 @@ public class AlbumScreen extends Screen implements OnClickListener {
 							mCacheImage.recycle();
 						}
 
-						File file = new File(mSelItem.filepath);
+						
+						File file = new File(mSelItem.filelocalpath);
 						if (file.exists()) {
 							mCacheImage = BitmapFactory
-									.decodeFile(mSelItem.filepath);
+									.decodeFile(mSelItem.filelocalpath);
 							if (mCacheImage != null) {
 								mSelItem.image.setImageBitmap(mCacheImage);
 							}
@@ -152,10 +206,14 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				
 			}});
 		
+		mPageIndex = 0;
 		
 		mContentResolver = getContentResolver();
 		
 		mImgCapture = new ImageCapture(this, mContentResolver);
+		
+		serverInterface = new ServerInterface();
+		serverInterface.InitAmtCloud(mContext);
 		
 		loadAlbumData();
 	}
@@ -169,41 +227,46 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				Uri uri = data.getData();
 				if (uri != null) {
 					String filepath = getFilepathFromUri(uri);
-					System.out.println("=CCC=" + filepath);
-					String name = filepath.substring(filepath.lastIndexOf("/") + 1, filepath.length());
-					System.out.println("=CCC=" + name);
-					name = name.substring(0, name.lastIndexOf("."));
-					System.out.println("=CCC=" + name);
-					insertNewImageToDB(name, filepath);
+					File file = new File(filepath);
+					if (file.exists()) {
+				        long dateTaken = System.currentTimeMillis();
+				        String title = mImgCapture.createName(dateTaken);
+				        mCacheImageFilePath = mImgCapture.ALBUM_CACHE_PATH 
+								+ "/"+ title +".jpg";
+				        mImgCapture.copyFile(file.getAbsolutePath(), mCacheImageFilePath);
+				        File cachefile = new File(mCacheImageFilePath);
+				        if (cachefile.exists()) {
+							filepath = cachefile.getAbsolutePath();
+							String name = filepath.substring(filepath.lastIndexOf("/") + 1, filepath.length());
+							String expandname = filepath.substring(filepath.lastIndexOf(".") + 1, filepath.length()).toLowerCase();
+							name = name.substring(0, name.lastIndexOf("."));
+							uploadImage(name, expandname, filepath, 1);
+				        } else {
+				        	System.out.println("ALBUM create_cache_file_failed ");
+				        	Toast.makeText(AlbumScreen.this, getString(R.string.create_cache_file_failed), Toast.LENGTH_SHORT).show();
+				        }
+					}
 				}
 			}
 			break;
 
 		case CAMERA_RESULT:
 			if (resultCode == RESULT_OK) {
-				String filepath = mCameraImageFilePath;
-				String name = filepath.substring(filepath.lastIndexOf("/") + 1, filepath.length());
-				name = name.substring(0, name.lastIndexOf("."));
-				insertNewImageToDB(name, filepath);
-			}
-			break;
-
-		case CROP_RESULT:
-			if(data != null){
-				Bundle extras = data.getExtras();
-				if (extras != null) {
-					ByteArrayOutputStream stream = new ByteArrayOutputStream();
-					Bitmap photo = extras.getParcelable("data");
-					photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-					byte[] b = stream.toByteArray();
-					this.mImgCapture.storeImage(b, null);
-					String filepath = getFilepathFromUri(this.mImgCapture.getLastCaptureUri());
-					PreferencesHelper.UpdateAvatar(this, filepath);
-					this.finish();
+				String filepath = mCacheImageFilePath;
+				File file = new File(filepath);
+				if (file.exists()) {
+					filepath = file.getAbsolutePath();
+					String name = filepath.substring(filepath.lastIndexOf("/") + 1, filepath.length());
+					String expandname = filepath.substring(filepath.lastIndexOf(".") + 1, filepath.length());
+					name = name.substring(0, name.lastIndexOf("."));
+					uploadImage(name, expandname, filepath, 1);
 				}
+			} else {
+				System.out.println("CAMERA create_cache_file_failed ");
+				Toast.makeText(AlbumScreen.this, getString(R.string.create_cache_file_failed), Toast.LENGTH_SHORT).show();
 			}
-			
 			break;
+			
 		default:
 			break;
 
@@ -212,7 +275,6 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	}
 	
 	private String getFilepathFromUri(Uri uri) {
-		//System.out.println("=CCC=" + uri);
 		Cursor cursor = mContentResolver.query(uri, null,   
                 null, null, null);   
 		cursor.moveToFirst();   
@@ -220,16 +282,6 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		cursor.close();
 		
 		return filepath;
-	}
-	
-	private boolean insertNewImageToDB(String name, String filepath) {
-		ContentValues cValue = new ContentValues();        
-   
-		cValue.put(DatabaseHelper.COLUMN_PHOTO_NAME, name);         
- 
-		cValue.put(DatabaseHelper.COLUMN_PHOTO_FILEPATH, filepath); 
-		
-		return ServiceManager.getDbManager().insertLocalPhoto(cValue);
 	}
 	
 	private void getNewImageFromLocal() {
@@ -242,9 +294,9 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	private void getNewImageFromCamera() {
         long dateTaken = System.currentTimeMillis();
         String title = mImgCapture.createName(dateTaken);
-        mCameraImageFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() 
+        mCacheImageFilePath = mImgCapture.ALBUM_CACHE_PATH 
 				+ "/"+ title +".jpg";
-		File imageFile = new File(mCameraImageFilePath);
+		File imageFile = new File(mCacheImageFilePath);
 		Uri imageFileUri = Uri.fromFile(imageFile);
 		Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 		intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,imageFileUri);
@@ -264,17 +316,296 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		intent.putExtra("return-data", true);
 		startActivityForResult(intent, CROP_RESULT);
 	}
+
+	// private boolean insertNewImageToDB(String name, String filepath) {
+	// ContentValues cValue = new ContentValues();
+	//
+	// cValue.put(DatabaseHelper.COLUMN_PHOTO_NAME, name);
+	//
+	// cValue.put(DatabaseHelper.COLUMN_PHOTO_FILEPATH, filepath);
+	//	
+	// return ServiceManager.getDbManager().insertLocalPhoto(cValue);
+	// }
+
+	private void uploadImage(String name, String expandname, String filepath, int uploadcount) {
+		final String aName = name;
+		final String aExpandName = expandname;
+		final String aFilePath = filepath;
+		final int aUploadCount = uploadcount;
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				String user_id = String.valueOf(NoteApplication.getInstance().getUserId());
+				String username = NoteApplication.getInstance().getUserName();
+				String albumname = username;
+				Looper.prepare();
+				int result = serverInterface.uploadAlbum(mContext, user_id,
+						albumname, username, aFilePath, aName, aExpandName);
+
+				Message msg = new Message();
+				msg.getData().putString("name", aName);
+				msg.getData().putString("expandname", aExpandName);
+				msg.getData().putString("filelocalpath", aFilePath);
+				msg.getData().putInt("uploadcount", aUploadCount);
+
+				if (result == 0) {
+					msg.what = UPLOAD_ALBUM_OK;
+				} else {
+					msg.what = UPLOAD_ALBUM_ERROR;
+				}
+				handler.sendMessage(msg);
+			}
+
+		}).start();
+	}
+
+	// 更新后台数据
+	class MyThread implements Runnable {
+		public void run() {
+			String msglist = "1";
+			Message msg = new Message();
+			Bundle b = new Bundle();// 存放数据
+			b.putString("rmsg", msglist);
+			msg.setData(b);
+			AlbumScreen.this.myHandler.sendMessage(msg); // 向Handler发送消息,更新UI
+
+		}
+	}
+
+	class MyHandler extends Handler {
+		private AlbumScreen mContext;
+		public MyHandler(Context context,int a) {
+			mContext = (AlbumScreen)context;
+		}
+
+		public MyHandler(Looper L) {
+			super(L);
+		}
+
+		// 子类必须重写此方法,接受数据
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			super.handleMessage(msg);
+			Bundle b = msg.getData();
+			String rmsg = b.getString("rmsg");
+
+			if ("1".equals(rmsg)) {
+				if (mAlbumUrllist == null || "".equals(mAlbumUrllist)) {
+					ParsePhotoJson();
+				} else {
+					List<Map> list = new ArrayList<Map>();
+					String[] items;
+					if (mAlbumUrllist != null && !"".equals(mAlbumUrllist)) {
+						items = mAlbumUrllist.split(",");
+
+						for (int i = 0; i < items.length; i++) {
+							Map map = new HashMap();
+							map.put("title", "");
+							map.put("fileurl", items[i]);
+							map.put("filelocalpath", "");
+							list.add(map);
+						}
+					}
+
+			        int pageNo = (int)Math.ceil( list.size()/APP_PAGE_SIZE);
+					for (int i = 0; i < pageNo; i++) {
+						GridView appPage = new GridView(mContext);
+						// get the "i" page data
+						mLastChildAdapter = new PhotoAdapter(mContext, GridView.class, list, i);
+						appPage.setAdapter(mLastChildAdapter);
+						appPage.setNumColumns(3);
+						appPage.setGravity(Gravity.CENTER);
+						appPage.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
+						appPage.setVerticalSpacing(10);
+						appPage.setHorizontalSpacing(10);
+						appPage.setColumnWidth(90);
+						appPage.setOnItemClickListener(mItemClickListener);
+						appPage.setSelector(new ColorDrawable(Color.TRANSPARENT));
+						mPhotoView.addView(appPage);
+					}
+					
+					mGalleryPhotoAdapter = new PhotoAdapter(mContext, Gallery.class, list, 0);
+					mPhotoGallery.setAdapter(mGalleryPhotoAdapter);
+
+					//dataLoad.bindScrollViewGroup(mPhotoView);
+			     }
+			     
+				}
+			}
+
+		}
+	
+	
+	
+	public void ParsePhotoJson() {
+
+		new Thread (new Runnable(){
+			@Override
+			public void run() {
+				String user_id = String.valueOf(NoteApplication.getInstance().getUserId());
+				String username = NoteApplication.getInstance().getUserName();
+				System.out.println("=CCC=" + user_id + "=CCC=" + username);
+				String albumname = username;
+				Looper.prepare();
+				String json = serverInterface.getAlbumDownloadUrl(user_id, albumname);
+				NoteApplication.LogD(AlbumScreen.class, json);
+				if (json == null ||  "".equals(json) || "-1".equals(json) || "-2".equals(json)){
+					Message msg = new Message();
+					msg.what = DOWNLOAD_THUMB_ALBUM_JSON_ERROR;
+					handler.sendMessage(msg);
+					return;
+				}
+
+				try {
+					JSONArray jsonArray = new JSONArray(json);
+
+					if (jsonArray.length() > 0) {
+						JSONObject jsonObject = (JSONObject) jsonArray.opt(0);
+						mAlbumUrllist = jsonObject.getString("album_url");
+					}
+
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					Message msg = new Message();
+					msg.what = DOWNLOAD_THUMB_ALBUM_JSON_ERROR;
+					handler.sendMessage(msg);
+					e.printStackTrace();
+					return;
+				}
+				Message msg = new Message();
+				msg.what = DOWNLOAD_THUMB_ALBUM_JSON_OK;
+				handler.sendMessage(msg);
+			}
+        	
+        }).start();
+	}
+	
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+//		if(mPhotoView.getChildCount() == 0){
+//			ParsePhotoJson();
+//		}
+    }
+	
+	
+	
+	public class UpDownloadHandler extends Handler {
+		
+		UpDownloadHandler(){}
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch(msg.what){
+			case  UPLOAD_ALBUM_OK:
+				System.out.println("UPLOAD_ALBUM_OK");
+				Map map = new HashMap();
+				map.put("title", "");
+				map.put("fileurl", "");
+				map.put("filelocalpath", msg.getData().getString("filelocalpath"));
+				if (mLastChildAdapter == null || mLastChildAdapter.getCount() == (int)APP_PAGE_SIZE) {
+					List<Map> list = new ArrayList<Map>();
+					list.add(map);
+
+					GridView appPage = new GridView(mContext);
+					mLastChildAdapter = new PhotoAdapter(mContext, GridView.class, list, 0);
+					appPage.setAdapter(mLastChildAdapter);
+					appPage.setNumColumns(3);
+					appPage.setGravity(Gravity.CENTER);
+					appPage.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
+					appPage.setVerticalSpacing(10);
+					appPage.setHorizontalSpacing(10);
+					appPage.setColumnWidth(90);
+					appPage.setOnItemClickListener(mItemClickListener);
+					appPage.setSelector(new ColorDrawable(Color.TRANSPARENT));
+					mPhotoView.addView(appPage);
+				} else {
+					mLastChildAdapter.addNewItem(map);
+					mLastChildAdapter.notifyDataSetChanged();
+				}
+				mGalleryPhotoAdapter.addNewItem(map);
+				break;
+			case  UPLOAD_ALBUM_ERROR:
+				int uploadcount = msg.getData().getInt("uploadcount");
+				if (uploadcount > 3 || uploadcount <= 0)  {
+					System.out.println("UPLOAD_ALBUM_ERROR, try count over 3");
+					String aFilePath = msg.getData().getString("filelocalpath");
+					new File(aFilePath).delete();
+					Toast.makeText(AlbumScreen.this, getString(R.string.upload_album_failed), Toast.LENGTH_SHORT).show();
+				} else {
+					System.out.println("UPLOAD_ALBUM_ERROR, try count : " + String.valueOf(uploadcount+1));
+					String aName = msg.getData().getString("name");
+					String aExpandName = msg.getData().getString("expandname");
+					String aFilePath = msg.getData().getString("filelocalpath");
+					uploadImage(aName, aExpandName, aFilePath, uploadcount+1);
+				}
+				break;		
+			case  DOWNLOAD_THUMB_ALBUM_JSON_OK:
+				// if(flag == true) {
+				MyThread m = new MyThread();
+				new Thread(m).start();
+				// mDialogCheckSignature.dismiss();
+				// }
+
+				break;
+			case  DOWNLOAD_THUMB_ALBUM_JSON_ERROR:
+				if (mGalleryPhotoAdapter == null) {
+					List<Map> list = new ArrayList<Map>();
+					mGalleryPhotoAdapter = new PhotoAdapter(mContext, Gallery.class, list, 0);
+					mPhotoGallery.setAdapter(mGalleryPhotoAdapter);
+				}
+				System.out.println("DOWNLOAD_THUMB_ALBUM_JSON_ERROR");
+				Toast.makeText(AlbumScreen.this, getString(R.string.download_album_failed), Toast.LENGTH_SHORT).show();
+				break;
+			case  DOWNLOAD_ALL_ALBUM_OK:
+				System.out.println("DOWNLOAD_ALL_ALBUM_OK");
+				break;
+			case  DOWNLOAD_ALL_ALBUM_ERROR:
+				System.out.println("DOWNLOAD_ALL_ALBUM_ERROR");
+				break;
+			}
+    	}
+	}
+	
+	
+	
+	
+	//分页数据
+	class DataLoading {
+		private int count;
+		private AlbumScrollLayout mScrollViewGroup;
+		public void bindScrollViewGroup(AlbumScrollLayout scrollViewGroup) {
+			this.count=scrollViewGroup.getChildCount();
+			this.mScrollViewGroup=scrollViewGroup;
+			scrollViewGroup.setOnScreenChangeListenerDataLoad(new OnScreenChangeListenerDataLoad() {
+				public void onScreenChange(int currentIndex) {
+					generatePageControl(currentIndex);
+				}
+			});
+		}
+		
+		private void generatePageControl(int currentIndex){
+			//如果到最后一页，就加载24条记录
+			if(count==currentIndex){
+				mAlbumUrllist = "";
+				mScrollViewGroup.removeAllViews();
+				MyThread m = new MyThread();
+				new Thread(m).start();
+			}
+		}
+	}
 	
 	private void loadAlbumData() {
-
-        Cursor c = ServiceManager.getDbManager().queryPhotoData();
-        startManagingCursor(c);
-
-        final PhotoAdapter adapter1 = new PhotoAdapter(this, c, Gallery.class);
-		mPhotoGallery.setAdapter(adapter1);
+		dataLoad = new DataLoading();
+		myHandler = new MyHandler(this,1);
+		handler = new UpDownloadHandler();
+		//起一个线程更新数据
+		MyThread m = new MyThread();
+		new Thread(m).start();
 		
-		final PhotoAdapter adapter2 = new PhotoAdapter(this, c, GridView.class);
-		mPhotoView.setAdapter(adapter2);
 	}
 	
 	private void showSelImageDialog() {

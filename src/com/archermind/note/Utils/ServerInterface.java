@@ -23,7 +23,7 @@ public class ServerInterface {
 	public static final String URL_get_info ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_info";
 	public static final String URL_set_info ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/set_info";
 	
-	public static final String URL_MODIFYPASSWORD = "";
+	public static final String URL_MODIFYPASSWORD = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/pswModify";
 
 	public static final String app_id = "0ba7932602af4a45bd866bad93be0e50";
 	public static final String app_secret = "2411edd1a2c44249a98e6451592062bc";
