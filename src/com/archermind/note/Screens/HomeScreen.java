@@ -106,9 +106,9 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_screen);
         
-        if(ServiceManager.getDbManager().queryLocalNotes(HomeScreen.USRID).getCount() == 0){
+/*        if(ServiceManager.getDbManager().queryLocalNotes(HomeScreen.USRID).getCount() == 0){
         	insert();
-        }
+        }*/
         
         mContext = HomeScreen.this;
        
