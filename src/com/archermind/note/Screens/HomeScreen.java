@@ -240,7 +240,9 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		mCalendarAdapter = new CalendarAdapter(this, getResources(), mCurYear, mCurMonth, flipper.getHeight(), Constant.flagType);
 		addGridView();
 	    mGridView.setAdapter(mCalendarAdapter);
+	    flipper.removeAllViews();
 	    flipper.addView(mGridView,0);
+	    flipper.setDisplayedChild(0);
 
 	    if(mllCalendarPage.getVisibility() == View.VISIBLE && mListHeader.getTag().equals(tagTimeList)){
 	    	mlvMonthNotes.setAdapter(new LocalNoteAdapter(this, ServiceManager
@@ -274,7 +276,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
         mGridView.setColumnWidth(Width/7 + 1);
         mGridView.setGravity(Gravity.CENTER);
        // mGridView.setSelector(getResources().getDrawable(R.drawable.calendar_item_selector));
-        mGridView.setOnItemClickListener(new OnItemClickListener() {
+/*        mGridView.setOnItemClickListener(new OnItemClickListener() {
             //gridView中的每一个item的点击事件
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position,
@@ -286,7 +288,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 					  System.out.println(mCalendarAdapter.getDateByClickItem(position));
 				  }
 			}
-		});
+		});*/
         mGridView.setLayoutParams(params);
 	}
 	
@@ -295,6 +297,8 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
+		
+		System.out.println("homescreen onresume");
 		Cursor localNotes = ServiceManager.getDbManager().queryLocalNotes(HomeScreen.USRID);
 		if(localNotes.moveToFirst()){
 			Long time = Long.parseLong(localNotes.getString(localNotes.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CREATE_TIME)));
@@ -690,7 +694,9 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		addGridView();   //添加一个gridview
 		mCalendarAdapter = new CalendarAdapter(this, getResources(), mCurYear, mCurMonth,flipper.getHeight(), Constant.flagType);
 	    mGridView.setAdapter(mCalendarAdapter);
-	    flipper.addView(mGridView);
+	    
+	    flipper.removeAllViews();
+	    flipper.addView(mGridView,0);
         
 	    if(preORnext == NEXT_MONTH){
 	    	flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_in));
@@ -699,8 +705,9 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	    	flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_in));
 			flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_out));
 	    }
-		flipper.setDisplayedChild(1);
-		flipper.removeViewAt(0);
+	    
+		flipper.setDisplayedChild(0);
+		
 	}
 
 	@Override

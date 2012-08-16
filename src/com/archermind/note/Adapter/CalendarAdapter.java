@@ -297,7 +297,7 @@ public class CalendarAdapter extends BaseAdapter {
 			}
 		}
         
-/*        String abc = "";
+/*       String abc = "";
         for(int i = 0; i < dayNumber.length; i++){
         	 abc = abc+dayNumber[i]+":";
         }
