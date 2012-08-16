@@ -32,10 +32,26 @@
             android:background="@drawable/screen_go_back_selector" />
     </RelativeLayout>
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_marginTop="20dp" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login_tips"
+            android:textColor="@color/login_text_color" />
+
+   
+    </LinearLayout>
+
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:padding="38dp" >
+        android:padding="25dp" >
 
         <TextView
             android:id="@+id/btn_login_sina"
@@ -153,17 +169,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:orientation="horizontal" >
-
-            <CheckBox
-                android:id="@+id/checkBox_login"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:button="@drawable/checkbox_selector"
-                android:text="@string/login_auto"
-                android:textColor="@color/login_text_color"
-                android:textSize="16sp" />
 
             <TextView
                 android:layout_width="wrap_content"

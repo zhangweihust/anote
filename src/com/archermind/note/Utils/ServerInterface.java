@@ -59,7 +59,7 @@ public class ServerInterface {
 	 * 用户注册 输入参数：用户名，用户密码 返回值： SUCCESS 注册成功
 	 */
 	public static String register(int type, String bin_uid, String username,
-			String password, String nickname, int sex, int provinceId, int cityId) {
+			String password, String nickname, int sex, String region) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user", username);
 		map.put("password", password);
@@ -67,8 +67,7 @@ public class ServerInterface {
 		map.put("acc_type", String.valueOf(type));
 		map.put("bin_acc", bin_uid);
 		map.put("sex", String.valueOf(sex));
-		map.put("province_id", String.valueOf(provinceId));
-		map.put("city_id", String.valueOf(cityId));
+		map.put("region", region);
 		return HttpUtils.doPost(map, URL_REGISTER);
 	}
 

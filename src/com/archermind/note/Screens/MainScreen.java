@@ -3,9 +3,14 @@ package com.archermind.note.Screens;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.TabActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -41,6 +46,8 @@ import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Services.EventService;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DensityUtil;
+import com.archermind.note.Utils.PreferencesHelper;
+import com.archermind.note.Utils.ServerInterface;
 import com.archermind.note.Views.MenuRightHorizontalScrollView;
 
 public class MainScreen extends TabActivity implements OnTabChangeListener,
@@ -79,8 +86,9 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	
 	public static GestureDetector mGestureDetector = null;
 	public static long snoteCreateTime = 0;
-	
-	public static final EventService eventService = ServiceManager.getEventservice();
+
+	public static final EventService eventService = ServiceManager
+			.getEventservice();
 
 	public MainScreen(){
 		super();
@@ -131,6 +139,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		mbtnBack.setOnClickListener(this);
 		eventService.add(this);
 		initPopupwindow();
+		autoLogin();// 自动登录
 	}
 
 	private TabSpec buildTabSpec(String tag, int iconId, Intent intent) {
@@ -368,41 +377,82 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 					}else{
 						mbtnBack.setVisibility(View.GONE);
 					}
-				}});
+				}
+			});
 			break;
 		case MAIN_SCREEN_UPDATE_TITLE:
 			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
 					mtvTitleBarTitle.setText(e.getExtra("title").toString());
-				}});
+				}
+			});
 			break;
 		default:
 			break;
 		}
 		return false;
 	}
-	
+
 	private boolean mExit_Flag;// 退出标记
-	private long mExit_time = 0; //第一次点击退出的时间 
-	 
-		@Override
-		public boolean dispatchKeyEvent(KeyEvent event) {
-			System.out.println("mainscreen ondispatchKeyEvent");
-			if(event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP){
-				if(HomeScreen.isSubPage() == View.VISIBLE){
-					return super.dispatchKeyEvent(event);
-				}else if (mExit_Flag && (System.currentTimeMillis() - mExit_time < 3000 )) {
-					this.finish();
-					ServiceManager.exit();
-				} else {
-					Toast.makeText(this, getString(R.string.exit), Toast.LENGTH_SHORT)
-							.show();
-					mExit_Flag = true;
-					mExit_time = System.currentTimeMillis();
-				}
-		        return true;
-	        }
-	        return super.dispatchKeyEvent(event);
+	private long mExit_time = 0; // 第一次点击退出的时间
+
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		System.out.println("mainscreen ondispatchKeyEvent");
+		if (event.getKeyCode() == KeyEvent.KEYCODE_BACK
+				&& event.getAction() == KeyEvent.ACTION_UP) {
+			if (HomeScreen.isSubPage() == View.VISIBLE) {
+				return super.dispatchKeyEvent(event);
+			} else if (mExit_Flag
+					&& (System.currentTimeMillis() - mExit_time < 3000)) {
+				this.finish();
+				ServiceManager.exit();
+			} else {
+				Toast.makeText(this, getString(R.string.exit),
+						Toast.LENGTH_SHORT).show();
+				mExit_Flag = true;
+				mExit_time = System.currentTimeMillis();
+			}
+			return true;
 		}
+		return super.dispatchKeyEvent(event);
+	}
+
+	private void autoLogin() {
+		new Thread() {
+
+			@Override
+			public void run() {
+				SharedPreferences sp = PreferencesHelper.getSharedPreferences(
+						MainScreen.this, 0);
+				String username = sp.getString(
+						PreferencesHelper.XML_USER_ACCOUNT, null);
+				String password = sp.getString(
+						PreferencesHelper.XML_USER_PASSWD, null);
+				if (username != null && password != null) {
+					String result = ServerInterface.login(username, password);
+					try {
+						JSONObject jsonObject = new JSONObject(result);
+						if (jsonObject.optString("flag").equals(
+								"" + ServerInterface.SUCCESS)) {
+							// 保存至Application
+							NoteApplication noteApplication = NoteApplication
+									.getInstance();
+							noteApplication.setUserName(jsonObject
+									.optString("email"));
+							noteApplication.setUserId(jsonObject
+									.optInt("user_id"));
+							noteApplication.setLogin(true);
+							Log.i("MainScreen", "autologin success");
+						}
+					} catch (JSONException e) {
+						e.printStackTrace();
+						Log.i("MainScreen", "autologin failed");
+					}
+				}
+			}
+
+		}.start();
+	}
 }

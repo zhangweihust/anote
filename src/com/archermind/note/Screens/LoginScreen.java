@@ -165,7 +165,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 
 	private void showProgressDialog() {
 		mProgressDialog = new ProgressDialog(this);
-		mProgressDialog.setMessage("正在登录...");
+		mProgressDialog.setMessage(getString(R.string.login_dialog_msg));
 		mProgressDialog.show();
 	}
 
@@ -282,8 +282,14 @@ public class LoginScreen extends Screen implements OnClickListener {
 								* 1000);
 				editor.commit();
 				Log.i(TAG, "renrenuid:" + renren.getCurrentUid());
-				login_others(ServerInterface.LOGIN_TYPE_RENREN,
-						String.valueOf(renren.getCurrentUid()));
+				if(renren.isSessionKeyValid()){
+					login_others(ServerInterface.LOGIN_TYPE_RENREN,
+							String.valueOf(renren.getCurrentUid()));
+				}else {
+					Toast.makeText(LoginScreen.this,
+							R.string.login_failed,
+							Toast.LENGTH_SHORT).show();
+				}
 			}
 
 			@Override

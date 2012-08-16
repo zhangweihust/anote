@@ -27,13 +27,6 @@ import android.widget.Toast;
 
 public class ShareSettingScreen extends Screen implements OnClickListener {
 
-	private Button mBackButton;
-	private TextView mSinaView;
-	private TextView mSinaView_Cancel;
-	private TextView mQQView;
-	private TextView mQQView_Cancel;
-	private TextView mRenrenView;
-	private TextView mRenrenView_Cancel;
 	public static final String APPKEY_SINA = "1294484213";// 申请的新浪KEY
 	public static final String APPSECRET_SINA = "69c73b5fa22fbda126d4db68118afaa6"; // 申请的新浪SECRET
 	public static final String APPKEY_QQ = "801210743";// 申请的腾讯KEY
@@ -41,6 +34,14 @@ public class ShareSettingScreen extends Screen implements OnClickListener {
 	public static final String APPKEY_RENREN = "87e5e8e6175b46519fe9eb40968ba2dc";// 申请的人人KEY
 	public static final String APPSECRET_RENREN = "3f093253cf344d3099e6df1e42f1d661"; // 申请的人人SECRET
 	public static final String APPID_RENREN = "207067";
+	private Button mBackButton;
+	private TextView mSinaView;
+	private TextView mSinaView_Cancel;
+	private TextView mQQView;
+	private TextView mQQView_Cancel;
+	private TextView mRenrenView;
+	private TextView mRenrenView_Cancel;
+	private SharedPreferences mPreferences;
 	private static final String TAG = "ShareSettingScreen";
 
 	@Override
@@ -48,6 +49,7 @@ public class ShareSettingScreen extends Screen implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.share_setting);
 		initViews();
+		mPreferences = PreferencesHelper.getSharedPreferences(this, 0);
 		checkBind();
 	}
 
@@ -108,9 +110,7 @@ public class ShareSettingScreen extends Screen implements OnClickListener {
 							oAuthV2.getAccessToken() + "  "
 									+ oAuthV2.getExpiresIn() + "  "
 									+ oAuthV2.getOpenid());
-					SharedPreferences sp = getSharedPreferences(
-							PreferencesHelper.XML_NAME, 0);
-					Editor editor = sp.edit();
+					Editor editor = mPreferences.edit();
 					editor.putString(PreferencesHelper.XML_QQ_ACCTSS_TOKEN,
 							oAuthV2.getAccessToken());
 					editor.putLong(
@@ -131,15 +131,25 @@ public class ShareSettingScreen extends Screen implements OnClickListener {
 	}
 
 	private void checkBind() {
-		SharedPreferences sp = getSharedPreferences(PreferencesHelper.XML_NAME,
-				0);
-		if (sp.getString(PreferencesHelper.XML_SINA_ACCTSS_TOKEN, null) != null) {
+		if (mPreferences.getString(PreferencesHelper.XML_SINA_ACCTSS_TOKEN,
+				null) != null
+				&& System.currentTimeMillis() < mPreferences.getLong(
+						PreferencesHelper.XML_SINA_EXPIRES_IN, 0)) {
 			mSinaView.setVisibility(View.GONE);
 			mSinaView_Cancel.setVisibility(View.VISIBLE);
 		}
-		if (sp.getString(PreferencesHelper.XML_QQ_ACCTSS_TOKEN, null) != null) {
+		if (mPreferences.getString(PreferencesHelper.XML_QQ_ACCTSS_TOKEN, null) != null
+				&& System.currentTimeMillis() < mPreferences
+						.getLong(PreferencesHelper.XML_QQ_EXPIRES_IN, 0)) {
 			mQQView.setVisibility(View.GONE);
 			mQQView_Cancel.setVisibility(View.VISIBLE);
+		}
+		if (mPreferences.getString(PreferencesHelper.XML_RENREN_ACCTSS_TOKEN,
+				null) != null
+				&& System.currentTimeMillis() < mPreferences.getLong(
+								PreferencesHelper.XML_RENREN_EXPIRES_IN, 0)) {
+			mRenrenView.setVisibility(View.GONE);
+			mRenrenView_Cancel.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -165,9 +175,7 @@ public class ShareSettingScreen extends Screen implements OnClickListener {
 							@Override
 							public void onClick(DialogInterface dialog,
 									int which) {
-								SharedPreferences sp = getSharedPreferences(
-										PreferencesHelper.XML_NAME, 0);
-								Editor editor = sp.edit();
+								Editor editor = mPreferences.edit();
 								editor.remove(PreferencesHelper.XML_SINA_ACCTSS_TOKEN);
 								editor.remove(PreferencesHelper.XML_SINA_EXPIRES_IN);
 								editor.commit();
@@ -212,9 +220,7 @@ public class ShareSettingScreen extends Screen implements OnClickListener {
 							@Override
 							public void onClick(DialogInterface dialog,
 									int which) {
-								SharedPreferences sp = getSharedPreferences(
-										PreferencesHelper.XML_NAME, 0);
-								Editor editor = sp.edit();
+								Editor editor = mPreferences.edit();
 								editor.remove(PreferencesHelper.XML_QQ_ACCTSS_TOKEN);
 								editor.remove(PreferencesHelper.XML_QQ_EXPIRES_IN);
 								editor.commit();
@@ -254,9 +260,7 @@ public class ShareSettingScreen extends Screen implements OnClickListener {
 				Log.e(TAG, values.toString());
 				Log.e(TAG, values.getString("access_token"));
 				Log.e(TAG, values.getString("expires_in"));
-				SharedPreferences sp = getSharedPreferences(
-						PreferencesHelper.XML_NAME, 0);
-				Editor editor = sp.edit();
+				Editor editor = mPreferences.edit();
 				editor.putString(PreferencesHelper.XML_RENREN_ACCTSS_TOKEN,
 						values.getString("access_token"));
 				editor.putLong(

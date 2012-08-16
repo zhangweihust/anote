@@ -85,6 +85,7 @@
 
     <!-- login -->
     <string name="login_title">登录</string>
+    <string name="login_tips">可用以下账号登录</string>
     <string name="login_sina">微博账号</string>
     <string name="login_qq">QQ账号</string>
     <string name="login_renren">人人账号</string>
@@ -94,15 +95,15 @@
     <string name="login_btn">账号登录</string>
     <string name="logout_btn">退出登录</string>
     <string name="login_auto">自动登录</string>
-    <string name="login_failed">呃，网络可能出了点问题！</string>
+    <string name="login_failed">呃，网络可能出了点问题！请稍候再试！</string>
     <string name="login_err_username_format">请输入正确格式的邮箱！</string>
     <string name="login_err_password_format">密码为6至16位的数字和字母组合！</string>
     <string name="login_err_username_not_exist">用户名不存在！</string>
     <string name="login_err_password_wrong">用户名或密码错误！</string>
-    <string name="login_err_server_internal">服务器连接错误，请稍候再试！</string>
+    <string name="login_err_server_internal">呃，服务器可能出了点问题，请稍候再试！</string>
     <string name="login_findpassword">忘记密码？</string>
     <string name="logout_title">确定退出登录？</string>
-    <string name="no_login_info">请先登录</string>
+    <string name="login_dialog_msg">正在登录...</string>
 
     <!-- register -->
     <string name="register_title">补充个人信息</string>
@@ -127,6 +128,15 @@
     <string name="register_err_server_internal">服务器连接错误，请稍候再试！</string>
     <string name="register_err_password_format">密码为6至16位的数字和字母组合！</string>
     <string name="register_err_pswdconfirm">两次输入密码不一致！</string>
+    <string name="register_dialog_msg">请稍候...</string>
+    
+    <!-- share -->
+    <string name="share_dialog_msg_sina">正在分享到新浪微博...</string>
+    <string name="share_dialog_msg_qq">正在分享到腾讯微博...</string>
+    <string name="share_dialog_msg_renren">正在分享到人人...</string>
+    <string name="share_sina_expired">新浪微博未关联或授权已过期，请重新关联！</string>
+    <string name="share_success">分享成功！</string>
+    <string name="share_failed">分享未成功，请稍候再试！</string>
 
     <!-- dialog local_note_item_transact -->
     <string name="share">分享</string>

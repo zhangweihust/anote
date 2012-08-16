@@ -52,33 +52,13 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	private static final int ALBUM_RESULT = 1;
 	private static final int CAMERA_RESULT = 2;
 	private static final int CROP_RESULT = 3;
+	private static final int REGION_RESULT = 4;
 	private SharedPreferences mPreferences;
 	private Dialog mPicChooseDialog;
 	private ContentResolver mContentResolver;
 	private String mCameraImageFilePath;
 	private ImageCapture mImgCapture;
 	private static final String TAG = "RegisterScreen";
-	private OnSharedPreferenceChangeListener spcListener = new OnSharedPreferenceChangeListener() {
-
-		@Override
-		public void onSharedPreferenceChanged(
-				SharedPreferences sharedPreferences, String key) {
-			if (key.equals(PreferencesHelper.XML_USER_REGION_PROVINCE)
-					|| key.equals(PreferencesHelper.XML_USER_REGION_CITY)) {
-				int provinceId = sharedPreferences.getInt(
-						PreferencesHelper.XML_USER_REGION_PROVINCE, -1);
-				int cityId = sharedPreferences.getInt(
-						PreferencesHelper.XML_USER_REGION_CITY, -1);
-				String province = PreferencesHelper.getProvinceName(
-						RegisterScreen.this, provinceId);
-				String city = PreferencesHelper.getCityName(
-						RegisterScreen.this, provinceId, cityId);
-
-				mRegion.setText(province + " " + city);
-			}
-		}
-	};
-
 	private Handler mHandler = new Handler() {
 
 		@Override
@@ -135,8 +115,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 		initViews();
 		mContentResolver = getContentResolver();
 		mImgCapture = new ImageCapture(this, mContentResolver);
-		mPreferences = getSharedPreferences(PreferencesHelper.XML_NAME, 0);
-		mPreferences.registerOnSharedPreferenceChangeListener(spcListener);
+		mPreferences = PreferencesHelper.getSharedPreferences(this, 0);
 	}
 
 	@Override
@@ -147,13 +126,6 @@ public class RegisterScreen extends Screen implements OnClickListener {
 		if (image != null) {
 			mUserAvatar.setImageBitmap(image);
 		}
-	}
-
-	@Override
-	protected void onDestroy() {
-		// TODO Auto-generated method stub
-		super.onDestroy();
-		mPreferences.unregisterOnSharedPreferenceChangeListener(spcListener);
 	}
 
 	private void initViews() {
@@ -179,7 +151,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 			break;
 		case R.id.register_tv_region:
 			Intent intent = new Intent(this, PersonalInfoRegionScreen.class);
-			startActivity(intent);
+			startActivityForResult(intent, REGION_RESULT);
 			break;
 		case R.id.btn_register:
 			register();
@@ -220,7 +192,15 @@ public class RegisterScreen extends Screen implements OnClickListener {
 					PreferencesHelper.UpdateAvatar(this, filepath);
 				}
 			}
-
+			break;
+		case REGION_RESULT:
+			if(data != null){
+				int ProvinceId = data.getIntExtra("province", 0);
+				int CityId = data.getIntExtra("city", 0);
+				String province = PreferencesHelper.getProvinceName(this, ProvinceId);
+				String city = PreferencesHelper.getCityName(this, ProvinceId, CityId);
+				mRegion.setText(province + " " + city);
+			}
 			break;
 		default:
 			break;
@@ -231,7 +211,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 
 	private void showProgressDialog() {
 		mProgressDialog = new ProgressDialog(this);
-		mProgressDialog.setMessage("正在登录...");
+		mProgressDialog.setMessage(getString(R.string.register_dialog_msg));
 		mProgressDialog.show();
 	}
 
@@ -350,12 +330,8 @@ public class RegisterScreen extends Screen implements OnClickListener {
 								password,
 								nickname,
 								mSex.getCheckedRadioButtonId() == R.id.register_ridiogroup_man ? 1
-										: 0,
-								mPreferences
-										.getInt(PreferencesHelper.XML_USER_REGION_PROVINCE,
-												-1), mPreferences.getInt(
-										PreferencesHelper.XML_USER_REGION_CITY,
-										-1));
+										: 0, 
+								mRegion.getText().toString());
 				Message message = new Message();
 				message.obj = result;
 				mHandler.sendMessage(message);
