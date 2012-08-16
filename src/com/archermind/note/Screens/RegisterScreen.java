@@ -189,7 +189,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 					this.mImgCapture.storeImage(b, null);
 					String filepath = getFilepathFromUri(this.mImgCapture
 							.getLastCaptureUri());
-					PreferencesHelper.UpdateAvatar(this, filepath);
+					PreferencesHelper.UpdateAvatar(this, "", filepath);
 				}
 			}
 			break;

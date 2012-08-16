@@ -56,6 +56,7 @@
     <string name="share_unbind_title">确定解除关联？</string>
     <string name="setting_ok">确定</string>
     <string name="setting_cancel">取消</string>
+    <string name="no_login_info">请先登录</string>
 
     <!-- account -->
     <string name="account_title">我的帐号</string>
@@ -68,11 +69,11 @@
 
     <!-- album -->
     <string name="album_title">我的相册</string>
-    <string name="photo_gallery_title">第%1$d张/共%2$d张</string>
+    <string name="album_gallery_title">第%1$d张/共%2$d张</string>
+    <string name="image_upload_failed" translatable="false">上传图片失败，网络环境或服务器不可访问</string>
+    <string name="image_download_failed" translatable="false">下载图片失败，网络环境或服务器不可访问</string>
     <string name="image_file_name_format" translatable="false">"_yyyyMMdd_HHmmss"</string>
-    <string name="upload_album_failed" translatable="false">上传图片失败，网络环境或服务器不可访问</string>
-    <string name="download_album_failed" translatable="false">下载图片失败，网络环境或服务器不可访问</string>
-    <string name="create_cache_file_failed" translatable="false">生成本地缓存文件失败，请检测是否未插入sdcard</string>
+    <string name="image_create_cache_file_failed" translatable="false">生成本地缓存文件失败，请检测是否未插入sdcard</string>
 
     <!-- personal_info_title -->
     <string name="personal_info_title">个人信息</string>
@@ -82,6 +83,9 @@
     <string name="personal_info_sex_female">女</string>
     <string name="personal_info_sex_male">男</string>
     <string name="personal_info_region">地区</string>
+    <string name="personal_info_get_fail">个人信息获取失败</string>
+    <string name="personal_info_set_fail">个人信息设置失败</string>
+    <string name="personal_info_set_succ">个人信息设置成功</string>
 
     <!-- login -->
     <string name="login_title">登录</string>

@@ -141,31 +141,6 @@ public class PhotoAdapter extends BaseAdapter {
 		
 		return convertView;
 	}
-
-	private String getFileName(String fileurl) {
-		String []items = fileurl.split("&");
-		if (items.length == 0)
-			return null;
-		
-		String mediaName="";
-		String mediaType="jpg";
-		for (int i=0; i<items.length; i++) {
-			if (items[i].contains("mediaName=")) {
-				String []str=items[i].split("=");
-				mediaName = str[str.length-1];
-			}
-			
-//			if (items[i].contains("mediaType=")) {
-//				String []str=items[i].split("=");
-//				mediaType = str[str.length-1];
-//			}
-		}
-		
-		if ("".equals(mediaName) || "".equals(mediaType))
-			return null;
-		else
-			return ImageCapture.ALBUM_CACHE_PATH + "/" + mediaName + "." + mediaType;
-	}
 	
 	private void loadBitmap(ViewHolder item) {
 		File file;
@@ -181,10 +156,10 @@ public class PhotoAdapter extends BaseAdapter {
 				return;
 			}
 			
-			String filelocalpath = getFileName(item.fileurl);
+			String filelocalpath = ImageCapture.getLocalCacheImageNameFromUrl(item.fileurl);
 			file = new File(filelocalpath);
 			if (!file.exists()) {
-				ImageCapture.createCacheBitmapFromUrl(item.fileurl, filelocalpath);
+				ImageCapture.createLocalCacheImageFromUrl(item.fileurl, filelocalpath);
 			}
 			
 			if (!new File(filelocalpath).exists()) {

@@ -40,15 +40,15 @@ public class PersonalInfoRegionScreen extends Screen implements OnClickListener 
 		mCityList = (ListView) this.findViewById(R.id.region_city);
 		mCityList.setAdapter(adapter2);
 		
-		SharedPreferences preferences = PreferencesHelper.getSharedPreferences(mContext, 0);
-		int province = preferences.getInt(PreferencesHelper.XML_USER_REGION_PROVINCE, 0);
-		int city = preferences.getInt(PreferencesHelper.XML_USER_REGION_CITY, 0);
+//		SharedPreferences preferences = PreferencesHelper.getSharedPreferences(mContext, 0);
+//		int province = preferences.getInt(PreferencesHelper.XML_USER_REGION_PROVINCE, 0);
+//		int city = preferences.getInt(PreferencesHelper.XML_USER_REGION_CITY, 0);
 		
-		mProvinceList.setSelection(province);
+		mProvinceList.setSelection(0);
 		
-		adapter2.setProvince(province);
+		adapter2.setProvince(0);
 		if (adapter2.getCount() > 0) {
-			mCityList.setSelection(city);
+			mCityList.setSelection(0);
 		}
 		
 		mProvinceList.setOnItemClickListener(new OnItemClickListener() {

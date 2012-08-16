@@ -172,7 +172,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				Integer cur_num = (Integer) (arg2 + 1);
 				Integer sum = (Integer) arg0.getCount();
 				String title = String.format(
-						getString(R.string.photo_gallery_title), cur_num, sum);
+						getString(R.string.album_gallery_title), cur_num, sum);
 				mGalleryTitle.setText(title);
 
 				AlbumScreen.this.runOnUiThread(new Runnable() {
@@ -231,7 +231,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					if (file.exists()) {
 				        long dateTaken = System.currentTimeMillis();
 				        String title = mImgCapture.createName(dateTaken);
-				        mCacheImageFilePath = mImgCapture.ALBUM_CACHE_PATH 
+				        mCacheImageFilePath = mImgCapture.IMAGE_CACHE_PATH 
 								+ "/"+ title +".jpg";
 				        mImgCapture.copyFile(file.getAbsolutePath(), mCacheImageFilePath);
 				        File cachefile = new File(mCacheImageFilePath);
@@ -243,7 +243,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 							uploadImage(name, expandname, filepath, 1);
 				        } else {
 				        	System.out.println("ALBUM create_cache_file_failed ");
-				        	Toast.makeText(AlbumScreen.this, getString(R.string.create_cache_file_failed), Toast.LENGTH_SHORT).show();
+				        	Toast.makeText(AlbumScreen.this, getString(R.string.image_create_cache_file_failed), Toast.LENGTH_SHORT).show();
 				        }
 					}
 				}
@@ -263,7 +263,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				}
 			} else {
 				System.out.println("CAMERA create_cache_file_failed ");
-				Toast.makeText(AlbumScreen.this, getString(R.string.create_cache_file_failed), Toast.LENGTH_SHORT).show();
+				Toast.makeText(AlbumScreen.this, getString(R.string.image_create_cache_file_failed), Toast.LENGTH_SHORT).show();
 			}
 			break;
 			
@@ -294,7 +294,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	private void getNewImageFromCamera() {
         long dateTaken = System.currentTimeMillis();
         String title = mImgCapture.createName(dateTaken);
-        mCacheImageFilePath = mImgCapture.ALBUM_CACHE_PATH 
+        mCacheImageFilePath = mImgCapture.IMAGE_CACHE_PATH 
 				+ "/"+ title +".jpg";
 		File imageFile = new File(mCacheImageFilePath);
 		Uri imageFileUri = Uri.fromFile(imageFile);
@@ -445,7 +445,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 			public void run() {
 				String user_id = String.valueOf(NoteApplication.getInstance().getUserId());
 				String username = NoteApplication.getInstance().getUserName();
-				System.out.println("=CCC=" + user_id + "=CCC=" + username);
+				//System.out.println("=CCC=" + user_id + "=CCC=" + username);
 				String albumname = username;
 				Looper.prepare();
 				String json = serverInterface.getAlbumDownloadUrl(user_id, albumname);
@@ -453,6 +453,14 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				if (json == null ||  "".equals(json) || "-1".equals(json) || "-2".equals(json)){
 					Message msg = new Message();
 					msg.what = DOWNLOAD_THUMB_ALBUM_JSON_ERROR;
+					handler.sendMessage(msg);
+					return;
+				}
+				
+				if ("1".equals(json)){
+					mAlbumUrllist = "";
+					Message msg = new Message();
+					msg.what = DOWNLOAD_THUMB_ALBUM_JSON_OK;
 					handler.sendMessage(msg);
 					return;
 				}
@@ -534,7 +542,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					System.out.println("UPLOAD_ALBUM_ERROR, try count over 3");
 					String aFilePath = msg.getData().getString("filelocalpath");
 					new File(aFilePath).delete();
-					Toast.makeText(AlbumScreen.this, getString(R.string.upload_album_failed), Toast.LENGTH_SHORT).show();
+					Toast.makeText(AlbumScreen.this, getString(R.string.image_upload_failed), Toast.LENGTH_SHORT).show();
 				} else {
 					System.out.println("UPLOAD_ALBUM_ERROR, try count : " + String.valueOf(uploadcount+1));
 					String aName = msg.getData().getString("name");
@@ -544,6 +552,11 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				}
 				break;		
 			case  DOWNLOAD_THUMB_ALBUM_JSON_OK:
+				if (mGalleryPhotoAdapter == null) {
+					List<Map> list = new ArrayList<Map>();
+					mGalleryPhotoAdapter = new PhotoAdapter(mContext, Gallery.class, list, 0);
+					mPhotoGallery.setAdapter(mGalleryPhotoAdapter);
+				}
 				// if(flag == true) {
 				MyThread m = new MyThread();
 				new Thread(m).start();
@@ -558,7 +571,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					mPhotoGallery.setAdapter(mGalleryPhotoAdapter);
 				}
 				System.out.println("DOWNLOAD_THUMB_ALBUM_JSON_ERROR");
-				Toast.makeText(AlbumScreen.this, getString(R.string.download_album_failed), Toast.LENGTH_SHORT).show();
+				Toast.makeText(AlbumScreen.this, getString(R.string.image_download_failed), Toast.LENGTH_SHORT).show();
 				break;
 			case  DOWNLOAD_ALL_ALBUM_OK:
 				System.out.println("DOWNLOAD_ALL_ALBUM_OK");

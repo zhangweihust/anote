@@ -35,8 +35,8 @@ import com.archermind.note.R;
 
 public class ImageCapture {
 
-	public static final String ALBUM_CACHE_PATH = Environment
-			.getExternalStorageDirectory().toString() + "/anote/album_cache";
+	public static final String IMAGE_CACHE_PATH = Environment
+			.getExternalStorageDirectory().toString() + "/anote/image_cache";
 	
     private static final int CONNECT_TIMEOUT = 5000;
     private static final int READ_TIMEOUT = 10000;
@@ -62,7 +62,7 @@ public class ImageCapture {
 			mLastContentUri = ImageManager.addImage(this.mContentResolver,
 					title, dateTaken,
 					loc, // location from gps/network
-					ImageManager.CAMERA_IMAGE_BUCKET_NAME, filename, null,
+					IMAGE_CACHE_PATH, filename, null,
 					data, degree);
 			return degree[0];
 		} catch (Exception ex) {
@@ -73,22 +73,48 @@ public class ImageCapture {
 
 	public String createName(long dateTaken) {
 		Date date = new Date(dateTaken);
-		String username = NoteApplication.getInstance().getUserName();
-		if (username == null) {
-			username = "default";
+		String userid = String.valueOf(NoteApplication.getInstance().getUserId());
+		if (userid == null) {
+			userid = "0";
 		}
 		SimpleDateFormat dateFormat = new SimpleDateFormat(
 				mContext.getString(R.string.image_file_name_format));
 
-		return username + dateFormat.format(date);
+		return userid + dateFormat.format(date);
 	}
 
 	public Uri getLastCaptureUri() {
 		return mLastContentUri;
 	}
 	
-	public static void createCacheBitmapFromUrl(String url, String localpath) {
-		System.out.println(url);
+	public static String getLocalCacheImageNameFromUrl(String url) {
+		String []items = url.split("&");
+		if (items.length == 0)
+			return null;
+		
+		String mediaName="";
+		String mediaType="jpg";
+		for (int i=0; i<items.length; i++) {
+			if (items[i].contains("mediaName=")) {
+				String []str=items[i].split("=");
+				mediaName = str[str.length-1];
+			}
+			
+//			if (items[i].contains("mediaType=")) {
+//				String []str=items[i].split("=");
+//				mediaType = str[str.length-1];
+//			}
+		}
+		
+		if ("".equals(mediaName) || "".equals(mediaType))
+			return null;
+		else
+			return ImageCapture.IMAGE_CACHE_PATH + "/" + mediaName + "." + mediaType;
+	}
+	
+	public static void createLocalCacheImageFromUrl(String url, String localpath) {
+		System.out.println("url:"+url);
+		System.out.println("localpath:"+localpath);
 		Bitmap bitmap = null;
 		try {
 			URLConnection conn = new URL(url).openConnection();
@@ -106,7 +132,7 @@ public class ImageCapture {
 			return;
 		}
 		
-		File directory = new File(ALBUM_CACHE_PATH);
+		File directory = new File(IMAGE_CACHE_PATH);
 		if (!directory.isDirectory()) {
 			directory.mkdirs();
 		}
@@ -136,7 +162,7 @@ public class ImageCapture {
 	public String createThumbnailFile(String srcFilePath) {
 		String name = srcFilePath.substring(srcFilePath.lastIndexOf("/") + 1, srcFilePath.length());
 		name = name.substring(0, name.lastIndexOf("."));
-		String ThumbnailName = ALBUM_CACHE_PATH + "/" + name + "_thumbnail.jpg";
+		String ThumbnailName = IMAGE_CACHE_PATH + "/" + name + "_thumbnail.jpg";
 		
 		Bitmap bitmap = BitmapCache.decodeBitmap(srcFilePath);
 		int width = bitmap.getWidth() < bitmap.getHeight() ? bitmap.getWidth() : bitmap.getHeight();
@@ -155,7 +181,7 @@ public class ImageCapture {
         //paint.setColor(color);
         canvas.drawBitmap(bitmap, rect, new Rect(0, 0,  width, width), paint);
 		
-		File directory = new File(ALBUM_CACHE_PATH);
+		File directory = new File(IMAGE_CACHE_PATH);
 		if (!directory.isDirectory()) {
 			directory.mkdirs();
 		}

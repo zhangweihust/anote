@@ -32,21 +32,13 @@ public class PreferencesHelper {
 	
 	private static Bitmap mUserAvatarBitmap;
 	private static ArrayList<Map<String, Object>> mProvinceLists;
-	public static String getUserName(Context context) {
-		SharedPreferences sharedata = getSharedPreferences(context, 0);
-		return sharedata.getString(XML_USER_ACCOUNT, null);
-	}
-	public static String gePasswd(Context context) {
-		SharedPreferences sharedata = getSharedPreferences(context, 0);
-		return sharedata.getString(XML_USER_PASSWD, null);
-	}
 	
-	public static void UpdateAvatar(Context context, String newAvatarPath) {
-		SharedPreferences sharedata = getSharedPreferences(context, 0);
-		String filepath = sharedata.getString(XML_USER_AVATAR, null);
-		
-		if (filepath != null) {
-			new File(filepath).delete();
+	private static boolean mIsLoadAvatar = false;
+	private static boolean mHasLocalAvatarBitmap = false;
+	
+	public static void UpdateAvatar(Context context, String oldAvatarPath, String newAvatarPath) {
+		if (oldAvatarPath != null && !"".equals(oldAvatarPath)) {
+			new File(oldAvatarPath).delete();
 		}
 
 		if (mUserAvatarBitmap != null) {
@@ -72,9 +64,14 @@ public class PreferencesHelper {
 		}else{
 			File file = new File(filepath);
 			if (file.exists()) {
+				mHasLocalAvatarBitmap = true;
 				mUserAvatarBitmap = BitmapFactory.decodeFile(filepath);
+			} else {
+				mUserAvatarBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.my_photo);
 			}
 		}
+		mIsLoadAvatar = true;
+		
 		return mUserAvatarBitmap;
 	}
 	

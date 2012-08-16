@@ -253,13 +253,13 @@ public class ServerInterface {
 	 * 获取用户信息 输入参数：用户id
 	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
 	 */
-	public static int set_info(String user_id,String nickname,String gender,String province_id,String city_id) {
+	public static int set_info(String user_id,String nickname,String gender,String region) {
+
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user_id", user_id);
 		map.put("nickname", nickname);
 		map.put("gender", gender);
-		map.put("province_id", province_id);
-		map.put("city_id", city_id);
+		map.put("region", region);
 		String res= HttpUtils.doPost(map, URL_set_info);
 		int result =0;
 		try{

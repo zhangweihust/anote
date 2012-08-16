@@ -2,6 +2,14 @@ package com.archermind.note.Screens;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Dialog;
 import android.content.ContentResolver;
@@ -12,96 +20,107 @@ import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Gallery;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Adapter.PhotoAdapter;
+import com.archermind.note.Screens.AlbumScreen.MyThread;
 import com.archermind.note.Utils.ImageCapture;
 import com.archermind.note.Utils.PreferencesHelper;
+import com.archermind.note.Utils.ServerInterface;
 
 public class PersonalInfoScreen extends Screen implements OnClickListener {
 
 	private Context mContext;
 	private ImageView mUserAvatar;
-	
+
 	private EditText mUserName;
-	
+
 	private TextView mUserRegion;
-	
+
 	private RadioButton mRadioFemale;
 	private RadioButton mRadioMale;
-	
+
 	private Dialog mPicChooseDialog;
-	
+
 	private static final int ALBUM_RESULT = 1;
 	private static final int CAMERA_RESULT = 2;
 	private static final int CROP_RESULT = 3;
 	private static final int REGION_RESULT = 4;
-	
+
+	private static final int DOWNLOAD_PHOTO_JSON_OK = 1;
+	private static final int DOWNLOAD_PHOTO_JSON_ERROR = 2;
+	private static final int DOWNLOAD_INFO_JSON_OK = 3;
+	private static final int DOWNLOAD_INFO_JSON_ERROR = 4;
+
+	private static final int UPLOAD_PHOTO_OK = 5;
+	private static final int UPLOAD_PHOTO_ERROR = 6;
+	private static final int UPLOAD_INFO_OK = 7;
+	private static final int UPLOAD_INFO_ERROR = 8;
+
 	private ContentResolver mContentResolver;
-	
+
 	private String mCameraImageFilePath;
 	private String mCropImageFilePath;
+	private String mUserAvatarPath;
 	private String mUserNameTxt;
-	private int mProvinceId;
-	private int mCityId;
+	private String mRegionTxt;
 	private int mSex;
- 
-    private ImageCapture mImgCapture;
-    
-    private SharedPreferences mPreferences;
 
-	
+	private ImageCapture mImgCapture;
+
+	private SharedPreferences mPreferences;
+
+	private ServerInterface serverInterface;
+
+	private UpDownloadHandler handler;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.personalinfo_screen);
 
 		mContext = PersonalInfoScreen.this;
-		
+
 		ImageButton btnback = (ImageButton) this.findViewById(R.id.back);
 		btnback.setOnClickListener(this);
-		
+
 		View set_avatar = (View) this.findViewById(R.id.set_avatar_layout);
 		set_avatar.setOnClickListener(this);
 
 		mUserAvatar = (ImageView) this.findViewById(R.id.user_avatar);
 		mUserName = (EditText) this.findViewById(R.id.user_name);
 		mUserRegion = (TextView) this.findViewById(R.id.user_region);
-		
+
 		mRadioFemale = (RadioButton) this.findViewById(R.id.radioFemale);
 		mRadioMale = (RadioButton) this.findViewById(R.id.radioMale);
-		
-		final Button btnConfirmChange = (Button) this.findViewById(R.id.confirm_change);
+
+		final Button btnConfirmChange = (Button) this
+				.findViewById(R.id.confirm_change);
 		btnConfirmChange.setOnClickListener(this);
-		
+
 		loadLocalPersonalInfo();
-		
-		if (mSex == 0) {
-			mRadioFemale.setChecked(true);
-			mRadioMale.setChecked(false);
-		} else {
-			mRadioFemale.setChecked(false);
-			mRadioMale.setChecked(true);
-		}
-		
-		mUserName.setText(mUserNameTxt);
-		
-		
-		String province = PreferencesHelper.getProvinceName(mContext, mProvinceId);
-		String city = PreferencesHelper.getCityName(mContext, mProvinceId, mCityId);
-		
-		mUserRegion.setText(province + " " + city);
-		
+
 		View region = (View) this.findViewById(R.id.region_layout);
 		region.setOnClickListener(this);
 
@@ -109,17 +128,26 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 		if (image != null) {
 			mUserAvatar.setImageBitmap(image);
 		}
-		
+
 		mContentResolver = this.getContentResolver();
 		mImgCapture = new ImageCapture(this, mContentResolver);
+
+		serverInterface = new ServerInterface();
+		serverInterface.InitAmtCloud(mContext);
+
+		handler = new UpDownloadHandler();
+
+		downloadImage();
+
+		downloadInfo();
 	}
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		
+
 		case ALBUM_RESULT:
-			if(data != null){
+			if (data != null) {
 				Uri uri = data.getData();
 				startPhotoCROP(uri);
 			}
@@ -133,7 +161,7 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 			break;
 
 		case CROP_RESULT:
-			if(data != null){
+			if (data != null) {
 				Bundle extras = data.getExtras();
 				if (extras != null) {
 					ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -141,60 +169,74 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 					photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
 					byte[] b = stream.toByteArray();
 					this.mImgCapture.storeImage(b, null);
-					String filepath = getFilepathFromUri(this.mImgCapture.getLastCaptureUri());
-					PreferencesHelper.UpdateAvatar(this, filepath);
+					String filepath = getFilepathFromUri(this.mImgCapture
+							.getLastCaptureUri());
+					File file = new File(filepath);
+					if (file.exists()) {
+						filepath = file.getAbsolutePath();
+						String name = filepath.substring(filepath
+								.lastIndexOf("/") + 1, filepath.length());
+						String expandname = filepath.substring(filepath
+								.lastIndexOf(".") + 1, filepath.length());
+						name = name.substring(0, name.lastIndexOf("."));
+						uploadImage(name, expandname, filepath, 1);
+					}
 				}
 			}
-			
+
 			break;
 		case REGION_RESULT:
-			if(data != null){
-				mProvinceId = data.getIntExtra("province", mProvinceId);
-				mCityId = data.getIntExtra("city", mCityId);
-				String province = PreferencesHelper.getProvinceName(mContext, mProvinceId);
-				String city = PreferencesHelper.getCityName(mContext, mProvinceId, mCityId);
-				
+			if (data != null) {
+				int provinceId = data.getIntExtra("province", 0);
+				int cityId = data.getIntExtra("city", 0);
+				String province = PreferencesHelper.getProvinceName(mContext,
+						provinceId);
+				String city = PreferencesHelper.getCityName(mContext,
+						provinceId, cityId);
+
 				mUserRegion.setText(province + " " + city);
 			}
 			break;
-			
+
 		default:
 			break;
 
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
-	
+
 	private String getFilepathFromUri(Uri uri) {
-		//System.out.println("=CCC=" + uri);
-		Cursor cursor = mContentResolver.query(uri, null,   
-                null, null, null);   
-		cursor.moveToFirst();   
+		// System.out.println("=CCC=" + uri);
+		Cursor cursor = mContentResolver.query(uri, null, null, null, null);
+		cursor.moveToFirst();
 		String filepath = cursor.getString(1);
 		cursor.close();
-		
+
 		return filepath;
 	}
-	
+
 	private void getNewImageFromLocal() {
 		Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, getString(R.string.photo_add_sel)), ALBUM_RESULT);	
+		intent.setType("image/*");
+		intent.setAction(Intent.ACTION_GET_CONTENT);
+		startActivityForResult(Intent.createChooser(intent,
+				getString(R.string.photo_add_sel)), ALBUM_RESULT);
 	}
-	
+
 	private void getNewImageFromCamera() {
-        long dateTaken = System.currentTimeMillis();
-        String title = mImgCapture.createName(dateTaken);
-        mCameraImageFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() 
-				+ "/"+ title +".jpg";
+		long dateTaken = System.currentTimeMillis();
+		String title = mImgCapture.createName(dateTaken);
+		mCameraImageFilePath = Environment.getExternalStorageDirectory()
+				.getAbsolutePath()
+				+ "/" + title + ".jpg";
 		File imageFile = new File(mCameraImageFilePath);
 		Uri imageFileUri = Uri.fromFile(imageFile);
-		Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-		intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,imageFileUri);
-		startActivityForResult(intent, CAMERA_RESULT);	
+		Intent intent = new Intent(
+				android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+		intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageFileUri);
+		startActivityForResult(intent, CAMERA_RESULT);
 	}
-	
+
 	private void startPhotoCROP(Uri uri) {
 		Intent intent = new Intent("com.android.camera.action.CROP");
 		intent.setDataAndType(uri, "image/*");
@@ -208,7 +250,7 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 		intent.putExtra("return-data", true);
 		startActivityForResult(intent, CROP_RESULT);
 	}
-	
+
 	private void showSelImageDialog() {
 		if (mPicChooseDialog == null) {
 			mPicChooseDialog = new Dialog(this);
@@ -245,40 +287,317 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 		}
 		mPicChooseDialog.show();
 	}
-	
-	private boolean loadServerPersonalInfo() {
-		return true;
+
+	private void uploadImage(String name, String expandname, String filepath,
+			int uploadcount) {
+		final String aName = name;
+		final String aExpandName = expandname;
+		final String aFilePath = filepath;
+		final int aUploadCount = uploadcount;
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				String user_id = String.valueOf(NoteApplication.getInstance()
+						.getUserId());
+				String username = NoteApplication.getInstance().getUserName();
+				Looper.prepare();
+				int result = serverInterface.uploadPhoto(mContext, user_id,
+						username, aFilePath, aName, aExpandName);
+
+				Message msg = new Message();
+				msg.getData().putString("name", aName);
+				msg.getData().putString("expandname", aExpandName);
+				msg.getData().putString("filelocalpath", aFilePath);
+				msg.getData().putInt("uploadcount", aUploadCount);
+
+				if (result == 0) {
+					msg.what = UPLOAD_PHOTO_OK;
+				} else {
+					msg.what = UPLOAD_PHOTO_ERROR;
+				}
+				handler.sendMessage(msg);
+			}
+
+		}).start();
+	}
+
+	private void downloadImage() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				String user_id = String.valueOf(NoteApplication.getInstance()
+						.getUserId());
+
+				Looper.prepare();
+				String json = serverInterface.getPhoto(user_id);
+				if (json == null || "".equals(json) || "-1".equals(json)
+						|| "-2".equals(json)) {
+					Message msg = new Message();
+					msg.what = DOWNLOAD_PHOTO_JSON_ERROR;
+					handler.sendMessage(msg);
+					return;
+				}
+
+				String aPhotoUrl = "";
+				try {
+					JSONArray jsonArray = new JSONArray(json);
+
+					if (jsonArray.length() > 0) {
+						JSONObject jsonObject = (JSONObject) jsonArray.opt(0);
+						aPhotoUrl = jsonObject.getString("portrait");
+						// System.out.println("aPhotoUrl:" + aPhotoUrl);
+					}
+
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					Message msg = new Message();
+					msg.what = DOWNLOAD_PHOTO_JSON_ERROR;
+					handler.sendMessage(msg);
+					e.printStackTrace();
+					return;
+				}
+				Message msg = new Message();
+				msg.what = DOWNLOAD_PHOTO_JSON_OK;
+				msg.getData().putString("photourl", aPhotoUrl);
+				handler.sendMessage(msg);
+			}
+
+		}).start();
+	}
+
+	private void uploadInfo(String nickname,String gender,String region, 
+			int uploadcount) {
+		final String aNickname = nickname;
+		final String aGender = gender;
+		final String aRegion = region;
+		final int aUploadCount = uploadcount;
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				String user_id = String.valueOf(NoteApplication.getInstance()
+						.getUserId());
+				Looper.prepare();
+				int result = serverInterface.set_info(user_id, aNickname, aGender, aRegion);
+
+				Message msg = new Message();
+				msg.getData().putString("nickname", aNickname);
+				msg.getData().putString("gender", aGender);
+				msg.getData().putString("region", aRegion);
+				msg.getData().putInt("uploadcount", aUploadCount);
+
+				if (result == 0) {
+					msg.what = UPLOAD_INFO_OK;
+				} else {
+					msg.what = UPLOAD_INFO_ERROR;
+				}
+				handler.sendMessage(msg);
+			}
+
+		}).start();
 	}
 	
-	private boolean saveServerPersonalInfo() {
-		
-		return true;
+	private void downloadInfo() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				String user_id = String.valueOf(NoteApplication.getInstance()
+						.getUserId());
+
+				Looper.prepare();
+				String json = serverInterface.get_info(user_id);
+				if (json == null || "".equals(json) || "-1".equals(json)
+						|| "-2".equals(json)) {
+					Message msg = new Message();
+					msg.what = DOWNLOAD_INFO_JSON_ERROR;
+					handler.sendMessage(msg);
+					return;
+				}
+
+				String nickname = "";
+				String gender = "";
+				String region = "";
+				try {
+					JSONArray jsonArray = new JSONArray(json);
+
+					if (jsonArray.length() > 0) {
+						JSONObject jsonObject = (JSONObject) jsonArray.opt(0);
+						nickname = jsonObject.getString("nickname");
+						gender = jsonObject.getString("gender");
+						region = jsonObject.getString("region");
+						// System.out.println("nickname:" + nickname);
+					}
+
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					Message msg = new Message();
+					msg.what = DOWNLOAD_INFO_JSON_ERROR;
+					handler.sendMessage(msg);
+					e.printStackTrace();
+					return;
+				}
+				Message msg = new Message();
+				msg.what = DOWNLOAD_INFO_JSON_OK;
+				msg.getData().putString("nickname", nickname);
+				msg.getData().putString("gender", gender);
+				msg.getData().putString("region", region);
+				handler.sendMessage(msg);
+			}
+
+		}).start();
 	}
-	
+
+	public class UpDownloadHandler extends Handler {
+
+		UpDownloadHandler() {
+		}
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what) {
+			case UPLOAD_PHOTO_OK:
+				PreferencesHelper.UpdateAvatar(mContext, mUserAvatarPath, msg
+						.getData().getString("filelocalpath"));
+				{
+					Bitmap image = PreferencesHelper.getAvatarBitmap(mContext);
+					if (image != null) {
+						mUserAvatar.setImageBitmap(image);
+					}
+				}
+				break;
+			case UPLOAD_PHOTO_ERROR: {
+				int uploadcount = msg.getData().getInt("uploadcount");
+				if (uploadcount > 3 || uploadcount <= 0) {
+					System.out.println("UPLOAD_ALBUM_ERROR, try count over 3");
+					String aFilePath = msg.getData().getString("filelocalpath");
+					new File(aFilePath).delete();
+					Toast.makeText(PersonalInfoScreen.this,
+							getString(R.string.image_upload_failed),
+							Toast.LENGTH_SHORT).show();
+				} else {
+					System.out.println("UPLOAD_ALBUM_ERROR, try count : "
+							+ String.valueOf(uploadcount + 1));
+					String aName = msg.getData().getString("name");
+					String aExpandName = msg.getData().getString("expandname");
+					String aFilePath = msg.getData().getString("filelocalpath");
+					uploadImage(aName, aExpandName, aFilePath, uploadcount + 1);
+				}
+			}
+				break;
+			case DOWNLOAD_PHOTO_JSON_OK:
+				System.out.println("DOWNLOAD_PHOTO_JSON_OK");
+				String aPhotoUrl = msg.getData().getString("photourl");
+				if (aPhotoUrl == null || "".equals(aPhotoUrl)) {
+					return;
+				}
+
+				String filelocalpath = ImageCapture
+						.getLocalCacheImageNameFromUrl(aPhotoUrl);
+				File file = new File(filelocalpath);
+				if (!file.exists()) {
+					ImageCapture.createLocalCacheImageFromUrl(aPhotoUrl,
+							filelocalpath);
+				}
+
+				if (!new File(filelocalpath).exists()) {
+					System.out
+							.println(getString(R.string.image_create_cache_file_failed));
+					Toast.makeText(PersonalInfoScreen.this,
+							getString(R.string.image_create_cache_file_failed),
+							Toast.LENGTH_SHORT).show();
+					return;
+				}
+
+				if (!mUserAvatarPath.equals(filelocalpath)) {
+					PreferencesHelper.UpdateAvatar(mContext, mUserAvatarPath,
+							filelocalpath);
+					Bitmap image = PreferencesHelper.getAvatarBitmap(mContext);
+					if (image != null) {
+						mUserAvatar.setImageBitmap(image);
+					}
+				}
+
+				break;
+			case DOWNLOAD_PHOTO_JSON_ERROR:
+				System.out.println("DOWNLOAD_THUMB_ALBUM_JSON_ERROR");
+				Toast.makeText(PersonalInfoScreen.this,
+						getString(R.string.image_download_failed),
+						Toast.LENGTH_SHORT).show();
+				break;
+
+			case UPLOAD_INFO_OK:
+					System.out.println("UPLOAD_INFO_OK");
+					Toast.makeText(PersonalInfoScreen.this,
+							getString(R.string.personal_info_set_succ),
+							Toast.LENGTH_SHORT).show();
+
+				break;
+			case UPLOAD_INFO_ERROR: {
+				int uploadcount = msg.getData().getInt("uploadcount");
+				if (uploadcount > 3 || uploadcount <= 0) {
+					System.out.println("UPLOAD_INFO_ERROR, try count over 3");
+					Toast.makeText(PersonalInfoScreen.this,
+							getString(R.string.personal_info_set_fail),
+							Toast.LENGTH_SHORT).show();
+				} else {
+					System.out.println("UPLOAD_INFO_ERROR, try count : "
+							+ String.valueOf(uploadcount + 1));
+					String aNickname = msg.getData().getString("nickname");
+					String aGender = msg.getData().getString("gender");
+					String aRegion = msg.getData().getString("region");
+					uploadInfo(aNickname, aGender, aRegion, uploadcount + 1);
+				}
+			}
+				break;
+			case DOWNLOAD_INFO_JSON_OK:
+				System.out.println("DOWNLOAD_PHOTO_JSON_OK");
+
+				mUserNameTxt = msg.getData().getString("nickname");
+				mRegionTxt = msg.getData().getString("region");
+				mSex = Integer.parseInt(msg.getData().getString("gender"));
+
+				if (mSex == 2) {
+					mRadioFemale.setChecked(true);
+					mRadioMale.setChecked(false);
+				} else {
+					mRadioFemale.setChecked(false);
+					mRadioMale.setChecked(true);
+				}
+
+				mUserName.setText(mUserNameTxt);
+
+				mUserRegion.setText(mRegionTxt);
+
+				break;
+			case DOWNLOAD_INFO_JSON_ERROR:
+				System.out.println("DOWNLOAD_INFO_JSON_ERROR");
+				Toast.makeText(PersonalInfoScreen.this,
+						getString(R.string.personal_info_get_fail),
+						Toast.LENGTH_SHORT).show();
+				break;
+			}
+		}
+	}
+
 	private boolean loadLocalPersonalInfo() {
 		mPreferences = PreferencesHelper.getSharedPreferences(mContext, 0);
-		mUserNameTxt = mPreferences.getString(PreferencesHelper.XML_USER_NAME, "");
-		mProvinceId = mPreferences.getInt(PreferencesHelper.XML_USER_REGION_PROVINCE, -1);
-		mCityId = mPreferences.getInt(PreferencesHelper.XML_USER_REGION_CITY, -1);
-		mSex = mPreferences.getInt(PreferencesHelper.XML_USER_SEX, 0);
+		mUserAvatarPath = mPreferences.getString(
+				PreferencesHelper.XML_USER_AVATAR, "");
+		if (!new File(mUserAvatarPath).exists()) {
+			mUserAvatarPath = "";
+		}
+
 		return true;
 	}
 	
-	private boolean saveLocalPersonalInfo() {
-		PreferencesHelper.UpdateAvatar(this, mCropImageFilePath);
-		SharedPreferences preferences = PreferencesHelper.getSharedPreferences(mContext, Context.MODE_WORLD_WRITEABLE);
-		Editor editor = preferences.edit();
-		
-		editor.putString(PreferencesHelper.XML_USER_NAME, mUserName.getText().toString());
-		editor.putInt(PreferencesHelper.XML_USER_REGION_PROVINCE, mProvinceId);
-		editor.putInt(PreferencesHelper.XML_USER_REGION_CITY, mCityId);
-		int sex = mRadioFemale.isChecked() ? 0 : 1;
-		editor.putInt(PreferencesHelper.XML_USER_SEX, sex);
-		editor.commit();
-		
+	private boolean savePersonalInfo() {
+		String aNickname = mUserName.getText().toString().trim();
+		String aGender = mRadioFemale.isChecked() ? "2" : "1";
+		String aRegion = mUserRegion.getText().toString().trim();
+		uploadInfo(aNickname, aGender, aRegion, 0);
 		return true;
 	}
-	
+
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
@@ -288,7 +607,7 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 			mUserAvatar.setImageBitmap(image);
 		}
 	}
-	
+
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
@@ -303,8 +622,7 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 			Intent i = new Intent(mContext, PersonalInfoRegionScreen.class);
 			startActivityForResult(i, REGION_RESULT);
 		case R.id.confirm_change:
-			saveLocalPersonalInfo();
-
+			savePersonalInfo();
 			break;
 		}
 	}
