@@ -34,7 +34,7 @@ public class DatabaseManager {
 		database.close();
 	}
 	
-	public boolean insertLocalNotes(ContentValues values, long timeInMillis) {
+	public long insertLocalNotes(ContentValues values, long timeInMillis) {
 		Cursor c = queryTodayLocalNOTEs(Integer.parseInt(values.get(DatabaseHelper.COLUMN_NOTE_USER_ID).toString()), timeInMillis);
 		values.put(DatabaseHelper.COLUMN_NOTE_LAST_FLAG, true);
 		if(c.getCount()>0){
@@ -45,7 +45,7 @@ public class DatabaseManager {
 			updateLocalNotes(v, _id);
 			c.close();
 		}
-		return database.insert(DatabaseHelper.TAB_NOTE, null, values) > 0;
+		return database.insert(DatabaseHelper.TAB_NOTE, null, values);
 	}
 
 	public Cursor queryLocalNotes(int usrid) {
@@ -151,6 +151,15 @@ public class DatabaseManager {
 	public Cursor queryPhotoData() {
 		return database.query(DatabaseHelper.TAB_PHOTO, null, null, null, null,
 				null, null);
+	}
+	
+	public Cursor queryLocalNotesById(int id) {
+		return database
+		.query(DatabaseHelper.TAB_NOTE,
+				null,
+				DatabaseHelper.COLUMN_NOTE_ID + " =? ",
+				new String[] { String.valueOf(id) },
+				null, null, null);
 	}
 	
 }

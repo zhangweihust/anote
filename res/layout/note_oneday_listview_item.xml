@@ -69,6 +69,14 @@
 		                android:text="abbbb"
 		                android:background="@drawable/note_info_oneday_content"
 		                />
+		                <TextView 
+		                android:id="@+id/tv_note_last_edit"
+		                android:layout_width="fill_parent"
+		                android:layout_height="wrap_content"
+		                android:gravity="right"
+		                android:layout_below="@id/tv_note_content"
+		                android:background="@color/transparent"
+		                />
 		       
         </RelativeLayout>		
 	

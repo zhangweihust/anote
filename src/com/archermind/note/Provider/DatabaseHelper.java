@@ -26,7 +26,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	public static final String COLUMN_NOTE_CONTENT_TYPE = "content_type";//笔记内容的类型
 	public static final String COLUMN_NOTE_CONTENT_SIGNED = "content_signed";//笔记是否被标记为重要，0／1
 	public static final String COLUMN_NOTE_LOCAL_CONTENT = "local_content";//笔记本地的存储地址
-	public static final String COLUMN_NOTE_CONTENT = "content";//笔记服务器上的存储地址
+	public static final String COLUMN_NOTE_SERVICE_ID = "content";//笔记服务器上的存储地址
 	public static final String COLUMN_NOTE_LAST_FLAG = "last_flag";//是否为当天最后一条日志
 
 	private static final String CRETAE_TAB_NOTE = " CREATE TABLE IF NOT EXISTS "
@@ -56,7 +56,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 			+ " INTEGER, "
 			+ COLUMN_NOTE_LOCAL_CONTENT
 			+ " TEXT, "
-			+ COLUMN_NOTE_CONTENT
+			+ COLUMN_NOTE_SERVICE_ID
 			+ " TEXT, "
 			+ COLUMN_NOTE_LAST_FLAG
 			+ " BOOLEAN"

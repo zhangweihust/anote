@@ -11,8 +11,17 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -22,6 +31,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
@@ -125,6 +135,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
     private LinearLayout setting_thickness;//画笔粗细设置
     private LinearLayout edit_insert_space;//插入空格
     private LinearLayout edit_insert_newline;//插入空行
+    private LinearLayout bitmap_rect_linearlayout;//日记保存图像区域
 	
 	private boolean isgraffit_erase = false;
 	
@@ -273,12 +284,14 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		    reload(notePath);
 		}
 		
+		bitmap_rect_linearlayout = (LinearLayout) findViewById(R.id.bitmap_rect_linearlayout);
+		
+		// 监听EditText
 		myEdit.addTextChangedListener(new TextWatcher() {
 			
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 				// TODO Auto-generated method stub
-				hasChanged = true;
 				
 			    ImageSpan [] imgspans = myEdit.getText().getSpans(start, start+count, ImageSpan.class);
 			    if (count == 0) {
@@ -288,6 +301,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 					isNeedSaveChange = true;
 			    	return;
 			    }
+			    
+			    hasChanged = true;
+			    
 			   
 			    int position = findstartPosition(start);
 			    if (imgspans.length == 0) {//没有插入图片
@@ -459,7 +475,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
     			String strTemp = myEdit.getText().subSequence(findEndIndex(lineStart), lineStart).toString();
     			strTemp = strTemp.replace("\n", "\\n");
     			mStrList.set(mLastPageEnd + position, "str:" + strTemp);
-    			int nextPageIndex = findNextPage(position);
+    			int nextPageIndex = findNextPage(mLastPageEnd + position);
     			if (nextPageIndex != -1) { //将新一页的标志清掉。然后重新插入新一页的标志
     				mStrList.remove(nextPageIndex);
     				mTotalPage--;
@@ -968,6 +984,55 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
         });
 	}
 	
+	public static String readTextFromZip(String file,String[] picStr) {
+		if (file == null || "".equals(file)) {
+			return null;
+		}
+		String retStr = "";
+		boolean hasPic = false;
+		try {
+			ZipFile zip = new ZipFile(file);//由指定的File对象打开供阅读的ZIP文件  
+			Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();//获取zip文件中的各条目（子文件）  
+			while(entries.hasMoreElements()){//依次访问各条目  
+				ZipEntry ze = (ZipEntry) entries.nextElement(); 
+				if (ze.getName().endsWith("text") ) {
+					BufferedReader br = new BufferedReader(new InputStreamReader(zip.getInputStream(ze)));  
+					String line = "";
+					while((line = br.readLine()) != null){
+						retStr += line;
+						retStr += "\n";
+						if (line.startsWith("pic:") && !hasPic) {
+							picStr[0] = line.substring("pic:".length(), line.length());
+							hasPic = true;
+						}
+					}  
+					br.close();
+				}
+			}
+			ZipInputStream zis = new ZipInputStream(zip.getInputStream(zip.entries().nextElement()));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return retStr;
+	}
+	
+	public static AmGestureLibrary readGestureFromZip(String filePath) {
+		Log.d("=TTT=","readGestureFromZip in");
+		if (filePath == null || "".equals(filePath)) {
+			return null;
+		}
+		File file = new File(filePath);
+		if (!file.exists()) {
+			return null;
+		}
+		AmGestureLibrary store = AmGestureLibraries.fromZipFile(filePath);
+		store.load(false);
+		for(String str:store.getGestureEntries()) {
+			Log.d("=TTT=","str = " + str);
+    	}
+		return store;
+	}
+		
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onClick(View v) {
@@ -1460,10 +1525,14 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 	
 	private void reloadFirstPage() {
 		int pageEnd = findNextPage(0);
+		if (pageEnd == -1) {
+			pageEnd = mStrList.size();
+		}
 		isInsert = true;
 		myEdit.getEditableText().clear();
 		reInsert(0,pageEnd);
 		isInsert = false;
+		isNeedSaveChange = true;
 	}
 	
 	
@@ -1700,7 +1769,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		mPicMap.put(name, imageFilePath);
 	}
 	
-	private Bitmap decodeFile(File f){
+	public static Bitmap decodeFile(File f){
         Bitmap b = null;
         try {
             //Decode image size
@@ -1712,14 +1781,18 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
             fis.close();
 
             int scale = 1;
-            scale = (int)(o.outHeight / (float)200);
+            scale = (int)(o.outWidth / (float)200);
             if (scale <= 0) {
             	scale = 1;
             }
 
             //Decode with inSampleSize
             BitmapFactory.Options o2 = new BitmapFactory.Options();
-            o2.inSampleSize = scale;
+            
+            if (o.outWidth > 400) {
+            	o2.inSampleSize = scale;
+            }
+            
             fis = new FileInputStream(f);
             b = BitmapFactory.decodeStream(fis, null, o2);
             fis.close();

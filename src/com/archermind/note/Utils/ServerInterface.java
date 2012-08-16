@@ -22,6 +22,7 @@ public class ServerInterface {
 	public static final String URL_getPhotoUrl ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_portrait_url";
 	public static final String URL_get_info ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_info";
 	public static final String URL_set_info ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/set_info";
+	public static final String URL_upload_note ="http://player.archermind.com/ci/index.php/anote/shareNote";
 	
 	public static final String URL_MODIFYPASSWORD = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/pswModify";
 
@@ -269,4 +270,35 @@ public class ServerInterface {
 		}
 		return result;
 	}
+	
+	/**
+	 * 获取用户信息 输入参数：用户id
+	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
+	 */
+	public static int uploadNote(long id,String user_id,String nid,String action,String title,String page) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("user_id", user_id);
+		map.put("nid", nid);
+		map.put("action", action);
+		map.put("title", title);
+		map.put("page", page);
+		String res= HttpUtils.doPost(map, URL_upload_note);
+		
+		if ("A".equals(action)) {
+			if (Integer.parseInt(res) > 0) {
+				return Integer.parseInt(res);
+			} else {
+				return -1;
+			}
+		} else if ("M".equals(action)) {
+			if (Integer.parseInt(res) == 0) {
+				return 0;
+			} else {
+				return 1;
+			}
+		}
+		return 0;
+		
+	}
+	
 }

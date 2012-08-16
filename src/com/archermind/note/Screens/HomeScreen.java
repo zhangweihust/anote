@@ -463,8 +463,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED, 1);
 				contentValues.put(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT, diaryPath);
 				contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
-				ServiceManager.getDbManager().insertLocalNotes(contentValues, System.currentTimeMillis()-30000);
-				Log.d("=RRR=","noteTitle = " + noteTitle + " updateTime = " + updateTime + " diaryPath = " + diaryPath + " createTime = " + MainScreen.snoteCreateTime);
+				long id = ServiceManager.getDbManager().insertLocalNotes(contentValues, System.currentTimeMillis()-30000);
 			    break;
 			case NOTE_UPDATE_TO_DATABASE:
 				String noteTitle2 = (String) e.getExtra("noteTitle");
@@ -520,7 +519,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"0626的第1条笔记");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT, "hello,1");
+		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,1");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, DateTimeUtils.getMonthStart(Calendar.JULY, 2012)-30000);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, DateTimeUtils.getMonthStart(Calendar.JULY, 2012)-30000);
 	
@@ -530,7 +529,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"0626的第2条笔记");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT, "hello,2");
+		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,2");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, DateTimeUtils.getMonthStart(Calendar.JULY, 2012)-25000);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, DateTimeUtils.getMonthStart(Calendar.JULY, 2012)-25000);
 
@@ -541,7 +540,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"0626的第3条笔记");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT, "hello,3");
+		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,3");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, DateTimeUtils.getMonthStart(Calendar.JULY, 2012)-20000);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED, 1);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, DateTimeUtils.getMonthStart(Calendar.JULY, 2012)-30000);
@@ -554,7 +553,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"26的第1条笔记");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT, "hello,1");
+		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,1");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())-30000);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())-30000);
 		
@@ -564,7 +563,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"26的第2条笔记");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT, "hello,2");
+		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,2");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())-25000);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())-30000);
 
@@ -574,7 +573,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"26的第3条笔记");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT, "hello,3");
+		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,3");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())-20000);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED, 1);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())-30000);
@@ -586,7 +585,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"27的第1条笔记");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT, "hello,1");
+		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,1");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, System.currentTimeMillis()-30000);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, System.currentTimeMillis()-30000);
 	
@@ -596,7 +595,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"27的第2条笔记");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT, "hello,2");
+		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,2");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, System.currentTimeMillis()-25000);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, System.currentTimeMillis()-30000);
 	
@@ -606,7 +605,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"27的第3条笔记");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT, "hello,3");
+		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,3");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, System.currentTimeMillis()-20000);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED, 1);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, System.currentTimeMillis()-30000);

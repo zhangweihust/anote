@@ -1,6 +1,14 @@
 package com.archermind.note.Adapter;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 
 import com.archermind.note.R;
@@ -13,6 +21,10 @@ import com.archermind.note.Screens.HomeScreen;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DateTimeUtils;
 import com.archermind.note.Utils.DensityUtil;
+import com.archermind.note.Utils.SetSystemProperty;
+import com.archermind.note.gesture.AmGesture;
+import com.archermind.note.gesture.AmGestureLibraries;
+import com.archermind.note.gesture.AmGestureLibrary;
 
 import android.R.integer;
 import android.app.AlertDialog;
@@ -21,9 +33,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
+import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -54,7 +73,7 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 	@Override
 	public void bindView(View view, final Context context, final Cursor cursor) {
 		final NoteOneDayItem item = (NoteOneDayItem) view.getTag(R.layout.note_oneday_listview_item);
-		String title = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_TITLE));
+		final String title = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_TITLE));
 		System.out.println("LocalNoteOnedayAdapter " + title);
 		final long time = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CREATE_TIME));
 		final boolean lastFlag = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_LAST_FLAG)) == 1;
@@ -95,7 +114,16 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 		
 		//item.rlNoteItem.setPadding(DensityUtil.dip2px(context, 5) + 1, DensityUtil.dip2px(context, 10), 0, 0);
 		final int id = cursor.getInt((cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_ID)));
-		
+		final String notePath = cursor.getString((cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT)));
+		final long lastEditTime = Long.parseLong(cursor.getString((cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME))));
+		if (lastEditTime != 0) {
+			Log.d("=TTT=","lastEditTime = " + lastEditTime);
+			Calendar timeCal = Calendar.getInstance(Locale.CHINA); 
+			timeCal.setTimeInMillis(lastEditTime);
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+			String timeStr = "最后编辑于："+sdf.format(timeCal.getTime());
+			item.tvLastEdit.setText(timeStr);
+		}
 		item.rlNoteItem.setOnLongClickListener(new OnLongClickListener() {
 			
 			@Override
@@ -125,6 +153,12 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 							break;
 						case 2:
 							mDb.deleteLocalNOTEs(id, lastFlag, time);
+							if (notePath != null) {
+							    File file = new File(notePath);
+							    if (file.exists()) {
+							    	file.delete();
+							    }
+							}
 							break;
 						default:
 							break;
@@ -137,7 +171,106 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 			}
 		});
 		
-		final String notePath = cursor.getString((cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT)));
+		// 笔记预览
+		
+		String[] picIndex  = new String[1];
+		String contextStr = EditNoteScreen.readTextFromZip(notePath,picIndex);
+		String picStr = SetSystemProperty.readZipValue(notePath, picIndex[0]);
+		item.tvNoteContent.setText("");
+		if (contextStr != null) {
+			if (picStr != null && !"".equals(picStr)) {
+				Bitmap bmp = EditNoteScreen.decodeFile(new File(picStr));
+				Drawable drawable = new BitmapDrawable(bmp);
+			    drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
+	            
+	  		    ImageSpan span = new ImageSpan(drawable,ImageSpan.ALIGN_BOTTOM);
+				SpannableString spanStr = new SpannableString("pic");
+				spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+				item.tvNoteContent.append(spanStr);
+				item.tvNoteContent.append("\n");
+			}
+		    InputStream in = new ByteArrayInputStream(contextStr.getBytes());
+		    AmGestureLibrary store = EditNoteScreen.readGestureFromZip(notePath);
+			if (store == null) {
+			}
+		    
+		    InputStreamReader inr = new InputStreamReader(in);
+	        BufferedReader reader = new BufferedReader(inr);
+	        String line = null;
+	        int wordNum = 0;
+	        int retNum = 0;
+	        try {
+				while ((line = reader.readLine()) != null) {
+					if (line.startsWith("str:")) {
+			    		String str = line.substring("str:".length()).replace("\\n", "\n");
+			    		if (str.length() > 20 - wordNum) {
+			    			str = str.substring(0,20 - wordNum);
+			    			wordNum = 20;
+			    		} else {
+			    			wordNum += str.length();
+			    		}
+			    		for (int i = 0;i < str.length();i++) {
+			    			if (str.charAt(i) == '\n') {
+			    				if (++retNum >= 2) {
+			    					if (i < 20 - wordNum) {
+			    					    str = str.substring(0, i);
+			    					}
+			    					break;
+			    				}
+			    			}
+			    		}
+			    		item.tvNoteContent.append(str);
+			    	} else if (line.startsWith("hw:")) {
+			    		String value = line.substring("hw:".length(), line.length());
+			        	
+			        	if (store != null && store.getGestures(value) != null) {
+				        	AmGesture gesture = store.getGestures(value).get(0);
+				        	Bitmap bmp = Bitmap.createBitmap(DensityUtil.dip2px(context,50), DensityUtil.dip2px(context,71), Bitmap.Config.ARGB_8888);;
+				        	bmp.eraseColor(0x00000000);
+				        	Canvas canvas = new Canvas(bmp);
+				        	canvas.drawBitmap(gesture.toBitmap(DensityUtil.dip2px(context,44), DensityUtil.dip2px(context,44), 0, gesture.getGesturePaintColor()), DensityUtil.dip2px(context,3), DensityUtil.dip2px(context,20), null);
+				        	Drawable drawable = new BitmapDrawable(bmp);
+				            drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
+				  		    ImageSpan span = new ImageSpan(drawable,ImageSpan.ALIGN_BOTTOM);
+				  			SpannableString spanStr = new SpannableString(value);
+				  			spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				  			item.tvNoteContent.append(spanStr);
+				  			wordNum++;
+			        	}
+			    	} else if (line.startsWith("face:")) {
+			    		String value = line.substring("face:".length(), line.length());
+			    		if (value.endsWith("face_a1")) {
+			    			appendFace(R.drawable.face_a1,item.tvNoteContent);
+			    		} else if (value.endsWith("face_a2")) {
+			    			appendFace(R.drawable.face_a2,item.tvNoteContent);
+			    		} else if (value.endsWith("face_a3")) {
+			    			appendFace(R.drawable.face_a3,item.tvNoteContent);
+			    		} else if (value.endsWith("face_a4")) {
+			    			appendFace(R.drawable.face_a4,item.tvNoteContent);
+			    		} else if (value.endsWith("face_a5")) {
+			    			appendFace(R.drawable.face_a5,item.tvNoteContent);
+			    		} else if (value.endsWith("face_a6")) {
+			    			appendFace(R.drawable.face_a6,item.tvNoteContent);
+			    		} else if (value.endsWith("face_a7")) {
+			    			appendFace(R.drawable.face_a7,item.tvNoteContent);
+			    		} else if (value.endsWith("face_a8")) {
+			    			appendFace(R.drawable.face_a8,item.tvNoteContent);
+			    		}
+			    		wordNum++;
+			    	} else if (line.startsWith("gft:")) {
+			    		break;
+			    	}
+					if (wordNum >= 20 || retNum >= 2) {
+						break;
+					}
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		
 		item.rlNoteItem.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -147,6 +280,7 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 				intent.putExtra("notePath", notePath);
 				intent.putExtra("isNewNote", false);
 				intent.putExtra("noteID", id);
+				intent.putExtra("title", title);
 				intent.setClass(MainScreen.mContext, EditNoteScreen.class);
 				MainScreen.mContext.startActivity(intent);
 			}
@@ -155,6 +289,18 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 		args.putExtra("time", time);
 		args.putExtra("lastFlag", lastFlag);
 		view.setTag(args);
+	}
+
+	
+	private void appendFace(int id,TextView tv) {
+		String fname = MainScreen.mContext.getResources().getResourceName(id);
+        fname = fname.substring(fname.lastIndexOf("/") + 1, fname.length());
+		Drawable drawable =  MainScreen.mContext.getResources().getDrawable(id); 
+		drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+		ImageSpan span = new ImageSpan(drawable);
+		SpannableString spanStr = new SpannableString(fname);
+		spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		tv.append(spanStr);
 	}
 
 	@Override
@@ -169,6 +315,7 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 		//item.rlDay= (RelativeLayout) view.findViewById(R.id.rl_day);
 		item.rlNoteItem = (RelativeLayout) view.findViewById(R.id.rl_note_item);
 		item.tvNoteContent = (TextView) view.findViewById(R.id.tv_note_content);
+		item.tvLastEdit = (TextView) view.findViewById(R.id.tv_note_last_edit);
 		view.setTag(R.layout.note_oneday_listview_item,item);
 		return view;
 	}
@@ -180,6 +327,7 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 		private ImageView ivIsSigned;
 		private TextView tvTime;
 		private TextView tvNoteContent;
+		private TextView tvLastEdit;
 		//private RelativeLayout rlDay;
 		private RelativeLayout rlNoteItem;
 	}

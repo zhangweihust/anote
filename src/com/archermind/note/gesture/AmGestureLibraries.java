@@ -5,14 +5,18 @@ import static com.archermind.note.gesture.AmGestureConstants.*;
 import android.content.Context;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
@@ -22,6 +26,10 @@ public class AmGestureLibraries {
 
     public static AmGestureLibrary fromFile(String path) {
         return fromFile(new File(path));
+    }
+    
+    public static AmGestureLibrary fromZipFile(String path) {
+        return new ZipFileGestureLibrary(new File(path));
     }
 
     public static AmGestureLibrary fromFile(File path) {
@@ -116,6 +124,63 @@ public class AmGestureLibraries {
             }
             return result;
         }
+
+    }
+    
+    private static class ZipFileGestureLibrary extends AmGestureLibrary {
+        private final File mPath;
+
+        public ZipFileGestureLibrary(File path) {
+            mPath = path;
+        }
+
+        @Override
+        public boolean isReadOnly() {
+            return !mPath.canWrite();
+        }
+
+        public boolean load(boolean flag) {
+            boolean result = false;
+            final File file = mPath;
+            ZipInputStream zis = null;
+            if (file.exists() && file.canRead()) {
+                try {
+                	ZipFile zip = new ZipFile(file);//由指定的File对象打开供阅读的ZIP文件  
+        			Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();//获取zip文件中的各条目（子文件）  
+        			while(entries.hasMoreElements()){//依次访问各条目  
+        				ZipEntry ze = (ZipEntry) entries.nextElement(); 
+        				if (ze.getName().endsWith("gesture") ) {
+        					zis = new ZipInputStream(zip.getInputStream(ze));
+        					zis.getNextEntry();
+        					break;
+        				}
+        			}
+    	     	    mStore.load(/*new FileInputStream(file)*/zis, true,flag);
+                    result = true;
+                } catch (FileNotFoundException e) {
+                    Log.d(LOG_TAG, "Could not load the gesture library from " + mPath, e);
+                } catch (IOException e) {
+                    Log.d(LOG_TAG, "Could not load the gesture library from " + mPath, e);
+                } finally {
+                	try {
+                		if (zis == null) {
+						    zis.close();
+                		}
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						Log.d(LOG_TAG, "Could not load the gesture library from " + mPath, e);
+					}
+                }
+            }
+            return result;
+        }
+
+		@Override
+		public boolean save(boolean flag) {
+			// TODO Auto-generated method stub
+			return false;
+		}
 
     }
 

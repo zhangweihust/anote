@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.io.OutputStream;   
 import java.util.LinkedHashMap;
 import java.util.Properties;   
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
  
 /**  
@@ -71,7 +73,28 @@ public class SetSystemProperty {
             e.printStackTrace();   
             return null;   
         }   
-    }   
+    }
+    
+    public static String readZipValue(String filePath,String key) {
+    	Properties props = new Properties();   
+        try {
+        	FileInputStream fis = new FileInputStream(filePath);
+        	ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
+        	ZipEntry entry = zis.getNextEntry();
+        	while (!entry.getName().endsWith("picmap")){
+        		entry = zis.getNextEntry();
+        		if (entry == null) {
+        			break;
+        		}
+        	}
+        	props.load(zis);
+        	String value = props.getProperty(key); 
+        	return value;
+        } catch (Exception e) {
+        	e.printStackTrace();
+        	return null;
+        }
+    }
     
     public static void loadIntoMap(String filePath,LinkedHashMap<String,String> picmap) {
     	Properties props = new Properties();   

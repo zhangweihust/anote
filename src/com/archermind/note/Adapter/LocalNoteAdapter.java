@@ -48,7 +48,7 @@ public class LocalNoteAdapter  extends CursorAdapter {
 	@Override
 	public void bindView(View view, final Context context, final Cursor cursor) {
 		final NoteItem item = (NoteItem) view.getTag(R.layout.note_month_listview_item);
-		String title = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_TITLE));
+		final String title = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_TITLE));
 		final long time = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CREATE_TIME));
 		final boolean lastFlag = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_LAST_FLAG)) == 1;
 		final int isSigned = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED));
@@ -139,6 +139,7 @@ public class LocalNoteAdapter  extends CursorAdapter {
 				intent.putExtra("notePath", notePath);
 				intent.putExtra("isNewNote", false);
 				intent.putExtra("noteID", id);
+				intent.putExtra("title", title);
 				intent.setClass(MainScreen.mContext, EditNoteScreen.class);
 				MainScreen.mContext.startActivity(intent);
 			}

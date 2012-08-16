@@ -86,9 +86,8 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	
 	public static GestureDetector mGestureDetector = null;
 	public static long snoteCreateTime = 0;
-
-	public static final EventService eventService = ServiceManager
-			.getEventservice();
+	
+	public static final EventService eventService = ServiceManager.getEventservice();
 
 	public MainScreen(){
 		super();
