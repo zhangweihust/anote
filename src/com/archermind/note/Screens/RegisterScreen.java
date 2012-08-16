@@ -330,7 +330,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 								password,
 								nickname,
 								mSex.getCheckedRadioButtonId() == R.id.register_ridiogroup_man ? 1
-										: 0, 
+										: 2, 
 								mRegion.getText().toString());
 				Message message = new Message();
 				message.obj = result;

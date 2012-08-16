@@ -13,6 +13,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.archermind.note.NoteApplication;
@@ -25,6 +26,7 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 	private ImageView mUserAvatar;
 	private Button mLoginButton;
 	private Button mLogoutButton;
+	private LinearLayout mShareLayout;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,9 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 		if (image != null) {
 			mUserAvatar.setImageBitmap(image);
 		}
+		
+		mShareLayout = (LinearLayout) findViewById(R.id.share_setting_layout);
+		mShareLayout.setOnClickListener(this);
 		
 		mLoginButton = (Button) findViewById(R.id.btn_login);
 		mLoginButton.setOnClickListener(this);
@@ -111,6 +116,10 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 				intent.setClass(mContext, AccountScreen.class);
 				mContext.startActivity(intent);
 			}
+			break;
+		case R.id.share_setting_layout:
+			intent.setClass(mContext, ShareSettingScreen.class);
+			mContext.startActivity(intent);
 			break;
 		case R.id.btn_login:
 			intent.setClass(mContext, LoginScreen.class);
