@@ -110,6 +110,7 @@ public class NoteSaveDialog implements OnClickListener{
 						System.out.println("================不存在此数据===========");
 						return;
 					}
+					cursor.moveToFirst();
 					String serviceID = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID));
 					String action = "N";
 					if (serviceID != null && Integer.parseInt(serviceID) > 0) {
