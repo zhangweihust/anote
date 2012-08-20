@@ -46,6 +46,7 @@ import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Services.EventService;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DensityUtil;
+import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
 import com.archermind.note.Views.MenuRightHorizontalScrollView;
@@ -419,38 +420,41 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	}
 
 	private void autoLogin() {
-		new Thread() {
+		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
 
-			@Override
-			public void run() {
-				SharedPreferences sp = PreferencesHelper.getSharedPreferences(
-						MainScreen.this, 0);
-				String username = sp.getString(
-						PreferencesHelper.XML_USER_ACCOUNT, null);
-				String password = sp.getString(
-						PreferencesHelper.XML_USER_PASSWD, null);
-				if (username != null && password != null) {
-					String result = ServerInterface.login(username, password);
-					try {
-						JSONObject jsonObject = new JSONObject(result);
-						if (jsonObject.optString("flag").equals(
-								"" + ServerInterface.SUCCESS)) {
-							// 保存至Application
-							NoteApplication noteApplication = NoteApplication
-									.getInstance();
-							noteApplication.setUserName(jsonObject
-									.optString("email"));
-							noteApplication.setUserId(jsonObject
-									.optInt("user_id"));
-							noteApplication.setLogin(true);
-							Log.i("MainScreen", "autologin success");
+			new Thread() {
+
+				@Override
+				public void run() {
+					SharedPreferences sp = PreferencesHelper
+							.getSharedPreferences(MainScreen.this, 0);
+					String username = sp.getString(
+							PreferencesHelper.XML_USER_ACCOUNT, null);
+					String password = sp.getString(
+							PreferencesHelper.XML_USER_PASSWD, null);
+					if (username != null && password != null) {
+						String result = ServerInterface.login(username,
+								password);
+						try {
+							JSONObject jsonObject = new JSONObject(result);
+							if (jsonObject.optString("flag").equals(
+									"" + ServerInterface.SUCCESS)) {
+								// 保存至Application
+								NoteApplication noteApplication = NoteApplication
+										.getInstance();
+								noteApplication.setUserName(jsonObject
+										.optString("email"));
+								noteApplication.setUserId(jsonObject
+										.optInt("user_id"));
+								noteApplication.setLogin(true);
+								Log.i("MainScreen", "autologin success");
+							}
+						} catch (JSONException e) {
+							e.printStackTrace();
+							Log.i("MainScreen", "autologin failed");
 						}
-					} catch (JSONException e) {
-						e.printStackTrace();
-						Log.i("MainScreen", "autologin failed");
 					}
 				}
-			}
 
 		}.start();
 	}

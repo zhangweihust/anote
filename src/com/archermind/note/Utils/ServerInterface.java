@@ -35,8 +35,7 @@ public class ServerInterface {
 	public static final int LOGIN_TYPE_QQ = 2;
 	public static final int LOGIN_TYPE_RENREN = 3;
 
-	public static final int ERROR_ACCOUNT_OR_PASSWORD_EMPTY = 1;
-	public static final int ERROR_ACCOUNT_EXIST = 2;
+	public static final int ERROR_ACCOUNT_EXIST = -2;
 
 	public static final int ERROR_SYNC_FAILED = 3;
 	public static final int ERROR_UPLOAD_FAILED = 4;

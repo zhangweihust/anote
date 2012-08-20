@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;
 
 public class PreferencesScreen extends Screen implements OnClickListener {
@@ -122,8 +123,12 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 			mContext.startActivity(intent);
 			break;
 		case R.id.btn_login:
-			intent.setClass(mContext, LoginScreen.class);
-			mContext.startActivity(intent);
+			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
+				intent.setClass(mContext, LoginScreen.class);
+				mContext.startActivity(intent);
+			}else {
+				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT).show();
+			}
 			break;
 		case R.id.btn_logout:
 			showLogoutDialog();

@@ -1,298 +1,307 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/content_background"
-    android:orientation="vertical" >
-
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/title_bar_background"
-        android:paddingLeft="5dip"
-        android:paddingRight="5dip" >
-
-        <TextView
-            android:id="@+id/tv_title_login"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_gravity="center"
-            android:text="@string/register_title"
-            android:textColor="@color/white"
-            android:textSize="@dimen/main_screen_title_size" />
-
-        <Button
-            android:id="@+id/btn_register"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="10dp"
-            android:background="@drawable/title_bar_notebook_selector" />
-    </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/register_set_avatar_layout"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:background="@drawable/login_edit_background"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="5dp" >
-
-        <ImageView
-            android:id="@+id/register_imageview_avatar"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:src="@drawable/my_photo" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_weight="1"
-            android:text="@string/register_set_avatar"
-            android:textColor="@color/register_text_title" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:background="@drawable/icon_arrow" />
-    </LinearLayout>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/content_background" >
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/login_edit_background"
         android:orientation="vertical" >
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp" >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/register_nickname"
-                android:textColor="@color/register_text_title" />
-
-            <EditText
-                android:id="@+id/register_edittext_nickname"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:gravity="right"
-                android:hint="@string/register_nickname_hint"
-                android:textColor="@color/register_text_content"
-                android:textSize="15sp" >
-
-                <requestFocus />
-            </EditText>
-        </LinearLayout>
-
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="1dp"
-            android:layout_gravity="center"
-            android:background="@drawable/listview_divider" />
-
-        <RadioGroup
-            android:id="@+id/register_ridiogroup_sex"
+        <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/title_bar_background"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip" >
+
+            <TextView
+                android:id="@+id/tv_title_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:text="@string/register_title"
+                android:textColor="@color/white"
+                android:textSize="@dimen/main_screen_title_size" />
+
+            <Button
+                android:id="@+id/btn_register"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/edit_save_selector" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/register_set_avatar_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@drawable/login_edit_background"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp" >
+            android:padding="5dp" >
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/register_sex"
-                android:textColor="@color/register_text_title" />
-
-            <RadioButton
-                android:id="@+id/register_ridiogroup_woman"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="18dp"
-                android:button="@drawable/radiobutton_sex"
-                android:text="@string/register_woman"
-                android:textColor="@color/register_text_content" />
-
-            <RadioButton
-                android:id="@+id/register_ridiogroup_man"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:button="@drawable/radiobutton_sex"
-                android:checked="true"
-                android:text="@string/register_man"
-                android:textColor="@color/register_text_content" />
-        </RadioGroup>
-
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="1dp"
-            android:layout_gravity="center"
-            android:background="@drawable/listview_divider" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp" >
+            <ImageView
+                android:id="@+id/register_imageview_avatar"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/my_photo" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
                 android:layout_weight="1"
-                android:text="@string/register_location"
-                android:textColor="@color/register_text_title" />
-
-            <TextView
-                android:id="@+id/register_tv_region"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawablePadding="10dp"
-                android:drawableRight="@drawable/icon_arrow"
-                android:textSize="15sp"
-                android:textColor="@color/register_text_content" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_margin="10dp" >
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/register_activate_account"
+                android:text="@string/register_set_avatar"
                 android:textColor="@color/register_text_title"
+                android:textSize="@dimen/login_register_text_size" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/icon_arrow" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/login_edit_background"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/register_nickname"
+                    android:textColor="@color/register_text_title"
+                    android:textSize="@dimen/login_register_text_size" />
+
+                <EditText
+                    android:id="@+id/register_edittext_nickname"
+                    android:layout_width="0dp"
+                    android:layout_height="26dp"
+                    android:layout_weight="1"
+                    android:background="@color/white"
+                    android:hint="@string/register_nickname_hint"
+                    android:textColor="@color/register_text_content"
+                    android:textSize="@dimen/login_register_text_size" >
+
+                    <requestFocus />
+                </EditText>
+            </LinearLayout>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="1dp"
+                android:layout_gravity="center"
+                android:background="@drawable/listview_divider" />
+
+            <RadioGroup
+                android:id="@+id/register_ridiogroup_sex"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/register_sex"
+                    android:textColor="@color/register_text_title"
+                    android:textSize="@dimen/login_register_text_size" />
+
+                <RadioButton
+                    android:id="@+id/register_ridiogroup_man"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="18dp"
+                    android:button="@drawable/radiobutton_sex"
+                    android:checked="true"
+                    android:text="@string/register_man"
+                    android:textColor="@color/register_text_content" />
+
+                <RadioButton
+                    android:id="@+id/register_ridiogroup_woman"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:button="@drawable/radiobutton_sex"
+                    android:text="@string/register_woman"
+                    android:textColor="@color/register_text_content" />
+            </RadioGroup>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="1dp"
+                android:layout_gravity="center"
+                android:background="@drawable/listview_divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="8dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/register_location"
+                    android:textColor="@color/register_text_title"
+                    android:textSize="@dimen/login_register_text_size" />
+
+                <TextView
+                    android:id="@+id/register_tv_region"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableRight="@drawable/icon_arrow"
+                    android:textColor="@color/register_text_content"
+                    android:textSize="@dimen/login_register_text_size" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/register_activate_account"
+                    android:textColor="@color/register_text_title"
+                    android:textSize="@dimen/login_register_text_size"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/register_warning"
+                    android:textColor="@color/register_text_warning"
+                    android:textSize="@dimen/login_register_text_size" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="@string/register_tip"
+                android:textColor="@color/register_text_content"
                 android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/register_warning"
-                android:textColor="@color/register_text_warning" />
         </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:text="@string/register_tip"
-            android:textColor="@color/register_text_content"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/login_edit_background"
-        android:orientation="vertical" >
-
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp" >
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/login_edit_background"
+            android:orientation="vertical" >
 
-            <TextView
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/register_username"
+                    android:textColor="@color/register_text_title"
+                    android:textSize="@dimen/login_register_text_size" />
+
+                <EditText
+                    android:id="@+id/register_editText_username"
+                    android:layout_width="0dp"
+                    android:layout_height="26dp"
+                    android:layout_weight="1"
+                    android:background="@color/white"
+                    android:hint="@string/register_username_hint"
+                    android:textColor="@color/register_text_content"
+                    android:textSize="@dimen/login_register_text_size" >
+                </EditText>
+            </LinearLayout>
+
+            <View
                 android:layout_width="wrap_content"
+                android:layout_height="1dp"
+                android:layout_gravity="center"
+                android:background="@drawable/listview_divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/register_username"
-                android:textColor="@color/register_text_title" />
+                android:padding="8dp" >
 
-            <EditText
-                android:id="@+id/register_editText_username"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:gravity="right"
-                android:hint="@string/register_username_hint"
-                android:textColor="@color/register_text_content"
-                android:textSize="15sp" >
-            </EditText>
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/register_password"
+                    android:textColor="@color/register_text_title"
+                    android:textSize="@dimen/login_register_text_size" />
 
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="1dp"
-            android:layout_gravity="center"
-            android:background="@drawable/listview_divider" />
+                <EditText
+                    android:id="@+id/register_editText_password"
+                    android:layout_width="0dp"
+                    android:layout_height="26dp"
+                    android:layout_weight="1"
+                    android:background="@color/white"
+                    android:hint="@string/register_password_hint"
+                    android:password="true"
+                    android:textColor="@color/register_text_content"
+                    android:textSize="@dimen/login_register_text_size" >
+                </EditText>
+            </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp" >
-
-            <TextView
+            <View
                 android:layout_width="wrap_content"
+                android:layout_height="1dp"
+                android:layout_gravity="center"
+                android:background="@drawable/listview_divider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/register_password"
-                android:textColor="@color/register_text_title" />
+                android:padding="8dp" >
 
-            <EditText
-                android:id="@+id/register_editText_password"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:gravity="right"
-                android:hint="@string/register_password_hint"
-                android:password="true"
-                android:textColor="@color/register_text_content"
-                android:textSize="15sp" >
-            </EditText>
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/register_pswdconfirm"
+                    android:textColor="@color/register_text_title"
+                    android:textSize="@dimen/login_register_text_size" />
 
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="1dp"
-            android:layout_gravity="center"
-            android:background="@drawable/listview_divider" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp" >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/register_pswdconfirm"
-                android:textColor="@color/register_text_title" />
-
-            <EditText
-                 android:id="@+id/register_editText_pswdconfirm"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:gravity="right"
-                android:hint="@string/register_pswdconfirm_hint"
-                android:password="true"
-                android:textColor="@color/register_text_content"
-                android:textSize="15sp" >
-            </EditText>
+                <EditText
+                    android:id="@+id/register_editText_pswdconfirm"
+                    android:layout_width="0dp"
+                    android:layout_height="26dp"
+                    android:layout_weight="1"
+                    android:background="@color/white"
+                    android:hint="@string/register_pswdconfirm_hint"
+                    android:password="true"
+                    android:textColor="@color/register_text_content"
+                    android:textSize="@dimen/login_register_text_size" >
+                </EditText>
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
-</LinearLayout>
+</ScrollView>

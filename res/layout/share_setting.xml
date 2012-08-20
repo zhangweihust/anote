@@ -52,7 +52,8 @@
                 android:drawablePadding="5dp"
                 android:gravity="center_vertical"
                 android:text="@string/login_sina"
-                android:textColor="@color/register_text_title" />
+                android:textColor="@color/register_text_title"
+                android:textSize="@dimen/login_register_text_size" />
 
             <TextView
                 android:id="@+id/share_setting_tv_sina"
@@ -63,7 +64,8 @@
                 android:drawableRight="@drawable/arrow_right"
                 android:gravity="center_vertical|right"
                 android:text="@string/share_unbind"
-                android:textColor="@color/register_text_content" />
+                android:textColor="@color/register_text_content"
+                android:textSize="@dimen/login_register_text_size" />
 
             <TextView
                 android:id="@+id/share_setting_tv_sina_cancel"
@@ -75,6 +77,7 @@
                 android:gravity="center_vertical|right"
                 android:text="@string/share_binded"
                 android:textColor="@color/toptextcolor"
+                android:textSize="@dimen/login_register_text_size"
                 android:visibility="gone" />
         </LinearLayout>
 
@@ -97,7 +100,8 @@
                 android:drawablePadding="5dp"
                 android:gravity="center_vertical"
                 android:text="@string/login_qq"
-                android:textColor="@color/register_text_title" />
+                android:textColor="@color/register_text_title"
+                android:textSize="@dimen/login_register_text_size" />
 
             <TextView
                 android:id="@+id/share_setting_tv_qq"
@@ -108,7 +112,9 @@
                 android:drawableRight="@drawable/arrow_right"
                 android:gravity="center_vertical|right"
                 android:text="@string/share_unbind"
-                android:textColor="@color/register_text_content" />
+                android:textColor="@color/register_text_content"
+                android:textSize="@dimen/login_register_text_size" />
+
             <TextView
                 android:id="@+id/share_setting_tv_qq_cancel"
                 android:layout_width="0dp"
@@ -119,6 +125,7 @@
                 android:gravity="center_vertical|right"
                 android:text="@string/share_binded"
                 android:textColor="@color/toptextcolor"
+                android:textSize="@dimen/login_register_text_size"
                 android:visibility="gone" />
         </LinearLayout>
 
@@ -141,7 +148,8 @@
                 android:drawablePadding="5dp"
                 android:gravity="center_vertical"
                 android:text="@string/login_renren"
-                android:textColor="@color/register_text_title" />
+                android:textColor="@color/register_text_title"
+                android:textSize="@dimen/login_register_text_size" />
 
             <TextView
                 android:id="@+id/share_setting_tv_renren"
@@ -152,8 +160,10 @@
                 android:drawableRight="@drawable/arrow_right"
                 android:gravity="center_vertical|right"
                 android:text="@string/share_unbind"
-                android:textColor="@color/register_text_content" />
-             <TextView
+                android:textColor="@color/register_text_content"
+                android:textSize="@dimen/login_register_text_size" />
+
+            <TextView
                 android:id="@+id/share_setting_tv_renren_cancel"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
@@ -163,6 +173,7 @@
                 android:gravity="center_vertical|right"
                 android:text="@string/share_binded"
                 android:textColor="@color/toptextcolor"
+                android:textSize="@dimen/login_register_text_size"
                 android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>

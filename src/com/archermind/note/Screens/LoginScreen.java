@@ -41,8 +41,8 @@ public class LoginScreen extends Screen implements OnClickListener {
 	private TextView mLoginButton_sina;
 	private TextView mLoginButton_qq;
 	private TextView mLoginButton_renren;
-	private ProgressDialog mProgressDialog;
 	private Handler mHandler;
+	private NetThread mNetThread;
 	private static final String TAG = "LoginScreen";
 
 	@Override
@@ -60,29 +60,29 @@ public class LoginScreen extends Screen implements OnClickListener {
 					Toast.makeText(LoginScreen.this,
 							R.string.login_err_server_internal,
 							Toast.LENGTH_SHORT).show();
-					mProgressDialog.dismiss();
+					dismissProgress();
 				} else if (result.equals(""
 						+ ServerInterface.ERROR_USER_NOT_EXIST)) {
 					Toast.makeText(LoginScreen.this,
 							R.string.login_err_username_not_exist,
 							Toast.LENGTH_SHORT).show();
-					mProgressDialog.dismiss();
+					dismissProgress();
 				} else if (result.equals(""
 						+ ServerInterface.ERROR_PASSWORD_WRONG)) {
 					Toast.makeText(LoginScreen.this,
 							R.string.login_err_password_wrong,
 							Toast.LENGTH_SHORT).show();
-					mProgressDialog.dismiss();
+					dismissProgress();
 				} else if (result.equals(""
 						+ ServerInterface.ERROR_USER_NOT_BIND)) {
-					mProgressDialog.dismiss();
+					dismissProgress();
 					Intent intent = new Intent(LoginScreen.this,
 							RegisterScreen.class);
 					intent.putExtras(msg.getData());
 					startActivity(intent);
 					finish();
 				} else {
-					mProgressDialog.dismiss();
+					dismissProgress();
 					try {
 						JSONObject jsonObject = new JSONObject(result);
 						if (jsonObject.optString("flag").equals(
@@ -109,8 +109,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 							finish();
 						}
 					} catch (JSONException e) {
-						Toast.makeText(LoginScreen.this,
-								R.string.login_failed,
+						Toast.makeText(LoginScreen.this, R.string.login_failed,
 								Toast.LENGTH_SHORT).show();
 						e.printStackTrace();
 					}
@@ -163,12 +162,6 @@ public class LoginScreen extends Screen implements OnClickListener {
 		}
 	}
 
-	private void showProgressDialog() {
-		mProgressDialog = new ProgressDialog(this);
-		mProgressDialog.setMessage(getString(R.string.login_dialog_msg));
-		mProgressDialog.show();
-	}
-
 	/*
 	 * 普通登录：输入微笔记账号密码
 	 */
@@ -185,7 +178,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 					Toast.LENGTH_SHORT).show();
 			return;
 		}
-		showProgressDialog();// 显示进度框
+		showProgress(null,getString(R.string.login_dialog_msg));// 显示进度框
 		new Thread() {
 
 			@Override
@@ -203,26 +196,11 @@ public class LoginScreen extends Screen implements OnClickListener {
 	 * 其他登录方式 参数： 登录类型：新浪，QQ，人人 绑定的新浪，QQ,人人的用户id
 	 */
 	private void login_others(int type, String uid) {
-		final int type_thread = type;
-		final String uid_thread = uid;
-		showProgressDialog();// 显示进度框
-		new Thread() {
-
-			@Override
-			public void run() {
-				String result = ServerInterface.checkBinding(type_thread,
-						uid_thread);
-				Message message = new Message();
-				message.obj = result;
-				Bundle bundle = new Bundle();
-				bundle.putInt("type", type_thread);
-				bundle.putString("uid", uid_thread);
-				message.setData(bundle);
-				mHandler.sendMessage(message);
-			}
-
-		}.start();
-
+		showProgress(null,getString(R.string.login_dialog_msg));// 显示进度框
+		if (mNetThread == null || !mNetThread.isAlive()) {
+			mNetThread = new NetThread(type, uid);
+			mNetThread.start();
+		}
 	}
 
 	/*
@@ -282,12 +260,11 @@ public class LoginScreen extends Screen implements OnClickListener {
 								* 1000);
 				editor.commit();
 				Log.i(TAG, "renrenuid:" + renren.getCurrentUid());
-				if(renren.isSessionKeyValid()){
+				if (renren.isSessionKeyValid()) {
 					login_others(ServerInterface.LOGIN_TYPE_RENREN,
 							String.valueOf(renren.getCurrentUid()));
-				}else {
-					Toast.makeText(LoginScreen.this,
-							R.string.login_failed,
+				} else {
+					Toast.makeText(LoginScreen.this, R.string.login_failed,
 							Toast.LENGTH_SHORT).show();
 				}
 			}
@@ -331,8 +308,8 @@ public class LoginScreen extends Screen implements OnClickListener {
 					login_others(ServerInterface.LOGIN_TYPE_QQ,
 							oAuthV2.getOpenid());
 				} else {
-					Toast.makeText(this, "呃，出现了点问题，再试一次吧！", Toast.LENGTH_SHORT)
-							.show();
+					Toast.makeText(this, R.string.login_failed,
+							Toast.LENGTH_SHORT).show();
 				}
 			}
 		}
@@ -357,8 +334,10 @@ public class LoginScreen extends Screen implements OnClickListener {
 							+ Long.parseLong(values.getString("expires_in"))
 							* 1000);
 			editor.commit();
-			login_others(ServerInterface.LOGIN_TYPE_SINA,
-					values.getString("uid"));
+			if (values.getString("uid") != null
+					&& !values.getString("uid").equals(""))
+				login_others(ServerInterface.LOGIN_TYPE_SINA,
+						values.getString("uid"));
 		}
 
 		@Override
@@ -377,6 +356,30 @@ public class LoginScreen extends Screen implements OnClickListener {
 		public void onCancel() {
 			// TODO Auto-generated method stub
 
+		}
+
+	}
+
+	private class NetThread extends Thread {
+		int type;
+		String uid;
+
+		public NetThread(int type, String uid) {
+			super();
+			this.type = type;
+			this.uid = uid;
+		}
+
+		@Override
+		public void run() {
+			String result = ServerInterface.checkBinding(type, uid);
+			Message message = new Message();
+			message.obj = result;
+			Bundle bundle = new Bundle();
+			bundle.putInt("type", type);
+			bundle.putString("uid", uid);
+			message.setData(bundle);
+			mHandler.sendMessage(message);
 		}
 
 	}

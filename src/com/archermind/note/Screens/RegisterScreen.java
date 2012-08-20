@@ -18,13 +18,13 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
@@ -48,16 +48,18 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	private EditText mPassWord;
 	private EditText mPswdConfirm;
 	private Button mRegisterButton;
-	private ProgressDialog mProgressDialog;
 	private static final int ALBUM_RESULT = 1;
 	private static final int CAMERA_RESULT = 2;
 	private static final int CROP_RESULT = 3;
 	private static final int REGION_RESULT = 4;
+	private static final String UPLOAD_PHOTO_OK = "ok";
+	private static final String UPLOAD_PHOTO_ERROR = "error";
 	private SharedPreferences mPreferences;
 	private Dialog mPicChooseDialog;
 	private ContentResolver mContentResolver;
 	private String mCameraImageFilePath;
 	private ImageCapture mImgCapture;
+	private String mAvatarPath;
 	private static final String TAG = "RegisterScreen";
 	private Handler mHandler = new Handler() {
 
@@ -69,14 +71,37 @@ public class RegisterScreen extends Screen implements OnClickListener {
 				Toast.makeText(RegisterScreen.this,
 						R.string.register_err_server_internal,
 						Toast.LENGTH_SHORT).show();
-				mProgressDialog.dismiss();
+				dismissProgress();
 			} else if (result.equals("" + ServerInterface.ERROR_ACCOUNT_EXIST)) {
 				Toast.makeText(RegisterScreen.this,
 						R.string.register_err_account_exist, Toast.LENGTH_SHORT)
 						.show();
-				mProgressDialog.dismiss();
+				dismissProgress();
+			} else if (result.equals(UPLOAD_PHOTO_OK)) {
+				dismissProgress();
+				Toast.makeText(RegisterScreen.this, R.string.register_success,
+						Toast.LENGTH_SHORT).show();
+				Log.i(TAG, "upload avatar success");
+				finish();
+			} else if (result.equals(UPLOAD_PHOTO_ERROR)) {
+				int uploadcount = msg.getData().getInt("uploadcount");
+				if (uploadcount > 3 || uploadcount <= 0) {
+					dismissProgress();
+					Toast.makeText(RegisterScreen.this,
+							R.string.register_success_upload_photo_failed,
+							Toast.LENGTH_SHORT).show();
+					Log.i(TAG, "upload avatar failed");
+					finish();
+				} else {
+					Log.i(TAG,
+							"upload avatar---try count:"
+									+ String.valueOf(uploadcount + 1));
+					String aName = msg.getData().getString("name");
+					String aExpandName = msg.getData().getString("expandname");
+					String aFilePath = msg.getData().getString("filelocalpath");
+					uploadImage(aName, aExpandName, aFilePath, uploadcount + 1);
+				}
 			} else {
-				mProgressDialog.dismiss();
 				try {
 					JSONObject jsonObject = new JSONObject(result);
 					if (jsonObject.optString("flag").equals(
@@ -95,8 +120,26 @@ public class RegisterScreen extends Screen implements OnClickListener {
 								.optString("email"));
 						noteApplication.setUserId(jsonObject.optInt("user_id"));
 						noteApplication.setLogin(true);
-						Log.i(TAG, "register success");
-						finish();
+
+						// 开始上传头像
+						if (mAvatarPath != null) {
+							String name = mAvatarPath.substring(
+									mAvatarPath.lastIndexOf("/") + 1,
+									mAvatarPath.length());
+							String expandname = mAvatarPath.substring(
+									mAvatarPath.lastIndexOf(".") + 1,
+									mAvatarPath.length());
+							name = name.substring(0, name.lastIndexOf("."));
+							uploadImage(name, expandname, mAvatarPath, 1);
+							Log.i(TAG, "register sucess,start upload avatar");
+						} else {
+							dismissProgress();
+							Toast.makeText(RegisterScreen.this,
+									R.string.register_success,
+									Toast.LENGTH_SHORT).show();
+							Log.i(TAG, "register success");
+							finish();
+						}
 					}
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
@@ -125,6 +168,10 @@ public class RegisterScreen extends Screen implements OnClickListener {
 		Bitmap image = PreferencesHelper.getAvatarBitmap(this);
 		if (image != null) {
 			mUserAvatar.setImageBitmap(image);
+			if (mAvatarPath == null) {
+				mAvatarPath = mPreferences.getString(
+						PreferencesHelper.XML_USER_AVATAR, null);
+			}
 		}
 	}
 
@@ -187,18 +234,20 @@ public class RegisterScreen extends Screen implements OnClickListener {
 					photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
 					byte[] b = stream.toByteArray();
 					this.mImgCapture.storeImage(b, null);
-					String filepath = getFilepathFromUri(this.mImgCapture
+					mAvatarPath = getFilepathFromUri(this.mImgCapture
 							.getLastCaptureUri());
-					PreferencesHelper.UpdateAvatar(this, "", filepath);
+					PreferencesHelper.UpdateAvatar(this, "", mAvatarPath);
 				}
 			}
 			break;
 		case REGION_RESULT:
-			if(data != null){
+			if (data != null) {
 				int ProvinceId = data.getIntExtra("province", 0);
 				int CityId = data.getIntExtra("city", 0);
-				String province = PreferencesHelper.getProvinceName(this, ProvinceId);
-				String city = PreferencesHelper.getCityName(this, ProvinceId, CityId);
+				String province = PreferencesHelper.getProvinceName(this,
+						ProvinceId);
+				String city = PreferencesHelper.getCityName(this, ProvinceId,
+						CityId);
 				mRegion.setText(province + " " + city);
 			}
 			break;
@@ -207,12 +256,6 @@ public class RegisterScreen extends Screen implements OnClickListener {
 
 		}
 		super.onActivityResult(requestCode, resultCode, data);
-	}
-
-	private void showProgressDialog() {
-		mProgressDialog = new ProgressDialog(this);
-		mProgressDialog.setMessage(getString(R.string.register_dialog_msg));
-		mProgressDialog.show();
 	}
 
 	private String getFilepathFromUri(Uri uri) {
@@ -317,7 +360,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 					Toast.LENGTH_SHORT).show();
 			return;
 		}
-		showProgressDialog();// 显示进度框
+		showProgress(null, getString(R.string.register_dialog_msg));// 显示进度框
 		new Thread() {
 
 			@Override
@@ -330,11 +373,42 @@ public class RegisterScreen extends Screen implements OnClickListener {
 								password,
 								nickname,
 								mSex.getCheckedRadioButtonId() == R.id.register_ridiogroup_man ? 1
-										: 2, 
-								mRegion.getText().toString());
+										: 2, mRegion.getText().toString());
 				Message message = new Message();
 				message.obj = result;
 				mHandler.sendMessage(message);
+			}
+
+		}.start();
+	}
+
+	private void uploadImage(String name, String expandname, String filepath,
+			int uploadcount) {
+		final String aName = name;
+		final String aExpandName = expandname;
+		final String aFilePath = filepath;
+		final int aUploadCount = uploadcount;
+		new Thread() {
+			@Override
+			public void run() {
+				String user_id = String.valueOf(NoteApplication.getInstance()
+						.getUserId());
+				String username = NoteApplication.getInstance().getUserName();
+				Looper.prepare();
+				int result = ServerInterface.uploadPhoto(RegisterScreen.this,
+						user_id, username, aFilePath, aName, aExpandName);
+
+				Message msg = new Message();
+				msg.getData().putString("name", aName);
+				msg.getData().putString("expandname", aExpandName);
+				msg.getData().putString("filelocalpath", aFilePath);
+				msg.getData().putInt("uploadcount", aUploadCount);
+				if (result == 0) {
+					msg.obj = String.valueOf(UPLOAD_PHOTO_OK);
+				} else {
+					msg.obj = String.valueOf(UPLOAD_PHOTO_ERROR);
+				}
+				mHandler.sendMessage(msg);
 			}
 
 		}.start();

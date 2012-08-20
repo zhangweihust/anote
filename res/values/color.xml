@@ -19,4 +19,5 @@
     <color name="calendar_weekday_color">#373737</color>
     <color name="other_month_days_color">#b4b4b4</color>
     <color name="lunarday_color">#5d5d5d</color>
+    <color name="red">#E63400</color>
 </resources>

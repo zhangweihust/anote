@@ -51,12 +51,13 @@
     <string name="setting_title">设置</string>
     <string name="photo_add_sel">请选择来源</string>
     <string name="setting_title_share">分享设置</string>
-    <string name="share_binded">已关联</string>
-    <string name="share_unbind">未关联</string>
-    <string name="share_unbind_title">确定解除关联？</string>
+    <string name="share_binded">已授权</string>
+    <string name="share_unbind">未授权</string>
+    <string name="share_unbind_title">确定解除授权？</string>
     <string name="setting_ok">确定</string>
     <string name="setting_cancel">取消</string>
     <string name="no_login_info">请先登录</string>
+    <string name="network_none">无法连接到网络，请检查网络设置！</string>
 
     <!-- account -->
     <string name="account_title">我的帐号</string>
@@ -122,23 +123,26 @@
     <string name="register_warning">（必填）</string>
     <string name="register_tip">填写账号并设置密码，以后可用此账号直接登录微笔记</string>
     <string name="register_username">微笔记账号：</string>
-    <string name="register_username_hint">你的常用邮箱</string>
-    <string name="register_password">密码：</string>
-    <string name="register_password_hint">六至十六位</string>
+    <string name="register_username_hint">你的常用邮箱(密码找回)</string>
+    <string name="register_password">输入密码：</string>
+    <string name="register_password_hint">6至16位字母数字组合</string>
     <string name="register_pswdconfirm">确认密码：</string>
     <string name="register_pswdconfirm_hint">请再次输入密码</string>
     <string name="register_err_account_exist">该用户名已存在！</string>
     <string name="register_err_username_format">请输入正确格式的邮箱！</string>
-    <string name="register_err_server_internal">服务器连接错误，请稍候再试！</string>
+    <string name="register_err_server_internal">呃，服务器可能出了点问题，请稍候再试！</string>
     <string name="register_err_password_format">密码为6至16位的数字和字母组合！</string>
     <string name="register_err_pswdconfirm">两次输入密码不一致！</string>
     <string name="register_dialog_msg">请稍候...</string>
+    <string name="register_success">注册成功！</string>
+    <string name="register_success_upload_photo_failed">注册成功！但头像上传失败！</string>
     
     <!-- share -->
     <string name="share_dialog_msg_sina">正在分享到新浪微博...</string>
     <string name="share_dialog_msg_qq">正在分享到腾讯微博...</string>
     <string name="share_dialog_msg_renren">正在分享到人人...</string>
-    <string name="share_sina_expired">新浪微博未关联或授权已过期，请重新关联！</string>
+    <string name="share_sina_expired">新浪微博未授权或授权已过期，请重新授权！</string>
+    <string name="share_err_equal_weibo">你已分享过相同的内容啦！</string>
     <string name="share_success">分享成功！</string>
     <string name="share_failed">分享未成功，请稍候再试！</string>
 
