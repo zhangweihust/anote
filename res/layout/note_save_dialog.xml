@@ -58,15 +58,6 @@
             android:layout_width="fill_parent"
             android:layout_height="1dip"
             android:background="@drawable/custom_dialog_line" />
-
-        <RadioButton
-            android:id="@+id/not_save"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/not_save"
-            android:textColor="@color/white"
-            android:textStyle="normal" />
     </RadioGroup>
     
      <TextView
@@ -81,18 +72,6 @@
          android:orientation="horizontal" >
 
         <Button
-            android:id="@+id/note_save_ok"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="7dip"
-            android:layout_marginRight="7dip"
-            android:layout_weight="1"
-            android:singleLine="true"
-            android:text="确定"
-            android:textColor="@color/white"
-            android:textStyle="normal" />
-
-        <Button
             android:id="@+id/note_save_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -101,6 +80,18 @@
             android:layout_weight="1"
             android:singleLine="true"
             android:text="取消"
+            android:textColor="@color/white"
+            android:textStyle="normal" />
+
+        <Button
+            android:id="@+id/note_save_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="7dip"
+            android:layout_marginRight="7dip"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:text="确定"
             android:textColor="@color/white"
             android:textStyle="normal" />
     </LinearLayout>

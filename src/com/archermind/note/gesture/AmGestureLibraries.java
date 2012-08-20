@@ -145,9 +145,9 @@ public class AmGestureLibraries {
             ZipInputStream zis = null;
             if (file.exists() && file.canRead()) {
                 try {
-                	ZipFile zip = new ZipFile(file);//ÓÉÖ¸¶¨µÄFile¶ÔÏó´ò¿ª¹©ÔÄ¶ÁµÄZIPÎÄ¼ş  
-        			Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();//»ñÈ¡zipÎÄ¼şÖĞµÄ¸÷ÌõÄ¿£¨×ÓÎÄ¼ş£©  
-        			while(entries.hasMoreElements()){//ÒÀ´Î·ÃÎÊ¸÷ÌõÄ¿  
+                	ZipFile zip = new ZipFile(file);//ç”±æŒ‡å®šçš„Fileå¯¹è±¡æ‰“å¼€ä¾›é˜…è¯»çš„ZIPæ–‡ä»¶  
+        			Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();//è·å–zipæ–‡ä»¶ä¸­çš„å„æ¡ç›®ï¼ˆå­æ–‡ä»¶ï¼‰  
+        			while(entries.hasMoreElements()){//ä¾æ¬¡è®¿é—®å„æ¡ç›®  
         				ZipEntry ze = (ZipEntry) entries.nextElement(); 
         				if (ze.getName().endsWith("gesture") ) {
         					zis = new ZipInputStream(zip.getInputStream(ze));

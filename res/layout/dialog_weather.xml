@@ -14,7 +14,7 @@
         android:orientation="vertical"
         android:background="@drawable/edit_click_effect_selector"
         >
-        <ImageButton
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/transparent"
@@ -39,7 +39,7 @@
         android:layout_marginLeft="10dp"
         android:background="@drawable/edit_click_effect_selector"
         >
-	    <ImageButton
+	    <ImageView
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:background="@color/transparent"
@@ -65,7 +65,7 @@
         android:layout_marginLeft="10dp"
         android:background="@drawable/edit_click_effect_selector"
         >
-        <ImageButton
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/transparent"
@@ -90,7 +90,7 @@
         android:layout_marginLeft="10dp"
         android:background="@drawable/edit_click_effect_selector"
         >
-        <ImageButton
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/transparent"

@@ -73,18 +73,14 @@ public class NoteSaveDialog implements OnClickListener{
 				}
 				long updateTime = System.currentTimeMillis();
 				String diaryPath = mEditNote.getDiaryPath();
-//				if (mEditNote.getIntent().getBooleanExtra("isNewNote", false)) {
-//				    args.setType(EventTypes.NOTE_INSERT_TO_DATABASE);
-//				} else {
-//					args.setType(EventTypes.NOTE_UPDATE_TO_DATABASE);
-//					args.putExtra("noteID", mEditNote.getIntent().getIntExtra("noteID", 0));
-//				}
-//				args.putExtra("updateTime", updateTime);
-//				args.putExtra("noteTitle", title);
-//				args.putExtra("diaryPath", diaryPath);
-//				HomeScreen.eventService.onUpdateEvent(args);
 				int noteId = mEditNote.getIntent().getIntExtra("noteID", 0);
 				int serviceId = 0;
+				
+				int totalPage = 0;
+				if (mEditNote.mPicPathList != null) {
+					totalPage = mEditNote.mPicPathList.size();
+				}
+				
 				
 				ContentValues contentValues = new ContentValues();
 				if (mEditNote.getIntent().getBooleanExtra("isNewNote", false)) {
@@ -94,12 +90,32 @@ public class NoteSaveDialog implements OnClickListener{
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT, diaryPath);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
 					long id = ServiceManager.getDbManager().insertLocalNotes(contentValues, System.currentTimeMillis());
+					
+					ServerInterface sInterface = new ServerInterface();
+					sInterface.InitAmtCloud(MainScreen.mContext);
+					
+					for (int i = 0; i < totalPage;i++) {
+						sInterface.uploadFile(MainScreen.mContext, "1000", mEditNote.mPicPathList.get(i));
+					}
+					
+					String context = totalPage == 0 ? "" : mEditNote.mPicPathList.get(0);
+					
+					if (!"".equals(context)) {
+						context = context.substring(context.lastIndexOf("/") + 1);
+						String fileName = context.substring(0,context.lastIndexOf("."));
+						String expandname = context.substring(context.lastIndexOf(".") + 1);
+						context = sInterface.makeDownloadUrl("1000", fileName, expandname);
+					}
+					
+					
 					if (id > 0) {
-						serviceId = ServerInterface.uploadNote(id,"100","0","A",title,"4");
+						serviceId = ServerInterface.uploadNote(id,"100","0","A",title,context,String.valueOf(totalPage));
 						if (serviceId > 0) {
 							ContentValues contentValues2 = new ContentValues();
 							contentValues2.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, String.valueOf(serviceId));
 							ServiceManager.getDbManager().updateLocalNotes(contentValues2, (int)id);
+						} else {
+							System.out.println("=============笔记分享失败============");
 						}
 					} else {
 						System.out.println("==========数据库插入失败==============");
@@ -110,6 +126,23 @@ public class NoteSaveDialog implements OnClickListener{
 						System.out.println("================不存在此数据===========");
 						return;
 					}
+					
+					ServerInterface sInterface = new ServerInterface();
+					sInterface.InitAmtCloud(MainScreen.mContext);
+					
+					for (int i = 0; i < totalPage;i++) {
+						sInterface.uploadFile(MainScreen.mContext, "1000", mEditNote.mPicPathList.get(i));
+					}
+					
+					String context = totalPage == 0 ? "" : mEditNote.mPicPathList.get(0);
+					
+					if (!"".equals(context)) {
+						context = context.substring(context.lastIndexOf("/") + 1);
+						String fileName = context.substring(0,context.lastIndexOf("."));
+						String expandname = context.substring(context.lastIndexOf(".") + 1);
+						context = sInterface.makeDownloadUrl("1000", fileName, expandname);
+					}
+					
 					cursor.moveToFirst();
 					String serviceID = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID));
 					String action = "N";
@@ -123,7 +156,7 @@ public class NoteSaveDialog implements OnClickListener{
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
 					ServiceManager.getDbManager().updateLocalNotes(contentValues, noteId);
 				    
-					serviceId = ServerInterface.uploadNote(noteId,"100",serviceID,action,title,"4");
+					serviceId = ServerInterface.uploadNote(noteId,"1000",serviceID,action,title,context,String.valueOf(totalPage));
 					
 					if ("A".equals(action)) {
 						if (serviceId > 0) {
@@ -173,6 +206,7 @@ public class NoteSaveDialog implements OnClickListener{
 			break;
 		case R.id.note_save_cancel:
 			dismiss();
+			mEditNote.finish();
 			break;
 		}
 		

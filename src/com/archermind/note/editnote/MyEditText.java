@@ -2,6 +2,8 @@ package com.archermind.note.editnote;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import com.archermind.note.Screens.EditNoteScreen;
@@ -25,12 +27,14 @@ import android.text.method.MovementMethod;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
 
 
 public class MyEditText extends EditText implements ColorPickerDialog.OnColorChangedListener {
@@ -104,6 +108,8 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 	private boolean isChangePage = false;
 	
 	private int mVelocityX = 0;
+	
+	private int inType = 0;
     
     // we need this constructor for LayoutInflater
     public MyEditText(Context context, AttributeSet attrs) {
@@ -115,6 +121,9 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
         mPaint.setColor(lineColor);
         setTextSize(fontSize);
         setTextColor(fontColor);
+        setLongClickable(false);
+        
+        inType = getInputType(); 
         
         mPath = new Path();
         mFingerPen = new Paint();
@@ -144,21 +153,6 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
     
     @Override
     protected void onDraw(Canvas canvas) {
-    	Rect r = mRect;
-        Paint paint = mPaint;
-        int lineHeight = getLineHeight();
-        int height = getLineBounds(getLineCount() - 1, r);
-        if(height >= initNoteHight - lineHeight){
-        	initNoteHight += append;
-        }
-    	int count = (int) (initNoteHight / lineHeight + 2);
-        int baseline = 0;
-        canvas.drawLine(r.left, baseline + 8, r.right, baseline + 8, paint);
-        for (int i = 0; i < count; i++) {
-        	baseline += lineHeight;
-            canvas.drawLine(r.left, baseline + 8, r.right, baseline + 8, paint);
-        }
-        
     	super.onDraw(canvas);
         
         if (mBmp != null) {
@@ -166,8 +160,6 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
         }
         
         canvas.drawPath(mPath, mFingerPen);
-        
-        
     }
     
     public void setEditNote(EditNoteScreen editnote) {
@@ -180,8 +172,6 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
     	for(AmGestureStroke stroke:mStrokes) {
     		mTempPaint.setColor(stroke.getFingerColor());
     		mTempPaint.setStrokeWidth(stroke.getFingerStrokeWidth());
-    		
-//    		canvas.drawPath(stroke.getPath(), mTempPaint);
     		stroke.draw(canvas, mTempPaint);
     	}
     }
@@ -225,14 +215,12 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 		invalidate();
 	}
 	
-	
-
-//	@Override
-//	public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
-//		// TODO Auto-generated method stub
-//		return super.onCreateInputConnection(outAttrs);
-////		return new MyInputConnection(this, false);
-//	}
+	public void recycleBitmap() {
+		if (!mBmp.isRecycled()) {
+		    mBmp.recycle();
+		    mBmp = null;
+		}
+	}
 	
 	public boolean save() {
 		if (graffitFile == null) {
@@ -252,6 +240,10 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
     	if (mStore == null) {
             mStore = AmGestureLibraries.fromFile(graffitFile);
         }
+    	if (mStore.getGestureEntries() == null) {
+    		graffitFile.delete();
+    		return true;
+    	}
     	mStore.save(true);
     	return true;
 	}
@@ -279,6 +271,10 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
     	if (mStore == null) {
             mStore = AmGestureLibraries.fromFile(graffitFile);
         }
+    	
+    	if (mStore.getGestures(name) != null) {
+    		mStore.removeEntry(name);
+    	}
     	mStore.addGesture(name, mCurrentGesture);
     	mStore.save(true);
     	
@@ -362,8 +358,19 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 				}
 				break;
 			}
-		
-		    return super.onTouchEvent(event);
+		    if (EditNoteScreen.mState == EditNoteScreen.SOFTINPUTSTATE) {
+		        return super.onTouchEvent(event);
+		    } else {
+		    	try {
+		            Method method = TextView.class.getMethod("setSoftInputShownOnFocus", boolean.class);
+		            method.invoke(this, false);
+		            super.onTouchEvent(event);
+		            method.invoke(this, true);
+		        } catch (Exception e) {
+		            // Fallback to the second method
+		        	e.printStackTrace();
+		        }
+		    }
 		} else {
 			switch (event.getAction()) {
 			case  MotionEvent.ACTION_DOWN:
@@ -436,16 +443,4 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 		return mFingerPen;
 	}
 }
-
-class MyInputConnection extends BaseInputConnection{
-    public MyInputConnection(View targetView, boolean fullEditor) {
-		super(targetView, fullEditor);
-		// TODO Auto-generated constructor stub
-	}
-
-	public boolean commitText(CharSequence text, int newCursorPosition) {
-        //提交字符到需要输入的控件，可在此次监听输入的字符值
-		return false;
-    }
-} 
 

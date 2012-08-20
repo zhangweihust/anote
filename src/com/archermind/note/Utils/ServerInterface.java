@@ -275,12 +275,13 @@ public class ServerInterface {
 	 * 获取用户信息 输入参数：用户id
 	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
 	 */
-	public static int uploadNote(long id,String user_id,String nid,String action,String title,String page) {
+	public static int uploadNote(long id,String user_id,String nid,String action,String title,String content,String page) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user_id", user_id);
 		map.put("nid", nid);
 		map.put("action", action);
 		map.put("title", title);
+		map.put("content", content);
 		map.put("page", page);
 		String res= HttpUtils.doPost(map, URL_upload_note);
 		

@@ -36,15 +36,6 @@
             android:textSize="@dimen/main_screen_title_size"
             android:textColor="@color/white"
             />
-        
-        <ImageButton
-            android:id="@+id/screen_top_control_save"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="6dp"
-            android:background="@drawable/edit_save_selector" />
     </RelativeLayout>
     
     <LinearLayout
@@ -145,7 +136,7 @@
                  android:background="@drawable/edit_click_effect_selector"
                  >
                  
-                 <ImageButton 
+                 <ImageView
                      android:id="@+id/edit_weather_image"
                      android:layout_width="wrap_content"
                      android:layout_height="wrap_content"
@@ -217,7 +208,7 @@
 	        android:layout_weight="1"
 	        android:background="@drawable/edit_click_effect_selector"
 	        >
-	        <ImageButton
+	        <ImageView
 	          android:layout_width="wrap_content"
 	          android:layout_height="wrap_content"
 	          android:background="@color/transparent"
@@ -243,7 +234,7 @@
 	        android:background="@drawable/edit_click_effect_selector"
 	        >
 
-	        <ImageButton
+	        <ImageView
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:background="@color/transparent"
@@ -267,7 +258,7 @@
 	        android:orientation="vertical"
 	        android:background="@drawable/edit_click_effect_selector"
 	        >
-	        <ImageButton
+	        <ImageView
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:background="@color/transparent"
@@ -302,7 +293,7 @@
 	        android:clickable="true"
 	        android:background="@drawable/edit_click_effect_selector"
 	        >
-	        <ImageButton
+	        <ImageView
 	          android:layout_width="wrap_content"
 	          android:layout_height="wrap_content"
 	          android:background="@color/transparent"
@@ -330,7 +321,7 @@
 	        android:background="@drawable/edit_click_effect_selector"
 	        >
 
-	        <ImageButton
+	        <ImageView
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:background="@color/transparent"
@@ -356,7 +347,7 @@
             android:background="@drawable/edit_click_effect_selector"
             >
 
-	        <ImageButton
+	        <ImageView
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:background="@color/transparent"
@@ -382,7 +373,7 @@
             android:background="@drawable/edit_click_effect_selector"
             >
 
-	        <ImageButton
+	        <ImageView
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:background="@color/transparent"
@@ -418,7 +409,7 @@
 	        android:layout_weight="1"
 	        android:background="@drawable/edit_click_effect_selector"
 	        >
-	        <ImageButton
+	        <ImageView
 	          android:layout_width="wrap_content"
 	          android:layout_height="wrap_content"
 	          android:background="@color/transparent"
@@ -443,7 +434,7 @@
 	        android:background="@drawable/edit_click_effect_selector"
 	        >
 
-	        <ImageButton
+	        <ImageView
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:scaleType="fitCenter" 
