@@ -78,6 +78,7 @@
 					<EditText android:id="@+id/user_name"
 						android:layout_width="180dp" android:layout_height="wrap_content"
 						android:layout_marginRight="12dp" 
+						android:singleLine="true"
 						android:background="#00000000" android:textSize="16dp"
 						android:gravity="right"/>
 				</LinearLayout>

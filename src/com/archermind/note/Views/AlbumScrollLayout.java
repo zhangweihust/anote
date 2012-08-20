@@ -106,19 +106,11 @@ public class AlbumScrollLayout extends ViewGroup {
 	public void snapToDestination() {
 		final int screenWidth = getWidth();
 		final int destScreen = (getScrollX() + screenWidth / 2) / screenWidth;
+		//System.out.println("moving to destScreen " + destScreen + " | mCurScreen " + mCurScreen);
 
-		if (destScreen < mCurScreen){
-			if (onScreenChangeListener != null) {
-				onScreenChangeListener.onScreenChange(mCurScreen - 1);
-			}
-		} else if (destScreen > mCurScreen) {
-			if (onScreenChangeListener != null) {
-				onScreenChangeListener.onScreenChange(mCurScreen + 1);
-			}
-			
+		if (destScreen > mCurScreen) {
 			//只往右移动才加载数据
 			if (onScreenChangeListenerDataLoad != null) {
-				System.out.println("=CCC= snapToDestinationbbbb");
 				onScreenChangeListenerDataLoad.onScreenChange(mCurScreen+1);
 			}
 		}
@@ -128,6 +120,17 @@ public class AlbumScrollLayout extends ViewGroup {
 	public void snapToScreen(int whichScreen) {
 		// get the valid layout page
 		whichScreen = Math.max(0, Math.min(whichScreen, getChildCount() - 1));
+		
+		if (whichScreen < mCurScreen){
+			if (onScreenChangeListener != null) {
+				onScreenChangeListener.onScreenChange(mCurScreen - 1);
+			}
+		} else if (whichScreen > mCurScreen) {
+			if (onScreenChangeListener != null) {
+				onScreenChangeListener.onScreenChange(mCurScreen + 1);
+			}
+		}
+		
 		if (getScrollX() != (whichScreen * getWidth())) {
 
 			final int delta = whichScreen * getWidth() - getScrollX();

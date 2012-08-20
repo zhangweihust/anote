@@ -26,7 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class PhotoAdapter extends BaseAdapter {
-	
+
 	private Class clazz;
 
 	private Handler mHandler = new Handler();
@@ -34,18 +34,18 @@ public class PhotoAdapter extends BaseAdapter {
 	private List<Map> mList;
 	private Context mContext;
 	public static final int APP_PAGE_SIZE = 12;
-	
+
 	private List<String> mDownloadList;
 
 	public PhotoAdapter(Context context, Class clazz, List<Map> list, int page) {
 		this.mContext = context;
 		this.clazz = clazz;
 		mList = new ArrayList<Map>();
-		
+
 		if (this.clazz == GridView.class) {
 			int i = page * APP_PAGE_SIZE;
-			int iEnd = i+APP_PAGE_SIZE;
-			while ((i<list.size()) && (i<iEnd)) {
+			int iEnd = i + APP_PAGE_SIZE;
+			while ((i < list.size()) && (i < iEnd)) {
 				mList.add(list.get(i));
 				i++;
 			}
@@ -54,7 +54,7 @@ public class PhotoAdapter extends BaseAdapter {
 		}
 		mDownloadList = new ArrayList<String>();
 	}
-	
+
 	public int getCount() {
 		// TODO Auto-generated method stub
 		return mList.size();
@@ -74,40 +74,53 @@ public class PhotoAdapter extends BaseAdapter {
 		// TODO Auto-generated method stub
 		return position;
 	}
-	
+
 	public View getView(int position, View convertView, ViewGroup parent) {
 		Map appInfo = mList.get(position);
 		final String title = appInfo.get("title").toString();
 		final String fileurl = appInfo.get("fileurl").toString();
 		final String filelocalpath = appInfo.get("filelocalpath").toString();
-		//final String allName = appInfo.get("allName").toString();
+		// final String allName = appInfo.get("allName").toString();
 		final ViewHolder viewHolder;
 		if (convertView == null) {
 			if (this.clazz == GridView.class) {
-				convertView = LayoutInflater.from(mContext).inflate(R.layout.screen_photo_item, null);
-				
-				viewHolder = new ViewHolder(); 
-		        viewHolder.title = (TextView) convertView.findViewById(R.id.title); 
-		        viewHolder.image = (ImageView) convertView.findViewById(R.id.image); 
-		        viewHolder.selectedImage = (ImageView) convertView.findViewById(R.id.selected); 
+				convertView = LayoutInflater.from(mContext).inflate(
+						R.layout.screen_photo_item, null);
+
+				viewHolder = new ViewHolder();
+				viewHolder.title = (TextView) convertView
+						.findViewById(R.id.title);
+				viewHolder.image = (ImageView) convertView
+						.findViewById(R.id.image);
+				viewHolder.selectedImage = (ImageView) convertView
+						.findViewById(R.id.selected);
 			} else {
-				convertView = LayoutInflater.from(mContext).inflate(R.layout.photo_item, null);
-				
-				viewHolder = new ViewHolder(); 
-		        viewHolder.title = (TextView) convertView.findViewById(R.id.photo_name); 
-		        viewHolder.image = (ImageView) convertView.findViewById(R.id.photo_icon); 
-		        viewHolder.selectedImage = (ImageView) convertView.findViewById(R.id.photo_selected); 
+				convertView = LayoutInflater.from(mContext).inflate(
+						R.layout.photo_item, null);
+
+				viewHolder = new ViewHolder();
+				viewHolder.title = (TextView) convertView
+						.findViewById(R.id.photo_name);
+				viewHolder.image = (ImageView) convertView
+						.findViewById(R.id.photo_icon);
+				viewHolder.selectedImage = (ImageView) convertView
+						.findViewById(R.id.photo_selected);
 			}
-	        convertView.setTag(viewHolder); 
-	        
+			convertView.setTag(viewHolder);
 		} else {
 			viewHolder = (ViewHolder) convertView.getTag();
 		}
-		
+
+		if (viewHolder.fileurl != null && viewHolder.fileurl.equals(fileurl)
+				|| viewHolder.filelocalpath != null
+				&& viewHolder.filelocalpath.equals(filelocalpath)) {
+			return convertView;
+		}
+
 		viewHolder.title.setText(title);
 		viewHolder.fileurl = fileurl;
 		viewHolder.filelocalpath = filelocalpath;
-		
+
 		if (this.clazz == GridView.class) {
 			Thread newThread = new Thread() {
 				@Override
@@ -116,20 +129,21 @@ public class PhotoAdapter extends BaseAdapter {
 					if (mDownloadList.contains(viewHolder.fileurl)) {
 						return;
 					}
-					
+
 					mDownloadList.add(viewHolder.fileurl);
 					loadBitmap(viewHolder);
 					mDownloadList.remove(viewHolder.fileurl);
-					
+
 					mHandler.post(new Runnable() {
-	
+
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
-							viewHolder.image.setImageBitmap(viewHolder.imageBitmap);
+							viewHolder.image
+									.setImageBitmap(viewHolder.imageBitmap);
 						}
 					});
-	
+
 				}
 			};
 			newThread.start();
@@ -138,10 +152,10 @@ public class PhotoAdapter extends BaseAdapter {
 			viewHolder.image.setImageBitmap(viewHolder.imageBitmap);
 		}
 		viewHolder.selectedImage.setVisibility(View.GONE);
-		
+
 		return convertView;
 	}
-	
+
 	private void loadBitmap(ViewHolder item) {
 		File file;
 		if (item.filelocalpath != null && !"".equals(item.filelocalpath)) {
@@ -155,13 +169,22 @@ public class PhotoAdapter extends BaseAdapter {
 			if (item.fileurl == null || "".equals(item.fileurl)) {
 				return;
 			}
-			
-			String filelocalpath = ImageCapture.getLocalCacheImageNameFromUrl(item.fileurl);
+
+			String filelocalpath = ImageCapture
+					.getLocalCacheImageNameFromUrl(item.fileurl);
+			if (filelocalpath == null) {
+				System.out
+						.println("getLocalCacheImageNameFromUrl error, item.fileurl:"
+								+ item.fileurl);
+				return;
+			}
+
 			file = new File(filelocalpath);
 			if (!file.exists()) {
-				ImageCapture.createLocalCacheImageFromUrl(item.fileurl, filelocalpath);
+				ImageCapture.createLocalCacheImageFromUrl(item.fileurl,
+						filelocalpath);
 			}
-			
+
 			if (!new File(filelocalpath).exists()) {
 				return;
 			}
@@ -169,13 +192,15 @@ public class PhotoAdapter extends BaseAdapter {
 		}
 
 		Bitmap image = null;
-		if (BitmapCache.getInstance().getBitmapRefs().containsKey(item.filelocalpath)) {
+		if (BitmapCache.getInstance().getBitmapRefs().containsKey(
+				item.filelocalpath)) {
 			image = BitmapCache.getInstance().getBitmap(item.filelocalpath);
 			if (image != null) {
 				item.imageBitmap = image;
 				item.uri = Uri.fromFile(file);
 			}
 		} else {
+			System.out.println("=CCC=" + item.filelocalpath);
 			image = BitmapCache.decodeBitmap(item.filelocalpath);
 			if (image != null) {
 				BitmapCache.getInstance().addCacheBitmap(image,
@@ -185,15 +210,14 @@ public class PhotoAdapter extends BaseAdapter {
 			}
 		}
 	}
-	
-	public class ViewHolder 
-    { 
-        public TextView title; 
-        public ImageView image; 
-        public ImageView selectedImage;
-        public Uri uri;
-        public String fileurl;
-        public String filelocalpath;
-        public Bitmap imageBitmap;
-    } 
+
+	public class ViewHolder {
+		public TextView title;
+		public ImageView image;
+		public ImageView selectedImage;
+		public Uri uri;
+		public String fileurl;
+		public String filelocalpath;
+		public Bitmap imageBitmap;
+	}
 }

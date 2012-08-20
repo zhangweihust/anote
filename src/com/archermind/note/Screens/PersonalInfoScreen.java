@@ -29,6 +29,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -78,6 +79,9 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 	private static final int UPLOAD_INFO_OK = 7;
 	private static final int UPLOAD_INFO_ERROR = 8;
 
+	private static final int UPLOAD_PHOTO = 9;
+	private static final int DOWNLOAD_PHOTO = 10;
+	
 	private ContentResolver mContentResolver;
 
 	private String mCameraImageFilePath;
@@ -156,7 +160,10 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 		case CAMERA_RESULT:
 			if (resultCode == RESULT_OK) {
 				String filepath = mCameraImageFilePath;
-				startPhotoCROP(Uri.fromFile(new File(mCameraImageFilePath)));
+				System.out.println("mCameraImageFilePath:" + mCameraImageFilePath != null ? "null" : mCameraImageFilePath);
+				if (mCameraImageFilePath != null && !"".equals(mCameraImageFilePath)) {
+					startPhotoCROP(Uri.fromFile(new File(mCameraImageFilePath)));
+				}
 			}
 			break;
 
@@ -206,7 +213,6 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 	}
 
 	private String getFilepathFromUri(Uri uri) {
-		// System.out.println("=CCC=" + uri);
 		Cursor cursor = mContentResolver.query(uri, null, null, null, null);
 		cursor.moveToFirst();
 		String filepath = cursor.getString(1);
@@ -290,79 +296,19 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 
 	private void uploadImage(String name, String expandname, String filepath,
 			int uploadcount) {
-		final String aName = name;
-		final String aExpandName = expandname;
-		final String aFilePath = filepath;
-		final int aUploadCount = uploadcount;
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				String user_id = String.valueOf(NoteApplication.getInstance()
-						.getUserId());
-				String username = NoteApplication.getInstance().getUserName();
-				Looper.prepare();
-				int result = serverInterface.uploadPhoto(mContext, user_id,
-						username, aFilePath, aName, aExpandName);
-
-				Message msg = new Message();
-				msg.getData().putString("name", aName);
-				msg.getData().putString("expandname", aExpandName);
-				msg.getData().putString("filelocalpath", aFilePath);
-				msg.getData().putInt("uploadcount", aUploadCount);
-
-				if (result == 0) {
-					msg.what = UPLOAD_PHOTO_OK;
-				} else {
-					msg.what = UPLOAD_PHOTO_ERROR;
-				}
-				handler.sendMessage(msg);
-			}
-
-		}).start();
+		Message msg = new Message();
+		msg.getData().putString("name", name);
+		msg.getData().putString("expandname", expandname);
+		msg.getData().putString("filelocalpath", filepath);
+		msg.getData().putInt("uploadcount", uploadcount);
+		msg.what = UPLOAD_PHOTO;
+		handler.sendMessage(msg);
 	}
 
 	private void downloadImage() {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				String user_id = String.valueOf(NoteApplication.getInstance()
-						.getUserId());
-
-				Looper.prepare();
-				String json = serverInterface.getPhoto(user_id);
-				if (json == null || "".equals(json) || "-1".equals(json)
-						|| "-2".equals(json)) {
-					Message msg = new Message();
-					msg.what = DOWNLOAD_PHOTO_JSON_ERROR;
-					handler.sendMessage(msg);
-					return;
-				}
-
-				String aPhotoUrl = "";
-				try {
-					JSONArray jsonArray = new JSONArray(json);
-
-					if (jsonArray.length() > 0) {
-						JSONObject jsonObject = (JSONObject) jsonArray.opt(0);
-						aPhotoUrl = jsonObject.getString("portrait");
-						// System.out.println("aPhotoUrl:" + aPhotoUrl);
-					}
-
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					Message msg = new Message();
-					msg.what = DOWNLOAD_PHOTO_JSON_ERROR;
-					handler.sendMessage(msg);
-					e.printStackTrace();
-					return;
-				}
-				Message msg = new Message();
-				msg.what = DOWNLOAD_PHOTO_JSON_OK;
-				msg.getData().putString("photourl", aPhotoUrl);
-				handler.sendMessage(msg);
-			}
-
-		}).start();
+		Message msg = new Message();
+		msg.what = DOWNLOAD_PHOTO;
+		handler.sendMessage(msg);
 	}
 
 	private void uploadInfo(String nickname,String gender,String region, 
@@ -455,6 +401,32 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
+			case UPLOAD_PHOTO: {
+				String user_id = String.valueOf(NoteApplication.getInstance()
+						.getUserId());
+				String username = NoteApplication.getInstance().getUserName();
+				String aName = msg.getData().getString("name");
+				String aExpandName = msg.getData().getString("expandname");
+				String aFilePath = msg.getData().getString("filelocalpath");
+				int uploadcount = msg.getData().getInt("uploadcount");
+
+				int result = serverInterface.uploadPhoto(mContext, user_id,
+						username, aFilePath, aName, aExpandName);
+
+				Message newmsg = new Message();
+				newmsg.getData().putString("name", aName);
+				newmsg.getData().putString("expandname", aExpandName);
+				newmsg.getData().putString("filelocalpath", aFilePath);
+				newmsg.getData().putInt("uploadcount", uploadcount);
+
+				if (result == 0) {
+					newmsg.what = UPLOAD_PHOTO_OK;
+				} else {
+					newmsg.what = UPLOAD_PHOTO_ERROR;
+				}
+				handler.sendMessage(newmsg);
+			}
+				break;
 			case UPLOAD_PHOTO_OK:
 				PreferencesHelper.UpdateAvatar(mContext, mUserAvatarPath, msg
 						.getData().getString("filelocalpath"));
@@ -484,6 +456,42 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 				}
 			}
 				break;
+			case DOWNLOAD_PHOTO: {
+				String user_id = String.valueOf(NoteApplication.getInstance()
+						.getUserId());
+
+				Message newmsg = new Message();
+				String json = serverInterface.getPhoto(user_id);
+				if (json == null || "".equals(json) || "-1".equals(json)
+						|| "-2".equals(json)) {
+					newmsg.what = DOWNLOAD_PHOTO_JSON_ERROR;
+					handler.sendMessage(newmsg);
+					return;
+				}
+
+				String aPhotoUrl = "";
+				try {
+					JSONArray jsonArray = new JSONArray(json);
+
+					if (jsonArray.length() > 0) {
+						JSONObject jsonObject = (JSONObject) jsonArray.opt(0);
+						aPhotoUrl = jsonObject.getString("portrait");
+						// System.out.println("aPhotoUrl:" + aPhotoUrl);
+					}
+
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					newmsg.what = DOWNLOAD_PHOTO_JSON_ERROR;
+					handler.sendMessage(newmsg);
+					e.printStackTrace();
+					return;
+				}
+
+				newmsg.what = DOWNLOAD_PHOTO_JSON_OK;
+				newmsg.getData().putString("photourl", aPhotoUrl);
+				handler.sendMessage(newmsg);
+			}
+				break;
 			case DOWNLOAD_PHOTO_JSON_OK:
 				System.out.println("DOWNLOAD_PHOTO_JSON_OK");
 				String aPhotoUrl = msg.getData().getString("photourl");
@@ -493,6 +501,11 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 
 				String filelocalpath = ImageCapture
 						.getLocalCacheImageNameFromUrl(aPhotoUrl);
+				if (filelocalpath == null) {
+					System.out.println("getLocalCacheImageNameFromUrl error, aPhotoUrl:" + aPhotoUrl);
+					return;
+				}
+				
 				File file = new File(filelocalpath);
 				if (!file.exists()) {
 					ImageCapture.createLocalCacheImageFromUrl(aPhotoUrl,
@@ -527,18 +540,20 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 
 			case UPLOAD_INFO_OK:
 					System.out.println("UPLOAD_INFO_OK");
-					Toast.makeText(PersonalInfoScreen.this,
+					Toast.makeText(NoteApplication.getContext(),
 							getString(R.string.personal_info_set_succ),
 							Toast.LENGTH_SHORT).show();
+					PersonalInfoScreen.this.finish();
 
 				break;
 			case UPLOAD_INFO_ERROR: {
 				int uploadcount = msg.getData().getInt("uploadcount");
 				if (uploadcount > 3 || uploadcount <= 0) {
 					System.out.println("UPLOAD_INFO_ERROR, try count over 3");
-					Toast.makeText(PersonalInfoScreen.this,
+					Toast.makeText(NoteApplication.getContext(),
 							getString(R.string.personal_info_set_fail),
 							Toast.LENGTH_SHORT).show();
+					PersonalInfoScreen.this.finish();
 				} else {
 					System.out.println("UPLOAD_INFO_ERROR, try count : "
 							+ String.valueOf(uploadcount + 1));
@@ -550,7 +565,7 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 			}
 				break;
 			case DOWNLOAD_INFO_JSON_OK:
-				System.out.println("DOWNLOAD_PHOTO_JSON_OK");
+				System.out.println("DOWNLOAD_INFO_JSON_OK");
 
 				mUserNameTxt = msg.getData().getString("nickname");
 				mRegionTxt = msg.getData().getString("region");
@@ -593,7 +608,7 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 	private boolean savePersonalInfo() {
 		String aNickname = mUserName.getText().toString().trim();
 		String aGender = mRadioFemale.isChecked() ? "2" : "1";
-		String aRegion = mUserRegion.getText().toString().trim();
+		String aRegion = mUserRegion.getText().toString();
 		uploadInfo(aNickname, aGender, aRegion, 0);
 		return true;
 	}
@@ -621,9 +636,24 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 		case R.id.region_layout:
 			Intent i = new Intent(mContext, PersonalInfoRegionScreen.class);
 			startActivityForResult(i, REGION_RESULT);
+			break;
 		case R.id.confirm_change:
 			savePersonalInfo();
 			break;
 		}
 	}
+	
+//	  public boolean dispatchKeyEvent(KeyEvent event) {  
+//		         System.out.println(KeyEvent.KEYCODE_BACK+"--------------------"+event.getKeyCode()+"---------------------"+event.getAction());        
+//		         long exitTime = 0;           
+//		             if(event.getKeyCode()==KeyEvent.KEYCODE_BACK && event.getAction()==KeyEvent.ACTION_DOWN){  
+//    
+//		                 finish();   
+//		                 return true;     
+//		   
+//		             }       
+//		            
+//		        return super.dispatchKeyEvent(event);  
+//		     }  
+
 }

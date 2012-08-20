@@ -220,6 +220,10 @@ public class ImageCapture {
 	 * @return boolean
 	 */
 	public static void copyFile(String oldPath, String newPath) {
+		File directory = new File(IMAGE_CACHE_PATH);
+		if (!directory.isDirectory()) {
+			directory.mkdirs();
+		}
 		try {
 			int bytesum = 0;
 			int byteread = 0;

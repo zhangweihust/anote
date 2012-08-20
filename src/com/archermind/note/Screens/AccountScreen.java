@@ -31,6 +31,9 @@ public class AccountScreen extends Screen  implements OnClickListener {
 	private EditText mNewPasswd;
 	private EditText mConfirmPasswd;
 	
+	private String mPasswd;
+	private SharedPreferences mPreferences;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -90,6 +93,8 @@ public class AccountScreen extends Screen  implements OnClickListener {
 
 		btnConfirmChange.setOnClickListener(this);
 		btnConfirmChange.setEnabled(false);
+		
+		mPreferences = PreferencesHelper.getSharedPreferences(this, 0);
 
 	}
 	
@@ -100,18 +105,25 @@ public class AccountScreen extends Screen  implements OnClickListener {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case ServerInterface.SUCCESS:
-				Toast.makeText(AccountScreen.this, R.string.confirm_success, Toast.LENGTH_SHORT)
+				Editor editor = mPreferences.edit();
+				editor.putString(PreferencesHelper.XML_USER_PASSWD,
+						mPasswd);
+				editor.commit();
+				Toast.makeText(NoteApplication.getContext(), R.string.confirm_success, Toast.LENGTH_SHORT)
 						.show();
+				AccountScreen.this.finish();
 				break;
 			case ServerInterface.ERROR_ACCOUNT_EXIST:
-				Toast.makeText(AccountScreen.this,
+				Toast.makeText(NoteApplication.getContext(),
 						R.string.register_err_account_exist, Toast.LENGTH_SHORT)
 						.show();
+				AccountScreen.this.finish();
 				break;
 			case ServerInterface.ERROR_SERVER_INTERNAL:
-				Toast.makeText(AccountScreen.this,
+				Toast.makeText(NoteApplication.getContext(),
 						R.string.register_err_server_internal,
 						Toast.LENGTH_SHORT).show();
+				AccountScreen.this.finish();
 				break;
 			default:
 				break;
@@ -148,6 +160,7 @@ public class AccountScreen extends Screen  implements OnClickListener {
 							.modifyPassword(
 									NoteApplication.getInstance().getUserName(), 
 									password);
+					mPasswd = password;
 					mHandler.sendEmptyMessage(result);
 				}
 

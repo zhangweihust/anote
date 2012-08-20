@@ -33,6 +33,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -94,6 +95,8 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	private static final int UPLOAD_ALBUM_OK = 3;
 	private static final int UPLOAD_ALBUM_ERROR = 4;
 	
+	private static final int UPLOAD_ALBUM = 5;
+	
 	private int mPageIndex;
 	
 	private ContentResolver mContentResolver;
@@ -122,6 +125,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 			// TODO Auto-generated method stub
 			mPhotoGallery.setSelection(arg2
 					+ (int) (mPageIndex * APP_PAGE_SIZE));
+			//System.out.println(arg2 + " " + (int) (mPageIndex * APP_PAGE_SIZE) + " APP_PAGE_SIZE" +APP_PAGE_SIZE);
 			mPhotoGalleryLayout.setVisibility(View.VISIBLE);
 			mPhotoGridLayout.setVisibility(View.GONE);
 		}
@@ -157,6 +161,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 			@Override
 			public void onScreenChange(int currentIndex) {
 				// TODO Auto-generated method stub
+				//System.out.println("onScreenChange " + currentIndex);
 				mPageIndex = currentIndex;
 			}});
 
@@ -328,36 +333,16 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	// }
 
 	private void uploadImage(String name, String expandname, String filepath, int uploadcount) {
-		final String aName = name;
-		final String aExpandName = expandname;
-		final String aFilePath = filepath;
-		final int aUploadCount = uploadcount;
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				String user_id = String.valueOf(NoteApplication.getInstance().getUserId());
-				String username = NoteApplication.getInstance().getUserName();
-				String albumname = username;
-				Looper.prepare();
-				int result = serverInterface.uploadAlbum(mContext, user_id,
-						albumname, username, aFilePath, aName, aExpandName);
+		Message msg = new Message();
+		msg.getData().putString("name", name);
+		msg.getData().putString("expandname", expandname);
+		msg.getData().putString("filelocalpath", filepath);
+		msg.getData().putInt("uploadcount", uploadcount);
+		msg.what = UPLOAD_ALBUM;
 
-				Message msg = new Message();
-				msg.getData().putString("name", aName);
-				msg.getData().putString("expandname", aExpandName);
-				msg.getData().putString("filelocalpath", aFilePath);
-				msg.getData().putInt("uploadcount", aUploadCount);
-
-				if (result == 0) {
-					msg.what = UPLOAD_ALBUM_OK;
-				} else {
-					msg.what = UPLOAD_ALBUM_ERROR;
-				}
-				handler.sendMessage(msg);
-			}
-
-		}).start();
+		handler.sendMessage(msg);
 	}
+
 
 	// 更新后台数据
 	class MyThread implements Runnable {
@@ -417,7 +402,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 						appPage.setNumColumns(3);
 						appPage.setGravity(Gravity.CENTER);
 						appPage.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
-						appPage.setVerticalSpacing(10);
+						appPage.setVerticalSpacing(12);
 						appPage.setHorizontalSpacing(10);
 						appPage.setColumnWidth(90);
 						appPage.setOnItemClickListener(mItemClickListener);
@@ -507,7 +492,35 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-			switch(msg.what){
+			switch (msg.what) {
+			case UPLOAD_ALBUM: {
+				String user_id = String.valueOf(NoteApplication.getInstance()
+						.getUserId());
+				String username = NoteApplication.getInstance().getUserName();
+				String albumname = username;
+				String aName = msg.getData().getString("name");
+				String aExpandName = msg.getData().getString("expandname");
+				String aFilePath = msg.getData().getString("filelocalpath");
+				int aUploadCount = msg.getData().getInt("uploadcount");
+
+				int result = serverInterface.uploadAlbum(mContext, user_id,
+						albumname, username, aFilePath, aName, aExpandName);
+
+				Message newmsg = new Message();
+				newmsg.getData().putString("name", aName);
+				newmsg.getData().putString("expandname", aExpandName);
+				newmsg.getData().putString("filelocalpath", aFilePath);
+				newmsg.getData().putInt("uploadcount", aUploadCount);
+
+				if (result == 0) {
+					newmsg.what = UPLOAD_ALBUM_OK;
+				} else {
+					newmsg.what = UPLOAD_ALBUM_ERROR;
+				}
+				handler.sendMessage(newmsg);
+			}
+				break;
+				
 			case  UPLOAD_ALBUM_OK:
 				System.out.println("UPLOAD_ALBUM_OK");
 				Map map = new HashMap();
@@ -535,6 +548,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					mLastChildAdapter.notifyDataSetChanged();
 				}
 				mGalleryPhotoAdapter.addNewItem(map);
+				mGalleryPhotoAdapter.notifyDataSetChanged();
 				break;
 			case  UPLOAD_ALBUM_ERROR:
 				int uploadcount = msg.getData().getInt("uploadcount");
@@ -677,6 +691,21 @@ public class AlbumScreen extends Screen implements OnClickListener {
 			break;
 		}
 	}
+	
+	@Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // KeyEvent.KEYCODE_BACK代表返回操作.
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+        	if (mPhotoGalleryLayout.getVisibility() == View.VISIBLE) {
+    			mPhotoGridLayout.setVisibility(View.VISIBLE);
+    			mPhotoGalleryLayout.setVisibility(View.GONE);
+        	} else {
+	            // 处理返回操作.
+	        	this.finish();
+        	}
+        }
+        return true;
+    }
 }
 
 
