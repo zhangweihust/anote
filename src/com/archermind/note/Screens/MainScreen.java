@@ -458,4 +458,5 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 
 		}.start();
 	}
+	}
 }
