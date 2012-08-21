@@ -173,6 +173,11 @@ public class AlbumScreen extends Screen implements OnClickListener {
 			public void onItemSelected(AdapterView<?> arg0, View arg1,
 					int arg2, long arg3) {
 				// TODO Auto-generated method stub
+				if (arg1 == null) {
+					System.out.println("mPhotoGallery sel view is null!");
+					return;
+				}
+				
 				mSelItem = (ViewHolder) arg1.getTag();
 				Integer cur_num = (Integer) (arg2 + 1);
 				Integer sum = (Integer) arg0.getCount();
@@ -192,10 +197,10 @@ public class AlbumScreen extends Screen implements OnClickListener {
 						}
 
 						
-						File file = new File(mSelItem.filelocalpath);
+						File file = new File(mSelItem.finalfilepath);
 						if (file.exists()) {
 							mCacheImage = BitmapFactory
-									.decodeFile(mSelItem.filelocalpath);
+									.decodeFile(mSelItem.finalfilepath);
 							if (mCacheImage != null) {
 								mSelItem.image.setImageBitmap(mCacheImage);
 							}
@@ -387,8 +392,8 @@ public class AlbumScreen extends Screen implements OnClickListener {
 						for (int i = 0; i < items.length; i++) {
 							Map map = new HashMap();
 							map.put("title", "");
-							map.put("fileurl", items[i]);
-							map.put("filelocalpath", "");
+							map.put("filepath", items[i]);
+							map.put("isweb", 1);
 							list.add(map);
 						}
 					}
@@ -424,6 +429,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	
 	
 	public void ParsePhotoJson() {
+		System.out.println("ParsePhotoJson");
 
 		new Thread (new Runnable(){
 			@Override
@@ -466,6 +472,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					e.printStackTrace();
 					return;
 				}
+					
 				Message msg = new Message();
 				msg.what = DOWNLOAD_THUMB_ALBUM_JSON_OK;
 				handler.sendMessage(msg);
@@ -525,8 +532,9 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				System.out.println("UPLOAD_ALBUM_OK");
 				Map map = new HashMap();
 				map.put("title", "");
-				map.put("fileurl", "");
-				map.put("filelocalpath", msg.getData().getString("filelocalpath"));
+				map.put("filepath", msg.getData().getString("filelocalpath"));
+				map.put("isweb", 0);
+				System.out.println("UPLOAD_ALBUM_OK" + msg.getData().getString("filelocalpath"));
 				if (mLastChildAdapter == null || mLastChildAdapter.getCount() == (int)APP_PAGE_SIZE) {
 					List<Map> list = new ArrayList<Map>();
 					list.add(map);
@@ -571,11 +579,11 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					mGalleryPhotoAdapter = new PhotoAdapter(mContext, Gallery.class, list, 0);
 					mPhotoGallery.setAdapter(mGalleryPhotoAdapter);
 				}
-				// if(flag == true) {
-				MyThread m = new MyThread();
-				new Thread(m).start();
-				// mDialogCheckSignature.dismiss();
-				// }
+				if (mAlbumUrllist != null && !"".equals(mAlbumUrllist)) {
+					MyThread m = new MyThread();
+					new Thread(m).start();
+					// mDialogCheckSignature.dismiss();
+				}
 
 				break;
 			case  DOWNLOAD_THUMB_ALBUM_JSON_ERROR:

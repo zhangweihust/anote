@@ -35,8 +35,6 @@ public class PhotoAdapter extends BaseAdapter {
 	private Context mContext;
 	public static final int APP_PAGE_SIZE = 12;
 
-	private List<String> mDownloadList;
-
 	public PhotoAdapter(Context context, Class clazz, List<Map> list, int page) {
 		this.mContext = context;
 		this.clazz = clazz;
@@ -52,7 +50,6 @@ public class PhotoAdapter extends BaseAdapter {
 		} else {
 			mList = list;
 		}
-		mDownloadList = new ArrayList<String>();
 	}
 
 	public int getCount() {
@@ -78,8 +75,9 @@ public class PhotoAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		Map appInfo = mList.get(position);
 		final String title = appInfo.get("title").toString();
-		final String fileurl = appInfo.get("fileurl").toString();
-		final String filelocalpath = appInfo.get("filelocalpath").toString();
+		final String filepath = appInfo.get("filepath").toString();
+		final int isWebImage = Integer.parseInt(appInfo.get("isweb").toString());
+
 		// final String allName = appInfo.get("allName").toString();
 		final ViewHolder viewHolder;
 		if (convertView == null) {
@@ -105,34 +103,38 @@ public class PhotoAdapter extends BaseAdapter {
 						.findViewById(R.id.photo_icon);
 				viewHolder.selectedImage = (ImageView) convertView
 						.findViewById(R.id.photo_selected);
-			}
+			}			
+			viewHolder.finalfilepath = "";
+			viewHolder.isLoading = false;
 			convertView.setTag(viewHolder);
 		} else {
 			viewHolder = (ViewHolder) convertView.getTag();
 		}
-
-		if (viewHolder.fileurl != null && viewHolder.fileurl.equals(fileurl)
-				|| viewHolder.filelocalpath != null
-				&& viewHolder.filelocalpath.equals(filelocalpath)) {
-			return convertView;
+		
+		if (viewHolder.imageBitmap != null) {
+			viewHolder.image
+			.setImageBitmap(viewHolder.imageBitmap);
 		}
 
+		if (viewHolder.filepath != null && !"".equals(viewHolder.filepath)
+				&& viewHolder.filepath.equals(filepath)) {
+			return convertView;
+		}
+		
 		viewHolder.title.setText(title);
-		viewHolder.fileurl = fileurl;
-		viewHolder.filelocalpath = filelocalpath;
+		viewHolder.filepath = filepath;
+		viewHolder.isWebImage = (isWebImage == 1 ? true : false);
 
 		if (this.clazz == GridView.class) {
 			Thread newThread = new Thread() {
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					if (mDownloadList.contains(viewHolder.fileurl)) {
+					if (viewHolder.isLoading == true) {
 						return;
 					}
-
-					mDownloadList.add(viewHolder.fileurl);
+					
 					loadBitmap(viewHolder);
-					mDownloadList.remove(viewHolder.fileurl);
 
 					mHandler.post(new Runnable() {
 
@@ -158,57 +160,67 @@ public class PhotoAdapter extends BaseAdapter {
 
 	private void loadBitmap(ViewHolder item) {
 		File file;
-		if (item.filelocalpath != null && !"".equals(item.filelocalpath)) {
-			file = new File(item.filelocalpath);
+		item.isLoading = true;
+
+		if (item.filepath == null || "".equals(item.filepath)) {
+			item.isLoading = false;
+			return;
+		}
+		
+		if (item.isWebImage == false) {
+			file = new File(item.filepath);
 			if (!file.exists()) {
-				item.filelocalpath = null;
-				loadBitmap(item);
+				item.isLoading = false;
 				return;
+			} else {
+				item.finalfilepath = item.filepath;
 			}
 		} else {
-			if (item.fileurl == null || "".equals(item.fileurl)) {
-				return;
-			}
-
 			String filelocalpath = ImageCapture
-					.getLocalCacheImageNameFromUrl(item.fileurl);
+					.getLocalCacheImageNameFromUrl(item.filepath);
 			if (filelocalpath == null) {
 				System.out
-						.println("getLocalCacheImageNameFromUrl error, item.fileurl:"
-								+ item.fileurl);
+						.println("getLocalCacheImageNameFromUrl error, item.filepath:"
+								+ item.filepath);
+				item.isLoading = false;
 				return;
 			}
 
 			file = new File(filelocalpath);
 			if (!file.exists()) {
-				ImageCapture.createLocalCacheImageFromUrl(item.fileurl,
+				ImageCapture.createLocalCacheImageFromUrl(item.filepath,
 						filelocalpath);
 			}
 
 			if (!new File(filelocalpath).exists()) {
+				System.out
+				.println("createLocalCacheImageFromUrl error, item.fileurl:"
+						+ item.filepath);
+				item.isLoading = false;
 				return;
 			}
-			item.filelocalpath = filelocalpath;
+			item.finalfilepath = filelocalpath;
 		}
-
+		System.out.println("=CCC=" + item.finalfilepath);
 		Bitmap image = null;
 		if (BitmapCache.getInstance().getBitmapRefs().containsKey(
-				item.filelocalpath)) {
-			image = BitmapCache.getInstance().getBitmap(item.filelocalpath);
+				item.finalfilepath)) {
+			image = BitmapCache.getInstance().getBitmap(item.finalfilepath);
 			if (image != null) {
 				item.imageBitmap = image;
 				item.uri = Uri.fromFile(file);
 			}
 		} else {
-			System.out.println("=CCC=" + item.filelocalpath);
-			image = BitmapCache.decodeBitmap(item.filelocalpath);
+			System.out.println("=CCC= insert" + item.finalfilepath);
+			image = BitmapCache.decodeBitmap(item.finalfilepath);
 			if (image != null) {
 				BitmapCache.getInstance().addCacheBitmap(image,
-						item.filelocalpath);
+						item.finalfilepath);
 				item.imageBitmap = image;
 				item.uri = Uri.fromFile(file);
 			}
 		}
+		item.isLoading = false;
 	}
 
 	public class ViewHolder {
@@ -216,8 +228,11 @@ public class PhotoAdapter extends BaseAdapter {
 		public ImageView image;
 		public ImageView selectedImage;
 		public Uri uri;
-		public String fileurl;
-		public String filelocalpath;
+		public String filepath;
+		public String finalfilepath;
 		public Bitmap imageBitmap;
+		//public boolean mustLoad;
+		public boolean isLoading;
+		public boolean isWebImage;
 	}
 }
