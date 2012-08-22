@@ -5,39 +5,40 @@
     android:orientation="vertical"
     android:background="@color/content_background"
     >
-            <LinearLayout 
+            <RelativeLayout 
             android:id="@+id/ll_middle_bar"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1" 
             android:orientation="horizontal"
-            android:gravity="center_horizontal"
             android:paddingTop="8dp"
             android:background="@drawable/home_middle_bar_background"
             >
-            <Button
+<!--             <Button
                 android:id="@+id/btn_pre_month"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/pre_month_selector"
-                />
+                /> -->
             <TextView 
                 android:id="@+id/tv_cur_month"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/home_screen_cur_month_text_size"
 				android:textColor="@color/blue"
-				android:layout_marginLeft="@dimen/home_screen_middle_bar_margin_left"
 				android:textStyle="bold"
+				android:layout_centerInParent="true"
                 />
-            <Button
-                android:id="@+id/btn_next_month"
+             <Button
+                android:id="@+id/btn_back_curmonth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/next_month_selector"
+                android:background="@drawable/btn_back_curmonth_selector"
                 android:layout_marginLeft="@dimen/home_screen_middle_bar_margin_left"
-                />
-        </LinearLayout>
+                android:layout_alignParentRight="true"
+                android:visibility="gone"
+                /> 
+        </RelativeLayout>
         <LinearLayout 
             android:id="@+id/ll_bottom_info"
             android:layout_width="fill_parent"
@@ -45,7 +46,7 @@
             android:layout_weight="2"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="20dp"
             >
             <TextView 
                 android:id="@+id/tv_no_note_days"

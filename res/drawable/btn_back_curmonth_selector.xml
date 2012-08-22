@@ -4,17 +4,16 @@
 	>
 	<item
 		android:state_pressed="true"
-		android:drawable="@color/calendar_selected"
+		android:drawable="@drawable/btn_back_curmonth_pressed"
 		>
 	</item>
 	<item
 		android:state_focused="true"
-		android:drawable="@color/calendar_selected"
+		android:drawable="@drawable/btn_back_curmonth_pressed"
 		>
 	</item>
 	<item
-	    android:state_window_focused="false" 
-		android:drawable="@drawable/calendar_background"
+		android:drawable="@drawable/btn_back_curmonth"
 		>
 	</item>
 </selector>

@@ -17,6 +17,7 @@ import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.calendar.LunarCalendar;
 import com.archermind.note.calendar.SpecialCalendar;
 
+import android.R.integer;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -73,6 +74,9 @@ public class CalendarAdapter extends BaseAdapter {
 	private int flipperHeight = 0;
 	private int constantFlag = 0;
 	
+	public int lastClick = -1 ; 
+	public long lastClickTime = -1;
+	
 	public CalendarAdapter(){
 		Calendar time = Calendar.getInstance(Locale.CHINA); 
 		sys_year = time.get(Calendar.YEAR);
@@ -114,7 +118,7 @@ public class CalendarAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {	
+	public View getView(final int position, View convertView, ViewGroup parent) {	
 		ViewItem item = null;
 		if(convertView == null){
 			convertView = LayoutInflater.from(context).inflate(R.layout.calendar_item, null);
@@ -173,51 +177,51 @@ public class CalendarAdapter extends BaseAdapter {
 					item.tvDate.setText(sp);
 				}
 			}
+			
+			if(noteFlag != null && noteFlag.length >0){
+					if(noteFlag[position] == DatabaseManager.HAS_NOTE ){
+						item.ivHasNote.setVisibility(View.VISIBLE);
+						item.ivHasNote.setImageResource(R.drawable.unsigned);
+					}else if(noteFlag[position] == DatabaseManager.HAS_SIGNED){
+						item.ivHasNote.setVisibility(View.VISIBLE);
+						item.ivHasNote.setImageResource(R.drawable.signed);
+					}else{
+						item.ivHasNote.setVisibility(View.GONE);
+					}
+			}
+			
+/*			final int fHasNote = hasNote;
+			Calendar time = Calendar.getInstance(Locale.CHINA); 
+			time.set(Calendar.YEAR, showYear);
+			time.set(Calendar.MONTH, showMonth);
+			time.set(Calendar.DATE, Integer.parseInt(day));
+			time.set(Calendar.HOUR, 10);
+			final long t = time.getTimeInMillis();
+			
+			item.tvDate.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View arg0) {
+					// TODO Auto-generated method stub
+					if(fHasNote == 1){
+						System.out.println("time is " + t);
+						HomeScreen.eventService.onUpdateEvent(new EventArgs(
+								EventTypes.SHOW_ONEDAY_NOTES).putExtra("time", t));
+					}else{
+						arg0.setBackgroundColor(res.getColor(R.color.calendar_selected));
+						lastClick = position;
+					}
+				}
+			});*/
 
 		}
-		int hasNote = 0;
-		if(noteFlag != null && noteFlag.length >0){
-				if(noteFlag[position] == DatabaseManager.HAS_NOTE ){
-					item.ivHasNote.setVisibility(View.VISIBLE);
-					item.ivHasNote.setImageResource(R.drawable.unsigned);
-					hasNote = 1;
-				}else if(noteFlag[position] == DatabaseManager.HAS_SIGNED){
-					item.ivHasNote.setVisibility(View.VISIBLE);
-					item.ivHasNote.setImageResource(R.drawable.signed);
-					hasNote = 1;
-				}else{
-					item.ivHasNote.setVisibility(View.GONE);
-					hasNote = 0;
-				}
-		}
+
 		
-		final int fHasNote = hasNote;
 		if(currentFlag == position){ 
 			//设置当天的背景
 			//item.tvDate.setBackgroundResource(R.drawable.calendar_pressed);
-			item.tvDate.setBackgroundColor(Color.TRANSPARENT);
-			convertView.setBackgroundResource(R.drawable.calendar_pressed);
+			convertView.setBackgroundColor(res.getColor(R.color.calendar_today));
 		}
-		
-		Calendar time = Calendar.getInstance(Locale.CHINA); 
-		time.set(Calendar.YEAR, showYear);
-		time.set(Calendar.MONTH, showMonth);
-		time.set(Calendar.DATE, Integer.parseInt(day));
-		time.set(Calendar.HOUR, 10);
-		final long t = time.getTimeInMillis();
-		
-		item.tvDate.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-				if(fHasNote == 1){
-					System.out.println("time is " + t);
-					HomeScreen.eventService.onUpdateEvent(new EventArgs(
-							EventTypes.SHOW_ONEDAY_NOTES).putExtra("time", t));
-				}
-			}
-		});
 		
 		return convertView;
 	}
@@ -308,12 +312,19 @@ public class CalendarAdapter extends BaseAdapter {
 	
 	
 	/**
-	 * 点击每一个item时返回item中的日期
+	 * 点击每一个item时返回item中的时间
 	 * @param position
 	 * @return
 	 */
-	public String getDateByClickItem(int position){
-		return dayNumber[position];
+	public long getTimeByClickItem(int position){
+		String day = dayNumber[position].split("\\.")[0];
+		Calendar time = Calendar.getInstance(Locale.CHINA); 
+		time.set(Calendar.YEAR, showYear);
+		time.set(Calendar.MONTH, showMonth);
+		time.set(Calendar.DATE, Integer.parseInt(day));
+		time.set(Calendar.HOUR, 10);
+		return time.getTimeInMillis();
+		
 	}
 	
 	/**
@@ -332,6 +343,12 @@ public class CalendarAdapter extends BaseAdapter {
 		return  (dayOfWeek+daysOfMonth)-1;
 	}
 	
+	public int getNoteInfo(int position){
+		if(noteFlag != null && noteFlag.length >0){
+			return noteFlag[position];
+		}
+		return DatabaseManager.NO_NOTE;
+	}
 	
 	public String getAnimalsYear() {
 		return animalsYear;

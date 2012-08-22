@@ -20,4 +20,6 @@
     <color name="other_month_days_color">#b4b4b4</color>
     <color name="lunarday_color">#5d5d5d</color>
     <color name="red">#E63400</color>
+    <color name="calendar_selected">#7066a2d5</color>
+    <color name="calendar_today">#3866a2d5</color>
 </resources>

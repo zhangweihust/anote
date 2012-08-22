@@ -15,8 +15,10 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.GestureDetector.OnGestureListener;
@@ -26,6 +28,7 @@ import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -45,6 +48,7 @@ import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Services.EventService;
 import com.archermind.note.Services.ServiceManager;
+import com.archermind.note.Utils.DateTimeUtils;
 import com.archermind.note.Utils.DensityUtil;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;
@@ -57,8 +61,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	private TabHost mTabHost;
 	private final int INIT_SELECT = 0;
 	private final int MENU_RIGHT_WIDTH_DP = 70;
-	private int MENU_RIGHT_WIDTH_PX;
-	private boolean flag = false;
+	//private int MENU_RIGHT_WIDTH_PX;
 	private String TAB_HOME = "home";
 	private String TAB_PLAZA = "plaza";
 
@@ -68,7 +71,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	private TextView mtvTitleBarTitle;/*
 	private ListView mMenuList;
 	private MenuRightHorizontalScrollView mScrollMenu;*/
-	
+	private FrameLayout mflTabhost;
 	private Button mbtnMore;
 	private Button mbtnBack;
 	
@@ -125,12 +128,26 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		mbtnMore = (Button)findViewById(R.id.btn_more);
 		mbtnMore.setOnClickListener(this);
 		
+	/*	mbtnMore.setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_MENU
+						|| keyCode == KeyEvent.KEYCODE_BACK) {
+					if (mMorePopupWindow.isShowing()
+							&& event.getAction() != KeyEvent.ACTION_UP) {
+						mMorePopupWindow.dismiss();
+					}
+				}
+				return false;
+			}
+		});*/
+		
 /*		mMenuList = (ListView)findViewById(R.id.menuList);
 		mMenuList.setAdapter(new MenuRightListAdapter(this));
 		
 		mScrollMenu = (MenuRightHorizontalScrollView) findViewById(R.id.scroll_menu);*/
-		MENU_RIGHT_WIDTH_PX = (int) (getResources().getDisplayMetrics().density
-				* MENU_RIGHT_WIDTH_DP + 0.5f);
+		//MENU_RIGHT_WIDTH_PX = (int) (getResources().getDisplayMetrics().density
+		//		* MENU_RIGHT_WIDTH_DP + 0.5f);
 		type = TYPE_NOTE;
 		
 		mGestureDetector = new GestureDetector(this);
@@ -140,6 +157,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		eventService.add(this);
 		initPopupwindow();
 		autoLogin();// 自动登录
+        mflTabhost = (FrameLayout)findViewById(R.id.fl_tabhost);
 	}
 
 	private TabSpec buildTabSpec(String tag, int iconId, Intent intent) {
@@ -151,22 +169,11 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		if(iconId == R.drawable.tabhost_home_selector){
 			tabSpecView.setPadding(DensityUtil.dip2px(mContext, 20), 0, 0, 0);
 		}else{
-			tabSpecView.setPadding(DensityUtil.dip2px(mContext, 102), 0, 0, 0);
+			tabSpecView.setPadding(DensityUtil.dip2px(mContext, 111), 0, 0, 0);
 		}
 		TabSpec tabSpec = this.mTabHost.newTabSpec(tag).setIndicator(
 				tabSpecView).setContent(intent);
 		return tabSpec;
-	}
-
-	
-	
-	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		super.onWindowFocusChanged(hasFocus);
-		NoteApplication.LogD(getClass(), "onWindowFocusChanged");
-		if (!flag) {
-			flag = true;
-		}
 	}
 
 	@Override
@@ -176,6 +183,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
+					mflTabhost.setBackgroundResource(R.drawable.tab_bottom_background_note);
 					if (type.equals(TYPE_CALENDAR)) {
 						mtvTitleBarTitle.setText(MainScreen.this.getResources()
 								.getText(R.string.home_screen_calendar_page_title));
@@ -192,6 +200,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 					// TODO Auto-generated method stub
 					mtvTitleBarTitle.setText(MainScreen.this.getResources()
 							.getText(R.string.plaza_screen_title));
+					mflTabhost.setBackgroundResource(R.drawable.tab_bottom_background_plaza);
 
 				}
 			});
@@ -222,6 +231,10 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			Intent intent = new Intent();
 			intent.setClass(mContext, EditNoteScreen.class);
 			intent.putExtra("isNewNote", true);
+			if(HomeScreen.mCalendarAdapter != null && HomeScreen.mCalendarAdapter.lastClickTime != -1){
+				intent.putExtra("time", HomeScreen.mCalendarAdapter.lastClickTime);
+				System.out.println("clicktime is " + DateTimeUtils.time2String("yyyyMMdd", HomeScreen.mCalendarAdapter.lastClickTime));
+			}
 			mContext.startActivity(intent);
 			snoteCreateTime = System.currentTimeMillis();
 			break;
@@ -332,13 +345,10 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		mlvSetting.setAdapter(adapter);
 		mlvSetting.setOnKeyListener(new OnKeyListener() {
 			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if (keyCode == KeyEvent.KEYCODE_MENU
-						|| keyCode == KeyEvent.KEYCODE_BACK) {
-					if (mMorePopupWindow.isShowing()
-							&& event.getAction() != KeyEvent.ACTION_UP) {
-						mMorePopupWindow.dismiss();
-					}
+			public boolean onKey(View arg0, int arg1, KeyEvent arg2) {
+				// TODO Auto-generated method stub
+				if(arg2.getKeyCode() == KeyEvent.KEYCODE_MENU && arg2.getAction() == KeyEvent.ACTION_UP && mMorePopupWindow.isShowing()){
+					mMorePopupWindow.dismiss();
 				}
 				return false;
 			}
@@ -353,6 +363,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			Intent i = new Intent(MainScreen.this, PreferencesScreen.class);
 			mContext.startActivity(i);
 			}
+			mMorePopupWindow.dismiss();
 		}
 	});
 	DisplayMetrics dm = new DisplayMetrics();
@@ -366,7 +377,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	@Override
 	public boolean onEvent(Object sender, final EventArgs e) {
 		// TODO Auto-generated method stub
-		System.out.println("-----------main onEvent" + e.getType());
+		//System.out.println("-----------main onEvent" + e.getType());
 		switch (e.getType()) {
 		case SHOW_OR_HIDE_BUTTON_BACK:
 			MainScreen.this.runOnUiThread(new Runnable() {
@@ -395,68 +406,84 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	}
 
 	private boolean mExit_Flag;// 退出标记
-	private long mExit_time = 0; // 第一次点击退出的时间
-
-	@Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
-		System.out.println("mainscreen ondispatchKeyEvent");
-		if (event.getKeyCode() == KeyEvent.KEYCODE_BACK
-				&& event.getAction() == KeyEvent.ACTION_UP) {
-			if (HomeScreen.isSubPage() == View.VISIBLE) {
-				return super.dispatchKeyEvent(event);
-			} else if (mExit_Flag
-					&& (System.currentTimeMillis() - mExit_time < 3000)) {
-				this.finish();
-				ServiceManager.exit();
-			} else {
-				Toast.makeText(this, getString(R.string.exit),
-						Toast.LENGTH_SHORT).show();
-				mExit_Flag = true;
-				mExit_time = System.currentTimeMillis();
-			}
-			return true;
-		}
-		return super.dispatchKeyEvent(event);
-	}
-
-	private void autoLogin() {
-		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
-
-			new Thread() {
-
-				@Override
-				public void run() {
-					SharedPreferences sp = PreferencesHelper
-							.getSharedPreferences(MainScreen.this, 0);
-					String username = sp.getString(
-							PreferencesHelper.XML_USER_ACCOUNT, null);
-					String password = sp.getString(
-							PreferencesHelper.XML_USER_PASSWD, null);
-					if (username != null && password != null) {
-						String result = ServerInterface.login(username,
-								password);
-						try {
-							JSONObject jsonObject = new JSONObject(result);
-							if (jsonObject.optString("flag").equals(
-									"" + ServerInterface.SUCCESS)) {
-								// 保存至Application
-								NoteApplication noteApplication = NoteApplication
-										.getInstance();
-								noteApplication.setUserName(jsonObject
-										.optString("email"));
-								noteApplication.setUserId(jsonObject
-										.optInt("user_id"));
-								noteApplication.setLogin(true);
-								Log.i("MainScreen", "autologin success");
-							}
-						} catch (JSONException e) {
-							e.printStackTrace();
-							Log.i("MainScreen", "autologin failed");
-						}
-					}
+	private long mExit_time = 0; //第一次点击退出的时间 
+	 
+		@Override
+		public boolean dispatchKeyEvent(KeyEvent event) {
+			//System.out.println("mainscreen ondispatchKeyEvent" + event.getKeyCode() + ", " + event.getAction());
+			//System.out.println(mTabHost.getCurrentTabTag() + " , PlazaScreen.isFirstPage : " + PlazaScreen.isFirstPage);
+			if(event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP){
+				if(HomeScreen.isSubPage() == View.VISIBLE || (mTabHost.getCurrentTabTag().equalsIgnoreCase(TAB_PLAZA) && !PlazaScreen.isFirstPage)){
+					return super.dispatchKeyEvent(event);
+				}else if (mExit_Flag && (System.currentTimeMillis() - mExit_time < 3000 )) {
+					this.finish();
+					ServiceManager.exit();
+				} else {
+					Toast.makeText(this, getString(R.string.exit), Toast.LENGTH_SHORT)
+							.show();
+					mExit_Flag = true;
+					mExit_time = System.currentTimeMillis();
 				}
+		        return true;
+	        }else if(event.getKeyCode() == KeyEvent.KEYCODE_MENU && event.getAction()== KeyEvent.ACTION_UP){
+				System.out.println("on menu click");
+	        	
+	        	MainScreen.this.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if (mMorePopupWindow.isShowing()) {
+							mMorePopupWindow.dismiss();
+						} else {
+							mMorePopupWindow.showAsDropDown(mbtnMore, 0, -3);
+						}
+				}
+				});	        	
+	        	return true;
+	        }
+	        return super.dispatchKeyEvent(event);
+		}
+		
+		 private void autoLogin() {
+				if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
 
-		}.start();
-	}
-	}
+					new Thread() {
+
+						@Override
+						public void run() {
+							SharedPreferences sp = PreferencesHelper
+									.getSharedPreferences(MainScreen.this, 0);
+							String username = sp.getString(
+									PreferencesHelper.XML_USER_ACCOUNT, null);
+							String password = sp.getString(
+									PreferencesHelper.XML_USER_PASSWD, null);
+							if (username != null && password != null) {
+								String result = ServerInterface.login(username,
+										password);
+								try {
+									JSONObject jsonObject = new JSONObject(result);
+									if (jsonObject.optString("flag").equals(
+											"" + ServerInterface.SUCCESS)) {
+										// 保存至Application
+										NoteApplication noteApplication = NoteApplication
+												.getInstance();
+										noteApplication.setUserName(jsonObject
+												.optString("email"));
+										noteApplication.setUserId(jsonObject
+												.optInt("user_id"));
+										noteApplication.setLogin(true);
+										Log.i("MainScreen", "autologin success");
+									}
+								} catch (JSONException e) {
+									e.printStackTrace();
+									Log.i("MainScreen", "autologin failed");
+								}
+							}
+						}
+
+					}.start();
+				} else {
+					Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
+							.show();
+				}
+			}
 }

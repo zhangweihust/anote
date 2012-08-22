@@ -40,6 +40,7 @@ import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Provider.DatabaseHelper;
+import com.archermind.note.Provider.DatabaseManager;
 import com.archermind.note.Services.EventService;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.Constant;
@@ -59,8 +60,9 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	private TextView mTvNoteCountToday;
 	private static String tagCalendar = "calendar";
 	private static String tagTimeList = "timelist";
-	private Button mBtnPreMonth;
-	private Button mBtnNextMonth;
+/*	private Button mBtnPreMonth;
+	private Button mBtnNextMonth;*/
+	private Button mBtnBackCurmonth;
 	private static int mCurMonth = 0;
 	private static int mCurYear = 0;
 	
@@ -79,7 +81,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	
 	//calendar
 	private ViewFlipper flipper = null;
-	private CalendarAdapter mCalendarAdapter = null;
+	public static CalendarAdapter mCalendarAdapter = null;
 	private GridView mGridView = null;
 	
 	public static int PRE_MONTH = 0;
@@ -95,6 +97,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	
 	public static int USRID = 1000;
 	
+	private static boolean isFirst = true;
 	public static final EventService eventService = ServiceManager.getEventservice();
 
 	public HomeScreen(){
@@ -127,12 +130,15 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
         mTvNoteCountToday = (TextView)mListHeader.findViewById(R.id.tv_note_count_today);
         mTvCurMonth = (TextView)mListHeader.findViewById(R.id.tv_cur_month);
         
-        
-        mBtnPreMonth = (Button)mListHeader.findViewById(R.id.btn_pre_month);
+        mBtnBackCurmonth = (Button)mListHeader.findViewById(R.id.btn_back_curmonth);
+        mBtnBackCurmonth.setOnClickListener(this);
+/*        mBtnPreMonth = (Button)mListHeader.findViewById(R.id.btn_pre_month);
+        mBtnPreMonth.setVisibility(View.GONE);
         mBtnPreMonth.setOnClickListener(this);
 
         mBtnNextMonth = (Button)mListHeader.findViewById(R.id.btn_next_month);
-        mBtnNextMonth.setOnClickListener(this);
+        mBtnNextMonth.setVisibility(View.GONE);
+        mBtnNextMonth.setOnClickListener(this);*/
         
         mListHeader.setTag(tagCalendar);
         mListHeader.setOnClickListener(new OnClickListener(){
@@ -237,12 +243,15 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 			tvCalendarWeekday0.setText(R.string.calendar_sun);
 		}
 		
+		if(isFirst || flipper.getChildCount()==0){
 		mCalendarAdapter = new CalendarAdapter(this, getResources(), mCurYear, mCurMonth, flipper.getHeight(), Constant.flagType);
 		addGridView();
 	    mGridView.setAdapter(mCalendarAdapter);
 	    flipper.removeAllViews();
 	    flipper.addView(mGridView,0);
 	    flipper.setDisplayedChild(0);
+		isFirst = false;
+		}
 
 	    if(mllCalendarPage.getVisibility() == View.VISIBLE && mListHeader.getTag().equals(tagTimeList)){
 	    	mlvMonthNotes.setAdapter(new LocalNoteAdapter(this, ServiceManager
@@ -276,7 +285,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
         mGridView.setColumnWidth(Width/7 + 1);
         mGridView.setGravity(Gravity.CENTER);
        // mGridView.setSelector(getResources().getDrawable(R.drawable.calendar_item_selector));
-/*        mGridView.setOnItemClickListener(new OnItemClickListener() {
+        mGridView.setOnItemClickListener(new OnItemClickListener() {
             //gridView中的每一个item的点击事件
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position,
@@ -285,10 +294,29 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				  int startPosition = mCalendarAdapter.getStartPositon();
 				  int endPosition = mCalendarAdapter.getEndPosition();
 				  if(startPosition <= position  && position <= endPosition){
-					  System.out.println(mCalendarAdapter.getDateByClickItem(position));
+					  //System.out.println(mCalendarAdapter.getTimeByClickItem(position));
+					  boolean lastIsToday = (mCalendarAdapter.lastClickTime > DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis()) && mCalendarAdapter.lastClickTime < DateTimeUtils.getToday(Calendar.PM, System.currentTimeMillis()));
+					  if(mCalendarAdapter.lastClick != -1 && !lastIsToday){
+						  RelativeLayout layout = (RelativeLayout) arg0.getChildAt(mCalendarAdapter.lastClick);
+	                	  if(layout != null){
+	                		  layout.setBackgroundResource(R.drawable.calendar_background);  
+	                	  }
+					  }else if(lastIsToday){
+						  RelativeLayout layout = (RelativeLayout) arg0.getChildAt(mCalendarAdapter.lastClick);
+	                	  if(layout != null){
+	                		  layout.setBackgroundResource(R.color.calendar_today);  
+	                	  }
+					  }
+					  ((RelativeLayout)arg1).setBackgroundColor(getResources().getColor(R.color.calendar_selected));
+					  if(mCalendarAdapter.lastClick == position && mCalendarAdapter.getNoteInfo(position)!= DatabaseManager.NO_NOTE){
+						  HomeScreen.eventService.onUpdateEvent(new EventArgs(
+									EventTypes.SHOW_ONEDAY_NOTES).putExtra("time", mCalendarAdapter.getTimeByClickItem(position)));
+					  }
+					  mCalendarAdapter.lastClick = position;
+					  mCalendarAdapter.lastClickTime = mCalendarAdapter.getTimeByClickItem(position);
 				  }
 			}
-		});*/
+		});
         mGridView.setLayoutParams(params);
 	}
 	
@@ -297,8 +325,6 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		
-		System.out.println("homescreen onresume");
 		Cursor localNotes = ServiceManager.getDbManager().queryLocalNotes(HomeScreen.USRID);
 		if(localNotes.moveToFirst()){
 			Long time = Long.parseLong(localNotes.getString(localNotes.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CREATE_TIME)));
@@ -387,8 +413,16 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				            //向左滑动
 							if(mllCalendarPage.getVisibility() == View.VISIBLE){
 								gotoNextMonth();
+								Calendar cal = Calendar.getInstance(Locale.CHINA); 
+								cal.setTimeInMillis(System.currentTimeMillis());
+								//System.out.println("month : " + cal.get(Calendar.MONTH) + ", year : " + cal.get(Calendar.YEAR));
+								if(mCurMonth != cal.get(Calendar.MONTH) || mCurYear != cal.get(Calendar.YEAR)){
+							    	mBtnBackCurmonth.setVisibility(View.VISIBLE);
+							    }else{
+							    	mBtnBackCurmonth.setVisibility(View.GONE);
+							    }
 								if(tag.equals(tagCalendar)){
-									System.out.println("====next tagCalendar====" + mCurMonth);
+									System.out.println("====next tagCalendar====" + mCurMonth + ", year : " + mCurYear);
 									showCalendarMonth(NEXT_MONTH);
 								}else{
 									System.out.println("====next taglistview====" + mCurMonth);
@@ -420,8 +454,16 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				            //向右滑动
 							if(mllCalendarPage.getVisibility() == View.VISIBLE){
 								gotoPreMonth();
+								Calendar cal = Calendar.getInstance(Locale.CHINA); 
+								cal.setTimeInMillis(System.currentTimeMillis());
+								//System.out.println("month : " + cal.get(Calendar.MONTH) + ", year : " + cal.get(Calendar.YEAR));
+							    if(mCurMonth != cal.get(Calendar.MONTH) || mCurYear != cal.get(Calendar.YEAR)){
+							    	mBtnBackCurmonth.setVisibility(View.VISIBLE);
+							    }else{
+							    	mBtnBackCurmonth.setVisibility(View.GONE);
+							    }
 								if(tag.equals(tagCalendar)){
-									System.out.println("====pre tagCalendar====" + mCurMonth);
+									System.out.println("====pre tagCalendar====" + mCurMonth + ", year : " + mCurYear);
 									showCalendarMonth(PRE_MONTH);
 								}else{
 									System.out.println("====pre monthlist====" + mCurMonth);
@@ -615,9 +657,8 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	public void onClick(View arg0) {
 		// TODO Auto-generated method stub
 		int resId = arg0.getId();
-		String tag = null;
 		switch(resId){
-		case R.id.btn_pre_month:
+		/*		case R.id.btn_pre_month:
 			gotoPreMonth();			
 			tag = mListHeader.getTag().toString();
 			if(tag != null){
@@ -644,7 +685,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 							.getDbManager().queryMonthLocalNOTES(HomeScreen.USRID, mCurMonth, mCurYear)));
 				}
 			}
-			break;
+			break;*/
 		case R.id.btn_back_recent:
 			mlvDayNotes.setAdapter(new LocalNoteOnedayAdapter(mContext, ServiceManager
 					.getDbManager().queryTodayLocalNOTEs(HomeScreen.USRID, mRecentTime)));
@@ -652,13 +693,29 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 			mbtnBackRecent.setVisibility(View.GONE);
 			MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra("title", DateTimeUtils.time2String("yyyy.MM.dd", mRecentTime)));
 			break;
+		case R.id.btn_back_curmonth:
+			final String tag = mListHeader.getTag().toString();
+			Calendar cal = Calendar.getInstance(Locale.CHINA); 
+			cal.setTimeInMillis(System.currentTimeMillis());
+			//System.out.println("month : " + cal.get(Calendar.MONTH) + ", year : " + cal.get(Calendar.YEAR));
+			mCurMonth = cal.get(Calendar.MONTH);
+			mCurYear = cal.get(Calendar.YEAR);
+			mBtnBackCurmonth.setVisibility(View.GONE);
+			mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月", System.currentTimeMillis()));
+			if(tag.equals(tagCalendar)){
+				showCalendarMonth(NEXT_MONTH);
+			}else{
+				mlvMonthNotes.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
+						.getDbManager().queryMonthLocalNOTES(HomeScreen.USRID, mCurMonth, mCurYear)));
+			}
+			break;
 		default:
 			
 		}
 	}
 	
 	private void gotoPreMonth(){
-		System.out.println("====gotoPreMonth===="+ mCurMonth);
+		//System.out.println("====gotoPreMonth===="+ mCurMonth);
 		if(mCurMonth == Calendar.JANUARY){
 			mCurMonth = Calendar.DECEMBER;
 			mCurYear = mCurYear -1;
@@ -674,7 +731,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	}
 	
 	private void gotoNextMonth(){
-		System.out.println("====gotoNextMonth====" + mCurMonth);
+		//System.out.println("====gotoNextMonth====" + mCurMonth);
 		if(mCurMonth == Calendar.DECEMBER){
 			mCurMonth = Calendar.JANUARY;
 			mCurYear = mCurYear + 1;
@@ -689,7 +746,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	}
 	
 	private void showCalendarMonth(int preORnext){
-		System.out.println("====showCalendarMonth====" + mCurMonth);
+		//System.out.println("====showCalendarMonth====" + mCurMonth);
 		addGridView();   //添加一个gridview
 		mCalendarAdapter = new CalendarAdapter(this, getResources(), mCurYear, mCurMonth,flipper.getHeight(), Constant.flagType);
 	    mGridView.setAdapter(mCalendarAdapter);
@@ -724,7 +781,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
-		System.out.println("homescreen ondispatchKeyEvent");
+		//System.out.println("homescreen ondispatchKeyEvent");
 		if(mllHomePage.getVisibility() == View.VISIBLE && event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP){
 			System.out.println("homescreen ondispatchKeyEvent000");
 			this.onBackPressed();

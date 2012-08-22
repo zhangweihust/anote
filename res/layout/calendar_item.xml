@@ -2,14 +2,15 @@
 <RelativeLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
-  android:layout_height="fill_parent">
+  android:layout_height="fill_parent"
+  android:background="@drawable/calendar_background"
+  >
   
   <TextView 
       android:id="@+id/tv_date"
 	  android:gravity="center"
 	  android:layout_width="fill_parent"
 	  android:layout_height="fill_parent"
-	  android:background="@drawable/calendar_item_selector"
 	  />
   
   <ImageView 
