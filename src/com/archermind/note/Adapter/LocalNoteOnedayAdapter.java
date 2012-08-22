@@ -124,7 +124,7 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 			String timeStr = "最后编辑于："+sdf.format(timeCal.getTime());
 			item.tvLastEdit.setText(timeStr);
 		}
-		item.rlNoteItem.setOnLongClickListener(new OnLongClickListener() {
+		item.rlNoteInfo.setOnLongClickListener(new OnLongClickListener() {
 			
 			@Override
 			public boolean onLongClick(View v) {
@@ -271,7 +271,7 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 		}
 		
 		
-		item.rlNoteItem.setOnClickListener(new OnClickListener() {
+		item.rlNoteInfo.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -313,6 +313,7 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 		item.ivIsSigned = (ImageView) view.findViewById(R.id.iv_oneday_is_signed);
 		item.tvTime = (TextView) view.findViewById(R.id.tv_oneday_time);
 		//item.rlDay= (RelativeLayout) view.findViewById(R.id.rl_day);
+		item.rlNoteInfo = (RelativeLayout) view.findViewById(R.id.rl_oneday_note_info);
 		item.rlNoteItem = (RelativeLayout) view.findViewById(R.id.rl_note_item);
 		item.tvNoteContent = (TextView) view.findViewById(R.id.tv_note_content);
 		item.tvLastEdit = (TextView) view.findViewById(R.id.tv_note_last_edit);
@@ -329,6 +330,7 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 		private TextView tvNoteContent;
 		private TextView tvLastEdit;
 		//private RelativeLayout rlDay;
+		private RelativeLayout rlNoteInfo;
 		private RelativeLayout rlNoteItem;
 	}
 

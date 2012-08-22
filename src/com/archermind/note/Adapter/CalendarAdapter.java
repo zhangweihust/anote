@@ -220,6 +220,8 @@ public class CalendarAdapter extends BaseAdapter {
 		if(currentFlag == position){ 
 			//设置当天的背景
 			//item.tvDate.setBackgroundResource(R.drawable.calendar_pressed);
+			lastClick = position;
+			lastClickTime = System.currentTimeMillis();
 			convertView.setBackgroundColor(res.getColor(R.color.calendar_today));
 		}
 		
