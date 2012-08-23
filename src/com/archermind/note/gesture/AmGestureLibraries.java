@@ -85,7 +85,9 @@ public class AmGestureLibraries {
                 Log.d(LOG_TAG, "Could not save the gesture library in " + mPath, e);
             } finally {
             	try {
-					zipOut.close();
+            		if (zipOut != null) {
+					    zipOut.close();
+            		}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -155,15 +157,18 @@ public class AmGestureLibraries {
         					break;
         				}
         			}
-    	     	    mStore.load(/*new FileInputStream(file)*/zis, true,flag);
-                    result = true;
+        			if (zis != null) {
+    	     	        mStore.load(/*new FileInputStream(file)*/zis, true,flag);
+    	     	        result = true;
+        			}
+                    
                 } catch (FileNotFoundException e) {
                     Log.d(LOG_TAG, "Could not load the gesture library from " + mPath, e);
                 } catch (IOException e) {
                     Log.d(LOG_TAG, "Could not load the gesture library from " + mPath, e);
                 } finally {
                 	try {
-                		if (zis == null) {
+                		if (zis != null) {
 						    zis.close();
                 		}
 					} catch (IOException e) {

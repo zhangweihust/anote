@@ -20,6 +20,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="7dip"
+            android:singleLine="true"
+            android:maxLength = "10"
             />
         
     </LinearLayout>
@@ -80,7 +82,7 @@
             android:layout_weight="1"
             android:singleLine="true"
             android:text="取消"
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:textStyle="normal" />
 
         <Button
@@ -92,7 +94,7 @@
             android:layout_weight="1"
             android:singleLine="true"
             android:text="确定"
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:textStyle="normal" />
     </LinearLayout>
 

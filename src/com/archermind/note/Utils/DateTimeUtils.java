@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import com.archermind.note.NoteApplication;
-import com.archermind.note.R.id;
 
 public class DateTimeUtils {
 	public static String time2String(String formatter, long date) {
@@ -91,6 +90,25 @@ public class DateTimeUtils {
 			time.set(Calendar.SECOND,59);
 			NoteApplication.LogD(DateTimeUtils.class, "今天结束时间:"+sdf.format(time.getTime()));
 		}
+		return time.getTimeInMillis();
+	}
+	
+	public static long getTimeOfOneDay(long firstMillisTime,long secondMillisTime) {
+		Calendar time = Calendar.getInstance(Locale.CHINA); 
+		
+		Calendar time1 = Calendar.getInstance(Locale.CHINA); 
+		time1.setTimeInMillis(firstMillisTime);
+		
+		time.set(Calendar.YEAR, time1.get(Calendar.YEAR));
+		time.set(Calendar.MONTH, time1.get(Calendar.MONTH));
+		time.set(Calendar.DATE, time1.get(Calendar.DATE));
+		
+		Calendar time2 = Calendar.getInstance(Locale.CHINA); 
+		time2.setTimeInMillis(secondMillisTime);
+		
+		time.set(Calendar.HOUR_OF_DAY,time2.get(Calendar.HOUR_OF_DAY));
+		time.set(Calendar.MINUTE,time2.get(Calendar.MINUTE));
+		time.set(Calendar.SECOND,time2.get(Calendar.SECOND));
 		return time.getTimeInMillis();
 	}
 	

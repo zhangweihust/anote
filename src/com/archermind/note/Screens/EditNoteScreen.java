@@ -20,12 +20,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -37,6 +32,10 @@ import java.util.zip.ZipOutputStream;
 
 import com.archermind.note.R;
 import com.archermind.note.Adapter.FaceAdapter;
+import com.archermind.note.Events.EventArgs;
+import com.archermind.note.Events.IEventHandler;
+import com.archermind.note.Provider.DatabaseHelper;
+import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DensityUtil;
 import com.archermind.note.Utils.GenerateName;
 import com.archermind.note.Utils.ServerInterface;
@@ -56,10 +55,10 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -73,28 +72,27 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextWatcher;
 import android.text.style.ImageSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
-public class EditNoteScreen  extends Screen implements OnClickListener {
+public class EditNoteScreen  extends Screen implements OnClickListener, IEventHandler{
 
 	private AmGestureOverlayView gestureview = null;
 	private MyEditText myEdit = null;
@@ -145,7 +143,8 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 	private Dialog thickness_dialog = null;
 	private Dialog picchoose_dialog = null;
 //	private Dialog diary_category_dialog = null;
-	private Dialog weather_dialog = null;
+//	private Dialog weather_dialog = null;
+	private PopupWindow mWeatherPopupWindow;
 	private NoteSaveDialog save_dialog = null;
 	
 	public static final int PICINSERTSTATE = 1;
@@ -196,11 +195,13 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
     
     private String mDiaryPath = "";
     
+    private String mWeather = "sunny";
+    
     private boolean hasChanged = false;
     
-    private boolean isNewNote = true;
-    
     public ArrayList<String> mPicPathList = null;
+    
+    
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -264,11 +265,8 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		mWeatherLayout = (LinearLayout) findViewById(R.id.edit_weather_linearlayout);
 		mWeatherLayout.setOnClickListener(this);
 		mWeatherImg = (ImageView) findViewById(R.id.edit_weather_image);
-		new Thread(new Runnable() {
-			public void run() {
-				initWeather();
-			}
-		}).start();
+		
+	    initPopupWindow();
 		
 //		mStrBuf = new StringBuffer();
 		mStrList = new ArrayList<String>();
@@ -277,10 +275,18 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		backButton = (ImageButton) findViewById(R.id.screen_top_play_control_back);
 		backButton.setOnClickListener(this);
 		
+		deleteDefaultFiles();
 		String notePath = getIntent().getStringExtra("notePath");
 		if (notePath != null) {
 			mDiaryPath = notePath;
 		    reload(notePath);
+		}
+		
+		int id = getIntent().getIntExtra("noteID", 0);
+		if (id > 0) {
+			initWeatherAndDate(id);
+		} else {
+			initNewWeatherAndDate();
 		}
 		
 		bitmap_rect_linearlayout = (LinearLayout) findViewById(R.id.bitmap_rect_linearlayout);
@@ -440,6 +446,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		        }
 			}
 		});
+		
+		Typeface type = Typeface.createFromAsset(getAssets(),"xdxwzt.ttf");
+		myEdit.setTypeface(type);
 		
 		myEdit.setEditNote(this);
 	}
@@ -670,7 +679,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 			    return 0;
 			}
 		}
-		
 	}
 	
 	private int findEndIndex(int start) {
@@ -853,28 +861,78 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		isInsert = false;
 	}
 	
+	private void initWeatherAndDate(int id) {
+		Cursor cursor = ServiceManager.getDbManager().queryLocalNotesById(id);
+		if (cursor == null || cursor.getCount() == 0) {
+			
+			return;
+		}
+		cursor.moveToFirst();
+		
+		long createTime = Long.parseLong(cursor.getString((cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CREATE_TIME))));
 	
-//	private void initSpinner(ListView lview) {
-//		final List<String> data = new ArrayList<String>();
-//        data.add(getString(R.string.diary_category1));
-//        data.add(getString(R.string.diary_category2));
-//        data.add(getString(R.string.diary_category3));
-//        data.add(getString(R.string.diary_category4));
-//        data.add(getString(R.string.diary_category5));
-//        
-//        lview.setAdapter(new ArrayAdapter<String>(this, R.layout.listview_item_dropdown,data));
-//	    
-//        lview.setOnItemClickListener(new OnItemClickListener(){
-//
-//			@Override
-//			public void onItemClick(AdapterView<?> parent, View view, int position,
-//					long id) {
-//				// TODO Auto-generated method stub
-////				dropdown_tv.setText(data.get(position));
-////				diary_category_dialog.dismiss();
-//			}
-//        });
-//	}
+		Calendar timeCal = Calendar.getInstance(Locale.CHINA); 
+		timeCal.setTimeInMillis(createTime);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
+		final String dateStr = sdf.format(timeCal.getTime());
+		SimpleDateFormat sdf1 = new SimpleDateFormat("EEEE");
+		final String weekStr = sdf1.format(timeCal.getTime());
+		
+		String weather = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_WEATHER));
+		int weatherId = 0;
+		if (weather == null || "".equals(weather)) {
+			new Thread(new Runnable() {
+				public void run() {
+					initWeather();
+				}
+			}).start();
+		} else if ("sunny".equals(weather)) {
+			weather = getString(R.string.weather_sunny);
+			weatherId = R.drawable.weather_sunny;
+			mWeather = "sunny";
+		} else if ("rain".equals(weather)) {
+			weather = getString(R.string.weather_rain);
+			weatherId = R.drawable.weather_rain;
+			mWeather = "rain";
+		} else if ("cloudy".equals(weather)) {
+			weather = getString(R.string.weather_cloudy);
+			weatherId = R.drawable.weather_cloudy;
+			mWeather = "cloudy";
+		} else if ("snow".equals(weather)) {
+			weather = getString(R.string.weather_snow);
+			weatherId = R.drawable.weather_snow;
+			mWeather = "snow";
+		} else {
+			weather = getString(R.string.weather_cloudy);
+			weatherId = R.drawable.weather_cloudy;
+			mWeather = "cloudy";
+		}
+		
+		final String weatherTemp = weather;
+    	final int imgIdTemp = weatherId;
+		
+		handler.post(new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				TextView dateTextView = (TextView) findViewById(R.id.edit_date_textview);
+				dateTextView.setText(dateStr);
+				
+				TextView weekTextView = (TextView) findViewById(R.id.edit_week_textview);
+				weekTextView.setText(weekStr);
+				
+				if (weatherTemp != null && !"".equals(weatherTemp)) {
+				    weather_tv.setText(weatherTemp);
+				    mWeatherImg.setImageDrawable(getResources().getDrawable(imgIdTemp));
+				}
+			}
+		});
+		
+	}
+	
+	public String getWeather() {
+		return mWeather;
+	}
 	
 	private void initWeather() {
 		ServerInterface sinterface = new ServerInterface();
@@ -894,18 +952,23 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 	    	int imgId = 0;
 	    	if (ttt.contains("雨")) {
 	    		weather = "雨";
+	    		mWeather = "rain";
 	    		imgId = R.drawable.weather_rain;
 	    	} else if (ttt.contains("雪")) {
 	    		weather = "雪";
+	    		mWeather = "snow";
 	    		imgId = R.drawable.weather_snow;
 	    	} else if (ttt.contains("多云") || ttt.contains("阴")|| ttt.contains("沙")) {
 	    		weather = "多云";
+	    		mWeather = "cloudy";
 	    		imgId = R.drawable.weather_cloudy;
 	    	} else if (ttt.contains("晴")) {
 	    		weather = "晴";
+	    		mWeather = "sunny";
 	    		imgId = R.drawable.weather_sunny;
 	    	} else {
 	    		weather = "多云";
+	    		mWeather = "cloudy";
 	    		imgId = R.drawable.weather_cloudy;
 	    	}
 	    	final String weatherTemp = weather;
@@ -919,8 +982,42 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 					mWeatherImg.setImageDrawable(getResources().getDrawable(imgIdTemp));
 				}
 			});
-	    	
 	    }
+	}
+	
+	private void initNewWeatherAndDate() {
+        long timeTemp = getIntent().getLongExtra("time", 0);
+        long createTime = 0;
+        if (timeTemp != 0) {
+        	createTime = timeTemp;
+        } else {
+		    createTime = MainScreen.snoteCreateTime;
+        }
+		
+		Calendar timeCal = Calendar.getInstance(Locale.CHINA); 
+		timeCal.setTimeInMillis(createTime);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
+		final String dateStr = sdf.format(timeCal.getTime());
+		SimpleDateFormat sdf1 = new SimpleDateFormat("EEEE");
+		final String weekStr = sdf1.format(timeCal.getTime());
+		
+		handler.post(new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				TextView dateTextView = (TextView) findViewById(R.id.edit_date_textview);
+				dateTextView.setText(dateStr);
+				
+				TextView weekTextView = (TextView) findViewById(R.id.edit_week_textview);
+				weekTextView.setText(weekStr);
+			}
+		});
+		
+		new Thread(new Runnable() {
+			public void run() {
+				initWeather();
+			}
+		}).start();
 	}
 	
 	private void resetState(View v) {
@@ -948,22 +1045,22 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 			if (v.getId() != R.id.edit_type_handwrite) {
 				gestureview.setVisibility(View.GONE);
 			}
+			
+			if (v.getId() == R.id.edit_insert_face || v.getId() == R.id.edit_insert_pic) {
+				edit_input_type.setImageDrawable(getResources().getDrawable(R.drawable.edit_softinput_selector));
+				edit_delete.setImageDrawable(getResources().getDrawable(R.drawable.edit_delete_1_selector));
+			}
 	    }
 	}
 	
 	private void initThicknessDialog() {
 		thickness_dialog = new Dialog(this,R.style.CustomDialog);
 		thickness_dialog.setContentView(R.layout.thickness_dialog);
-		thickness_dialog.setCanceledOnTouchOutside(true);
-		Window mWindow = thickness_dialog.getWindow();
-		WindowManager.LayoutParams lp = mWindow.getAttributes();   
-		lp.x = DensityUtil.dip2px(this,54);   //新位置X坐标
-		lp.y = DensityUtil.dip2px(this,146); //新位置Y坐标
-		thickness_dialog.onWindowAttributesChanged(lp);
 		
 		thickness_seekbar = (SeekBar) thickness_dialog.findViewById(R.id.thickness_setting_bar);
+		final TextView thickness_textview = (TextView) thickness_dialog.findViewById(R.id.thickness_textview);
+		thickness_textview.setText(thickness_seekbar.getProgress() + "px");
 		thickness_seekbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
 			public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
 				// TODO Auto-generated method stub
 				if (mState == HANDWRITINGSTATE) {
@@ -971,6 +1068,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 				} else if (mState == GRAFFITINSERTSTATE) {
 					myEdit.getFingerPen().setStrokeWidth(arg1);
 				}
+				thickness_textview.setText(arg1 + "px");
 			}
 
 			public void onStartTrackingTouch(SeekBar arg0) {
@@ -995,7 +1093,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 			ZipFile zip = new ZipFile(file);//由指定的File对象打开供阅读的ZIP文件  
 			Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();//获取zip文件中的各条目（子文件）  
 			while(entries.hasMoreElements()){//依次访问各条目  
-				ZipEntry ze = (ZipEntry) entries.nextElement(); 
+				ZipEntry ze = (ZipEntry) entries.nextElement();
 				if (ze.getName().endsWith("text") ) {
 					BufferedReader br = new BufferedReader(new InputStreamReader(zip.getInputStream(ze)));  
 					String line = "";
@@ -1006,11 +1104,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 							picStr[0] = line.substring("pic:".length(), line.length());
 							hasPic = true;
 						}
-					}  
+					}
 					br.close();
 				}
 			}
-			ZipInputStream zis = new ZipInputStream(zip.getInputStream(zip.entries().nextElement()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1032,6 +1129,14 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 			Log.d("=TTT=","str = " + str);
     	}
 		return store;
+	}
+	
+	public void setHasChanged(boolean flag) {
+		hasChanged = flag;
+	}
+	
+	public boolean hasChanged() {
+		return hasChanged;
 	}
 		
 	@SuppressWarnings("unchecked")
@@ -1065,6 +1170,15 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 				setting_type.setVisibility(View.GONE);
 				isSettingTypeShow = false;
 			} else {
+				ImageView imgView = (ImageView) findViewById(R.id.thickness_imageview);
+				TextView tv = (TextView) findViewById(R.id.thickness_textview);
+				if (mState == SOFTINPUTSTATE) {
+					imgView.setImageDrawable(getResources().getDrawable(R.drawable.text_thickness_adjust));
+					tv.setText("加粗");
+				} else {
+					imgView.setImageDrawable(getResources().getDrawable(R.drawable.edit_setting_thickness));
+					tv.setText("粗细");
+				}
 				setting_type.setVisibility(View.VISIBLE);
 			    isSettingTypeShow = true;
 			}
@@ -1149,7 +1263,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 			mState = GRAFFITINSERTSTATE;
 			break;
 		case R.id.edit_type_soft:
-			myEdit.setInputType(inType);
 			edit_type.setVisibility(View.GONE);
 			isInputTypeShow = false;
 			if (mState == SOFTINPUTSTATE) {
@@ -1157,7 +1270,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 			}
 			edit_input_type.setImageDrawable(getResources().getDrawable(R.drawable.edit_softinput_selector));
 			edit_delete.setImageDrawable(getResources().getDrawable(R.drawable.edit_delete_1_selector));
-//			imm.showSoftInput(myEdit, inType);
 			mState = SOFTINPUTSTATE;
 			break;
 		case R.id.edit_insert_face:
@@ -1166,6 +1278,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 			faceGridview.setVisibility(View.VISIBLE);
 			edit_delete.setImageDrawable(getResources().getDrawable(R.drawable.edit_delete_1_selector));
 			myEdit.clearFocus(); 
+//			faceGridview.isShown();
 			mState = FACEINSERTSTATE;
 			break;
 		case R.id.edit_insert_pic:
@@ -1208,59 +1321,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 			pic_type.setVisibility(View.GONE);
 			isPicTypeShow = false;
 			break;
-//		case R.id.cursor_back:
-//			int back_index = myEdit.getSelectionStart();
-//			Spanned s_back = myEdit.getText();  
-//			ImageSpan[] imageSpans_back = s_back.getSpans(0, back_index, ImageSpan.class);  
-//			if (imageSpans_back.length == 0) {
-//				int back_index_temp = back_index -1  < 0 ? 0 : back_index -1;
-//				myEdit.setSelection(back_index_temp);
-//				return;
-//			}
-//			ImageSpan imgSpan_back = imageSpans_back[imageSpans_back.length - 1];
-//			if ( s_back.getSpanEnd(imgSpan_back) != back_index) {
-//				int back_index_temp = back_index -1  < 0 ? 0 : back_index -1;
-//				myEdit.setSelection(back_index_temp);
-//				return;
-//			}
-//			myEdit.setSelection(s_back.getSpanStart(imgSpan_back));
-//			break;
-//		case R.id.cursor_forward:
-//			int forward_index = myEdit.getSelectionStart();
-//			Spanned s_forward = myEdit.getText();  
-//			ImageSpan[] imageSpans = s_forward.getSpans(forward_index, myEdit.getEditableText().length(), ImageSpan.class);  
-//			if (imageSpans.length == 0) {
-//				int forward_index_temp = forward_index +1  > myEdit.getEditableText().length() ? myEdit.getEditableText().length() : forward_index +1;
-//				myEdit.setSelection(forward_index_temp);
-//				return;
-//			}
-//			ImageSpan imgSpan_forward = imageSpans[0];
-//			if ( s_forward.getSpanStart(imgSpan_forward) != forward_index) {
-//				int forward_index_temp = forward_index +1  > myEdit.getEditableText().length() ? myEdit.getEditableText().length() : forward_index +1;
-//				myEdit.setSelection(forward_index_temp);
-//				return;
-//			}
-//			myEdit.setSelection(s_forward.getSpanEnd(imgSpan_forward));
-//			break;
-//		case R.id.handwrite_delete:
-//			int delete_index = myEdit.getSelectionStart();
-//			Spanned s_delete = myEdit.getText();  
-//			ImageSpan[] imageSpans_delete = s_delete.getSpans(0, delete_index, ImageSpan.class);
-//			if (imageSpans_delete.length == 0) {
-//				int delete_index_temp = delete_index -1  < 0 ? 0 : delete_index -1;
-//				myEdit.getText().delete(delete_index_temp, delete_index);
-//				return;
-//			}
-//			
-//			ImageSpan imgSpan_delete = imageSpans_delete[imageSpans_delete.length - 1];
-//			
-//			if ( s_delete.getSpanEnd(imgSpan_delete) != delete_index) {
-//				int delete_index_temp = delete_index -1  < 0 ? 0 : delete_index -1;
-//				myEdit.getText().delete(delete_index_temp, delete_index);
-//				return;reload
-//			}
-//			myEdit.getText().delete(s_delete.getSpanStart(imgSpan_delete), s_delete.getSpanEnd(imgSpan_delete));
-//			break;
 		case R.id.edit_setting_color:
 			if (mState == HANDWRITINGSTATE) {
 				OnColorChangedListener listener = new OnColorChangedListener() {
@@ -1271,6 +1331,13 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		    	new ColorPickerDialog(this, listener, gestureview.getGestureColor()).show();
 			} else if (mState == GRAFFITINSERTSTATE) {
 				new ColorPickerDialog(this, myEdit, myEdit.getFingerPen().getColor()).show();
+			} else if (mState == SOFTINPUTSTATE) {
+				OnColorChangedListener listener = new OnColorChangedListener() {
+					public void colorChanged(int color) {
+						myEdit.setTextColor(color);
+					}
+		    	};
+		    	new ColorPickerDialog(this, listener, myEdit.getCurrentTextColor()).show();
 			}
 			setting_type.setVisibility(View.GONE);
 			isSettingTypeShow = false;
@@ -1281,8 +1348,12 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 				    initThicknessDialog();
 			    }
 			    thickness_dialog.show();
-			} else {
-				
+			} else if (mState == SOFTINPUTSTATE) {
+				if (myEdit.getPaint().isFakeBoldText()) {
+					myEdit.getPaint().setFakeBoldText(false);
+				} else {
+					myEdit.getPaint().setFakeBoldText(true);
+				}
 			}
 			setting_type.setVisibility(View.GONE);
 			isSettingTypeShow = false;
@@ -1315,51 +1386,46 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
             picchoose_dialog.dismiss();
             break;
 		case R.id.edit_weather_linearlayout:
-			if (weather_dialog == null) {
-				weather_dialog = new Dialog(this,R.style.CustomDialog);
-				weather_dialog.setContentView(R.layout.dialog_weather);
-				weather_dialog.setCanceledOnTouchOutside(true);
-				Window mWindow_weather = weather_dialog.getWindow();     
-				WindowManager.LayoutParams lp_weather = mWindow_weather.getAttributes();     
-				lp_weather.x = DensityUtil.dip2px(this,70);   //新位置X坐标  
-				lp_weather.y = -1 * DensityUtil.dip2px(this,140); //新位置Y坐标 
-				weather_dialog.onWindowAttributesChanged(lp_weather);
-				
-				LinearLayout weather_sunny = (LinearLayout)weather_dialog.findViewById(R.id.weather_sunny);
-				LinearLayout weather_cloudy = (LinearLayout)weather_dialog.findViewById(R.id.weather_cloudy);
-				LinearLayout weather_rain = (LinearLayout)weather_dialog.findViewById(R.id.weather_rain);
-				LinearLayout weather_snow = (LinearLayout)weather_dialog.findViewById(R.id.weather_snow);
-				weather_sunny.setOnClickListener(this);
-				weather_cloudy.setOnClickListener(this);
-				weather_rain.setOnClickListener(this);
-				weather_snow.setOnClickListener(this);
+			if (mWeatherPopupWindow.isShowing()) {
+				mWeatherPopupWindow.dismiss();
+			} else {
+				mWeatherPopupWindow.showAsDropDown(mWeatherLayout, 0, -3);
 			}
-			weather_dialog.show();
 			break;
 		case R.id.weather_sunny:
 			weather_tv.setText(getString(R.string.weather_sunny));
 			mWeatherImg.setImageDrawable(getResources().getDrawable(R.drawable.weather_sunny));
-			weather_dialog.dismiss();
+			mWeatherPopupWindow.dismiss();
+			setHasChanged(true);
+			mWeather = "sunny";
+			hasChanged = true;
 			break;
 		case R.id.weather_cloudy:
 			weather_tv.setText(getString(R.string.weather_cloudy));
 			mWeatherImg.setImageDrawable(getResources().getDrawable(R.drawable.weather_cloudy));
-			weather_dialog.dismiss();
+			mWeatherPopupWindow.dismiss();
+			setHasChanged(true);
+			mWeather = "cloudy";
+			hasChanged = true;
 			break;
 		case R.id.weather_rain:
 			weather_tv.setText(getString(R.string.weather_rain));
 			mWeatherImg.setImageDrawable(getResources().getDrawable(R.drawable.weather_rain));
-			weather_dialog.dismiss();
+			mWeatherPopupWindow.dismiss();
+			setHasChanged(true);
+			mWeather = "rain";
+			hasChanged = true;
 			break;
 		case R.id.weather_snow:
 			weather_tv.setText(getString(R.string.weather_snow));
 			mWeatherImg.setImageDrawable(getResources().getDrawable(R.drawable.weather_snow));
-			weather_dialog.dismiss();
+			mWeatherPopupWindow.dismiss();
+			setHasChanged(true);
+			mWeather = "snow";
+			hasChanged = true;
 			break;
 		case R.id.screen_top_play_control_back:
 			if (!hasChanged) {
-				String [] fileNames = {"/sdcard/aNote/picmap","/sdcard/aNote/text","/sdcard/aNote/gesture","/sdcard/aNote/graffit"};
-				deletefiles(fileNames);
 				finish();
 				break;
 			}
@@ -1371,8 +1437,35 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		}
 	}
 	
+	private void initPopupWindow() {
+		View view = getLayoutInflater().inflate(R.layout.dialog_weather,null);
+		
+		LinearLayout weather_sunny = (LinearLayout)view.findViewById(R.id.weather_sunny);
+		LinearLayout weather_cloudy = (LinearLayout)view.findViewById(R.id.weather_cloudy);
+		LinearLayout weather_rain = (LinearLayout)view.findViewById(R.id.weather_rain);
+		LinearLayout weather_snow = (LinearLayout)view.findViewById(R.id.weather_snow);
+		weather_sunny.setOnClickListener(this);
+		weather_cloudy.setOnClickListener(this);
+		weather_rain.setOnClickListener(this);
+		weather_snow.setOnClickListener(this);
+		
+		DisplayMetrics dm = new DisplayMetrics();
+		dm = MainScreen.mContext.getApplicationContext().getResources().getDisplayMetrics();
+		mWeatherPopupWindow = new PopupWindow(view, DensityUtil.dip2px(this, 200),
+				DensityUtil.dip2px(this, 90), true);
+		mWeatherPopupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.edit_dropdown_dialog));
+		mWeatherPopupWindow.setOutsideTouchable(true);
+	}
+	
 	public void save() {
+		// 保存涂鸦
 		saveGraffit();
+		
+		if (!"".equals(mDiaryPath)) {
+			ArrayList<String> strList = getNotePictureFromZip(mDiaryPath);
+			Log.d("=VVV=","mDiaryPath = " + mDiaryPath + " size = " + strList.size());
+			deletefiles(strList);
+		}
 		
 		mPicPathList.clear();
 		reloadFirstPage();
@@ -1387,10 +1480,28 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		
 		// 保存图片资源
 		writePicMap();
+		
 		// 保存手写笔记
 		saveGesture();
+		
 		// 保存正文
-		File f = new File("/sdcard/aNote/text");
+		saveList2File("/sdcard/aNote/text", mStrList);
+	    
+	    // 保存笔记转换成的图片地址
+		saveList2File("/sdcard/aNote/notepicindex", mPicPathList);
+	    
+	    //压缩成一个文件
+		String [] fileNames = {"/sdcard/aNote/gesture","/sdcard/aNote/picmap","/sdcard/aNote/graffit","/sdcard/aNote/text","/sdcard/aNote/notepicindex"};
+		if ("".equals(mDiaryPath)) {
+		    mDiaryPath = "/sdcard/aNote/diary_" + MainScreen.snoteCreateTime;
+		}
+		zipFile(fileNames,mDiaryPath);
+		
+		hasChanged = false;
+	}
+	
+	private void saveList2File(String fileName,ArrayList<String> strList) {
+		File f = new File(fileName);
 		FileWriter fw=null;
 		BufferedWriter bw = null;
 		try {
@@ -1400,7 +1511,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 			}
 		    fw=new FileWriter(f); 
 		    bw = new BufferedWriter(fw);
-		    for(String str:mStrList) {
+		    for(String str:strList) {
 				bw.write(str + "\n");
 			}
 	    } catch (FileNotFoundException e) {
@@ -1414,23 +1525,46 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		        e.printStackTrace();
 		    }
 		}
-		
-	    //压缩成一个文件
-		String [] fileNames = {"/sdcard/aNote/gesture","/sdcard/aNote/picmap","/sdcard/aNote/graffit","/sdcard/aNote/text"};
-		if ("".equals(mDiaryPath)) {
-		    mDiaryPath = "/sdcard/aNote/diary_" + MainScreen.snoteCreateTime;
-		}
-		zipFile(fileNames,mDiaryPath);
 	}
 	
 	@Override
 	public void finish() {
 		// TODO Auto-generated method stub
 		EditNoteScreen.mState = EditNoteScreen.SOFTINPUTSTATE;
-		String [] fileNames = {"/sdcard/aNote/picmap","/sdcard/aNote/text","/sdcard/aNote/gesture","/sdcard/aNote/graffit"};
-		deletefiles(fileNames);
+		deleteDefaultFiles();
 		myEdit.recycleBitmap();
 		super.finish();
+	}
+	
+	public static ArrayList<String> getNotePictureFromZip(String filePath) {
+		if (filePath == null || "".equals(filePath)) {
+			return null;
+		}
+		
+		File file = new File(filePath);
+		if (!file.exists()) {
+			return null;
+		}
+		
+		ArrayList<String> strList = new ArrayList<String>();
+		try {
+			ZipFile zip = new ZipFile(filePath);//由指定的File对象打开供阅读的ZIP文件  
+			Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();//获取zip文件中的各条目（子文件）  
+			while(entries.hasMoreElements()){//依次访问各条目  
+				ZipEntry ze = (ZipEntry) entries.nextElement();
+				if (ze.getName().endsWith("notepicindex") ) {
+					BufferedReader br = new BufferedReader(new InputStreamReader(zip.getInputStream(ze)));  
+					String line = "";
+					while((line = br.readLine()) != null){
+						strList.add(line);
+					}
+					br.close();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return strList;
 	}
 
 	private void saveGraffit() {
@@ -1443,13 +1577,23 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		if ("".equals(mDiaryPath)) {
 		    mDiaryPath = "/sdcard/aNote/diary_" + MainScreen.snoteCreateTime;
 		}
-		String fileName = mDiaryPath + "_page" + String.valueOf(mCurPage) + ".png";
+		String noteFileName = "";
+		if (!"".equals(mDiaryPath)) {
+			noteFileName = mDiaryPath.substring(mDiaryPath.lastIndexOf("/") + 1);
+		}
+		
+		
+		
+		String fileName = "/sdcard/aNote/notepicture/" + noteFileName + "_page" + String.valueOf(mCurPage) + ".png";
 		mPicPathList.add(fileName);
 		Bitmap viewBitmap=Bitmap.createBitmap(bitmap_rect_linearlayout.getWidth(),bitmap_rect_linearlayout.getHeight(),Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(viewBitmap);
 		bitmap_rect_linearlayout.draw(canvas);
 		
 		File myCaptureFile = new File(fileName);
+		if (!myCaptureFile.getParentFile().exists()) {
+		    myCaptureFile.getParentFile().mkdir();
+		}
 		
 		try {
 	        BufferedOutputStream bos = new BufferedOutputStream(
@@ -1495,6 +1639,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
         }  
     }
 	
+	private boolean isFileExists(String filePath) {
+		File file = new File(filePath);
+		return file.exists();
+	}
+	
 	private void reload(String filePath) {
 		File noteFile = new File(filePath);
 		if (!noteFile.exists()) {
@@ -1503,28 +1652,29 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		Unzip(filePath,"");
         
         try {
-        	
         	// 加载图片资源，并保存到map中
-        	if (mPicMap == null) {
-    			mPicMap = new LinkedHashMap<String, String>();
-    		}
-        	SetSystemProperty.loadIntoMap("/sdcard/aNote/picmap", mPicMap);
-        	Iterator ite = mPicMap.entrySet().iterator();
-    		while(ite.hasNext()){
-    			Map.Entry<String, String> entry = (Entry<String, String>) ite.next();
-    			String key = entry.getKey();//map中的key
-    			String value = entry.getValue();//上面key对应的value
-    			
-    			int curNum = 0;
-            	try {
-            	    curNum = Integer.parseInt(value.substring(value.indexOf("_") + 1),value.length());
-            	} catch (Exception e) {
-            		curNum = 0;
-            	}
-            	if (curNum >= picName.getCurNum()) {
-            	    picName.setCurNum(curNum + 1);
-            	}
-    		}
+        	if (isFileExists("/sdcard/aNote/picmap")) {
+	        	if (mPicMap == null) {
+	    			mPicMap = new LinkedHashMap<String, String>();
+	    		}
+	        	SetSystemProperty.loadIntoMap("/sdcard/aNote/picmap", mPicMap);
+	        	Iterator ite = mPicMap.entrySet().iterator();
+	    		while(ite.hasNext()){
+	    			Map.Entry<String, String> entry = (Entry<String, String>) ite.next();
+	    			String key = entry.getKey();//map中的key
+	    			String value = entry.getValue();//上面key对应的value
+	    			
+	    			int curNum = 0;
+	            	try {
+	            	    curNum = Integer.parseInt(value.substring(value.indexOf("_") + 1),value.length());
+	            	} catch (Exception e) {
+	            		curNum = 0;
+	            	}
+	            	if (curNum >= picName.getCurNum()) {
+	            	    picName.setCurNum(curNum + 1);
+	            	}
+	    		}
+        	}
     		
     		//加载手写笔记资源。
     		if (gestureFile == null) {
@@ -1607,6 +1757,20 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		}
 	}
 	
+	public void deletefiles(ArrayList<String> fileName) {
+		for (String filename : fileName) {
+			File file = new File(filename);
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
+	
+	public void deleteDefaultFiles() {
+		String [] deletefileNames = {"/sdcard/aNote/picmap","/sdcard/aNote/text","/sdcard/aNote/gesture","/sdcard/aNote/graffit"};
+		deletefiles(deletefileNames);
+	}
+	
 	private void Unzip(String zipFile, String targetDir) {
      	int BUFFER = 4096; //这里缓冲区我们使用4KB，
      	String strEntry; //保存每个zip的条目名称
@@ -1620,6 +1784,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
      	    		int count;
      	    		byte data[] = new byte[BUFFER];
      	    		strEntry = entry.getName();
+     	    		if (strEntry.contains("notepicindex")) {
+     	    			continue;
+     	    		}
      	    		File entryFile = new File(targetDir + strEntry);
      	    		File entryDir = new File(entryFile.getParent());
      	    		if (!entryDir.exists()) {
@@ -1643,33 +1810,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
      	}
  	}
 	
-	
-	private void writeText() {
-		File f = new File("/sdcard/aNote/text");
-		FileWriter fw=null;
-		BufferedWriter bw = null;
-		try {
-			if (!f.exists()) {
-				f.getParentFile().mkdir();
-				f.createNewFile();
-			}
-		    fw=new FileWriter(f); 
-		    bw = new BufferedWriter(fw);
-		    bw.write(myEdit.getText().toString());
-  		    bw.flush();
-	    } catch (FileNotFoundException e) {
-		    e.printStackTrace();
-		} catch (IOException e) {
-		    e.printStackTrace();
-	    } finally {
-		    try {
-		        bw.close();
-		    } catch (IOException e) {
-		        e.printStackTrace();
-		    }
-		}
-	}
-	
 	private void writePicMap() {
 		if (mPicMap == null || mPicMap.size() == 0) {
 			return;
@@ -1690,6 +1830,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
         public void onGestureEnded(AmGestureOverlayView overlay, MotionEvent event) {
             mGesture = overlay.getGesture();
             if (mGesture.getLength() < LENGTH_THRESHOLD) {
+            	MotionEvent event2 = MotionEvent.obtain(event);
+            	event2.setAction(MotionEvent.ACTION_DOWN);
+            	myEdit.onTouchEvent(event2);
             	myEdit.onTouchEvent(event);
                 overlay.clear(false);
             }
@@ -1704,7 +1847,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
         	if (mGesture.getLength() < LENGTH_THRESHOLD) {
                 return;
             }
-        	int lineheight = DensityUtil.dip2px(EditNoteScreen.this, myEdit.getLineHeight() );
+//        	int lineheight = DensityUtil.dip2px(EditNoteScreen.this, myEdit.getLineHeight() );
 //        	Bitmap bmp = mGesture.toBitmap(lineheight, lineheight, 0, mGesture.getGesturePaintColor());
             Bitmap bmp = Bitmap.createBitmap(DensityUtil.dip2px(EditNoteScreen.this,50), DensityUtil.dip2px(EditNoteScreen.this,71), Bitmap.Config.ARGB_8888);;
         	bmp.eraseColor(0x00000000);
@@ -1772,7 +1915,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
             mStore = AmGestureLibraries.fromFile(gestureFile);
         }
     	
-    	if (mStore.getGestureEntries() == null) {
+    	if (mStore.getGestureEntries() == null || mStore.getGestureEntries().size() == 0) {
     		gestureFile.delete();
     		return;
     	}
@@ -1823,11 +1966,14 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 	            Bitmap bmp = decodeFile(new File(imageFilePath));
 		        ImageSpan span = new ImageSpan(bmp);
 		        int index = myEdit.getSelectionStart();
-		        myEdit.getText().insert(index, "\n");
+		        if (index > 0) {
+		            myEdit.getText().insert(index, "\n");
+		        }
 		        String pName = picName.generateName();
 				SpannableString spanStr = new SpannableString("pic_" + pName);
 				addMapItem("pic_" + pName);
 				spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				
 				index = myEdit.getSelectionStart();
 				myEdit.getText().insert(index, spanStr);
             }
@@ -1933,6 +2079,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 				insertFace(viewId);
 				
 				faceGridview.setVisibility(View.GONE);
+				
+				edit_input_type.setImageDrawable(getResources().getDrawable(R.drawable.edit_softinput_selector));
+				edit_delete.setImageDrawable(getResources().getDrawable(R.drawable.edit_delete_1_selector));
+				mState = SOFTINPUTSTATE;
 			}
 		});
 		faceGridview.setAdapter(faceAdapter);
@@ -1960,5 +2110,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener {
 		SpannableString spanStr = new SpannableString(fname);
 		spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		myEdit.getText().append(spanStr);
+	}
+
+	@Override
+	public boolean onEvent(Object sender, EventArgs e) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

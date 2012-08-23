@@ -2,11 +2,14 @@ package com.archermind.note.editnote;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Utils.DensityUtil;
 
 import android.os.Bundle;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.*;
+import android.graphics.Paint.Align;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -19,10 +22,12 @@ public class ColorPickerDialog extends Dialog {
 
     private OnColorChangedListener mListener;
     private int mInitialColor;
+    private static Context mContext;
 
     private static class ColorPickerView extends View {
         private Paint mPaint;
         private Paint mCenterPaint;
+        private Paint mTextPaint;
         private final int[] mColors;
         private OnColorChangedListener mListener;
         
@@ -31,18 +36,24 @@ public class ColorPickerDialog extends Dialog {
             mListener = l;
             mColors = new int[] {
                 0xFFFF0000, 0xFFFF00FF, 0xFF0000FF, 0xFF00FFFF, 0xFF00FF00,
-                0xFFFFFF00, 0xFFFF0000
+                0xFFFFFF00, 0xFF000000,0xFFFF0000
             };
             Shader s = new SweepGradient(0, 0, mColors, null);
             
             mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             mPaint.setShader(s);
             mPaint.setStyle(Paint.Style.STROKE);
-            mPaint.setStrokeWidth(32);
+            mPaint.setStrokeWidth(DensityUtil.dip2px(mContext, 32));
             
             mCenterPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             mCenterPaint.setColor(color);
             mCenterPaint.setStrokeWidth(5);
+            
+            mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mTextPaint.setColor(Color.WHITE);
+            mTextPaint.setStrokeWidth(5);
+            mTextPaint.setTextAlign(Align.CENTER);
+            mTextPaint.setTextSize(32);
         }
         
         private boolean mTrackingCenter;
@@ -54,8 +65,9 @@ public class ColorPickerDialog extends Dialog {
             
             canvas.translate(CENTER_X, CENTER_X);
             
-            canvas.drawOval(new RectF(-r, -r, r, r), mPaint);            
+            canvas.drawOval(new RectF(-r, -r, r, r), mPaint);
             canvas.drawCircle(0, 0, CENTER_RADIUS, mCenterPaint);
+            canvas.drawText("OK", 0, 8, mTextPaint);
             
             if (mTrackingCenter) {
                 int c = mCenterPaint.getColor();
@@ -80,9 +92,9 @@ public class ColorPickerDialog extends Dialog {
             setMeasuredDimension(CENTER_X*2, CENTER_Y*2);
         }
         
-        private static final int CENTER_X = 100;
-        private static final int CENTER_Y = 100;
-        private static final int CENTER_RADIUS = 32;
+        private static final int CENTER_X = DensityUtil.dip2px(mContext, 100);
+        private static final int CENTER_Y = DensityUtil.dip2px(mContext, 100);
+        private static final int CENTER_RADIUS = DensityUtil.dip2px(mContext, 32);
 
         private int floatToByte(float x) {
             int n = java.lang.Math.round(x);
@@ -201,6 +213,7 @@ public class ColorPickerDialog extends Dialog {
                              int initialColor) {
         super(context);
         
+        mContext = context;
         mListener = listener;
         mInitialColor = initialColor;
     }

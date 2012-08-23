@@ -43,6 +43,8 @@
     <string name="save_and_share">保存并分享</string>
     <string name="save_only">仅保存</string>
     <string name="not_save">不保存</string>
+    
+    <string name="note_input_title">请输入标题！</string>
 
 
     <!-- setting -->

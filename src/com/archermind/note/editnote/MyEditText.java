@@ -240,7 +240,7 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
     	if (mStore == null) {
             mStore = AmGestureLibraries.fromFile(graffitFile);
         }
-    	if (mStore.getGestureEntries() == null) {
+    	if (mStore.getGestureEntries() == null || mStore.getGestureEntries().size() == 0) {
     		graffitFile.delete();
     		return true;
     	}
@@ -412,6 +412,9 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
     	    mPointX = x;
         	mPointY = y;
         	mStrokeBuffer.add(new AmGesturePoint(mPointX, mPointY));
+        	if (!mEditNote.hasChanged()) {
+        		mEditNote.setHasChanged(true);
+        	}
     	}
     	
     }

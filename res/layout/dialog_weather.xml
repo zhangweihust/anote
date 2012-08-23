@@ -4,7 +4,7 @@
     android:layout_height="90dp"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:background="@drawable/edit_dropdown_dialog" >
+    >
     
     <LinearLayout 
         android:id="@+id/weather_sunny"

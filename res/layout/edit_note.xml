@@ -109,7 +109,7 @@
                  android:layout_height="30dp"
                  android:gravity="center|center_vertical"
                  android:text="2012.7.1"
-                 android:layout_marginLeft="18dp"
+                 android:layout_marginLeft="12dp"
                  android:textColor="@color/toptextcolor"
                  />
              
@@ -120,7 +120,7 @@
                  android:gravity="center_vertical"
                  android:text="星期一"
                  android:layout_toRightOf="@id/edit_date_textview"
-                 android:layout_marginLeft="75dp"
+                 android:layout_marginLeft="65dp"
                  android:textColor="@color/toptextcolor"
                  />
              
@@ -435,6 +435,7 @@
 	        >
 
 	        <ImageView
+	            android:id="@+id/thickness_imageview"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:scaleType="fitCenter" 
@@ -442,6 +443,7 @@
 	            android:gravity="center"
 	            android:src="@drawable/edit_setting_thickness"/>
 	        <TextView 
+	            android:id="@+id/thickness_textview"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:text="粗细"

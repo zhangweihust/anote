@@ -88,10 +88,13 @@ public class SetSystemProperty {
         		}
         	}
         	props.load(zis);
+        	if (props.isEmpty()) {
+        		return null;
+        	}
         	String value = props.getProperty(key); 
         	return value;
         } catch (Exception e) {
-        	e.printStackTrace();
+//        	e.printStackTrace();
         	return null;
         }
     }
