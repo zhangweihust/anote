@@ -360,8 +360,11 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 				long arg3) {
 			// TODO Auto-generated method stub
 			if(arg2 == 1){
-			Intent i = new Intent(MainScreen.this, PreferencesScreen.class);
-			mContext.startActivity(i);
+				Intent i = new Intent(MainScreen.this, PreferencesScreen.class);
+				mContext.startActivity(i);
+			}else if(arg2 == 0){
+				Intent i = new Intent(MainScreen.this, InformationScreen.class);
+				mContext.startActivity(i);
 			}
 			mMorePopupWindow.dismiss();
 		}

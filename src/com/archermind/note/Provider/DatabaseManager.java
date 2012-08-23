@@ -35,7 +35,7 @@ public class DatabaseManager {
 	}
 	
 	public long insertLocalNotes(ContentValues values, long timeInMillis) {
-		Cursor c = queryTodayLocalNOTEs(Integer.parseInt(values.get(DatabaseHelper.COLUMN_NOTE_USER_ID).toString()), timeInMillis);
+		Cursor c = queryTodayLocalNOTEs(timeInMillis);
 		values.put(DatabaseHelper.COLUMN_NOTE_LAST_FLAG, true);
 		if(c.getCount()>0){
 			c.moveToFirst();
@@ -48,8 +48,8 @@ public class DatabaseManager {
 		return database.insert(DatabaseHelper.TAB_NOTE, null, values);
 	}
 
-	public Cursor queryLocalNotes(int usrid) {
-		return database.query(DatabaseHelper.TAB_NOTE, null, DatabaseHelper.COLUMN_NOTE_USER_ID + " =? ", new String[] { String.valueOf(usrid) }, null,
+	public Cursor queryLocalNotes() {
+		return database.query(DatabaseHelper.TAB_NOTE, null, null, null, null,
 				 null, DatabaseHelper.COLUMN_NOTE_CREATE_TIME + " DESC");
 	}
 	
@@ -61,13 +61,12 @@ public class DatabaseManager {
 	public void deleteLocalNOTEs(int id, boolean lastFlag, long timeInMillis) {
 		
 		   Cursor dCursor = database.query(DatabaseHelper.TAB_NOTE, null, DatabaseHelper.COLUMN_NOTE_ID + " = ? ", new String[]{String.valueOf(id)}, null, null, null); 
-		   if(dCursor.moveToNext()){
-			   int usrid = dCursor.getInt(dCursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_USER_ID));		   
+		   if(dCursor.moveToNext()){ 
 			   database.delete(DatabaseHelper.TAB_NOTE,
 						DatabaseHelper.COLUMN_NOTE_ID + " =? ",
 						new String[] { String.valueOf(id) });
 			   if(lastFlag){//如果该日程是一天的第一条日程，则修改该天的第二条日程的标志位
-					Cursor c = queryTodayLocalNOTEs(usrid, timeInMillis);
+					Cursor c = queryTodayLocalNOTEs(timeInMillis);
 					if(c.getCount() > 0){
 						c.moveToFirst();
 						int _id = c.getInt(c.getColumnIndex(DatabaseHelper.COLUMN_NOTE_ID));
@@ -93,24 +92,24 @@ public class DatabaseManager {
 	
 	
 	
-	public Cursor queryTodayLocalNOTEs(int usrid, long timeInMillis) {
+	public Cursor queryTodayLocalNOTEs(long timeInMillis) {
 		return database
 				.query(DatabaseHelper.TAB_NOTE,
 						null,
 						DatabaseHelper.COLUMN_NOTE_CREATE_TIME
-								+ " BETWEEN ? AND ? AND " + DatabaseHelper.COLUMN_NOTE_USER_ID + " =? ",
-						new String[] { String.valueOf(DateTimeUtils.getToday(Calendar.AM, timeInMillis)), String.valueOf(DateTimeUtils.getToday(Calendar.PM, timeInMillis)), String.valueOf(usrid) },
+								+ " BETWEEN ? AND ? ",
+						new String[] { String.valueOf(DateTimeUtils.getToday(Calendar.AM, timeInMillis)), String.valueOf(DateTimeUtils.getToday(Calendar.PM, timeInMillis))},
 						null, null, DatabaseHelper.COLUMN_NOTE_CREATE_TIME + " DESC");
 	}
 	
 
-	public Cursor queryMonthLocalNOTES(int usrid, int month, int year){
+	public Cursor queryMonthLocalNOTES(int month, int year){
 		return database
 				.query(DatabaseHelper.TAB_NOTE,
 						null,
 						DatabaseHelper.COLUMN_NOTE_CREATE_TIME
-								+ " BETWEEN ? AND ? AND " + DatabaseHelper.COLUMN_NOTE_USER_ID + " =? ",
-						new String[] { String.valueOf(DateTimeUtils.getMonthStart(month, year)), String.valueOf(DateTimeUtils.getMonthStart(month+1, year)), String.valueOf(usrid) },
+								+ " BETWEEN ? AND ? ",
+						new String[] { String.valueOf(DateTimeUtils.getMonthStart(month, year)), String.valueOf(DateTimeUtils.getMonthStart(month+1, year))},
 						null, null, DatabaseHelper.COLUMN_NOTE_CREATE_TIME + " DESC");
 	}
 	/*
@@ -124,8 +123,8 @@ public class DatabaseManager {
 						null, null, DatabaseHelper.COLUMN_NOTE_CREATE_TIME + " DESC");
 	}*/
 	
-	public int queryTodayLocalNotesStatus(int usrid, long timeInMillis){
-		Cursor c = queryTodayLocalNOTEs(usrid, timeInMillis);
+	public int queryTodayLocalNotesStatus(long timeInMillis){
+		Cursor c = queryTodayLocalNOTEs(timeInMillis);
 		int count = c.getCount();
 		if(count == 0){
 			c.close();

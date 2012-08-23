@@ -102,28 +102,39 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 			+ COLUMN_WEATHER_CITY
 			+ " TEXT"
 			+ ")";
+	*/
 	
-	public static final String TAB_NOTE_RELATION = "note_relation";
-	public static final String COLUMN_NOTE_RELATION_TID = "tid";//笔记ID
-	public static final String COLUMN_NOTE_RELATION_NO = "no";//笔记序列号
-	public static final String COLUMN_NOTE_RELATION_HOST = "host";//所属主贴
+	public static final String TAB_NOTE_REPLY = "note_reply";
+	public static final String TAB_NOTE_REPLY_NID = "_id";//回贴ID
+	public static final String TAB_NOTE_REPLY_NICKNAME = "nickname";//回帖人昵称
+	public static final String TAB_NOTE_REPLY_PHOTO = "photo";//回帖人头像
+	public static final String TAB_NOTE_REPLY_TITLE = "title";//帖子的标题
+	public static final String TAB_NOTE_REPLY_CONTENT = "content";//回帖的内容
+	public static final String TAB_NOTE_REPLY_TIME = "time";//回帖的时间
 
-	private static final String CRETAE_TAB_NOTE_RELATION = " CREATE TABLE IF NOT EXISTS "
-			+ TAB_NOTE_RELATION
+	private static final String CRETAE_TAB_NOTE_REPLY= " CREATE TABLE IF NOT EXISTS "
+			+ TAB_NOTE_REPLY
 			+ " ( "
-			+ COLUMN_NOTE_RELATION_TID
+			+ TAB_NOTE_REPLY_NID
 			+ " INTEGER PRIMARY KEY , "
-			+ COLUMN_NOTE_RELATION_NO
-			+ " INTEGER, "
-			+ COLUMN_NOTE_RELATION_HOST
-			+ " INTEGER"
+			+ TAB_NOTE_REPLY_NICKNAME
+			+ " TEXT, "
+			+ TAB_NOTE_REPLY_PHOTO
+			+ " TEXT, "
+			+ TAB_NOTE_REPLY_TITLE
+			+ " TEXT, "
+			+ TAB_NOTE_REPLY_CONTENT
+			+ " TEXT, "
+			+ TAB_NOTE_REPLY_TIME
+			+ " TEXT"
 			+ ")";
-*/	
+	
 	public static final String TAB_PHOTO = "photo";
 	public static final String COLUMN_PHOTO_ID = "_id";//照片ID
-	 public static final String COLUMN_PHOTO_NAME = "name";//照片名称
-	 public static final String COLUMN_PHOTO_FILEPATH = "filepath";//照片filepath
- private static final String CRETAE_TAB_PHOTO = " CREATE TABLE IF NOT EXISTS "
+	public static final String COLUMN_PHOTO_NAME = "name";//照片名称
+	public static final String COLUMN_PHOTO_FILEPATH = "filepath";//照片filepath
+ 
+	private static final String CRETAE_TAB_PHOTO = " CREATE TABLE IF NOT EXISTS "
 	 + TAB_PHOTO 
 	 + " (["+ COLUMN_PHOTO_ID
 	 + "]AUTOINC PRIMARY KEY, ["
@@ -151,6 +162,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
 	private void createTabs(SQLiteDatabase db) {
 		db.execSQL(CRETAE_TAB_NOTE);
+		db.execSQL(CRETAE_TAB_NOTE_REPLY);
 		//db.execSQL(CRETAE_TAB_USER);
 		//db.execSQL(CRETAE_TAB_WEATHER);
 		//db.execSQL(CRETAE_TAB_NOTE_RELATION);

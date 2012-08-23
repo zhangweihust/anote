@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/content_background" >
+    
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/title_bar_background"
+        android:paddingLeft="5dip"
+        android:paddingRight="5dip" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:text="@string/information_title"
+            android:textColor="@color/white"
+            android:textSize="@dimen/main_screen_title_size" />
+
+        <Button
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/screen_go_back_selector" />
+    </RelativeLayout>
+    
+    <com.archermind.note.Views.XListView
+         android:id="@+id/xlv_information"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:cacheColorHint="#00000000"
+         android:listSelector="@drawable/listview_selector"
+         android:divider="@drawable/listview_divider" />
+
+</LinearLayout>

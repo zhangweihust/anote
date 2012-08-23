@@ -96,7 +96,6 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	private TextView tvCalendarWeekday5;
 	private TextView tvCalendarWeekday6;
 	
-	public static int USRID = 1000;
 	
 	private static boolean isFirst = true;
 	public static final EventService eventService = ServiceManager.getEventservice();
@@ -155,7 +154,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 						mListHeader.setTag(tagTimeList);
 	            		//mllBottomInfo.setVisibility(View.GONE);
 	            		mlvMonthNotes.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
-									.getDbManager().queryMonthLocalNOTES(HomeScreen.USRID, mCurMonth, mCurYear)));
+									.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
 					} else if(tag.equals(tagTimeList)) {
 						mllCalendarPage.snapToPage(0);
 						// mllBottomInfo.setVisibility(View.VISIBLE);
@@ -176,7 +175,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		
 		mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月", System.currentTimeMillis()));
 		mlvMonthNotes.setAdapter(new LocalNoteAdapter(this, ServiceManager
-				.getDbManager().queryMonthLocalNOTES(HomeScreen.USRID, mCurMonth, mCurYear)));
+				.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
 /*         mllCalendarPage.addOnScrollListener(new VerticalScrollView.OnScrollListener() {
             public void onScroll(int scrollX) {
             }
@@ -193,7 +192,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	            		 mListHeader.setTag(tagTimeList);
 	            		 mllBottomInfo.setVisibility(View.GONE);
 	            		 mlvMonthNotes.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
-									.getDbManager().queryMonthLocalNOTES(HomeScreen.USRID, mCurMonth, mCurYear)));
+									.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
 	            	} else {
 	            		System.out.println("====snapTOPage 0====" + mCurMonth);
 	            		 mListHeader.setTag(tagCalendar);
@@ -251,11 +250,11 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		
 	    if(mllCalendarPage.getVisibility() == View.VISIBLE && mListHeader.getTag().equals(tagTimeList)){
 	    	mlvMonthNotes.setAdapter(new LocalNoteAdapter(this, ServiceManager
-				.getDbManager().queryMonthLocalNOTES(HomeScreen.USRID, mCurMonth, mCurYear)));
+				.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
 	    }else if(mllHomePage.getVisibility() == View.VISIBLE){
 	    	System.out.println(" before " + DateTimeUtils.time2String("yyyyMMdd", mCurTime));
 	    	mlvDayNotes.setAdapter(new LocalNoteOnedayAdapter(this, ServiceManager
-				.getDbManager().queryTodayLocalNOTEs(HomeScreen.USRID, mCurTime)));
+				.getDbManager().queryTodayLocalNOTEs(mCurTime)));
 	    	System.out.println(" after");
 	    	if(Integer.parseInt(DateTimeUtils.time2String("yyyyMMdd", mCurTime)) < Integer.parseInt(DateTimeUtils.time2String("yyyyMMdd", mRecentTime))){
 	    		mbtnBackRecent.setVisibility(View.VISIBLE);
@@ -322,7 +321,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		// TODO Auto-generated method stub
 		super.onResume();
 		System.out.println(getClass() + ", onresume");
-		Cursor localNotes = ServiceManager.getDbManager().queryLocalNotes(HomeScreen.USRID);
+		Cursor localNotes = ServiceManager.getDbManager().queryLocalNotes();
 		if(localNotes.moveToFirst()){
 			Long time = Long.parseLong(localNotes.getString(localNotes.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CREATE_TIME)));
 			mRecentTime = DateTimeUtils.getToday(Calendar.PM, time);
@@ -339,7 +338,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	        	mTvNoNoteDays.setVisibility(View.VISIBLE);
 	        	mTvNoNoteDays.setText("" + noNoteDays);
 			}else{
-		        int count = ServiceManager.getDbManager().queryTodayLocalNOTEs(HomeScreen.USRID, System.currentTimeMillis()).getCount();
+		        int count = ServiceManager.getDbManager().queryTodayLocalNOTEs(System.currentTimeMillis()).getCount();
 		        if(count == 0){
 		        	mIvMyNoteInfo.setImageResource(R.drawable.no_note_today);
 		        	mTvNoteCountToday.setVisibility(View.GONE);
@@ -429,19 +428,19 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 								}else{
 									System.out.println("====next taglistview====" + mCurMonth);
 									mlvMonthNotes.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
-											.getDbManager().queryMonthLocalNOTES(HomeScreen.USRID, mCurMonth, mCurYear)));
+											.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
 								}
 							}else if(mllHomePage.getVisibility() == View.VISIBLE){
 								long time = DateTimeUtils.getToday(Calendar.PM, mCurTime) + 2000;
 								//System.out.println("mCurTime-- " + DateTimeUtils.time2String("yyyyMMdd hh:mm:ss", mCurTime));
 								while(time < mRecentTime){
 									//System.out.println("time-- " + DateTimeUtils.time2String("yyyyMMdd hh:mm:ss", time));
-									if(ServiceManager.getDbManager().queryTodayLocalNOTEs(HomeScreen.USRID, time).getCount() == 0){
+									if(ServiceManager.getDbManager().queryTodayLocalNOTEs(time).getCount() == 0){
 										time = DateTimeUtils.getTomorrow(Calendar.AM, time) + 2000;
 									}else{
 										System.out.println("time " + DateTimeUtils.time2String("yyyyMMdd hh:mm:ss", time));
 										mCurTime = time;
-										mlvDayNotes.setAdapter(new LocalNoteOnedayAdapter(mContext, ServiceManager.getDbManager().queryTodayLocalNOTEs(HomeScreen.USRID, mCurTime)));							
+										mlvDayNotes.setAdapter(new LocalNoteOnedayAdapter(mContext, ServiceManager.getDbManager().queryTodayLocalNOTEs(mCurTime)));							
 										if(Integer.parseInt(DateTimeUtils.time2String("yyyyMMdd", mCurTime)) < Integer.parseInt(DateTimeUtils.time2String("yyyyMMdd", mRecentTime))){
 								    		mbtnBackRecent.setVisibility(View.VISIBLE);
 								    	}else{
@@ -470,7 +469,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 								}else{
 									System.out.println("====pre monthlist====" + mCurMonth);
 									mlvMonthNotes.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
-											.getDbManager().queryMonthLocalNOTES(HomeScreen.USRID, mCurMonth, mCurYear)));
+											.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
 								}
 							}else if(mllHomePage.getVisibility() == View.VISIBLE){
 								long time = DateTimeUtils.getToday(Calendar.AM, mCurTime) - 2000;
@@ -478,13 +477,13 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 								System.out.println("mEarlistTime " + DateTimeUtils.time2String("yyyyMMdd hh:mm:ss", mEarlistTime));
 								while(time > mEarlistTime){
 									System.out.println("time-- " + DateTimeUtils.time2String("yyyyMMdd hh:mm:ss", time));
-									if(ServiceManager.getDbManager().queryTodayLocalNOTEs(HomeScreen.USRID, time).getCount() == 0){
+									if(ServiceManager.getDbManager().queryTodayLocalNOTEs(time).getCount() == 0){
 										time = DateTimeUtils.getYesterday(Calendar.PM, time) - 2000;
 										System.out.println("this day has no note");
 									}else{
 										System.out.println("this day has note");
 										mCurTime = time;
-										mlvDayNotes.setAdapter(new LocalNoteOnedayAdapter(mContext, ServiceManager.getDbManager().queryTodayLocalNOTEs(HomeScreen.USRID, mCurTime)));							
+										mlvDayNotes.setAdapter(new LocalNoteOnedayAdapter(mContext, ServiceManager.getDbManager().queryTodayLocalNOTEs(mCurTime)));							
 								    	if(Integer.parseInt(DateTimeUtils.time2String("yyyyMMdd", mCurTime)) < Integer.parseInt(DateTimeUtils.time2String("yyyyMMdd", mRecentTime))){
 								    		mbtnBackRecent.setVisibility(View.VISIBLE);
 								    	}else{
@@ -530,7 +529,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 						mllHomePage.setVisibility(View.VISIBLE);
 						mllCalendarPage.setVisibility(View.GONE);
 						mlvDayNotes.setAdapter(new LocalNoteOnedayAdapter(mContext, ServiceManager
-								.getDbManager().queryTodayLocalNOTEs(HomeScreen.USRID, time)));
+								.getDbManager().queryTodayLocalNOTEs(time)));
 						if(Integer.parseInt(DateTimeUtils.time2String("yyyyMMdd", mCurTime)) < Integer.parseInt(DateTimeUtils.time2String("yyyyMMdd", mRecentTime))){
 				    		mbtnBackRecent.setVisibility(View.VISIBLE);
 				    	}else{
@@ -565,7 +564,6 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				10007);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"0626的第1条笔记");
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,1");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, DateTimeUtils.getMonthStart(Calendar.JULY, 2012)-30000);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, DateTimeUtils.getMonthStart(Calendar.JULY, 2012)-30000);
@@ -575,7 +573,6 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				10008);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"0626的第2条笔记");
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,2");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, DateTimeUtils.getMonthStart(Calendar.JULY, 2012)-25000);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, DateTimeUtils.getMonthStart(Calendar.JULY, 2012)-25000);
@@ -586,7 +583,6 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				10009);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"0626的第3条笔记");
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,3");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, DateTimeUtils.getMonthStart(Calendar.JULY, 2012)-20000);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED, 1);
@@ -599,7 +595,6 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				10017);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"26的第1条笔记");
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,1");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())-30000);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())-30000);
@@ -609,7 +604,6 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				10018);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"26的第2条笔记");
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,2");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())-25000);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())-30000);
@@ -619,7 +613,6 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				10019);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"26的第3条笔记");
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,3");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())-20000);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED, 1);
@@ -631,7 +624,6 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				10117);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"27的第1条笔记");
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,1");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, System.currentTimeMillis()-30000);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, System.currentTimeMillis()-30000);
@@ -641,7 +633,6 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				10118);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"27的第2条笔记");
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,2");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, System.currentTimeMillis()-25000);
 		ServiceManager.getDbManager().insertLocalNotes(contentValues, System.currentTimeMillis()-30000);
@@ -651,7 +642,6 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				10119);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 				"27的第3条笔记");
-		contentValues.put(DatabaseHelper.COLUMN_NOTE_USER_ID, HomeScreen.USRID);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, "hello,3");
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, System.currentTimeMillis()-20000);
 		contentValues.put(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED, 1);
@@ -673,7 +663,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				} else if(tag.equals(tagTimeList)) {
 					System.out.println("====pre tagListview onclick====" + mCurMonth);
 					mlvMonthNotes.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
-							.getDbManager().queryMonthLocalNOTES(HomeScreen.USRID, mCurMonth, mCurYear)));
+							.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
 				}
 			}	
 			break;
@@ -687,13 +677,13 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				} else if(tag.equals(tagTimeList)) {
 					System.out.println("====next tagLIstVIew onclick====" + mCurMonth);
 					mlvMonthNotes.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
-							.getDbManager().queryMonthLocalNOTES(HomeScreen.USRID, mCurMonth, mCurYear)));
+							.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
 				}
 			}
 			break;*/
 		case R.id.btn_back_recent:
 			mlvDayNotes.setAdapter(new LocalNoteOnedayAdapter(mContext, ServiceManager
-					.getDbManager().queryTodayLocalNOTEs(HomeScreen.USRID, mRecentTime)));
+					.getDbManager().queryTodayLocalNOTEs(mRecentTime)));
 			mCurTime = mRecentTime;
 			mbtnBackRecent.setVisibility(View.GONE);
 			MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra("title", DateTimeUtils.time2String("yyyy.MM.dd", mRecentTime)));
@@ -711,7 +701,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				showCalendarMonth(NEXT_MONTH);
 			}else{
 				mlvMonthNotes.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
-						.getDbManager().queryMonthLocalNOTES(HomeScreen.USRID, mCurMonth, mCurYear)));
+						.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
 			}
 			break;
 		default:

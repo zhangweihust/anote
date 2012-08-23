@@ -261,7 +261,7 @@ public class CalendarAdapter extends BaseAdapter {
 		String lunarDay = "";
 		
 		//得到当前月是否有笔记
-		Cursor mCursor = ServiceManager.getDbManager().queryMonthLocalNOTES(HomeScreen.USRID, month, year);		
+		Cursor mCursor = ServiceManager.getDbManager().queryMonthLocalNOTES(month, year);		
 		if(mCursor.getCount() > 0){
 			noteFlag = new int[42];
 		}
@@ -290,7 +290,7 @@ public class CalendarAdapter extends BaseAdapter {
 				time.set(Calendar.DATE, day);
 				time.set(Calendar.HOUR, 10);
 				if(noteFlag != null){
-					noteFlag[i] = ServiceManager.getDbManager().queryTodayLocalNotesStatus(HomeScreen.USRID, time.getTimeInMillis());
+					noteFlag[i] = ServiceManager.getDbManager().queryTodayLocalNotesStatus(time.getTimeInMillis());
 				}
 				
 /*				setAnimalsYear(lc.animalsYear(year));
