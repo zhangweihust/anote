@@ -119,6 +119,12 @@ public class RegisterScreen extends Screen implements OnClickListener {
 						noteApplication.setUserName(jsonObject
 								.optString("email"));
 						noteApplication.setUserId(jsonObject.optInt("user_id"));
+						noteApplication.setmBound_Sina(jsonObject
+								.optInt("flag_sina") == 0 ? false : true);
+						noteApplication.setmBound_QQ(jsonObject
+								.optInt("flag_qq") == 0 ? false : true);
+						noteApplication.setmBound_Renren(jsonObject
+								.optInt("flag_renren") == 0 ? false : true);
 						noteApplication.setLogin(true);
 
 						// 开始上传头像

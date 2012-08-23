@@ -16,6 +16,9 @@ public class NoteApplication extends Application {
 
 	private int mUserId;
 	private String mUserName;
+	private boolean mBound_Sina = false;
+	private boolean mBound_QQ = false;
+	private boolean mBound_Renren = false;
 
 	public static Context getContext() {
 		return NoteApplication.instance;
@@ -37,6 +40,30 @@ public class NoteApplication extends Application {
 		this.mUserName = userName;
 	}
 	
+	public boolean ismBound_Sina() {
+		return mBound_Sina;
+	}
+
+	public void setmBound_Sina(boolean mBound_Sina) {
+		this.mBound_Sina = mBound_Sina;
+	}
+
+	public boolean ismBound_QQ() {
+		return mBound_QQ;
+	}
+
+	public void setmBound_QQ(boolean mBound_QQ) {
+		this.mBound_QQ = mBound_QQ;
+	}
+
+	public boolean ismBound_Renren() {
+		return mBound_Renren;
+	}
+
+	public void setmBound_Renren(boolean mBound_Renren) {
+		this.mBound_Renren = mBound_Renren;
+	}
+
 	public int getUserId() {
 		return this.mUserId;
 	}

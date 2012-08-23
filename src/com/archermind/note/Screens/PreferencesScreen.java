@@ -54,9 +54,6 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 			mUserAvatar.setImageBitmap(image);
 		}
 		
-		mShareLayout = (LinearLayout) findViewById(R.id.share_setting_layout);
-		mShareLayout.setOnClickListener(this);
-		
 		mLoginButton = (Button) findViewById(R.id.btn_login);
 		mLoginButton.setOnClickListener(this);
 		mLogoutButton = (Button) findViewById(R.id.btn_logout);
@@ -117,10 +114,6 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 				intent.setClass(mContext, AccountScreen.class);
 				mContext.startActivity(intent);
 			}
-			break;
-		case R.id.share_setting_layout:
-			intent.setClass(mContext, ShareSettingScreen.class);
-			mContext.startActivity(intent);
 			break;
 		case R.id.btn_login:
 			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {

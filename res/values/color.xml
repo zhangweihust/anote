@@ -14,6 +14,7 @@
     <color name="register_text_title">#3E4148</color>
     <color name="register_text_content">#717276</color>
     <color name="register_text_warning">#E0727D</color>
+    <color name="share_setting_title_color">#555555</color>
     <color name="toptextcolor">#6EAAD9</color>
     <color name="note_info_line_color">#cecece</color>
     <color name="calendar_weekday_color">#373737</color>

@@ -13,6 +13,7 @@ public class Screen extends Activity {
 	 */
 	protected void showProgress(String title, String message) {
 		mProgressDialog = ProgressDialog.show(this, title, message);
+		mProgressDialog.setCancelable(true);
 	}
 
 	/**
@@ -27,4 +28,14 @@ public class Screen extends Activity {
 			}
 		}
 	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if(mProgressDialog != null){
+			mProgressDialog.dismiss();
+		}
+	}
+	
+	
 }

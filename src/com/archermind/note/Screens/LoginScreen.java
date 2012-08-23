@@ -17,7 +17,6 @@ import com.weibo.net.Weibo;
 import com.weibo.net.WeiboDialogListener;
 import com.weibo.net.WeiboException;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -104,6 +103,12 @@ public class LoginScreen extends Screen implements OnClickListener {
 									.optString("email"));
 							noteApplication.setUserId(jsonObject
 									.optInt("user_id"));
+							noteApplication.setmBound_Sina(jsonObject
+									.optInt("flag_sina") == 0 ? false : true);
+							noteApplication.setmBound_QQ(jsonObject
+									.optInt("flag_qq") == 0 ? false : true);
+							noteApplication.setmBound_Renren(jsonObject
+									.optInt("flag_renren") == 0 ? false : true);
 							noteApplication.setLogin(true);
 							Log.i(TAG, "login success");
 							finish();
@@ -149,13 +154,13 @@ public class LoginScreen extends Screen implements OnClickListener {
 			login();
 			break;
 		case R.id.btn_login_sina:
-			bindSinaweibo();
+			boundSinaweibo();
 			break;
 		case R.id.btn_login_qq:
-			bindQQweibo();
+			boundQQweibo();
 			break;
 		case R.id.btn_login_renren:
-			bindRenRen();
+			boundRenRen();
 			break;
 		default:
 			break;
@@ -178,7 +183,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 					Toast.LENGTH_SHORT).show();
 			return;
 		}
-		showProgress(null,getString(R.string.login_dialog_msg));// 显示进度框
+		showProgress(null, getString(R.string.login_dialog_msg));// 显示进度框
 		new Thread() {
 
 			@Override
@@ -196,7 +201,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 	 * 其他登录方式 参数： 登录类型：新浪，QQ，人人 绑定的新浪，QQ,人人的用户id
 	 */
 	private void login_others(int type, String uid) {
-		showProgress(null,getString(R.string.login_dialog_msg));// 显示进度框
+		showProgress(null, getString(R.string.login_dialog_msg));// 显示进度框
 		if (mNetThread == null || !mNetThread.isAlive()) {
 			mNetThread = new NetThread(type, uid);
 			mNetThread.start();
@@ -206,10 +211,10 @@ public class LoginScreen extends Screen implements OnClickListener {
 	/*
 	 * 绑定新浪微博账号 Oauth2.0 隐式授权认证方式
 	 */
-	private void bindSinaweibo() {
+	private void boundSinaweibo() {
 		Weibo weibo = Weibo.getInstance();
-		weibo.setupConsumerConfig(ShareSettingScreen.APPKEY_SINA,
-				ShareSettingScreen.APPSECRET_SINA);
+		weibo.setupConsumerConfig(AccountScreen.APPKEY_SINA,
+				AccountScreen.APPSECRET_SINA);
 		weibo.setRedirectUrl("http://www.sina.com");// 此处使用的URL必须和新浪微博上应用提供的回调地址一样
 		weibo.authorize(this, new AuthDialogListener());
 	}
@@ -217,10 +222,10 @@ public class LoginScreen extends Screen implements OnClickListener {
 	/*
 	 * 绑定腾讯 OAuth Version 2 授权认证方式
 	 */
-	private void bindQQweibo() {
+	private void boundQQweibo() {
 		OAuthV2 oAuthV2 = new OAuthV2("http://www.archermind.com");
-		oAuthV2.setClientId(ShareSettingScreen.APPKEY_QQ);
-		oAuthV2.setClientSecret(ShareSettingScreen.APPSECRET_QQ);
+		oAuthV2.setClientId(AccountScreen.APPKEY_QQ);
+		oAuthV2.setClientSecret(AccountScreen.APPSECRET_QQ);
 		Intent intent = new Intent(this, OAuthV2AuthorizeWebView.class);
 		intent.putExtra("oauth", oAuthV2);
 		startActivityForResult(intent, 1);
@@ -230,17 +235,17 @@ public class LoginScreen extends Screen implements OnClickListener {
 	/*
 	 * 绑定人人账号
 	 */
-	private void bindRenRen() {
-		final Renren renren = new Renren(ShareSettingScreen.APPKEY_RENREN,
-				ShareSettingScreen.APPSECRET_RENREN,
-				ShareSettingScreen.APPID_RENREN, this);
+	private void boundRenRen() {
+		final Renren renren = new Renren(AccountScreen.APPKEY_RENREN,
+				AccountScreen.APPSECRET_RENREN, AccountScreen.APPID_RENREN,
+				this);
 		renren.logout(this);
 		renren.authorize(this, new RenrenAuthListener() {
 
 			@Override
 			public void onRenrenAuthError(RenrenAuthError renrenAuthError) {
-				// TODO Auto-generated method stub
-
+				Toast.makeText(LoginScreen.this, R.string.login_failed,
+						Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
@@ -253,11 +258,6 @@ public class LoginScreen extends Screen implements OnClickListener {
 				Editor editor = sp.edit();
 				editor.putString(PreferencesHelper.XML_RENREN_ACCTSS_TOKEN,
 						values.getString("access_token"));
-				editor.putLong(
-						PreferencesHelper.XML_RENREN_EXPIRES_IN,
-						System.currentTimeMillis()
-								+ Long.parseLong(values.getString("expires_in"))
-								* 1000);
 				editor.commit();
 				Log.i(TAG, "renrenuid:" + renren.getCurrentUid());
 				if (renren.isSessionKeyValid()) {
@@ -299,11 +299,8 @@ public class LoginScreen extends Screen implements OnClickListener {
 					Editor editor = sp.edit();
 					editor.putString(PreferencesHelper.XML_QQ_ACCTSS_TOKEN,
 							oAuthV2.getAccessToken());
-					editor.putLong(
-							PreferencesHelper.XML_QQ_EXPIRES_IN,
-							System.currentTimeMillis()
-									+ Long.parseLong(oAuthV2.getExpiresIn())
-									* 1000);
+					editor.putString(PreferencesHelper.XML_QQ_OPENID,
+							oAuthV2.getOpenid());
 					editor.commit();
 					login_others(ServerInterface.LOGIN_TYPE_QQ,
 							oAuthV2.getOpenid());
@@ -328,11 +325,6 @@ public class LoginScreen extends Screen implements OnClickListener {
 			Editor editor = sp.edit();
 			editor.putString(PreferencesHelper.XML_SINA_ACCTSS_TOKEN,
 					values.getString("access_token"));
-			editor.putLong(
-					PreferencesHelper.XML_SINA_EXPIRES_IN,
-					System.currentTimeMillis()
-							+ Long.parseLong(values.getString("expires_in"))
-							* 1000);
 			editor.commit();
 			if (values.getString("uid") != null
 					&& !values.getString("uid").equals(""))
@@ -372,7 +364,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 
 		@Override
 		public void run() {
-			String result = ServerInterface.checkBinding(type, uid);
+			String result = ServerInterface.checkBounding(type, uid);
 			Message message = new Message();
 			message.obj = result;
 			Bundle bundle = new Bundle();

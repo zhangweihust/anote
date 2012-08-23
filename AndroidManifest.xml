@@ -30,7 +30,6 @@
         <activity
             android:name=".Screens.RegisterScreen"
             android:launchMode="singleTop" />
-        <activity android:name=".Screens.ShareSettingScreen" />
         <activity android:name=".Screens.ShareScreen"></activity>
         <activity android:name="com.tencent.weibo.webview.OAuthV2AuthorizeWebView" />
         <activity android:name=".Screens.PreferencesScreen" />

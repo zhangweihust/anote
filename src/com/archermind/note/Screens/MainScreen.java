@@ -449,44 +449,52 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		 private void autoLogin() {
 				if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
 
-					new Thread() {
+			new Thread() {
 
-						@Override
-						public void run() {
-							SharedPreferences sp = PreferencesHelper
-									.getSharedPreferences(MainScreen.this, 0);
-							String username = sp.getString(
-									PreferencesHelper.XML_USER_ACCOUNT, null);
-							String password = sp.getString(
-									PreferencesHelper.XML_USER_PASSWD, null);
-							if (username != null && password != null) {
-								String result = ServerInterface.login(username,
-										password);
-								try {
-									JSONObject jsonObject = new JSONObject(result);
-									if (jsonObject.optString("flag").equals(
-											"" + ServerInterface.SUCCESS)) {
-										// 保存至Application
-										NoteApplication noteApplication = NoteApplication
-												.getInstance();
-										noteApplication.setUserName(jsonObject
-												.optString("email"));
-										noteApplication.setUserId(jsonObject
-												.optInt("user_id"));
-										noteApplication.setLogin(true);
-										Log.i("MainScreen", "autologin success");
-									}
-								} catch (JSONException e) {
-									e.printStackTrace();
-									Log.i("MainScreen", "autologin failed");
-								}
+				@Override
+				public void run() {
+					SharedPreferences sp = PreferencesHelper
+							.getSharedPreferences(MainScreen.this, 0);
+					String username = sp.getString(
+							PreferencesHelper.XML_USER_ACCOUNT, null);
+					String password = sp.getString(
+							PreferencesHelper.XML_USER_PASSWD, null);
+					if (username != null && password != null) {
+						String result = ServerInterface.login(username,
+								password);
+						try {
+							JSONObject jsonObject = new JSONObject(result);
+							if (jsonObject.optString("flag").equals(
+									"" + ServerInterface.SUCCESS)) {
+								// 保存至Application
+								NoteApplication noteApplication = NoteApplication
+										.getInstance();
+								noteApplication.setUserName(jsonObject
+										.optString("email"));
+								noteApplication.setUserId(jsonObject
+										.optInt("user_id"));
+								noteApplication.setmBound_Sina(jsonObject
+										.optInt("flag_sina") == 0 ? false
+										: true);
+								noteApplication.setmBound_QQ(jsonObject
+										.optInt("flag_qq") == 0 ? false : true);
+								noteApplication.setmBound_Renren(jsonObject
+										.optInt("flag_renren") == 0 ? false
+										: true);
+								noteApplication.setLogin(true);
+								Log.i("MainScreen", "autologin success");
 							}
+						} catch (JSONException e) {
+							e.printStackTrace();
+							Log.i("MainScreen", "autologin failed");
 						}
-
-					}.start();
-				} else {
-					Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
-							.show();
+					}
 				}
-			}
+
+			}.start();
+		} else {
+			Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
+					.show();
+		}
+	}
 }

@@ -13,18 +13,19 @@ import android.util.Log;
 
 public class ServerInterface {
 
-	public static final String URL_LOGIN = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/login";
-	public static final String URL_REGISTER = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/register";
-	public static final String URL_CHECK = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/test_bin_acc";
-	public static final String URL_uploadAlbum = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/send_url";
-	public static final String URL_getAlbumUrl = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_url";
-	public static final String URL_setPhotoUrl ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/set_portrait_url";
-	public static final String URL_getPhotoUrl ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_portrait_url";
-	public static final String URL_get_info ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_info";
-	public static final String URL_set_info ="http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/set_info";
-	public static final String URL_upload_note ="http://player.archermind.com/ci/index.php/anote/shareNote";
-	
-	public static final String URL_MODIFYPASSWORD = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/pswModify";
+	public static final String URL_LOGIN = "http://player.archermind.com/ci/index.php/anote/login";
+	public static final String URL_REGISTER = "http://player.archermind.com/ci/index.php/anote/register";
+	public static final String URL_CHECK = "http://player.archermind.com/ci/index.php/anote/check_bin_acc";
+	public static final String URL_BOUNDACCOUNT = "http://player.archermind.com/ci/index.php/anote/bind_acc";
+	public static final String URL_uploadAlbum = "http://player.archermind.com/ci/index.php/anote/send_url";
+	public static final String URL_getAlbumUrl = "http://player.archermind.com/ci/index.php/anote/get_url";
+	public static final String URL_setPhotoUrl = "http://player.archermind.com/ci/index.php/anote/set_portrait_url";
+	public static final String URL_getPhotoUrl = "http://player.archermind.com/ci/index.php/anote/get_portrait_url";
+	public static final String URL_get_info = "http://player.archermind.com/ci/index.php/anote/get_info";
+	public static final String URL_set_info = "http://player.archermind.com/ci/index.php/anote/set_info";
+	public static final String URL_upload_note = "http://player.archermind.com/ci/index.php/anote/shareNote";
+
+	public static final String URL_MODIFYPASSWORD = "http://player.archermind.com/ci/index.php/anote/pswModify";
 
 	public static final String app_id = "0ba7932602af4a45bd866bad93be0e50";
 	public static final String app_secret = "2411edd1a2c44249a98e6451592062bc";
@@ -82,11 +83,34 @@ public class ServerInterface {
 
 	}
 
-	public static String checkBinding(int type, String uid) {
+	/**
+	 * 检测用户是否绑定过新浪，腾讯，人人账号 输入参数：绑定账号的类型，绑定账号的uid 返回:被绑定账号的信息
+	 */
+	public static String checkBounding(int type, String uid) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("acc_type", String.valueOf(type));
 		map.put("bin_acc", uid);
 		return HttpUtils.doPost(map, URL_CHECK);
+	}
+
+	public static int boundAccount(int userId, int type, String uid) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("user_id", String.valueOf(userId));
+		map.put("acc_type", String.valueOf(type));
+		map.put("bin_acc", uid);
+		String res = HttpUtils.doPost(map, URL_BOUNDACCOUNT);
+		try {
+			if (Integer.valueOf(res) == 0) {
+				return 1;
+			} else if (Integer.valueOf(res) == -3) {
+				return -3;
+			} else {
+				return -1;
+			}
+		} catch (Exception e) {
+			return -1;
+		}
+
 	}
 
 	/**
