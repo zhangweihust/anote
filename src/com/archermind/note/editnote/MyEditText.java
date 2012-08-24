@@ -216,7 +216,7 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 	}
 	
 	public void recycleBitmap() {
-		if (!mBmp.isRecycled()) {
+		if (mBmp != null && !mBmp.isRecycled()) {
 		    mBmp.recycle();
 		    mBmp = null;
 		}
@@ -323,6 +323,7 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				isChangePage = false;
+				break;
 			case MotionEvent.ACTION_MOVE:
 				if (isChangePage) {
 					imm.hideSoftInputFromWindow(getWindowToken(), 0);
@@ -341,6 +342,7 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 					imm.hideSoftInputFromWindow(getWindowToken(), 0);
 					return true;
 				}
+				break;
 			case MotionEvent.ACTION_UP:
 				if (isChangePage) {
 					if (mVelocityX > 0) {

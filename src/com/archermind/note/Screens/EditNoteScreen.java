@@ -30,11 +30,13 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Adapter.FaceAdapter;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Provider.DatabaseHelper;
+import com.archermind.note.Services.EventService;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DensityUtil;
 import com.archermind.note.Utils.GenerateName;
@@ -48,6 +50,8 @@ import com.archermind.note.gesture.AmGesture;
 import com.archermind.note.gesture.AmGestureLibraries;
 import com.archermind.note.gesture.AmGestureLibrary;
 import com.archermind.note.gesture.AmGestureOverlayView;
+
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -55,6 +59,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
@@ -74,6 +79,7 @@ import android.text.TextWatcher;
 import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -201,8 +207,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
     
     public ArrayList<String> mPicPathList = null;
     
-    
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -451,8 +455,15 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		myEdit.setTypeface(type);
 		
 		myEdit.setEditNote(this);
+		
+		MainScreen.eventService.add(this);
 	}
 	
+	/**
+	 * 计算编辑框的高度，若超过一页高度则返回超出的那一行行号
+	 * @param totalLine 总行数
+	 * @return
+	 */
 	private int countLinesHeight(int totalLine) {
 		int totalHeight = 0;
         Rect rc = new Rect();
@@ -468,6 +479,12 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
         return totalLine;
 	}
 	
+	/**
+	 * 当超出一页边界时的逻辑处理
+	 * @param i 行数
+	 * @param lineStart 那一行的起始文字所在位置
+	 * @param textLength 文本的长度。
+	 */
 	private void processWhenOutofbounds(int i,int lineStart,int textLength) {
     	isNeedSaveChange = false;
 		
@@ -519,6 +536,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	    
 	}
 	
+	/**
+	 * 当输入时，当前页的文本未超出视图边界，
+	 * 则将后面一页的内容填充至当前页直至当前页的内容超出边界
+	 */
 	private void processWhenInBounds() {
 		int textLength = myEdit.getText().length();
 		int position = findstartPosition(textLength);
@@ -561,6 +582,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
     	}
 	}
 	
+	/**
+	 * 交换正文链表中的两个元素
+	 * @param i
+	 * @param j
+	 */
 	private void wrapItemOfList(int i,int j) {
 		String str1 = mStrList.get(i);
 		String str2 = mStrList.get(j);
@@ -568,6 +594,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		mStrList.set(j, str1);
 	}
 	
+	/**
+	 * 将正文中的第i个元素插入到编辑框中
+	 * @param i
+	 */
 	private void addItemOfEditText(int i) {
 		String tempString = mStrList.get(i);
 		isNeedSaveChange = false;
@@ -611,7 +641,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
     		if (mPicMap == null) {
     			mPicMap = new LinkedHashMap<String, String>();
     		}
-    		Bitmap bmp = decodeFile(new File(path));
+    		Bitmap bmp = decodeFile(new File(path),myEdit.getWidth(),myEdit.getHeight());
 	        ImageSpan span = new ImageSpan(bmp);
 			SpannableString spanStr = new SpannableString(value);
 			spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -639,6 +669,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		
 	}
 	
+	/**
+	 * 查找光标所在位置内容在正文链表中所在的位置
+	 * @param start
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	private int findstartPosition(int start) {
 		int newLineNum = 0;
@@ -681,8 +716,16 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		}
 	}
 	
+	/**
+	 * 查找光标所在位置的下一个图片Span的起始位置
+	 * @param start
+	 * @return
+	 */
 	private int findEndIndex(int start) {
 		int endIndex = 0;
+		if (start == 0) {
+			return 0;
+		}
 		ImageSpan [] imgspans = myEdit.getText().getSpans(0, start, ImageSpan.class);
 		Arrays.sort(imgspans, new SpanComparator());
 		Spanned textSpan = myEdit.getText();
@@ -695,6 +738,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		return endIndex;
 	}
 	
+	/**
+	 * 查找光标所在位置的上一个图片Span的结束位置
+	 * @param start
+	 * @return
+	 */
 	private int findStartIndex(int start) {
 		int startIndex = myEdit.getText().length();
 		if (start >=  myEdit.getText().length()) {
@@ -712,6 +760,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		return startIndex;
 	}
 	
+	/**
+	 * 查找下一页在正文链表的位置
+	 * @param start
+	 * @return
+	 */
 	private int findNextPage(int start) {
 		if (start >= mStrList.size()) {
 			return -1;
@@ -726,6 +779,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		return -1;
 	}
 	
+	/**
+	 * 查找上一页在正文链表的位置
+	 * @param start
+	 * @return
+	 */
 	private int findPrePage(int start) {
 		if (start <= 0) {
 			return -1;
@@ -740,10 +798,18 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		return -1;
 	}
 	
+	/**
+	 * 获得光标所在位置的字符串，即光标所在位置前后两个图片Span中间的字符串内容
+	 * @param start
+	 * @return
+	 */
 	private String getNewString(int start) {
 		ImageSpan [] imgspanstart = myEdit.getText().getSpans(0, start, ImageSpan.class);
 		ImageSpan [] imgSpanend = myEdit.getText().getSpans(start, myEdit.getText().length(), ImageSpan.class);
 		int startIndex = 0;
+		if (start == 0) {
+			imgspanstart = new ImageSpan[0];
+		}
 		for (ImageSpan span :imgspanstart) {
 		    int tempIndex =  myEdit.getText().getSpanEnd(span);
 		    if (tempIndex > startIndex) {
@@ -752,6 +818,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		}
 		
 		int endIndex = myEdit.getText().length();
+		if (start == endIndex) {
+			imgSpanend = new ImageSpan[0];
+		}
 		for (ImageSpan span :imgSpanend) {
 		    int tempIndex =  myEdit.getText().getSpanStart(span);
 		    if (tempIndex < endIndex && tempIndex >= startIndex) {
@@ -762,6 +831,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		return myEdit.getText().subSequence(startIndex, endIndex).toString().replace("\n", "\\n");
 	}
 	
+	/**
+	 * 合并正文链表中的两个连续的字符串
+	 * @param firstIndex 链表中需要合并的第一个元素索引
+	 */
 	private void mergerSentence(int firstIndex) {
 		if (firstIndex >= mStrList.size() - 1) {
 			return;
@@ -782,6 +855,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		
 	}
 	
+	/**
+	 * 滑动到下一页
+	 * @return
+	 */
 	public boolean moveNextPage() {
 		if (mCurPage < mTotalPage) {
 			int pageStart = findNextPage(mLastPageEnd);
@@ -828,7 +905,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	}
 	
 	
-	
+	/**
+	 * 滑动到下一页
+	 */
 	public void movePrePage() {
 		if (mCurPage > 0) {
 			int pageStart = findPrePage(mLastPageEnd - 2);
@@ -853,6 +932,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		}
 	}
 	
+	/**
+	 * 将正文链表中元素start - end插入到编辑框中
+	 * @param start
+	 * @param end
+	 */
 	private void reInsert(int start,int end) {
 		isInsert = true;
 		for (int i = start ;i < end; i++) {
@@ -861,6 +945,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		isInsert = false;
 	}
 	
+	/**
+	 * 初始化天气和日期
+	 * @param id
+	 */
 	private void initWeatherAndDate(int id) {
 		Cursor cursor = ServiceManager.getDbManager().queryLocalNotesById(id);
 		if (cursor == null || cursor.getCount() == 0) {
@@ -930,10 +1018,17 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		
 	}
 	
+	/**
+	 * 得到天气
+	 * @return
+	 */
 	public String getWeather() {
 		return mWeather;
 	}
 	
+	/**
+	 * 初始化天气，从网络中获取
+	 */
 	private void initWeather() {
 		ServerInterface sinterface = new ServerInterface();
 		String prov = "湖北";
@@ -985,6 +1080,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	    }
 	}
 	
+	/**
+	 * 新建笔记时初始化天气和日期
+	 */
 	private void initNewWeatherAndDate() {
         long timeTemp = getIntent().getLongExtra("time", 0);
         long createTime = 0;
@@ -1020,12 +1118,15 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		}).start();
 	}
 	
+	/**
+	 * 在点击按钮后，将相关视图重置
+	 * @param v
+	 */
 	private void resetState(View v) {
 		if ((v.getId() != mViewId) &&(v.getId() == R.id.edit_insert
 				||v.getId() == R.id.edit_delete
 				||v.getId() == R.id.edit_inputtype
 				||v.getId() == R.id.edit_setting)) {
-			
 			isInputTypeShow = false;
 			isPicTypeShow = false;
 			isSettingTypeShow = false;
@@ -1033,6 +1134,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			pic_type.setVisibility(View.GONE);
 			setting_type.setVisibility(View.GONE);
 			faceGridview.setVisibility(View.GONE);
+			if (mState == PICINSERTSTATE || mState == FACEINSERTSTATE) {
+				mState = SOFTINPUTSTATE;
+			}
 			mViewId = v.getId();
 		}
 		
@@ -1053,6 +1157,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	    }
 	}
 	
+	/**
+	 * 初始化粗细对话框
+	 */
 	private void initThicknessDialog() {
 		thickness_dialog = new Dialog(this,R.style.CustomDialog);
 		thickness_dialog.setContentView(R.layout.thickness_dialog);
@@ -1083,6 +1190,12 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
         });
 	}
 	
+	/**
+	 * 从压缩文件中读取正文内容
+	 * @param file 压缩文件路径
+	 * @param picStr 正文中的图片路径
+	 * @return
+	 */
 	public static String readTextFromZip(String file,String[] picStr) {
 		if (file == null || "".equals(file)) {
 			return null;
@@ -1114,6 +1227,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		return retStr;
 	}
 	
+	/**
+	 * 在压缩文件中读取手势，并保存到内存中。
+	 * @param filePath
+	 * @return
+	 */
 	public static AmGestureLibrary readGestureFromZip(String filePath) {
 		Log.d("=TTT=","readGestureFromZip in");
 		if (filePath == null || "".equals(filePath)) {
@@ -1131,10 +1249,18 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		return store;
 	}
 	
+	/**
+	 * 设置编辑框的dirty标志，为ture时退出时提示用户保存
+	 * @param flag
+	 */
 	public void setHasChanged(boolean flag) {
 		hasChanged = flag;
 	}
 	
+	/**
+	 * 判断编辑框是否修改
+	 * @return
+	 */
 	public boolean hasChanged() {
 		return hasChanged;
 	}
@@ -1351,8 +1477,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			} else if (mState == SOFTINPUTSTATE) {
 				if (myEdit.getPaint().isFakeBoldText()) {
 					myEdit.getPaint().setFakeBoldText(false);
+					myEdit.invalidate();
 				} else {
 					myEdit.getPaint().setFakeBoldText(true);
+					myEdit.invalidate();
 				}
 			}
 			setting_type.setVisibility(View.GONE);
@@ -1360,7 +1488,15 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			break;
 		case R.id.picfroecamera:
 			String pName = picName.generateName();
-			imageFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/aNote/pic/pic_" + pName + ".jpg";
+			if ("".equals(mDiaryPath)) {
+			    mDiaryPath = "/sdcard/aNote/diary_" + MainScreen.snoteCreateTime;
+			}
+			String noteFileName = "";
+			if (!"".equals(mDiaryPath)) {
+				noteFileName = mDiaryPath.substring(mDiaryPath.lastIndexOf("/") + 1);
+			}
+			
+			imageFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/aNote/pic/" + noteFileName + "_pic_" + pName + ".jpg";
 			
 			File imageFile = new File(imageFilePath);
 			if (!imageFile.exists()) {
@@ -1437,6 +1573,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		}
 	}
 	
+	/**
+	 * 初始化天气popwindow
+	 */
 	private void initPopupWindow() {
 		View view = getLayoutInflater().inflate(R.layout.dialog_weather,null);
 		
@@ -1457,6 +1596,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		mWeatherPopupWindow.setOutsideTouchable(true);
 	}
 	
+	/**
+	 * 退出前保存笔记
+	 */
 	public void save() {
 		// 保存涂鸦
 		saveGraffit();
@@ -1500,6 +1642,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		hasChanged = false;
 	}
 	
+	/**
+	 * 将链表中的内容保存为文件
+	 * @param fileName 文件名
+	 * @param strList 链表对象
+	 */
 	private void saveList2File(String fileName,ArrayList<String> strList) {
 		File f = new File(fileName);
 		FileWriter fw=null;
@@ -1536,6 +1683,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		super.finish();
 	}
 	
+	/**
+	 * 得到笔记转换成的图片
+	 * @param filePath 笔记保存地址
+	 * @return
+	 */
 	public static ArrayList<String> getNotePictureFromZip(String filePath) {
 		if (filePath == null || "".equals(filePath)) {
 			return null;
@@ -1567,12 +1719,18 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		return strList;
 	}
 
+	/**
+	 * 保存涂鸦
+	 */
 	private void saveGraffit() {
 		myEdit.addGraffit("page"+String.valueOf(mCurPage));
 		myEdit.save();
 		Log.d("=TTT=","saveGraffit curPage = " + mCurPage);
 	}
 	
+	/**
+	 * 将编辑框中的内容保存为图片
+	 */
 	private void convertDiary2Pic() {
 		if ("".equals(mDiaryPath)) {
 		    mDiaryPath = "/sdcard/aNote/diary_" + MainScreen.snoteCreateTime;
@@ -1606,10 +1764,19 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		}
 	}
 	
+	/**
+	 * 获取笔记的存储地址
+	 * @return
+	 */
 	public String getDiaryPath() {
 		return mDiaryPath;
 	}
 	
+	/**
+	 * 压缩文件
+	 * @param fileFroms 需要压缩的文件
+	 * @param fileTo 压缩文件的文件名
+	 */
 	private void zipFile(String[] fileFroms, String fileTo) {  
         try {
         	FileOutputStream out = new FileOutputStream(fileTo);  
@@ -1639,11 +1806,20 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
         }  
     }
 	
+	/**
+	 * 文件是否存在
+	 * @param filePath 文件路径
+	 * @return 文件路径
+	 */
 	private boolean isFileExists(String filePath) {
 		File file = new File(filePath);
 		return file.exists();
 	}
 	
+	/**
+	 * 重新加载笔记文件并显示到编辑框中
+	 * @param filePath 笔记文件的路径
+	 */
 	private void reload(String filePath) {
 		File noteFile = new File(filePath);
 		if (!noteFile.exists()) {
@@ -1731,6 +1907,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
         }
 	}
 	
+	/**
+	 * 加载第一页的内容到编辑框中
+	 */
 	private void reloadFirstPage() {
 		int pageEnd = findNextPage(0);
 		if (pageEnd == -1) {
@@ -1747,7 +1926,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		isNeedSaveChange = true;
 	}
 	
-	
+	/**
+	 * 删除指定文件
+	 * @param fileName 文件名数组
+	 */
 	public void deletefiles(String [] fileName) {
 		for (String filename : fileName) {
 			File file = new File(filename);
@@ -1757,6 +1939,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		}
 	}
 	
+	/**
+	 * 删除指定文件
+	 * @param fileName 文件名链表
+	 */
 	public void deletefiles(ArrayList<String> fileName) {
 		for (String filename : fileName) {
 			File file = new File(filename);
@@ -1766,11 +1952,19 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		}
 	}
 	
+	/**
+	 * 删除一些本地的中间文件，本程序生成的。
+	 */
 	public void deleteDefaultFiles() {
 		String [] deletefileNames = {"/sdcard/aNote/picmap","/sdcard/aNote/text","/sdcard/aNote/gesture","/sdcard/aNote/graffit"};
 		deletefiles(deletefileNames);
 	}
 	
+	/**
+	 * 解压压缩文件。
+	 * @param zipFile 压缩文件的路径
+	 * @param targetDir 解压到指定目录
+	 */
 	private void Unzip(String zipFile, String targetDir) {
      	int BUFFER = 4096; //这里缓冲区我们使用4KB，
      	String strEntry; //保存每个zip的条目名称
@@ -1810,6 +2004,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
      	}
  	}
 	
+	/**
+	 * 将保存图片的map写到property文件中
+	 */
 	private void writePicMap() {
 		if (mPicMap == null || mPicMap.size() == 0) {
 			return;
@@ -1819,6 +2016,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	    }
 	}
 	
+	/**
+	 * 监听手势
+	 * @author root
+	 * 
+	 */
 	private class GesturesProcessorHandWrite implements AmGestureOverlayView.OnAmGestureListener {
         public void onGestureStarted(AmGestureOverlayView overlay, MotionEvent event) {
             mGesture = null;
@@ -1873,6 +2075,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
         }
     }
 	
+	/**
+	 * 添加手势
+	 * @param name 手势名称
+	 * @param gesture 手势对象
+	 */
 	private void addGesture(String name,AmGesture gesture) {
     	if (gestureFile == null) {
     		gestureFile = new File("/sdcard/aNote/gesture");
@@ -1896,6 +2103,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
     	mStore.save(false);
     }
 	
+	/**
+	 * 保存所有手势到文件中
+	 */
 	private void saveGesture() {
 		if (gestureFile == null) {
     		gestureFile = new File("/sdcard/aNote/gesture");
@@ -1923,6 +2133,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
     	mStore.save(false);
 	}
 	
+	/**
+	 * dip转换为px
+	 * @param x
+	 * @return
+	 */
 	private int dip2px(int x) {
     	return DensityUtil.dip2px(EditNoteScreen.this,x);
     }
@@ -1931,13 +2146,16 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// TODO Auto-generated method stub
 		super.onActivityResult(requestCode, resultCode, data);
+		mState = SOFTINPUTSTATE;
 		if (requestCode == CAMERA_RESULT) {
 			if (resultCode == RESULT_OK) {
-		        Bitmap bmp = decodeFile(new File(imageFilePath));
+		        Bitmap bmp = decodeFile(new File(imageFilePath),myEdit.getWidth(),myEdit.getHeight());
 		        ImageSpan span = new ImageSpan(bmp);
 		        int index = myEdit.getSelectionStart();
-		        myEdit.getText().insert(index, "\n");
-		        String pName = imageFilePath.substring(imageFilePath.lastIndexOf('/') + 1,imageFilePath.lastIndexOf('.'));
+		        if (index > 0) {
+		            myEdit.getText().insert(index, "\n");
+		        }
+		        String pName = "pic_" + picName.getCurNum();
 		        addMapItem(pName);
 				SpannableString spanStr = new SpannableString(pName);
 				spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -1963,7 +2181,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	            imageFilePath = cursor.getString(1);
 	            cursor.close();
 	            
-	            Bitmap bmp = decodeFile(new File(imageFilePath));
+	            Bitmap bmp = decodeFile(new File(imageFilePath),myEdit.getWidth(),myEdit.getHeight());
 		        ImageSpan span = new ImageSpan(bmp);
 		        int index = myEdit.getSelectionStart();
 		        if (index > 0) {
@@ -1980,6 +2198,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		}
 	}
 	
+	/**
+	 * 在图片的map中添加元素
+	 * @param name
+	 */
 	private void addMapItem(String name) {
 		if (mPicMap == null) {
 			mPicMap = new LinkedHashMap<String, String>();
@@ -1987,43 +2209,70 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		mPicMap.put(name, imageFilePath);
 	}
 	
-	public static Bitmap decodeFile(File f){
-        Bitmap b = null;
+	/**
+	 * 加载图片，若图片的本身大小大于宽，高，则等比缩小图片。
+	 * @param f 图片文件
+	 * @param width 图片的最大宽度
+	 * @param height 图片的最大高度
+	 * @return 返回一个图片
+	 */
+	public static Bitmap decodeFile(File f,int width,int height){
+		Log.d("=XXX=","width = " + width + " height = " + height);
+		if (width == 0 || height == 0) {
+			Display display = ((MainScreen) MainScreen.mContext).getWindowManager().getDefaultDisplay();
+			width = display.getWidth();
+			height = display.getHeight() - DensityUtil.dip2px(MainScreen.mContext,145);
+		}
+		Bitmap retBmp = null;
         try {
             //Decode image size
             BitmapFactory.Options o = new BitmapFactory.Options();
-            o.inJustDecodeBounds = true;
 
             FileInputStream fis = new FileInputStream(f);
-            BitmapFactory.decodeStream(fis, null, o);
+            retBmp = BitmapFactory.decodeStream(fis, null, o);
+            
+            float widthScale = (float)width  / o.outWidth;
+            float heightScale = (float)height / o.outHeight;
+            
+            
+            float scale = Math.min(widthScale, heightScale);
+            
+            if (scale < 1) {
+                Matrix matrix = new Matrix();
+                matrix.postScale(scale,scale); 
+            	retBmp = Bitmap.createBitmap(retBmp, 0,0,retBmp.getWidth(), retBmp.getHeight(), matrix,true);
+            }
+            
             fis.close();
 
-            int scale = 1;
-            scale = (int)(o.outWidth / (float)200);
-            if (scale <= 0) {
-            	scale = 1;
-            }
-            
-            int scale2 = (int) (o.outHeight / (float)250);
-            if (scale2 <= 0) {
-            	scale2 = 1;
-            }
-            
-            if (scale2 >  scale) {
-            	scale = scale2;
-            }
-
-            //Decode with inSampleSize
-            BitmapFactory.Options o2 = new BitmapFactory.Options();
-            
-            o2.inSampleSize = scale;
-            
-            fis = new FileInputStream(f);
-            b = BitmapFactory.decodeStream(fis, null, o2);
-            fis.close();
+//            int scale = 1;
+//            scale = (int)(o.outWidth / (float)200);
+//            if (scale <= 0) {
+//            	scale = 1;
+//            }
+//            
+//            int scale2 = (int) (o.outHeight / (float)250);
+//            if (scale2 <= 0) {
+//            	scale2 = 1;
+//            }
+//            
+//            if (scale2 >  scale) {
+//            	scale = scale2;
+//            }
+//
+//            //Decode with inSampleSize
+//            BitmapFactory.Options o2 = new BitmapFactory.Options();
+//            
+//            o2.inSampleSize = scale;
+//            
+//            fis = new FileInputStream(f);
+//            b = BitmapFactory.decodeStream(fis, null, o2);
+//            
+//            Log.d("=TTT=","scale = " + scale + " outWidth = " + o.outWidth + " outWidth2 = " + o2.outWidth);
+//            fis.close();
         } catch (Exception e) {
         }
-        return b;
+        return retBmp;
     }
 	
 	
@@ -2045,6 +2294,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		save_dialog.show();
 	}
 
+	/**
+	 * 初始化GridView
+	 */
 	public void makeAdapters() {
 		ArrayList<Integer> faces = new ArrayList<Integer>();
 		faces.add(R.drawable.face_a1);
@@ -2088,6 +2340,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		faceGridview.setAdapter(faceAdapter);
 	}
 	
+	/**
+	 * 插入表情
+	 * @param id 表情id
+	 */
 	private void insertFace(int id) {
         String fname = this.getResources().getResourceName(id);
         fname = fname.substring(fname.lastIndexOf("/") + 1, fname.length());
@@ -2101,6 +2357,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		myEdit.getText().insert(index, spanStr);
 	}
 	
+	/**
+	 * 追加表情
+	 * @param id 表情id
+	 */
 	private void appendFace(int id) {
 		String fname = this.getResources().getResourceName(id);
         fname = fname.substring(fname.lastIndexOf("/") + 1, fname.length());
@@ -2115,6 +2375,16 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	@Override
 	public boolean onEvent(Object sender, EventArgs e) {
 		// TODO Auto-generated method stub
+		switch(e.getType()){
+		case SHARE_NOTE_SUCCESSED:
+			dismissProgress();
+			finish();
+			break;
+		case SHARE_NOTE_FAILED:
+			dismissProgress();
+			finish();
+			break;
+		}
 		return false;
 	}
 }

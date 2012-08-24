@@ -53,7 +53,7 @@ public class ColorPickerDialog extends Dialog {
             mTextPaint.setColor(Color.WHITE);
             mTextPaint.setStrokeWidth(5);
             mTextPaint.setTextAlign(Align.CENTER);
-            mTextPaint.setTextSize(32);
+            mTextPaint.setTextSize(DensityUtil.dip2px(mContext, 20));
         }
         
         private boolean mTrackingCenter;
@@ -67,7 +67,7 @@ public class ColorPickerDialog extends Dialog {
             
             canvas.drawOval(new RectF(-r, -r, r, r), mPaint);
             canvas.drawCircle(0, 0, CENTER_RADIUS, mCenterPaint);
-            canvas.drawText("OK", 0, 8, mTextPaint);
+            canvas.drawText("OK", 0, DensityUtil.dip2px(mContext, 6), mTextPaint);
             
             if (mTrackingCenter) {
                 int c = mCenterPaint.getColor();

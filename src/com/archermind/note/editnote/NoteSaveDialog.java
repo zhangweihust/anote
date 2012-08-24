@@ -66,7 +66,9 @@ public class NoteSaveDialog implements OnClickListener{
 	}
 	
 	public void dismiss() {
-		noteSaveDialog.dismiss();
+		if (noteSaveDialog.isShowing()) {
+		    noteSaveDialog.dismiss();
+		}
 	}
 	
 	@Override
@@ -121,6 +123,7 @@ public class NoteSaveDialog implements OnClickListener{
 					final String userIdStr = String.valueOf(userId);
 					uploadImg(userIdStr);
 					
+					mEditNote.showProgress(null,"正在分享");
 					new Thread(new Runnable() {
 						@Override
 						public void run() {
@@ -156,6 +159,8 @@ public class NoteSaveDialog implements OnClickListener{
 					
 					uploadImg(userIdStr);
 					
+					mEditNote.showProgress(null,"正在分享");
+					
 					cursor.moveToFirst();
 					String serviceID = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID));
 					String action = "N";
@@ -168,6 +173,7 @@ public class NoteSaveDialog implements OnClickListener{
 					
 					final String actionTemp = action;
 					final String sid = serviceID;
+					
 					new Thread(new Runnable() {
 						@Override
 						public void run() {
@@ -176,6 +182,7 @@ public class NoteSaveDialog implements OnClickListener{
 						}
 					}).start();
 				}
+				dismiss();
 			} else if (saveGroup.getCheckedRadioButtonId() == R.id.save_only) {
 				mEditNote.save();
 				String title = mEditText.getEditableText().toString();
@@ -212,10 +219,12 @@ public class NoteSaveDialog implements OnClickListener{
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER, weather);
 					ServiceManager.getDbManager().updateLocalNotes(contentValues, noteId);
 				}
+				dismiss();
+				mEditNote.finish();
 			} else {
+				dismiss();
+				mEditNote.finish();
 			}
-			dismiss();
-			mEditNote.finish();
 			break;
 		case R.id.note_save_cancel:
 			dismiss();
@@ -241,16 +250,21 @@ public class NoteSaveDialog implements OnClickListener{
 			if (serviceId > 0) {
 				ContentValues contentValues2 = new ContentValues();
 				contentValues2.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, String.valueOf(serviceId));
+				contentValues2.put(DatabaseHelper.COLUMN_NOTE_USER_ID,Integer.parseInt(userId));
 				ServiceManager.getDbManager().updateLocalNotes(contentValues2,(int)id);
 				System.out.println("===============分享成功===============");
+				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_SUCCESSED));
 			} else {
 				System.out.println("===============分享失败===============");
+				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_FAILED));
 			}
 		} else if ("M".equals(action)) {
 			if (serviceId == 0) {
 				System.out.println("===============分享成功===============");
+				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_SUCCESSED));
 			} else {
 				System.out.println("===============分享失败===============");
+				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_FAILED));
 			}
 		}
 	}

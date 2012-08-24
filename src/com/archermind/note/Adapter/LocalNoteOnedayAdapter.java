@@ -179,7 +179,7 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 		item.tvNoteContent.setText("");
 		if (contextStr != null) {
 			if (picStr != null && !"".equals(picStr)) {
-				Bitmap bmp = EditNoteScreen.decodeFile(new File(picStr));
+				Bitmap bmp = EditNoteScreen.decodeFile(new File(picStr),DensityUtil.dip2px(context,240),DensityUtil.dip2px(context,240));
 				Drawable drawable = new BitmapDrawable(bmp);
 			    drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
 	            

@@ -102,6 +102,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	
 	
 	private static boolean isFirst = true;
+	private static int calendarHeight = 0;
 	public static final EventService eventService = ServiceManager.getEventservice();
 
 	public HomeScreen(){
@@ -247,7 +248,9 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 		System.out.println("onWindowFocusChanged flipper height : " + flipper.getHeight() + " mCurMonth : " + mCurMonth);
-       
+        if(flipper.getHeight() != 0){
+        	calendarHeight = flipper.getHeight();
+        }
 		if(Constant.flagType == 1){
 			tvCalendarWeekday0.setText(R.string.calendar_mon);
 			tvCalendarWeekday1.setText(R.string.calendar_tue);
@@ -756,7 +759,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	private void showCalendarMonth(int preORnext){
 		System.out.println("====showCalendarMonth====" + mCurMonth);
 		addGridView();   //添加一个gridview
-		mCalendarAdapter = new CalendarAdapter(this, getResources(), mCurYear, mCurMonth,flipper.getHeight(), Constant.flagType);
+		mCalendarAdapter = new CalendarAdapter(this, getResources(), mCurYear, mCurMonth,calendarHeight, Constant.flagType);
 	    mGridView.setAdapter(mCalendarAdapter);
 	    
 	    flipper.removeAllViews();

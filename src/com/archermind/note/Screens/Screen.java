@@ -11,7 +11,7 @@ public class Screen extends Activity {
 	 * @param title
 	 * @param message
 	 */
-	protected void showProgress(String title, String message) {
+	public void showProgress(String title, String message) {
 		mProgressDialog = ProgressDialog.show(this, title, message);
 		mProgressDialog.setCancelable(true);
 	}
@@ -19,7 +19,7 @@ public class Screen extends Activity {
 	/**
 	 * 取消等待框
 	 */
-	protected void dismissProgress() {
+	public void dismissProgress() {
 		if (mProgressDialog != null) {
 			try {
 				mProgressDialog.dismiss();
