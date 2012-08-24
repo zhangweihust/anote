@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -55,10 +56,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	private VerticalScrollView mllCalendarPage;
 	private static LinearLayout mllHomePage;
 	private LinearLayout mListHeader;
-	private LinearLayout mllBottomInfo;
-	private ImageView mIvMyNoteInfo;
-	private TextView mTvNoNoteDays;
-	private TextView mTvNoteCountToday;
+	private TextView mTvMyNoteInfo;
 	private static String tagCalendar = "calendar";
 	private static String tagTimeList = "timelist";
 /*	private Button mBtnPreMonth;
@@ -124,10 +122,10 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
         mlvDayNotes.setDividerHeight(DensityUtil.dip2px(mContext, 5));
         
         mListHeader = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.home_screen_listview_header, null);
-        mllBottomInfo = (LinearLayout)mListHeader.findViewById(R.id.ll_bottom_info);
-    	mIvMyNoteInfo = (ImageView)mListHeader.findViewById(R.id.iv_my_note_info);
-    	mTvNoNoteDays = (TextView)mListHeader.findViewById(R.id.tv_no_note_days);
-        mTvNoteCountToday = (TextView)mListHeader.findViewById(R.id.tv_note_count_today);
+        mTvMyNoteInfo = (TextView)mListHeader.findViewById(R.id.tv_my_note_info);
+        Typeface type = Typeface.createFromAsset(getAssets(),"xdxwzt.ttf");
+		mTvMyNoteInfo.setTypeface(type);
+        
         mTvCurMonth = (TextView)mListHeader.findViewById(R.id.tv_cur_month);
         
         mBtnBackCurmonth = (Button)mListHeader.findViewById(R.id.btn_back_curmonth);
@@ -150,7 +148,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				if(tag != null){
 					if(tag.equals(tagCalendar)){
 						mllCalendarPage.snapToPage(1);
-						mllBottomInfo.setVisibility(View.GONE);
+						mTvMyNoteInfo.setVisibility(View.GONE);
 						mListHeader.setTag(tagTimeList);
 	            		//mllBottomInfo.setVisibility(View.GONE);
 	            		mlvMonthNotes.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
@@ -159,7 +157,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 						mllCalendarPage.snapToPage(0);
 						// mllBottomInfo.setVisibility(View.VISIBLE);
 						 mListHeader.setTag(tagCalendar);
-	            		 mllBottomInfo.setVisibility(View.VISIBLE);
+						 mTvMyNoteInfo.setVisibility(View.VISIBLE);
 	            		 showCalendarMonth(NEXT_MONTH);
 					}
 				}
@@ -333,21 +331,13 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				cal.setTimeInMillis(time);
 				int lastDayIndex = cal.get(Calendar.DAY_OF_YEAR);
 				int noNoteDays = todayIndex - lastDayIndex;
-				mIvMyNoteInfo.setImageResource(R.drawable.no_note_some_days);
-	        	mTvNoteCountToday.setVisibility(View.GONE);
-	        	mTvNoNoteDays.setVisibility(View.VISIBLE);
-	        	mTvNoNoteDays.setText("" + noNoteDays);
+				mTvMyNoteInfo.setText(noNoteDays + "天没有写笔记了哦");
 			}else{
 		        int count = ServiceManager.getDbManager().queryTodayLocalNOTEs(System.currentTimeMillis()).getCount();
 		        if(count == 0){
-		        	mIvMyNoteInfo.setImageResource(R.drawable.no_note_today);
-		        	mTvNoteCountToday.setVisibility(View.GONE);
-		        	mTvNoNoteDays.setVisibility(View.GONE);
+		        	mTvMyNoteInfo.setText("今天还没有写笔记哦");
 		        }else{
-		        	mIvMyNoteInfo.setImageResource(R.drawable.has_note_today);
-		        	mTvNoteCountToday.setText("" + count);
-		        	mTvNoteCountToday.setVisibility(View.VISIBLE);
-		        	mTvNoNoteDays.setVisibility(View.GONE);
+		        	mTvMyNoteInfo.setText("今天已经写了" + count + "篇笔记");
 		        }
 				
 			}
@@ -360,9 +350,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		}else{
 			mRecentTime = System.currentTimeMillis();
 			mEarlistTime = System.currentTimeMillis();
-        	mIvMyNoteInfo.setImageResource(R.drawable.no_note_today);
-        	mTvNoteCountToday.setVisibility(View.GONE);
-        	mTvNoNoteDays.setVisibility(View.GONE);
+			mTvMyNoteInfo.setText("今天还没有写笔记哦");
 		}
 		
 		if(mllCalendarPage.getVisibility() == View.VISIBLE && mListHeader.getTag().equals(tagCalendar)){

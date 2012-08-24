@@ -20,7 +20,8 @@
                 android:id="@+id/xlistview_header_hint_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/xlistview_header_hint_normal" />
+                android:text="@string/xlistview_header_hint_normal"
+                android:textSize="@dimen/home_screen_note_title_text_size" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -31,13 +32,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/xlistview_header_last_time"
-                    android:textSize="12sp" />
+                    android:textSize="@dimen/home_screen_note_time_info_text_size" />
 
                 <TextView
                     android:id="@+id/xlistview_header_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp" />
+                    android:textSize="@dimen/home_screen_note_time_info_text_size" />
             </LinearLayout>
         </LinearLayout>
 

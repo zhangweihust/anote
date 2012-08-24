@@ -39,37 +39,13 @@
                 android:visibility="gone"
                 /> 
         </RelativeLayout>
-        <LinearLayout 
-            android:id="@+id/ll_bottom_info"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="20dp"
-            >
-            <TextView 
-                android:id="@+id/tv_no_note_days"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/home_screen_cur_month_text_size"
-                android:textColor="@color/note_info_text_color"
-				android:visibility="gone"
-                />
-            <ImageView 
-                android:id="@+id/iv_my_note_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/no_note_today"
-                />
-            <TextView
-                android:id="@+id/tv_note_count_today"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/home_screen_cur_month_text_size"
-                android:textColor="@color/note_info_text_color"
-                android:visibility="gone"
-                />
-        </LinearLayout>
+        <TextView 
+              android:id="@+id/tv_my_note_info"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:textSize="@dimen/home_screen_cur_month_text_size"
+              android:textColor="@color/note_info_text_color"
+              android:gravity="center_horizontal"
+              />
 
 </LinearLayout>

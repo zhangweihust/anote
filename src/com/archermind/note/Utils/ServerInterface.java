@@ -13,19 +13,20 @@ import android.util.Log;
 
 public class ServerInterface {
 
-	public static final String URL_LOGIN = "http://player.archermind.com/ci/index.php/anote/login";
-	public static final String URL_REGISTER = "http://player.archermind.com/ci/index.php/anote/register";
-	public static final String URL_CHECK = "http://player.archermind.com/ci/index.php/anote/check_bin_acc";
-	public static final String URL_BOUNDACCOUNT = "http://player.archermind.com/ci/index.php/anote/bind_acc";
-	public static final String URL_uploadAlbum = "http://player.archermind.com/ci/index.php/anote/send_url";
-	public static final String URL_getAlbumUrl = "http://player.archermind.com/ci/index.php/anote/get_url";
-	public static final String URL_setPhotoUrl = "http://player.archermind.com/ci/index.php/anote/set_portrait_url";
-	public static final String URL_getPhotoUrl = "http://player.archermind.com/ci/index.php/anote/get_portrait_url";
-	public static final String URL_get_info = "http://player.archermind.com/ci/index.php/anote/get_info";
-	public static final String URL_set_info = "http://player.archermind.com/ci/index.php/anote/set_info";
-	public static final String URL_upload_note = "http://player.archermind.com/ci/index.php/anote/shareNote";
-
-	public static final String URL_MODIFYPASSWORD = "http://player.archermind.com/ci/index.php/anote/pswModify";
+	public static final String URL_SERVER = "http://player.archermind.com/";
+	public static final String URL_LOGIN = URL_SERVER + "ci/index.php/anote/login";
+	public static final String URL_REGISTER = URL_SERVER + "ci/index.php/anote/register";
+	public static final String URL_CHECK = URL_SERVER + "ci/index.php/anote/check_bin_acc";
+	public static final String URL_BOUNDACCOUNT = URL_SERVER + "ci/index.php/anote/bind_acc";
+	public static final String URL_uploadAlbum = URL_SERVER + "ci/index.php/anote/send_url";
+	public static final String URL_getAlbumUrl = URL_SERVER + "ci/index.php/anote/get_url";
+	public static final String URL_setPhotoUrl = URL_SERVER + "ci/index.php/anote/set_portrait_url";
+	public static final String URL_getPhotoUrl = URL_SERVER + "ci/index.php/anote/get_portrait_url";
+	public static final String URL_get_info = URL_SERVER + "ci/index.php/anote/get_info";
+	public static final String URL_set_info = URL_SERVER + "ci/index.php/anote/set_info";
+	public static final String URL_upload_note = URL_SERVER + "ci/index.php/anote/shareNote";
+	public static final String URL_getReplyFromUser = URL_SERVER + "ci/index.php/anote/getReplyFromUser";
+	public static final String URL_MODIFYPASSWORD = URL_SERVER + "ci/index.php/anote/pswModify";
 
 	public static final String app_id = "0ba7932602af4a45bd866bad93be0e50";
 	public static final String app_secret = "2411edd1a2c44249a98e6451592062bc";
@@ -148,7 +149,7 @@ public class ServerInterface {
 		map.put("prov", prov);
 		weather = HttpUtils
 				.doPost(map,
-						"http://player.archermind.com/ci/index.php/aschedule/getWeather");
+						URL_SERVER + "ci/index.php/aschedule/getWeather");
 		return weather;
 	}
 	/*
@@ -323,6 +324,20 @@ public class ServerInterface {
 		}
 		return 0;
 		
+	}
+	/**
+	 * 获取用户信息 输入参数：用户id
+	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
+	 */
+	public static String getReplyFromUser(int user_id,long date,int count) {
+
+		Map<String, String> map = new HashMap<String, String>();
+		System.out.println(user_id + " , " + date + ", " + count + ", ");
+		map.put("user_id", user_id + "");
+		map.put("date", date + "");
+		map.put("items", count + "");
+		String res= HttpUtils.doPost(map, URL_getReplyFromUser);
+		return res;
 	}
 	
 }

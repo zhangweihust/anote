@@ -161,4 +161,36 @@ public class DatabaseManager {
 				null, null, null);
 	}
 	
+	
+	public long insertInformation(ContentValues values) {
+		return database.insert(DatabaseHelper.TAB_REPLY, null, values);
+	}
+
+	public Cursor queryInformations() {
+		return database.query(DatabaseHelper.TAB_REPLY, null, null, null, null,
+				 null, DatabaseHelper.COLUMN_REPLY_TIME + " DESC");
+	}
+	
+	public Cursor queryInformationsAfter(Long time) {
+		return database.query(DatabaseHelper.TAB_REPLY, null, DatabaseHelper.COLUMN_REPLY_TIME + " > ? ",
+				new String[] {String.valueOf(time)}, null,
+				 null, DatabaseHelper.COLUMN_REPLY_TIME + " DESC");
+	}
+	
+/*	public Cursor querySomeInformationsBefore(Long time, int count) {
+		return database.query(DatabaseHelper.TAB_REPLY, null, DatabaseHelper.COLUMN_REPLY_TIME + " < ? ",
+				new String[] {String.valueOf(time)}, null,
+				 null, DatabaseHelper.COLUMN_REPLY_TIME + " DESC" , String.valueOf(count));
+	}
+	*/
+	public void deleteInformations(long timeInMillis) {
+		   Cursor dCursor = database.query(DatabaseHelper.TAB_REPLY, null, DatabaseHelper.COLUMN_REPLY_TIME + " < ? ", new String[]{String.valueOf(timeInMillis)}, null, null, null); 
+		   while(dCursor.moveToNext()){ 
+			   int id = dCursor.getInt(dCursor.getColumnIndex(databaseHelper.COLUMN_REPLY_ID));
+			   database.delete(DatabaseHelper.TAB_NOTE,
+						DatabaseHelper.COLUMN_REPLY_ID + " =? ",
+						new String[] { String.valueOf(id) });
+		   }
+		   dCursor.close();
+	}
 }

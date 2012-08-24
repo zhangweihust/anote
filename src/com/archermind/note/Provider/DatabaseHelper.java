@@ -104,28 +104,28 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 			+ ")";
 	*/
 	
-	public static final String TAB_NOTE_REPLY = "note_reply";
-	public static final String TAB_NOTE_REPLY_NID = "_id";//回贴ID
-	public static final String TAB_NOTE_REPLY_NICKNAME = "nickname";//回帖人昵称
-	public static final String TAB_NOTE_REPLY_PHOTO = "photo";//回帖人头像
-	public static final String TAB_NOTE_REPLY_TITLE = "title";//帖子的标题
-	public static final String TAB_NOTE_REPLY_CONTENT = "content";//回帖的内容
-	public static final String TAB_NOTE_REPLY_TIME = "time";//回帖的时间
+	public static final String TAB_REPLY = "note_reply";
+	public static final String COLUMN_REPLY_ID = "_id";
+	public static final String COLUMN_REPLY_NICKNAME = "nickname";//回帖人昵称
+	public static final String COLUMN_REPLY_PHOTO = "photo";//回帖人头像
+	public static final String COLUMN_REPLY_TITLE = "title";//帖子的标题
+	public static final String COLUMN_REPLY_CONTENT = "content";//回帖的内容
+	public static final String COLUMN_REPLY_TIME = "time";//回帖的时间
 
-	private static final String CRETAE_TAB_NOTE_REPLY= " CREATE TABLE IF NOT EXISTS "
-			+ TAB_NOTE_REPLY
+	private static final String CRETAE_TAB_REPLY= " CREATE TABLE IF NOT EXISTS "
+			+ TAB_REPLY
 			+ " ( "
-			+ TAB_NOTE_REPLY_NID
+			+ COLUMN_REPLY_ID
 			+ " INTEGER PRIMARY KEY , "
-			+ TAB_NOTE_REPLY_NICKNAME
+			+ COLUMN_REPLY_NICKNAME
 			+ " TEXT, "
-			+ TAB_NOTE_REPLY_PHOTO
+			+ COLUMN_REPLY_PHOTO
 			+ " TEXT, "
-			+ TAB_NOTE_REPLY_TITLE
+			+ COLUMN_REPLY_TITLE
 			+ " TEXT, "
-			+ TAB_NOTE_REPLY_CONTENT
+			+ COLUMN_REPLY_CONTENT
 			+ " TEXT, "
-			+ TAB_NOTE_REPLY_TIME
+			+ COLUMN_REPLY_TIME
 			+ " TEXT"
 			+ ")";
 	
@@ -162,7 +162,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
 	private void createTabs(SQLiteDatabase db) {
 		db.execSQL(CRETAE_TAB_NOTE);
-		db.execSQL(CRETAE_TAB_NOTE_REPLY);
+		db.execSQL(CRETAE_TAB_REPLY);
 		//db.execSQL(CRETAE_TAB_USER);
 		//db.execSQL(CRETAE_TAB_WEATHER);
 		//db.execSQL(CRETAE_TAB_NOTE_RELATION);
