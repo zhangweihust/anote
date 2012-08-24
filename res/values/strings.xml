@@ -81,7 +81,7 @@
 
     <!-- album -->
     <string name="album_title">我的相册</string>
-    <string name="album_gallery_title">第%1$d张/共%2$d张</string>
+    <string name="album_gallery_title">%1$d/%2$d</string>
     <string name="image_upload_failed" translatable="false">上传图片失败，网络环境或服务器不可访问</string>
     <string name="image_download_failed" translatable="false">下载图片失败，网络环境或服务器不可访问</string>
     <string name="image_file_name_format" translatable="false">"_yyyyMMdd_HHmmss"</string>
@@ -164,6 +164,39 @@
     <string name="sign">标记</string>
     <string name="delete">删除</string>
 
+    <!-- screen_update -->
+    <string name="screen_update_download_finished">Download finished</string>
+    <string name="screen_update_download_error">Update package download error</string>
+    <string name="screen_update_click_to_install">Download finished, click to install</string>
+    <string name="screen_update_not_need_update">The new version is not detected</string>
+    <string name="screen_update_have_update">aNote has a new version</string>
+    <string name="screen_update_select_to_install">New version\'s download finished, please install it</string>
+    <string name="screen_update_install_now">Update now</string>
+    <string name="screen_update_install_later">Update later</string>
+    <string name="screen_update_version">New version:</string>
+    <string name="screen_update_version_size">Size:</string>
+    <string name="screen_update_version_info">Info:</string>
+    <string name="screen_update_ok">OK</string>
+    <string name="screen_update_error">The update package signature inconsistent, please uninstall the program later installed</string>
+    
+    <!-- screen_version.xml -->
+    <string name="screen_version_top_title">Version info</string>
+    <string name="screen_version_title">aNote&#160;v</string>
+    <string name="screen_version_check_update">Check Update</string>
+    <string name="screen_version_download_update_background">Updates is downloading background...</string>
+    
+    <!-- dialog_check_signature -->
+    <string name="dialog_check_signature_title">Check the new apk</string>
+    <string name="dialog_check_signature_checking">Checking, please wait...</string>
+    <string name="dialog_check_sinature_not_match">The signature is not match, uninstall the old app, and install the new one.the location is sdcard/aNote/package</string>
+    <string name="dialog_check_sinature_not_match_title">The signature is not match, uninstall the old app, and install the new one.</string>
+    <string name="dialog_check_sinature_not_match_info">the location is sdcard/aNote/package</string>
+    <string name="dialog_check_signature_ok">OK</string>
+    <string name="dialog_check_signature_cancel">Cancel</string>
+			
+    <string name="sd_card_not_enough_space">Sdcard in insufficient storage, please clean up!</string>
+    <string name="get_network_failed">Please check if your network is available</string>
+			
     <!-- city -->
     <string name="city_1">北京</string>
     <string name="city_2">天津</string>

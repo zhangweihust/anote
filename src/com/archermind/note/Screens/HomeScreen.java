@@ -11,7 +11,10 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -34,6 +37,7 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 import android.widget.AdapterView.OnItemClickListener;
 
+import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Adapter.CalendarAdapter;
 import com.archermind.note.Adapter.LocalNoteAdapter;
@@ -48,7 +52,9 @@ import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.Constant;
 import com.archermind.note.Utils.DateTimeUtils;
 import com.archermind.note.Utils.DensityUtil;
+import com.archermind.note.Utils.DownloadApkHelper;
 import com.archermind.note.Views.VerticalScrollView;
+import com.archermind.note.download.DownloadTaskManager;
 
 
 public class HomeScreen extends Screen  implements IEventHandler, OnClickListener{
@@ -107,6 +113,25 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_screen);
         
+        boolean networkIsOk = false;
+		try {
+			ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo ni = cm.getActiveNetworkInfo();
+			networkIsOk = (ni != null ? ni.isConnectedOrConnecting() : false);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if(networkIsOk && NoteApplication.IS_AUTO_UPDATE) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					Looper.prepare();
+					DownloadApkHelper downloadApk = new DownloadApkHelper(HomeScreen.this, Looper.myLooper());
+					downloadApk.updateApk(DownloadApkHelper.AUTO_UPDATE, null);
+					Looper.loop();
+				}
+			}).start();
+		}
 /*        if(ServiceManager.getDbManager().queryLocalNotes(HomeScreen.USRID).getCount() == 0){
         	insert();
         }*/
@@ -352,7 +377,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 			mEarlistTime = System.currentTimeMillis();
 			mTvMyNoteInfo.setText("今天还没有写笔记哦");
 		}
-		
+		localNotes.close();
 		if(mllCalendarPage.getVisibility() == View.VISIBLE && mListHeader.getTag().equals(tagCalendar)){
 			showCalendarMonth(NEXT_MONTH);
 		}

@@ -4,14 +4,20 @@ import com.archermind.note.Services.ServiceManager;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 
 public class NoteApplication extends Application {
 
 	private final static String TAG = "Note";
 
+	public static String sdcard = Environment.getExternalStorageDirectory().getAbsolutePath();
+	public static String savePath = sdcard + "/aNote/";
+	public static String packagePath = savePath + "package/";
+	public static boolean IS_AUTO_UPDATE = true;
 	private static NoteApplication instance;
 
+	private boolean downloadApkFlag = false;
 	private boolean isLogin = false;
 
 	private int mUserId;
@@ -20,6 +26,12 @@ public class NoteApplication extends Application {
 	private boolean mBound_QQ = false;
 	private boolean mBound_Renren = false;
 
+	public boolean isDownloadApkFlag() {
+		return downloadApkFlag;
+	}
+	public void setDownloadApkFlag(boolean downloadApkFlag) {
+		this.downloadApkFlag = downloadApkFlag;
+	}
 	public static Context getContext() {
 		return NoteApplication.instance;
 	}

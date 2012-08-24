@@ -28,6 +28,7 @@ public class ServerInterface {
 	public static final String URL_getReplyFromUser = URL_SERVER + "ci/index.php/anote/getReplyFromUser";
 	public static final String URL_MODIFYPASSWORD = URL_SERVER + "ci/index.php/anote/pswModify";
 
+	public static final String URL_get_version_info = URL_SERVER + "ci/index.php/anote/get_version_info";
 	public static final String app_id = "0ba7932602af4a45bd866bad93be0e50";
 	public static final String app_secret = "2411edd1a2c44249a98e6451592062bc";
 
@@ -340,4 +341,13 @@ public class ServerInterface {
 		return res;
 	}
 	
+	/**
+	 * 获取版本信息
+	 * 返回值： json 成功  -1 url为空 
+	 */
+	public static String get_version_info() {
+		String res= HttpUtils.doPost(null, URL_get_version_info);		
+		return res;
+	}
+
 }

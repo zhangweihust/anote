@@ -265,7 +265,7 @@ public class CalendarAdapter extends BaseAdapter {
 		if(mCursor.getCount() > 0){
 			noteFlag = new int[42];
 		}
-		
+		mCursor.close();
 		dayNumber = new String[42];
 		
 		for (int i = 0; i < dayNumber.length; i++) {

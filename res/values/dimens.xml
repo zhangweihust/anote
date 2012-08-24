@@ -47,5 +47,46 @@
 	<!-- login_register -->
 	<dimen name="login_register_text_size">16sp</dimen>
 	
+	<!-- custom_dialog_listview_item2.xml -->
+	<dimen name="custom_dialog_listview_item2_textSize1">16sp</dimen>
+	<dimen name="custom_dialog_listview_item2_minHeight">50dp</dimen>
+	
+	<!-- popwindow.xml -->
+	<dimen name="popwindow_item_width">200dp</dimen>
+	<dimen name="popwindow_item_editor_width">180dp</dimen>
+	<dimen name="font_color_popwindow_item_width">300dp</dimen>
+	<dimen name="popwindow_item_height">46dp</dimen>
+	<dimen name="popwindow_item_maginLeft">50dp</dimen>
+	<dimen name="popwindow_item_maginTop">30dp</dimen>
+	<dimen name="popwindow_create_playlist">58px</dimen>
+	<dimen name="popwindow_item_textView_size">20dp</dimen>
+	<dimen name="popwindow_item_button_width">90dp</dimen>
+	<dimen name="popwindow_item_button_marginLeft">2dp</dimen>
+	<dimen name="popwindow_title_text_size">18sp</dimen> 
+	<dimen name="popwindow_item_text_size">16sp</dimen> 
+	<dimen name="popwindow_btn_width">80dp</dimen>
+	<dimen name="popwindow_btn_height">36dp</dimen>
+	<dimen name="popwindow_btn_marginLeft">4dp</dimen>
+	<dimen name="popwindow_textview_paddingLeft">10dp</dimen>
+	<dimen name="popwindow_textview_width">60dp</dimen>
+	<dimen name="popwindow_edit_text_size">14dip</dimen>
+	<dimen name="popwindow_drawable_padding">20px</dimen>
+	<dimen name="popwinows_line_height">1dip</dimen>
+	<dimen name="popwindow_listview_height">263px</dimen>
+	<dimen name="popwindow_listview_head_default_width">120px</dimen>
+	<dimen name="popwindow_listview_head_default_height">65px</dimen>
+	<dimen name="popwindow_listview_head_default_paddingLeft">15px</dimen>
+	<dimen name="popwindow_listview_head_default_paddingRight">165px</dimen>
+	<dimen name="popwindow_listview_head_default_paddingTop">10px</dimen>
+	<dimen name="popwindow_listview_head_default_paddingBottom">10px</dimen>
+	<dimen name="popwindow_button_marginLeft">14px</dimen>
+	<dimen name="popwindow_button_marginRight">14px</dimen>
+	<dimen name="popwindow_textview_marginTop">13px</dimen>
+	<dimen name="popwindow_textviewToimgview_padding">8dip</dimen>
+	
+	<!-- screen_kmedia_player_dialog.xml -->
+	<dimen name="kmedia_dialog_line_layout_marginTop">18dp</dimen> 
+	<dimen name="kmedia_dialog_line_layout_marginBottom">11dp</dimen> 
+	<dimen name="kmedia_dialog_button_textSize">18dp</dimen> 
 </resources>
 
