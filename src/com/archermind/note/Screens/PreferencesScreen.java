@@ -49,10 +49,10 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 
 		mUserAvatar = (ImageView) this.findViewById(R.id.user_avatar);
 
-		Bitmap image = PreferencesHelper.getAvatarBitmap(this);
-		if (image != null) {
-			mUserAvatar.setImageBitmap(image);
-		}
+//		Bitmap image = PreferencesHelper.getAvatarBitmap(this);
+//		if (image != null) {
+//			mUserAvatar.setImageBitmap(image);
+//		}
 		
 		mLoginButton = (Button) findViewById(R.id.btn_login);
 		mLoginButton.setOnClickListener(this);
@@ -64,10 +64,10 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		Bitmap image = PreferencesHelper.getAvatarBitmap(this);
-		if (image != null) {
-			mUserAvatar.setImageBitmap(image);
-		}
+//		Bitmap image = PreferencesHelper.getAvatarBitmap(this);
+//		if (image != null) {
+//			mUserAvatar.setImageBitmap(image);
+//		}
 		
 		//判断是否登录
 		if(NoteApplication.getInstance().isLogin()){

@@ -115,16 +115,16 @@ public class DownloadApkHelper {
 			}
 			return;
 		}
-//		String saveTime = preferences.getString(XML_KEY_TIME, null);
-//		if (saveTime != null
-//				&& sDateFormat.format(new java.util.Date()).equals(saveTime)
-//				&& type == AUTO_UPDATE) {
-//			if (screenVersionHandler != null) {
-//				Message msg = screenVersionHandler.obtainMessage(1, "flash");
-//				screenVersionHandler.sendMessage(msg);
-//			}
-//			return;
-//		}
+		String saveTime = preferences.getString(XML_KEY_TIME, null);
+		if (saveTime != null
+				&& sDateFormat.format(new java.util.Date()).equals(saveTime)
+				&& type == AUTO_UPDATE) {
+			if (screenVersionHandler != null) {
+				Message msg = screenVersionHandler.obtainMessage(1, "flash");
+				screenVersionHandler.sendMessage(msg);
+			}
+			return;
+		}
 		if (checkLocalPackage(type, screenVersionHandler)) {//本地的安装包是符合要求的，提示用户安装
 			// ，不需要去检测服务器。
 			return;
