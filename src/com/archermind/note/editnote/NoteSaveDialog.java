@@ -13,6 +13,7 @@ import com.archermind.note.Screens.EditNoteScreen;
 import com.archermind.note.Screens.HomeScreen;
 import com.archermind.note.Screens.LoginScreen;
 import com.archermind.note.Screens.MainScreen;
+import com.archermind.note.Screens.ShareScreen;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DateTimeUtils;
 import com.archermind.note.Utils.NetworkUtils;
@@ -106,7 +107,7 @@ public class NoteSaveDialog implements OnClickListener{
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT, diaryPath);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER, weather);
-					final long id = ServiceManager.getDbManager().insertLocalNotes(contentValues, System.currentTimeMillis());
+					long id = ServiceManager.getDbManager().insertLocalNotes(contentValues, System.currentTimeMillis());
 					
 					if (NetworkUtils.getNetworkState(MainScreen.mContext) == NetworkUtils.NETWORN_NONE) {
 						Toast.makeText(mEditNote, "网络不通，无法分享", Toast.LENGTH_SHORT).show();
@@ -118,19 +119,15 @@ public class NoteSaveDialog implements OnClickListener{
 						mEditNote.startActivity(intent);
 						return;
 					}
+					Intent intent = new Intent(mEditNote,ShareScreen.class);
+					intent.putStringArrayListExtra("picpathlist", mEditNote.mPicPathList);
+					intent.putExtra("noteid", String.valueOf(id));
+					intent.putExtra("title", title);
+					intent.putExtra("action", "A");
+					intent.putExtra("sid", "0");
+					mEditNote.startActivity(intent);
+					dismiss();
 					
-					int userId = NoteApplication.getInstance().getUserId();
-					final String userIdStr = String.valueOf(userId);
-					uploadImg(userIdStr);
-					
-					mEditNote.showProgress(null,"正在分享");
-					new Thread(new Runnable() {
-						@Override
-						public void run() {
-							// TODO Auto-generated method stub
-							uploadNote(id, title,"A","0",userIdStr);
-						}
-					}).start();
 				} else {
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,title);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
@@ -154,12 +151,7 @@ public class NoteSaveDialog implements OnClickListener{
 						return;
 					}
 					
-					int userId = NoteApplication.getInstance().getUserId();
-					final String userIdStr = String.valueOf(userId);
-					
-					uploadImg(userIdStr);
-					
-					mEditNote.showProgress(null,"正在分享");
+				
 					
 					cursor.moveToFirst();
 					String serviceID = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID));
@@ -170,19 +162,17 @@ public class NoteSaveDialog implements OnClickListener{
 						action = "A";
 						serviceID = "0";
 					}
+									
+					Intent intent = new Intent(mEditNote,ShareScreen.class);
+					intent.putStringArrayListExtra("picpathlist", mEditNote.mPicPathList);
+					intent.putExtra("noteid", String.valueOf(noteId));
+					intent.putExtra("title", title);
+					intent.putExtra("action", action);
+					intent.putExtra("sid", serviceID);
+					mEditNote.startActivity(intent);
+					dismiss();
 					
-					final String actionTemp = action;
-					final String sid = serviceID;
-					
-					new Thread(new Runnable() {
-						@Override
-						public void run() {
-							// TODO Auto-generated method stub
-							uploadNote((long)noteId, title,actionTemp,sid,userIdStr);
-						}
-					}).start();
 				}
-				dismiss();
 			} else if (saveGroup.getCheckedRadioButtonId() == R.id.save_only) {
 				mEditNote.save();
 				String title = mEditText.getEditableText().toString();
@@ -233,55 +223,55 @@ public class NoteSaveDialog implements OnClickListener{
 		}
 	}
 	
-	private void uploadNote(long id,String title,String action,String sid,String userId) {
-		int totalPage = 0;
-		if (mEditNote.mPicPathList != null) {
-			totalPage = mEditNote.mPicPathList.size();
-		}
-		
-		String context = totalPage == 0 ? "" : mEditNote.mPicPathList.get(0);
-		
-		if (!"".equals(context)) {
-			context = context.substring(context.lastIndexOf("/") + 1);
-		}
-		
-		int serviceId = ServerInterface.uploadNote(id,userId,sid,action,title,context,String.valueOf(totalPage));
-		if ("A".equals(action)) {
-			if (serviceId > 0) {
-				ContentValues contentValues2 = new ContentValues();
-				contentValues2.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, String.valueOf(serviceId));
-				contentValues2.put(DatabaseHelper.COLUMN_NOTE_USER_ID,Integer.parseInt(userId));
-				ServiceManager.getDbManager().updateLocalNotes(contentValues2,(int)id);
-				System.out.println("===============分享成功===============");
-				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_SUCCESSED));
-			} else {
-				System.out.println("===============分享失败===============");
-				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_FAILED));
-			}
-		} else if ("M".equals(action)) {
-			if (serviceId == 0) {
-				System.out.println("===============分享成功===============");
-				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_SUCCESSED));
-			} else {
-				System.out.println("===============分享失败===============");
-				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_FAILED));
-			}
-		}
-	}
-	
-	private void uploadImg(String userIdStr) {
-		int totalPage = 0;
-		if (mEditNote.mPicPathList != null) {
-			totalPage = mEditNote.mPicPathList.size();
-		}
-		
-		ServerInterface sInterface = new ServerInterface();
-		sInterface.InitAmtCloud(MainScreen.mContext);
-		
-		for (int i = 0; i < totalPage;i++) {
-			sInterface.uploadFile(MainScreen.mContext, userIdStr, mEditNote.mPicPathList.get(i));
-		}
-		
-	}
+//	private void uploadNote(long id,String title,String action,String sid,String userId) {
+//		int totalPage = 0;
+//		if (mEditNote.mPicPathList != null) {
+//			totalPage = mEditNote.mPicPathList.size();
+//		}
+//		
+//		String context = totalPage == 0 ? "" : mEditNote.mPicPathList.get(0);
+//		
+//		if (!"".equals(context)) {
+//			context = context.substring(context.lastIndexOf("/") + 1);
+//		}
+//		
+//		int serviceId = ServerInterface.uploadNote(id,userId,sid,action,title,context,String.valueOf(totalPage));
+//		if ("A".equals(action)) {
+//			if (serviceId > 0) {
+//				ContentValues contentValues2 = new ContentValues();
+//				contentValues2.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, String.valueOf(serviceId));
+//				contentValues2.put(DatabaseHelper.COLUMN_NOTE_USER_ID,Integer.parseInt(userId));
+//				ServiceManager.getDbManager().updateLocalNotes(contentValues2,(int)id);
+//				System.out.println("===============分享成功===============");
+//				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_SUCCESSED));
+//			} else {
+//				System.out.println("===============分享失败===============");
+//				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_FAILED));
+//			}
+//		} else if ("M".equals(action)) {
+//			if (serviceId == 0) {
+//				System.out.println("===============分享成功===============");
+//				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_SUCCESSED));
+//			} else {
+//				System.out.println("===============分享失败===============");
+//				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_FAILED));
+//			}
+//		}
+//	}
+//	
+//	private void uploadImg(String userIdStr) {
+//		int totalPage = 0;
+//		if (mEditNote.mPicPathList != null) {
+//			totalPage = mEditNote.mPicPathList.size();
+//		}
+//		
+//		ServerInterface sInterface = new ServerInterface();
+//		sInterface.InitAmtCloud(MainScreen.mContext);
+//		
+//		for (int i = 0; i < totalPage;i++) {
+//			sInterface.uploadFile(MainScreen.mContext, userIdStr, mEditNote.mPicPathList.get(i));
+//		}
+//		
+//	}
 
 }
