@@ -1,36 +1,54 @@
 package com.archermind.note.Screens;
 
 
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebBackForwardList;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 
 public class PlazaScreen extends Screen {
 	
 	private WebView mWebView;
 	private static String url = "http://10.52.31.122/";
-	public static boolean isFirstPage = false;
+	public static boolean isFirstPage = true;
+
 	
+		@SuppressLint("SetJavaScriptEnabled")
 		@Override
 	    public void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
-	        setContentView(R.layout.plaza_screen);
-	        mWebView = (WebView) findViewById(R.id.plaza_page);
-	        mWebView.getSettings().setJavaScriptEnabled(true);  
+	      //  setContentView(R.layout.plaza_screen);
+	        //mWebView = (WebView) findViewById(R.id.plaza_page);
+	        mWebView = new WebView(this);
+	        setContentView(mWebView);
+	        mWebView.getSettings().setJavaScriptEnabled(true); 
+	        mWebView.getSettings().setBuiltInZoomControls(true);
 	        mWebView.requestFocus();
 	        
-/*	        CookieSyncManager.createInstance(this);
+	        if(NoteApplication.getInstance().isLogin()){
+	        CookieSyncManager.createInstance(this);
 	        CookieSyncManager.getInstance().startSync();
-	        CookieManager.getInstance().removeSessionCookie();
-	        CookieManager.getInstance().setCookie(url, value)
+	     //    CookieManager.getInstance().removeSessionCookie();
+	       // CookieManager.getInstance().removeAllCookie();
+	        System.out.println(CookieManager.getInstance().getCookie(url) + "~~~~~~~~~~~~~~~~~~");
+	        CookieManager.getInstance().setCookie(url, "userid=" + NoteApplication.getInstance().getUserId() + ";");
 	        mWebView.clearCache(true);
-	        mWebView.clearHistory();*/
-	        
-	        mWebView.setWebViewClient(new WebViewClient(){
+	        mWebView.clearHistory();
+	       System.out.println(CookieManager.getInstance().getCookie(url) + "~~~~~~~~~~~~~~~~~~");
+	        }
+
+	       
+	       mWebView.setWebViewClient(new WebViewClient(){
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -82,7 +100,9 @@ public class PlazaScreen extends Screen {
 	 	@Override
 	 	protected void onResume() {
 	 	  super.onResume();
-	 	 // CookieSyncManager.getInstance().stopSync();
+	 	 if(NoteApplication.getInstance().isLogin()){
+	 	  CookieSyncManager.getInstance().stopSync();
+	 	 }
 	 	}
 
 	 	@Override
@@ -96,6 +116,8 @@ public class PlazaScreen extends Screen {
 	 	@Override
 	 	protected void onPause() {
 	 	  super.onPause();
-	 	 // CookieSyncManager.getInstance().sync();
+	 	 if(NoteApplication.getInstance().isLogin()){
+	 	  CookieSyncManager.getInstance().sync();
+	 	 }
 	 	}
 }
