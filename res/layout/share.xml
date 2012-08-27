@@ -42,7 +42,7 @@
         <ImageView
             android:id="@+id/share_image"
             android:layout_width="150dp"
-            android:layout_height="250dp"
+            android:layout_height="200dp"
             android:layout_gravity="center"
             android:src="@drawable/share_test" />
 
@@ -55,28 +55,40 @@
             android:gravity="top|left"
             android:hint="在这写下你想说的话吧！"
             android:isScrollContainer="true"
-            android:maxLines="15"
             android:maxEms="280"
+            android:maxLines="15"
             android:text="这一刻我站在这里，用手机记录了眼前的这个画面！与人分享，其乐无穷！------来自“微笔记” @诚迈科技"
             android:textColor="@color/login_text_color"
             android:textSize="14sp" />
     </LinearLayout>
 
-    <TextView
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
         android:gravity="center"
-        android:text="已分享到广场"
-        android:textColor="@color/red"
-        android:textSize="20dp" />
+        android:orientation="horizontal" >
+
+        <ProgressBar
+            android:id="@+id/share_progressBar"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/share_progress_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="@string/share_dialog_msg_square"
+            android:textColor="@color/red"
+            android:textSize="20sp" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp" >
+        android:padding="10dp" >
 
         <View
             android:layout_width="wrap_content"
@@ -112,14 +124,14 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="20dp"
-            android:background="@drawable/sina" />
+            android:background="@drawable/btn_sina_selector" />
 
         <Button
             android:id="@+id/btn_share_qq"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:background="@drawable/qq" />
+            android:background="@drawable/btn_qq_selector" />
 
         <Button
             android:id="@+id/btn_share_renren"
@@ -127,7 +139,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_marginRight="20dp"
-            android:background="@drawable/renren" />
+            android:background="@drawable/btn_renren_selector" />
     </RelativeLayout>
 
 </LinearLayout>

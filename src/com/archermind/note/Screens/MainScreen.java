@@ -446,8 +446,8 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	        return super.dispatchKeyEvent(event);
 		}
 		
-		 private void autoLogin() {
-				if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
+	private void autoLogin() {
+		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
 
 			new Thread() {
 
@@ -492,9 +492,6 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 				}
 
 			}.start();
-		} else {
-			Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
-					.show();
 		}
 	}
 }

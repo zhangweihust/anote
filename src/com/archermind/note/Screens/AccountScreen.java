@@ -22,6 +22,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
 import com.renren.api.connect.android.Renren;
@@ -242,24 +243,33 @@ public class AccountScreen extends Screen implements OnClickListener {
 			}.start();
 			break;
 		case R.id.acount_sina_unbound:
-			boundSinaweibo();
+			if(NetworkUtils.getNetworkState(this)!= NetworkUtils.NETWORN_NONE){
+				boundSinaweibo();
+			}else {
+				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
+				.show();
+			}
 			break;
 		case R.id.acount_qq_unbound:
-			boundQQweibo();
+			if(NetworkUtils.getNetworkState(this)!= NetworkUtils.NETWORN_NONE){
+				boundQQweibo();
+			}else {
+				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
+				.show();
+			}
 			break;
 		case R.id.acount_renren_unbound:
-			boundRenRen();
-			break;
-		case R.id.button1:
-			Intent intent = new Intent(this, ShareScreen.class);
-			startActivity(intent);
+			if(NetworkUtils.getNetworkState(this)!= NetworkUtils.NETWORN_NONE){
+				boundRenRen();
+			}else {
+				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
+				.show();
+			}
 			break;
 		}
 	}
 
 	private void initViews() {
-		Button button = (Button) findViewById(R.id.button1);
-		button.setOnClickListener(this);
 		mSina_unbound = (TextView) findViewById(R.id.acount_sina_unbound);
 		mSina_unbound.setOnClickListener(this);
 		mSina_bounded = (TextView) findViewById(R.id.acount_sina_bounded);

@@ -58,7 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:drawableTop="@drawable/sina"
+            android:drawableTop="@drawable/btn_sina_selector"
             android:gravity="center_horizontal"
             android:text="@string/login_sina"
             android:textColor="@color/login_text_color" />
@@ -68,7 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:drawableTop="@drawable/qq"
+            android:drawableTop="@drawable/btn_qq_selector"
             android:gravity="center_horizontal"
             android:text="@string/login_qq"
             android:textColor="@color/login_text_color" />
@@ -78,7 +78,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:drawableTop="@drawable/renren"
+            android:drawableTop="@drawable/btn_renren_selector"
             android:gravity="center_horizontal"
             android:text="@string/login_renren"
             android:textColor="@color/login_text_color" />

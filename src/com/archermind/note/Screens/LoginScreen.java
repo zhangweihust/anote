@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
 import com.renren.api.connect.android.Renren;
@@ -151,16 +152,36 @@ public class LoginScreen extends Screen implements OnClickListener {
 			finish();
 			break;
 		case R.id.btn_login:
-			login();
+			if(NetworkUtils.getNetworkState(this)!= NetworkUtils.NETWORN_NONE){
+				login();
+			}else {
+				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
+				.show();
+			}
 			break;
 		case R.id.btn_login_sina:
-			boundSinaweibo();
+			if(NetworkUtils.getNetworkState(this)!= NetworkUtils.NETWORN_NONE){
+				boundSinaweibo();
+			}else {
+				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
+				.show();
+			}
 			break;
 		case R.id.btn_login_qq:
-			boundQQweibo();
+			if(NetworkUtils.getNetworkState(this)!= NetworkUtils.NETWORN_NONE){
+				boundQQweibo();
+			}else {
+				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
+				.show();
+			}
 			break;
 		case R.id.btn_login_renren:
-			boundRenRen();
+			if(NetworkUtils.getNetworkState(this)!= NetworkUtils.NETWORN_NONE){
+				boundRenRen();
+			}else {
+				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
+				.show();
+			}
 			break;
 		default:
 			break;

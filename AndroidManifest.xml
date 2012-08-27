@@ -11,8 +11,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:screenOrientation="portrait"
-        android:theme="@style/ActivityNoTitle"
-        android:windowSoftInputMode="adjustPan" >
+        android:theme="@style/ActivityNoTitle" >
         <activity
             android:launchMode="singleTop"
             android:name=".Screens.MainScreen"
@@ -30,11 +29,17 @@
         <activity android:name=".Screens.InformationScreen" />
         <activity
             android:name=".Screens.RegisterScreen"
-            android:launchMode="singleTop" />
-        <activity android:name=".Screens.ShareScreen"></activity>
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".Screens.ShareScreen"
+            android:windowSoftInputMode="stateHidden" >
+        </activity>
         <activity android:name="com.tencent.weibo.webview.OAuthV2AuthorizeWebView" />
         <activity android:name=".Screens.PreferencesScreen" />
-        <activity android:name=".Screens.AccountScreen" />
+        <activity
+            android:name=".Screens.AccountScreen"
+            android:windowSoftInputMode="stateHidden" />
         <activity android:name=".Screens.AlbumScreen" />
         <activity android:name=".Screens.PersonalInfoScreen" />
         <activity android:name=".Screens.PersonalInfoRegionScreen" />
@@ -44,7 +49,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
 </manifest>
