@@ -26,12 +26,24 @@ public class NoteApplication extends Application {
 	private boolean mBound_QQ = false;
 	private boolean mBound_Renren = false;
 
+	private Context mTopWindowContext;
+
+	public Context getTopWindowContext() {
+		return mTopWindowContext;
+	}
+	
+	public void setTopWindowContext(Context context) {
+		this.mTopWindowContext = context;
+	}
+	
 	public boolean isDownloadApkFlag() {
 		return downloadApkFlag;
 	}
+	
 	public void setDownloadApkFlag(boolean downloadApkFlag) {
 		this.downloadApkFlag = downloadApkFlag;
 	}
+	
 	public static Context getContext() {
 		return NoteApplication.instance;
 	}

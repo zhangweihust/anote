@@ -148,6 +148,23 @@
     <string name="register_success">注册成功！</string>
     <string name="register_success_upload_photo_failed">注册成功！但头像上传失败！</string>
     
+    <!-- about -->
+    <string name="about_title">关于</string>
+    <string name="about_logo_title">分享笔记 分享快乐</string>
+    <string name="about_version_info">版本信息</string>
+    <string name="about_web">官方网站</string>
+    <string name="about_blog">官方微博</string>
+    <string name="about_check_update">检查更新</string>
+    <string name="about_rights">"@2012诚迈科技 版权所有"</string>
+    
+    <!-- feedback -->
+    <string name="feedback_title">反馈</string>
+    <string name="feedback_hint">请输入您的宝贵意见！</string>
+    <string name="feedback_commit">提交反馈</string>
+    <string name="feedback_err_input_is_null">输入不能为空</string>
+    <string name="feedback_commit_success">提交反馈成功</string>
+    <string name="feedback_commit_failure">提交反馈失败</string>
+    
     <!-- share -->
     <string name="share_dialog_msg_sina">正在分享到新浪微博...</string>
     <string name="share_dialog_msg_qq">正在分享到腾讯微博...</string>

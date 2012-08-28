@@ -28,7 +28,9 @@ public class ServerInterface {
 	public static final String URL_getReplyFromUser = URL_SERVER + "ci/index.php/anote/getReplyFromUser";
 	public static final String URL_MODIFYPASSWORD = URL_SERVER + "ci/index.php/anote/pswModify";
 
-	public static final String URL_get_version_info = URL_SERVER + "ci/index.php/anote/get_version_info";
+	//public static final String URL_get_version_info = URL_SERVER + "ci/index.php/anote/get_version_info";
+	public static final String URL_get_version_info = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_version_info";
+	public static final String URL_feedback = URL_SERVER + "ci/index.php/anote/suggestionfeedback";
 	public static final String app_id = "0ba7932602af4a45bd866bad93be0e50";
 	public static final String app_secret = "2411edd1a2c44249a98e6451592062bc";
 
@@ -350,4 +352,19 @@ public class ServerInterface {
 		return res;
 	}
 
+    public static int suggestionfeedback(String user_id,String tel,String suggestion) {
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("user_id", user_id);
+        map.put("tel", tel);
+        map.put("suggestion", suggestion);
+        String ret = HttpUtils
+                .doPost(map, URL_feedback);
+        int result =0;
+        try{
+            result =Integer.parseInt(ret);
+        }catch (Exception e){
+            result =-3;
+        }
+        return result;
+    }
 }
