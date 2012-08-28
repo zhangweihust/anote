@@ -27,7 +27,7 @@ public class ServerInterface {
 	public static final String URL_upload_note = URL_SERVER + "ci/index.php/anote/shareNote";
 	public static final String URL_getReplyFromUser = URL_SERVER + "ci/index.php/anote/getReplyFromUser";
 	public static final String URL_MODIFYPASSWORD = URL_SERVER + "ci/index.php/anote/pswModify";
-
+	public static final String URL_FINDPASSWORD = URL_SERVER + "ci/index.php/anote/findPassWord";
 	//public static final String URL_get_version_info = URL_SERVER + "ci/index.php/anote/get_version_info";
 	public static final String URL_get_version_info = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_version_info";
 	public static final String URL_feedback = URL_SERVER + "ci/index.php/anote/suggestionfeedback";
@@ -198,13 +198,14 @@ public class ServerInterface {
 			String username, String filepath ,String filename,String expandname) {
 		AmtFileObject fileObj = new AmtFileObject(context);
 		fileObj.uploadFile(app_id, username, filepath);
-		String url = "http://yun.archermind.com/mobile/service/showMedia?appId="
-			+ app_id
-			+ "&userName="
-			+ username
-			+ "&mediaName="
-			+ filename
-			+ "&mediaType=" + expandname;
+//		String url = "http://yun.archermind.com/mobile/service/showMedia?appId="
+//				+ app_id
+//				+ "&userName="
+//				+ username
+//				+ "&mediaName="
+//				+ filename
+//				+ "&mediaType=" + expandname;
+		String url =filename+ "." +expandname;
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user_id", user_id);
 		map.put("albumname", albumname);
@@ -237,13 +238,14 @@ public class ServerInterface {
 	public static int uploadPhoto(Context context,String user_id,String username,String filepath,String filename,String expandname) {
 		AmtFileObject fileObj = new AmtFileObject(context);
 		fileObj.uploadFile(app_id, username, filepath);
-		String url = "http://yun.archermind.com/mobile/service/showMedia?appId="
-			+ app_id
-			+ "&userName="
-			+ username
-			+ "&mediaName="
-			+ filename
-			+ "&mediaType=" + expandname;
+//		String url = "http://yun.archermind.com/mobile/service/showMedia?appId="
+//			+ app_id
+//			+ "&userName="
+//			+ username
+//			+ "&mediaName="
+//			+ filename
+//			+ "&mediaType=" + expandname;
+		String url =filename+ "." +expandname;
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user_id", user_id);
 		map.put("portrait", url);
@@ -367,4 +369,13 @@ public class ServerInterface {
         }
         return result;
     }
+	/**
+	 * 找回密码
+	 * 返回值： 0 成功，-1 用户名不存在， -2 邮件发送失败
+	 */
+	public static String FindPassword(String username){
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("email", username);
+		return HttpUtils.doPost(map, URL_FINDPASSWORD);
+		}
 }

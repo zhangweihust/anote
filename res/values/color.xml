@@ -26,4 +26,5 @@
     <color name="calendar_today">#2866a2d5</color>
     <color name="information_content_text_color">#787f89</color>
     <color name="button_color">#6f6f6f</color>
+    <color name="edittext_background_color">#F9F9F9</color>
 </resources>

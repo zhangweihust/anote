@@ -69,7 +69,6 @@
     <string name="account_bound_sina_none">您还没没有绑定新浪账号，请先进行绑定！</string>
     <string name="account_bound_qq_none">您还没没有绑定QQ账号，请先进行绑定！</string>
     <string name="account_bound_renren_none">您还没没有绑定人人账号，请先进行绑定！</string>
-    <string name="share_unbind_title">确定解除授权？</string>
     <string name="setting_ok">确定</string>
     <string name="setting_cancel">取消</string>
     <string name="setting_tips">提示</string>
@@ -126,6 +125,9 @@
     <string name="login_findpassword">忘记密码？</string>
     <string name="logout_title">确定退出登录？</string>
     <string name="login_dialog_msg">正在登录...</string>
+    <string name="login_findpassword_success">系统已将密码发送至您的邮箱，请查收！</string>
+    <string name="login_findpassword_err_user_none">该用户不存在！</string>
+     <string name="login_findpassword_failed">邮件发送失败，请重试！</string>
 
     <!-- register -->
     <string name="register_title">补充个人信息</string>
@@ -172,6 +174,10 @@
     <string name="feedback_commit_failure">提交反馈失败</string>
     
     <!-- share -->
+    <string name="share_title">分享</string>
+    <string name="share_edittext_hint">在这写下你想说的话吧！</string>
+    <string name="share_edittext_text">分享笔记，分享幸福！\n查看请点击:\nwww.archermind.com\n@分享笔记 @诚迈科技</string>
+    <string name="share_text_others">您还可以分享到以下平台</string>
     <string name="share_dialog_msg_sina">正在分享到新浪微博...</string>
     <string name="share_dialog_msg_qq">正在分享到腾讯微博...</string>
     <string name="share_dialog_msg_renren">正在分享到人人网...</string>

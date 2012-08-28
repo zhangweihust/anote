@@ -18,15 +18,18 @@ import com.weibo.net.Weibo;
 import com.weibo.net.WeiboDialogListener;
 import com.weibo.net.WeiboException;
 
+import android.R.integer;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -41,6 +44,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 	private TextView mLoginButton_sina;
 	private TextView mLoginButton_qq;
 	private TextView mLoginButton_renren;
+	private TextView mFindPassword;
 	private Handler mHandler;
 	private NetThread mNetThread;
 	private static final String TAG = "LoginScreen";
@@ -132,6 +136,8 @@ public class LoginScreen extends Screen implements OnClickListener {
 	 */
 	private void initViews() {
 		mUserName = (EditText) findViewById(R.id.editText_login_username);
+		mUserName.setText(PreferencesHelper.getSharedPreferences(this, 0)
+				.getString(PreferencesHelper.XML_USER_ACCOUNT, null));
 		mPassWord = (EditText) findViewById(R.id.editText_login_password);
 		mBackButton = (Button) findViewById(R.id.screen_top_play_control_back);
 		mBackButton.setOnClickListener(this);
@@ -143,6 +149,8 @@ public class LoginScreen extends Screen implements OnClickListener {
 		mLoginButton_qq.setOnClickListener(this);
 		mLoginButton_renren = (TextView) findViewById(R.id.btn_login_renren);
 		mLoginButton_renren.setOnClickListener(this);
+		mFindPassword = (TextView) findViewById(R.id.login_findpassword);
+		mFindPassword.setOnClickListener(this);
 	}
 
 	@Override
@@ -152,35 +160,43 @@ public class LoginScreen extends Screen implements OnClickListener {
 			finish();
 			break;
 		case R.id.btn_login:
-			if(NetworkUtils.getNetworkState(this)!= NetworkUtils.NETWORN_NONE){
+			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
 				login();
-			}else {
+			} else {
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
-				.show();
+						.show();
 			}
 			break;
 		case R.id.btn_login_sina:
-			if(NetworkUtils.getNetworkState(this)!= NetworkUtils.NETWORN_NONE){
+			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
 				boundSinaweibo();
-			}else {
+			} else {
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
-				.show();
+						.show();
 			}
 			break;
 		case R.id.btn_login_qq:
-			if(NetworkUtils.getNetworkState(this)!= NetworkUtils.NETWORN_NONE){
+			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
 				boundQQweibo();
-			}else {
+			} else {
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
-				.show();
+						.show();
 			}
 			break;
 		case R.id.btn_login_renren:
-			if(NetworkUtils.getNetworkState(this)!= NetworkUtils.NETWORN_NONE){
+			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
 				boundRenRen();
-			}else {
+			} else {
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
-				.show();
+						.show();
+			}
+			break;
+		case R.id.login_findpassword:
+			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
+				findPassword();
+			} else {
+				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
+						.show();
 			}
 			break;
 		default:
@@ -197,11 +213,15 @@ public class LoginScreen extends Screen implements OnClickListener {
 		if (!ServerInterface.isEmail(username)) {
 			Toast.makeText(this, R.string.login_err_username_format,
 					Toast.LENGTH_SHORT).show();
+			mUserName.startAnimation(AnimationUtils.loadAnimation(this,
+					R.anim.shake));
 			return;
 		}
 		if (!ServerInterface.isPswdValid(password)) {
 			Toast.makeText(this, R.string.login_err_password_format,
 					Toast.LENGTH_SHORT).show();
+			mPassWord.startAnimation(AnimationUtils.loadAnimation(this,
+					R.anim.shake));
 			return;
 		}
 		showProgress(null, getString(R.string.login_dialog_msg));// 显示进度框
@@ -304,6 +324,19 @@ public class LoginScreen extends Screen implements OnClickListener {
 		});
 	}
 
+	private void findPassword() {
+		String username = mUserName.getText().toString().trim();
+		if (!ServerInterface.isEmail(username)) {
+			Toast.makeText(this, R.string.login_err_username_format,
+					Toast.LENGTH_SHORT).show();
+			mUserName.startAnimation(AnimationUtils.loadAnimation(this,
+					R.anim.shake));
+		} else {
+			FindPswdTask findPswdTask = new FindPswdTask();
+			findPswdTask.execute(username);
+		}
+	}
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == 1) {
@@ -393,6 +426,33 @@ public class LoginScreen extends Screen implements OnClickListener {
 			bundle.putString("uid", uid);
 			message.setData(bundle);
 			mHandler.sendMessage(message);
+		}
+
+	}
+
+	private class FindPswdTask extends AsyncTask<String, integer, String> {
+
+		@Override
+		protected String doInBackground(String... params) {
+			return ServerInterface.FindPassword(params[0]);
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			if (result.equals("0")) {
+				Toast.makeText(LoginScreen.this,
+						R.string.login_findpassword_success, Toast.LENGTH_SHORT)
+						.show();
+			} else if (result.equals("-1")) {
+				Toast.makeText(LoginScreen.this,
+						R.string.login_findpassword_err_user_none,
+						Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(LoginScreen.this,
+						R.string.login_findpassword_failed, Toast.LENGTH_SHORT)
+						.show();
+			}
 		}
 
 	}

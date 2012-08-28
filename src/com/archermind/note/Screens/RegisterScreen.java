@@ -77,31 +77,32 @@ public class RegisterScreen extends Screen implements OnClickListener {
 						R.string.register_err_account_exist, Toast.LENGTH_SHORT)
 						.show();
 				dismissProgress();
-			} else if (result.equals(UPLOAD_PHOTO_OK)) {
-				dismissProgress();
-				Toast.makeText(RegisterScreen.this, R.string.register_success,
-						Toast.LENGTH_SHORT).show();
-				Log.i(TAG, "upload avatar success");
-				finish();
-			} else if (result.equals(UPLOAD_PHOTO_ERROR)) {
-				int uploadcount = msg.getData().getInt("uploadcount");
-				if (uploadcount > 3 || uploadcount <= 0) {
-					dismissProgress();
-					Toast.makeText(RegisterScreen.this,
-							R.string.register_success_upload_photo_failed,
-							Toast.LENGTH_SHORT).show();
-					Log.i(TAG, "upload avatar failed");
-					finish();
-				} else {
-					Log.i(TAG,
-							"upload avatar---try count:"
-									+ String.valueOf(uploadcount + 1));
-					String aName = msg.getData().getString("name");
-					String aExpandName = msg.getData().getString("expandname");
-					String aFilePath = msg.getData().getString("filelocalpath");
-					uploadImage(aName, aExpandName, aFilePath, uploadcount + 1);
-				}
+//			} else if (result.equals(UPLOAD_PHOTO_OK)) {
+//				dismissProgress();
+//				Toast.makeText(RegisterScreen.this, R.string.register_success,
+//						Toast.LENGTH_SHORT).show();
+//				Log.i(TAG, "upload avatar success");
+//				finish();
+//			} else if (result.equals(UPLOAD_PHOTO_ERROR)) {
+//				int uploadcount = msg.getData().getInt("uploadcount");
+//				if (uploadcount > 3 || uploadcount <= 0) {
+//					dismissProgress();
+//					Toast.makeText(RegisterScreen.this,
+//							R.string.register_success_upload_photo_failed,
+//							Toast.LENGTH_SHORT).show();
+//					Log.i(TAG, "upload avatar failed");
+//					finish();
+//				} else {
+//					Log.i(TAG,
+//							"upload avatar---try count:"
+//									+ String.valueOf(uploadcount + 1));
+//					String aName = msg.getData().getString("name");
+//					String aExpandName = msg.getData().getString("expandname");
+//					String aFilePath = msg.getData().getString("filelocalpath");
+//					uploadImage(aName, aExpandName, aFilePath, uploadcount + 1);
+//				}
 			} else {
+				dismissProgress();
 				try {
 					JSONObject jsonObject = new JSONObject(result);
 					if (jsonObject.optString("flag").equals(
@@ -127,25 +128,24 @@ public class RegisterScreen extends Screen implements OnClickListener {
 								.optInt("flag_renren") == 0 ? false : true);
 						noteApplication.setLogin(true);
 
-						// 开始上传头像
-						if (mAvatarPath != null) {
-							String name = mAvatarPath.substring(
-									mAvatarPath.lastIndexOf("/") + 1,
-									mAvatarPath.length());
-							String expandname = mAvatarPath.substring(
-									mAvatarPath.lastIndexOf(".") + 1,
-									mAvatarPath.length());
-							name = name.substring(0, name.lastIndexOf("."));
-							uploadImage(name, expandname, mAvatarPath, 1);
-							Log.i(TAG, "register sucess,start upload avatar");
-						} else {
-							dismissProgress();
+						// 开始上传头像(待修改)
+//						if (mAvatarPath != null) {
+//							String name = mAvatarPath.substring(
+//									mAvatarPath.lastIndexOf("/") + 1,
+//									mAvatarPath.length());
+//							String expandname = mAvatarPath.substring(
+//									mAvatarPath.lastIndexOf(".") + 1,
+//									mAvatarPath.length());
+//							name = name.substring(0, name.lastIndexOf("."));
+//							uploadImage(name, expandname, mAvatarPath, 1);
+//							Log.i(TAG, "register sucess,start upload avatar");
+//						} else {
 							Toast.makeText(RegisterScreen.this,
 									R.string.register_success,
 									Toast.LENGTH_SHORT).show();
 							Log.i(TAG, "register success");
 							finish();
-						}
+//						}
 					}
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block

@@ -52,11 +52,12 @@ import android.widget.Toast;
 public class ShareScreen extends Screen implements OnClickListener {
 
 	private SharedPreferences mPreferences;
-	private Button mBackButton;	
+	private Button mBackButton;
 	private ImageView mImageView;
 	private EditText mEditText;
 	private ProgressBar mProgressBar;
 	private TextView mProgressText;
+	private ImageView mResultImageView;
 	private Button mSinaButton;
 	private Button mQQButton;
 	private Button mRenrenButton;
@@ -74,14 +75,15 @@ public class ShareScreen extends Screen implements OnClickListener {
 
 		mBackButton = (Button) findViewById(R.id.screen_top_play_control_back);
 		mBackButton.setOnClickListener(this);
-		
+
 		mImageView = (ImageView) findViewById(R.id.share_image);
-		mImageView.setImageBitmap(BitmapFactory.decodeFile(mPicPathList.get(0)));
+		mImageView
+				.setImageBitmap(BitmapFactory.decodeFile(mPicPathList.get(0)));
 
 		mEditText = (EditText) findViewById(R.id.share_edit);
 		mProgressBar = (ProgressBar) findViewById(R.id.share_progressBar);
 		mProgressText = (TextView) findViewById(R.id.share_progress_text);
-		
+		mResultImageView = (ImageView) findViewById(R.id.share_progress_result);
 
 		mSinaButton = (Button) findViewById(R.id.btn_share_sina);
 		mSinaButton.setOnClickListener(this);
@@ -94,6 +96,15 @@ public class ShareScreen extends Screen implements OnClickListener {
 
 		mRenrenButton = (Button) findViewById(R.id.btn_share_renren);
 		mRenrenButton.setOnClickListener(this);
+
+		//上传笔记图片至服务器（待修改）
+//		ServerInterface sInterface = new ServerInterface();
+//		sInterface.InitAmtCloud(ShareScreen.this);
+//		for (int i = 0; i < mPicPathList.size(); i++) {
+//			sInterface.uploadFile(ShareScreen.this,
+//					String.valueOf(NoteApplication.getInstance().getUserId()),
+//					mPicPathList.get(i));
+//		}
 
 		// 异步执行分享到广场
 		SquareTask squareTask = new SquareTask();
@@ -129,18 +140,13 @@ public class ShareScreen extends Screen implements OnClickListener {
 
 		@Override
 		protected String doInBackground(String... params) {
-			ServerInterface sInterface = new ServerInterface();
-			sInterface.InitAmtCloud(ShareScreen.this);
+
 			String userIdStr = String.valueOf(NoteApplication.getInstance()
 					.getUserId());
 			int totalPage = 0;
 			if (mPicPathList != null) {
 				totalPage = mPicPathList.size();
 			}
-			// for (int i = 0; i < totalPage; i++) {
-			// sInterface.uploadFile(ShareScreen.this, userIdStr,
-			// mPicPathList.get(i));
-			// }
 
 			String context = totalPage == 0 ? "" : mPicPathList.get(0);
 
@@ -182,9 +188,9 @@ public class ShareScreen extends Screen implements OnClickListener {
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 			if (result.equals("success")) {
-				dismssProgressBar(R.string.share_success);
+				dismssProgressBar(R.string.share_success,true);
 			} else {
-				dismssProgressBar(R.string.share_failed);
+				dismssProgressBar(R.string.share_failed,false);
 			}
 		}
 
@@ -215,7 +221,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 								runOnUiThread(new Runnable() {
 									@Override
 									public void run() {
-										dismssProgressBar(R.string.share_failed);
+										dismssProgressBar(R.string.share_failed, false);
 									}
 								});
 								e.printStackTrace();
@@ -228,7 +234,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 									runOnUiThread(new Runnable() {
 										@Override
 										public void run() {
-											dismssProgressBar(R.string.share_failed);
+											dismssProgressBar(R.string.share_failed, false);
 											showLoginAlertDialog(R.string.share_sina_expired);
 										}
 									});
@@ -236,7 +242,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 									runOnUiThread(new Runnable() {
 										@Override
 										public void run() {
-											dismssProgressBar(R.string.share_failed);
+											dismssProgressBar(R.string.share_failed, false);
 											Toast.makeText(
 													ShareScreen.this,
 													R.string.share_err_equal_weibo,
@@ -248,10 +254,11 @@ public class ShareScreen extends Screen implements OnClickListener {
 									runOnUiThread(new Runnable() {
 										@Override
 										public void run() {
-											dismssProgressBar(R.string.share_failed);
+											dismssProgressBar(R.string.share_failed, false);
 											Toast.makeText(
 													ShareScreen.this,
-													"Sina Weibo错误码：" + statuscode,
+													"Sina Weibo错误码："
+															+ statuscode,
 													Toast.LENGTH_SHORT).show();
 										}
 									});
@@ -265,7 +272,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 								runOnUiThread(new Runnable() {
 									@Override
 									public void run() {
-										dismssProgressBar(R.string.share_success);
+										dismssProgressBar(R.string.share_success,true);
 									}
 								});
 							}
@@ -316,21 +323,21 @@ public class ShareScreen extends Screen implements OnClickListener {
 			try {
 				JSONObject jsonObject = new JSONObject(result);
 				if (jsonObject.optInt("errcode") == 0) {
-					dismssProgressBar(R.string.share_success);
+					dismssProgressBar(R.string.share_success, true);
 				} else if (jsonObject.optInt("errcode") == 67) {
-					dismssProgressBar(R.string.share_failed);
+					dismssProgressBar(R.string.share_failed, false);
 					Toast.makeText(ShareScreen.this,
 							R.string.share_err_equal_weibo, Toast.LENGTH_SHORT)
 							.show();
 				} else if (jsonObject.optInt("errcode") == 37) { // accessToken过期错误码
-					dismssProgressBar(R.string.share_failed);
+					dismssProgressBar(R.string.share_failed, false);
 					showLoginAlertDialog(R.string.share_qq_expired);
 				} else {
-					dismssProgressBar(R.string.share_failed);
+					dismssProgressBar(R.string.share_failed, false);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				dismssProgressBar(R.string.share_failed);
+				dismssProgressBar(R.string.share_failed, false);
 			}
 
 		}
@@ -365,8 +372,9 @@ public class ShareScreen extends Screen implements OnClickListener {
 				renren.updateAccessToken(token);
 				AsyncRenren asyncRenren = new AsyncRenren(renren);
 				FeedPublishRequestParam param = new FeedPublishRequestParam(
-						getString(R.string.app_name), msg, "http://www.archermind.com",
-						imgPath, null, null, null, null);
+						getString(R.string.app_name), msg,
+						"http://www.archermind.com", imgPath, null, null, null,
+						null);
 				AbstractRequestListener<FeedPublishResponseBean> listener = new AbstractRequestListener<FeedPublishResponseBean>() {
 
 					@Override
@@ -375,7 +383,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									dismssProgressBar(R.string.share_failed);
+									dismssProgressBar(R.string.share_failed, false);
 									showLoginAlertDialog(R.string.share_renren_expired);
 								}
 							});
@@ -383,7 +391,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									dismssProgressBar(R.string.share_failed);
+									dismssProgressBar(R.string.share_failed, false);
 								}
 							});
 						}
@@ -394,7 +402,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								dismssProgressBar(R.string.share_failed);
+								dismssProgressBar(R.string.share_failed, false);
 							}
 						});
 
@@ -405,7 +413,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								dismssProgressBar(R.string.share_success);
+								dismssProgressBar(R.string.share_success, true);
 							}
 						});
 					}
@@ -429,8 +437,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 			break;
 		case R.id.btn_share_sina:
 			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
-				shareToSina(mPicPathList.get(0),mEditText
-						.getText().toString());
+				shareToSina(mPicPathList.get(0), mEditText.getText().toString());
 			} else {
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
 						.show();
@@ -438,8 +445,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 			break;
 		case R.id.btn_share_qq:
 			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
-				shareToQQ(mPicPathList.get(0), mEditText
-						.getText().toString());
+				shareToQQ(mPicPathList.get(0), mEditText.getText().toString());
 			} else {
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
 						.show();
@@ -447,8 +453,8 @@ public class ShareScreen extends Screen implements OnClickListener {
 			break;
 		case R.id.btn_share_renren:
 			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
-				shareToRenren(mPicPathList.get(0), mEditText
-						.getText().toString());
+				shareToRenren(mPicPathList.get(0), mEditText.getText()
+						.toString());
 			} else {
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
 						.show();
@@ -461,61 +467,54 @@ public class ShareScreen extends Screen implements OnClickListener {
 
 	private void showProgressBar(int id) {
 		mProgressBar.setVisibility(View.VISIBLE);
+		mResultImageView.setImageResource(R.drawable.face_a4);
 		mProgressText.setText(id);
 	}
 
-	private void dismssProgressBar(int id) {
+	private void dismssProgressBar(int id, boolean isSuccessed) {
 		mProgressBar.setVisibility(View.GONE);
+		mResultImageView.setVisibility(View.VISIBLE);
+		if(isSuccessed){
+			mResultImageView.setImageResource(R.drawable.face_a8);
+		}else {
+			mResultImageView.setImageResource(R.drawable.face_a5);
+		}
 		mProgressText.setText(id);
 	}
-	private void showLoginAlertDialog(int id){
-		new AlertDialog.Builder(
-				ShareScreen.this)
-				.setTitle(
-						R.string.setting_tips)
+
+	private void showLoginAlertDialog(int id) {
+		new AlertDialog.Builder(ShareScreen.this)
+				.setTitle(R.string.setting_tips)
 				.setMessage(id)
-				.setPositiveButton(
-						R.string.login_relogin,
+				.setPositiveButton(R.string.login_relogin,
 						new DialogInterface.OnClickListener() {
 
 							@Override
-							public void onClick(
-									DialogInterface dialog,
+							public void onClick(DialogInterface dialog,
 									int which) {
-								Intent intent = new Intent(
-										ShareScreen.this,
+								Intent intent = new Intent(ShareScreen.this,
 										LoginScreen.class);
 								startActivity(intent);
 							}
-						})
-				.setNegativeButton(
-						R.string.setting_cancel,
-						null).create()
-				.show();
+						}).setNegativeButton(R.string.setting_cancel, null)
+				.create().show();
 	}
-	private void showBoundAlertDialog(int id){
-		new AlertDialog.Builder(
-				ShareScreen.this)
-				.setTitle(
-						R.string.setting_tips)
+
+	private void showBoundAlertDialog(int id) {
+		new AlertDialog.Builder(ShareScreen.this)
+				.setTitle(R.string.setting_tips)
 				.setMessage(id)
-				.setPositiveButton(
-						R.string.share_dialog_bound,
+				.setPositiveButton(R.string.share_dialog_bound,
 						new DialogInterface.OnClickListener() {
 
 							@Override
-							public void onClick(
-									DialogInterface dialog,
+							public void onClick(DialogInterface dialog,
 									int which) {
-								Intent intent = new Intent(
-										ShareScreen.this,
+								Intent intent = new Intent(ShareScreen.this,
 										AccountScreen.class);
 								startActivity(intent);
 							}
-						})
-				.setNegativeButton(
-						R.string.setting_cancel,
-						null).create()
-				.show();
+						}).setNegativeButton(R.string.setting_cancel, null)
+				.create().show();
 	}
 }
