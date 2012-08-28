@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -33,6 +34,7 @@ import java.util.zip.ZipOutputStream;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Adapter.FaceAdapter;
+import com.archermind.note.Adapter.FontAdapter;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Provider.DatabaseHelper;
@@ -84,16 +86,20 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
+import android.widget.ViewFlipper;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -136,6 +142,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
     private LinearLayout pic_type_pic;//图片插入
     private LinearLayout setting_color;//画笔颜色设置
     private LinearLayout setting_thickness;//画笔粗细设置
+    private LinearLayout setting_font;//字体设置
     private LinearLayout edit_insert_space;//插入空格
     private LinearLayout edit_insert_newline;//插入空行
     private LinearLayout bitmap_rect_linearlayout;//日记保存图像区域
@@ -148,6 +155,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	
 	private Dialog thickness_dialog = null;
 	private Dialog picchoose_dialog = null;
+	private Dialog fontchoose_dialog = null;
 //	private Dialog diary_category_dialog = null;
 //	private Dialog weather_dialog = null;
 	private PopupWindow mWeatherPopupWindow;
@@ -207,6 +215,8 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
     
     public ArrayList<String> mPicPathList = null;
     
+    private ViewFlipper flipper = null;
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -246,6 +256,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		pic_type_pic = (LinearLayout) findViewById(R.id.edit_insert_pic);
 		setting_color = (LinearLayout) findViewById(R.id.edit_setting_color);
 		setting_thickness = (LinearLayout) findViewById(R.id.edit_setting_thickness);
+		setting_font = (LinearLayout) findViewById(R.id.edit_setting_font);
 		edit_insert_space = (LinearLayout) findViewById(R.id.edit_insert_space);
 		edit_insert_newline = (LinearLayout) findViewById(R.id.edit_insert_newline);
 		
@@ -256,6 +267,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		pic_type_pic.setOnClickListener(this);
 		setting_color.setOnClickListener(this);
 		setting_thickness.setOnClickListener(this);
+		setting_font.setOnClickListener(this);
 		edit_insert_space.setOnClickListener(this);
 		edit_insert_newline.setOnClickListener(this);
 		
@@ -457,12 +469,15 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		myEdit.setEditNote(this);
 		
 		MainScreen.eventService.add(this);
+		
+		flipper = (ViewFlipper) findViewById(R.id.flipper);
+        flipper.removeAllViews();
 	}
 	
 	/**
 	 * 计算编辑框的高度，若超过一页高度则返回超出的那一行行号
 	 * @param totalLine 总行数
-	 * @return
+	 * @return 返回超出边界行的行号，若没超出边界则返回行数。
 	 */
 	private int countLinesHeight(int totalLine) {
 		int totalHeight = 0;
@@ -898,6 +913,16 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	        		processWhenInBounds();
 	        	}
 	        }
+			FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
+			fl.removeView(myEdit);
+			
+			flipper.removeAllViews();
+		    flipper.addView(myEdit,0);
+		    
+		    flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_in));
+	    	flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_out));
+	    	
+	    	flipper.setDisplayedChild(0);
 			Selection.setSelection(myEdit.getEditableText(), myEdit.getText().length());
 		    return true;
 		}
@@ -928,6 +953,16 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			} else {
 				mLastPageEnd = pageStart + 1;
 			}
+			FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
+			fl.removeView(myEdit);
+			
+			flipper.removeAllViews();
+		    flipper.addView(myEdit,0);
+		    
+		    flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_in));
+			flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_out));
+	    	
+	    	flipper.setDisplayedChild(0);
 			Selection.setSelection(myEdit.getEditableText(), myEdit.getText().length());
 		}
 	}
@@ -1191,6 +1226,46 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	}
 	
 	/**
+	 * 初始化字体对话框
+	 */
+	private void initFontDialog() {
+		fontchoose_dialog = new Dialog(this);
+		fontchoose_dialog.setContentView(R.layout.font_dialog_window);
+		
+		final List<String> data = new ArrayList<String>();
+        data.add(getString(R.string.font_xdxwz));
+        data.add(getString(R.string.font_droidsans));
+        data.add(getString(R.string.font_droidserif_italic));
+        
+        ListView lv = (ListView) fontchoose_dialog.findViewById(R.id.lv_font_setting);
+//        lv.setAdapter(new ArrayAdapter<String>(this, R.layout.font_dialog_window_item,data));
+        lv.setAdapter(new FontAdapter(this));
+        fontchoose_dialog.setTitle(getString(R.string.choose_font));
+        lv.setOnItemClickListener(new OnItemClickListener() {
+    		@Override
+    		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+    				long arg3) {
+    			// TODO Auto-generated method stub
+    			if (arg2 == 0) {
+    				Typeface type = Typeface.createFromAsset(getAssets(),"xdxwzt.ttf");
+    				myEdit.setTypeface(type);
+    				myEdit.invalidate();
+    			} else if(arg2 == 1) {
+    				myEdit.setTypeface(Typeface.DEFAULT,Typeface.NORMAL);
+    				myEdit.invalidate();
+    			} else if (arg2 == 2) {
+    				myEdit.setTypeface(Typeface.SANS_SERIF,Typeface.ITALIC);
+    				myEdit.invalidate();
+    			}
+    			
+    			if (fontchoose_dialog.isShowing()) {
+    				fontchoose_dialog.dismiss();
+    			}
+    		}
+    	});
+	}
+	
+	/**
 	 * 从压缩文件中读取正文内容
 	 * @param file 压缩文件路径
 	 * @param picStr 正文中的图片路径
@@ -1298,12 +1373,19 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			} else {
 				ImageView imgView = (ImageView) findViewById(R.id.thickness_imageview);
 				TextView tv = (TextView) findViewById(R.id.thickness_textview);
+				
+				ImageView fontimgView = (ImageView) findViewById(R.id.fontsetting_imageview);
+				TextView fonttv = (TextView) findViewById(R.id.fontsetting_textview);
 				if (mState == SOFTINPUTSTATE) {
 					imgView.setImageDrawable(getResources().getDrawable(R.drawable.text_thickness_adjust));
 					tv.setText("加粗");
+					fontimgView.setVisibility(View.VISIBLE);
+					fonttv.setVisibility(View.VISIBLE);
 				} else {
 					imgView.setImageDrawable(getResources().getDrawable(R.drawable.edit_setting_thickness));
 					tv.setText("粗细");
+					fontimgView.setVisibility(View.GONE);
+					fonttv.setVisibility(View.GONE);
 				}
 				setting_type.setVisibility(View.VISIBLE);
 			    isSettingTypeShow = true;
@@ -1483,6 +1565,14 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 					myEdit.invalidate();
 				}
 			}
+			setting_type.setVisibility(View.GONE);
+			isSettingTypeShow = false;
+			break;
+		case R.id.edit_setting_font:
+			if (fontchoose_dialog == null) {
+				initFontDialog();
+			}
+			fontchoose_dialog.show();
 			setting_type.setVisibility(View.GONE);
 			isSettingTypeShow = false;
 			break;
@@ -2326,7 +2416,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 					View tempView = parent.getChildAt(index);
 					((FrameLayout) tempView).getChildAt(1).setVisibility(View.GONE);
 				}
-				childView.setVisibility(View.VISIBLE);
+//				childView.setVisibility(View.VISIBLE);
 				
 				insertFace(viewId);
 				

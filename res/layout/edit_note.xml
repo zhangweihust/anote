@@ -162,6 +162,13 @@
 		    android:layout_height="match_parent"
 		    android:orientation="vertical"
 		     >
+             
+             <ViewFlipper
+                android:id="@+id/flipper"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center_horizontal"
+ 			    />
 		    <com.archermind.note.editnote.MyEditText
 		        android:id="@+id/editText_view"
 		        android:layout_width="fill_parent"
@@ -392,7 +399,7 @@
     <LinearLayout 
         android:id="@+id/edit_setting_type"
         style="@android:style/ButtonBar"
-        android:layout_width="120dp"
+        android:layout_width="wrap_content"
         android:layout_height="80dp"
         android:orientation="horizontal"
         android:layout_above="@id/bottom"
@@ -447,6 +454,33 @@
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:text="粗细"
+	            android:textColor="@color/toptextcolor"
+	            android:gravity="center"/>
+        </LinearLayout>
+        
+        <LinearLayout 
+            android:id="@+id/edit_setting_font"
+            android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:gravity="center"
+	        android:layout_weight="1"
+	        android:orientation="vertical"
+	        android:background="@drawable/edit_click_effect_selector"
+            >
+
+	        <ImageView
+	            android:id="@+id/fontsetting_imageview"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:scaleType="fitCenter" 
+	            android:background="@color/transparent"
+	            android:gravity="center"
+	            android:src="@drawable/text_font_setting"/>
+	        <TextView 
+	            android:id="@+id/fontsetting_textview"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="字体"
 	            android:textColor="@color/toptextcolor"
 	            android:gravity="center"/>
         </LinearLayout>

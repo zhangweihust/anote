@@ -45,6 +45,12 @@
     <string name="not_save">不保存</string>
     
     <string name="note_input_title">请输入标题！</string>
+    
+    <!-- 字体 -->
+    <string name="choose_font">请选择字体</string>
+    <string name="font_xdxwz">新蒂小丸子</string>
+    <string name="font_droidsans">DroidSans</string>
+    <string name="font_droidserif_italic">DroidSerif-Italic</string>
 
 
     <!-- setting -->
