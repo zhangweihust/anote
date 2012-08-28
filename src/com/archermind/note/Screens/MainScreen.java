@@ -6,12 +6,16 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.TabActivity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -103,7 +107,37 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_screen);
 		
+		boolean isHasSD = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
 		
+		if(!isHasSD){
+			AlertDialog.Builder builder = new Builder(MainScreen.this);
+			  builder.setMessage(getResources().getString(R.string.check_sd_msg));
+
+			  builder.setTitle(getResources().getString(R.string.check_sd_title));
+
+			  builder.setNegativeButton(R.string.check_sd_ok, new DialogInterface.OnClickListener() {
+				
+				public void onClick(DialogInterface arg0, int arg1) {
+					// TODO Auto-generated method stub
+					MainScreen.this.finish();
+					ServiceManager.exit();
+				}
+			});
+
+			builder.setOnKeyListener(new DialogInterface.OnKeyListener() {
+				
+				@Override
+				public boolean onKey(DialogInterface arg0, int arg1, KeyEvent arg2) {
+					// TODO Auto-generated method stub
+					if(arg2.getKeyCode() == KeyEvent.KEYCODE_BACK || arg2.getKeyCode() == KeyEvent.KEYCODE_HOME){
+						return true;
+					}
+					return false;
+				}
+			});
+			
+			builder.create().show();
+		}
 		mTabHost = this.getTabHost();
 		mTabHost.addTab(buildTabSpec(TAB_HOME,
 				R.drawable.tabhost_home_selector, new Intent(this,

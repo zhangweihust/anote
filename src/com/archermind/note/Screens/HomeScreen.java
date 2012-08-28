@@ -763,18 +763,27 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		mCalendarAdapter = new CalendarAdapter(this, getResources(), mCurYear, mCurMonth,calendarHeight, Constant.flagType);
 	    mGridView.setAdapter(mCalendarAdapter);
 	    
-	    flipper.removeAllViews();
-	    flipper.addView(mGridView,0);
+	    //flipper.removeAllViews();
+	    //System.out.println(flipper.getChildCount() + "~~~~~~~1~~~~~~" + flipper.getDisplayedChild());
+	    flipper.addView(mGridView);
         
-	    if(preORnext == NEXT_MONTH){
-	    	flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_in));
-	    	flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_out));
-	    }else{
-	    	flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_in));
-			flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_out));
+	    if(!isFirst){
+		    if(preORnext == NEXT_MONTH){
+		    	flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_in));
+		    	flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_out));
+		    }else{
+		    	flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_in));
+				flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_out));
+		    }
 	    }
 	    
-		flipper.setDisplayedChild(0);
+		flipper.setDisplayedChild(flipper.getChildCount()-1);
+		//System.out.println(flipper.getChildCount() + "~~~~~~~2~~~~~~"+ flipper.getDisplayedChild());
+		if(!isFirst){
+			for(int i=0; i< flipper.getChildCount()-1; i++){
+				flipper.removeViewAt(i);
+			}
+		}
 		
 	}
 
