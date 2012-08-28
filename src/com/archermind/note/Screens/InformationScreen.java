@@ -185,9 +185,14 @@ public class InformationScreen extends Screen implements IXListViewListener,OnXS
 			refreshCompleted();
 			return;
 		}
-		int userid = NoteApplication.getInstance().getUserId();;
-	    String result = ServerInterface.getReplyFromUser(userid, mInformationAdapter.getLatestTime(), PER_FRESH_COUNT);
-	    if(result != null && result.contains("date")){
+		int userid = NoteApplication.getInstance().getUserId();
+		String result = null;
+		if(mInformationAdapter.getLatestTime()==0){
+			result = ServerInterface.getReplyFromUser(userid, mInformationAdapter.getLatestTime(), PER_FRESH_COUNT);
+		}else{
+			result = ServerInterface.getReplyFromUser(userid, mInformationAdapter.getLatestTime(), 1000);
+		}
+		if(result != null && result.contains("date")){
 	    	parseJsonandUpdateDatabase(result);
 	    }else {
 	    	Toast.makeText(InformationScreen.this, "暂时没有更新", Toast.LENGTH_LONG).show();
