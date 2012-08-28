@@ -416,7 +416,7 @@ public class DownloadApkHelper {
 										instance.runOnUiThread(new Runnable() {
 											@Override
 											public void run() {
-												mDialogCheckSignature = new DialogCheckSignature(instance.getParent());
+												mDialogCheckSignature = new DialogCheckSignature(NoteApplication.getInstance().getTopWindowContext());
 												mDialogCheckSignature.show();
 											}
 										});

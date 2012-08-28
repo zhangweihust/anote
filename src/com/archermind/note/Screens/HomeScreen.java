@@ -114,6 +114,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_screen);
         
+        NoteApplication.getInstance().setTopWindowContext(this);
         boolean networkIsOk = false;
 		try {
 			ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);

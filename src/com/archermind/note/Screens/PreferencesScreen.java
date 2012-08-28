@@ -46,6 +46,10 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 		album_view.setOnClickListener(this);
 		View account_view = (View) this.findViewById(R.id.account_layout);
 		account_view.setOnClickListener(this);
+		View about_view = (View) this.findViewById(R.id.about_layout);
+		about_view.setOnClickListener(this);
+		View feedback_view = (View) this.findViewById(R.id.feedback_layout);
+		feedback_view.setOnClickListener(this);
 
 		mUserAvatar = (ImageView) this.findViewById(R.id.user_avatar);
 
@@ -112,6 +116,16 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 		case R.id.account_layout:
 			if (isLogin()) {
 				intent.setClass(mContext, AccountScreen.class);
+				mContext.startActivity(intent);
+			}
+			break;
+		case R.id.about_layout:
+			intent.setClass(mContext, AboutScreen.class);
+			mContext.startActivity(intent);
+			break;
+		case R.id.feedback_layout:
+			if (isLogin()) {
+				intent.setClass(mContext, FeedbackScreen.class);
 				mContext.startActivity(intent);
 			}
 			break;

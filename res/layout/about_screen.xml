@@ -7,14 +7,24 @@
 
     <LinearLayout
         android:id="@+id/bottom"
-        style="@android:style/ButtonBar"
         android:layout_width="fill_parent"
         android:layout_height="42.5dp"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/handwrite_btn_bg"
+        android:padding="10dp"
         android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:visibility="gone" >
+        android:orientation="horizontal" >
+        <TextView
+             android:id="@+id/rights"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_gravity="bottom|center_horizontal"
+             android:layout_weight="1"
+             android:ellipsize="end"
+             android:gravity="center_horizontal"
+             android:singleLine="true"
+             android:text="@string/about_rights"
+             android:textColor="#888888"
+             android:textSize="13dp" />
     </LinearLayout>
 
     <FrameLayout
@@ -59,7 +69,7 @@
                     android:ellipsize="end"
                     android:gravity="center_horizontal"
                     android:singleLine="true"
-                    android:text="@string/setting_title"
+                    android:text="@string/about_title"
                     android:textColor="#FFFFFF"
                     android:textSize="@dimen/main_screen_title_size" />
 
@@ -76,38 +86,88 @@
                 </LinearLayout>
             </RelativeLayout>
 
+           <LinearLayout
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:padding="20dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical" >
+                <ImageView
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:src="@drawable/about_logo_icon" />
+                    
+                <TextView
+                    android:id="@+id/about_logo_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:singleLine="true"
+                    android:text="@string/about_logo_title"
+                    android:textColor="#888888"
+                    android:textSize="20dp" />
+
+            </LinearLayout>
+                
             <LinearLayout
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:background="@drawable/setting_background"
                 android:orientation="vertical" >
 
                 <LinearLayout
-                    android:id="@+id/personal_info_layout"
+                    android:id="@+id/about_version_info_layout"
                     android:layout_width="fill_parent"
                     android:layout_height="42dp"
                     android:background="@android:drawable/list_selector_background"
                     android:gravity="center_vertical" >
 
                     <TextView
-                        android:id="@+id/personal_info_title"
+                        android:id="@+id/about_version_info"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="12dp"
                         android:layout_weight="1"
                         android:ellipsize="end"
                         android:singleLine="true"
-                        android:text="@string/personal_info_title"
+                        android:text="@string/about_version_info"
                         android:textColor="#555555"
                         android:textSize="16dp" />
 
-                    <ImageView
-                        android:id="@+id/user_avatar"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_marginRight="12dp" 
-                        android:visibility="invisible"/>
+                    <TextView
+                        android:id="@+id/about_version_content"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="12dp"
+                        android:singleLine="true"
+                        android:textColor="#888888"
+                        android:textSize="16dp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="fill_parent"
+                    android:layout_height="1.0px"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/new_track" />
+
+                <LinearLayout
+                    android:id="@+id/about_web_layout"
+                    android:layout_width="fill_parent"
+                    android:layout_height="42dp"
+                    android:background="@android:drawable/list_selector_background"
+                    android:gravity="center_vertical" >
+
+                    <TextView
+                        android:id="@+id/about_web"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="12dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:singleLine="true"
+                        android:text="@string/about_web"
+                        android:textColor="#555555"
+                        android:textSize="16dp" />
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -123,116 +183,21 @@
                     android:src="@drawable/new_track" />
 
                 <LinearLayout
-                    android:id="@+id/album_layout"
+                    android:id="@+id/about_blog_layout"
                     android:layout_width="fill_parent"
                     android:layout_height="42dp"
                     android:background="@android:drawable/list_selector_background"
                     android:gravity="center_vertical" >
 
                     <TextView
-                        android:id="@+id/album_title"
+                        android:id="@+id/about_blog"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="12dp"
                         android:layout_weight="1"
                         android:ellipsize="end"
                         android:singleLine="true"
-                        android:text="@string/album_title"
-                        android:textColor="#555555"
-                        android:textSize="16dp" />
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="12dp"
-                        android:src="@drawable/arrow_right" />
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="fill_parent"
-                    android:layout_height="1.0px"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/new_track" />
-
-                <LinearLayout
-                    android:id="@+id/account_layout"
-                    android:layout_width="fill_parent"
-                    android:layout_height="42dp"
-                    android:background="@android:drawable/list_selector_background"
-                    android:gravity="center_vertical" >
-
-                    <TextView
-                        android:id="@+id/account_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="12dp"
-                        android:layout_weight="1"
-                        android:ellipsize="end"
-                        android:singleLine="true"
-                        android:text="@string/account_title"
-                        android:textColor="#555555"
-                        android:textSize="16dp" />
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="12dp"
-                        android:src="@drawable/arrow_right" />
-                </LinearLayout>
-                <ImageView
-                    android:layout_width="fill_parent"
-                    android:layout_height="1.0px"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/new_track" />
-
-                <LinearLayout
-                    android:id="@+id/feedback_layout"
-                    android:layout_width="fill_parent"
-                    android:layout_height="42dp"
-                    android:background="@android:drawable/list_selector_background"
-                    android:gravity="center_vertical" >
-
-                    <TextView
-                        android:id="@+id/feedback_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="12dp"
-                        android:layout_weight="1"
-                        android:ellipsize="end"
-                        android:singleLine="true"
-                        android:text="@string/feedback_title"
-                        android:textColor="#555555"
-                        android:textSize="16dp" />
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="12dp"
-                        android:src="@drawable/arrow_right" />
-                </LinearLayout>
-                                
-                <ImageView
-                    android:layout_width="fill_parent"
-                    android:layout_height="1.0px"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/new_track" />
-
-                <LinearLayout
-                    android:id="@+id/about_layout"
-                    android:layout_width="fill_parent"
-                    android:layout_height="42dp"
-                    android:background="@android:drawable/list_selector_background"
-                    android:gravity="center_vertical" >
-
-                    <TextView
-                        android:id="@+id/about_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="12dp"
-                        android:layout_weight="1"
-                        android:ellipsize="end"
-                        android:singleLine="true"
-                        android:text="@string/about_title"
+                        android:text="@string/about_blog"
                         android:textColor="#555555"
                         android:textSize="16dp" />
 
@@ -245,24 +210,14 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/btn_login"
+                android:id="@+id/about_check_update"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/btn_login_selector"
-                android:text="@string/login_btn"
+                android:text="@string/about_check_update"
                 android:textColor="@color/white"
-                android:textSize="18sp" />
-
-            <Button
-                android:id="@+id/btn_logout"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/btn_logout_selector"
-                android:text="@string/logout_btn"
-                android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:textSize="16dp" />
         </LinearLayout>
     </FrameLayout>
 
