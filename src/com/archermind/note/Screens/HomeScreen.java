@@ -185,7 +185,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 						// mllBottomInfo.setVisibility(View.VISIBLE);
 						 mListHeader.setTag(tagCalendar);
 						 mTvMyNoteInfo.setVisibility(View.VISIBLE);
-	            		 showCalendarMonth(NEXT_MONTH);
+	            		 showCalendarMonth(NEXT_MONTH, false);
 					}
 				}
 			}
@@ -271,7 +271,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		}
 		
 		if(isFirst || flipper.getChildCount()==0){
-			showCalendarMonth(NEXT_MONTH);
+			showCalendarMonth(NEXT_MONTH, false);
 			isFirst = false;
 		}
 		
@@ -366,7 +366,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		        if(count == 0){
 		        	mTvMyNoteInfo.setText("今天还没有写笔记哦");
 		        }else{
-		        	mTvMyNoteInfo.setText("今天已经写了" + count + "篇笔记");
+		        	mTvMyNoteInfo.setText("今天写了" + count + "篇笔记");
 		        }
 				
 			}
@@ -383,7 +383,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		}
 		localNotes.close();
 		if(mllCalendarPage.getVisibility() == View.VISIBLE && mListHeader.getTag().equals(tagCalendar)){
-			showCalendarMonth(NEXT_MONTH);
+			showCalendarMonth(NEXT_MONTH, false);
 		}
 	}
 	
@@ -441,7 +441,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 							    }
 								if(tag.equals(tagCalendar)){
 									System.out.println("====next tagCalendar====" + mCurMonth + ", year : " + mCurYear);
-									showCalendarMonth(NEXT_MONTH);
+									showCalendarMonth(NEXT_MONTH, true);
 								}else{
 									System.out.println("====next taglistview====" + mCurMonth);
 									mlvMonthNotes.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
@@ -482,7 +482,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 							    }
 								if(tag.equals(tagCalendar)){
 									System.out.println("====pre tagCalendar====" + mCurMonth + ", year : " + mCurYear);
-									showCalendarMonth(PRE_MONTH);
+									showCalendarMonth(PRE_MONTH, true);
 								}else{
 									System.out.println("====pre monthlist====" + mCurMonth);
 									mlvMonthNotes.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
@@ -562,7 +562,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 					public void run() {
 						mllHomePage.setVisibility(View.GONE);
 						mllCalendarPage.setVisibility(View.VISIBLE);
-						showCalendarMonth(NEXT_MONTH);
+						showCalendarMonth(NEXT_MONTH, true);
 					}});
 				break;
 		}
@@ -710,12 +710,19 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 			Calendar cal = Calendar.getInstance(Locale.CHINA); 
 			cal.setTimeInMillis(System.currentTimeMillis());
 			//System.out.println("month : " + cal.get(Calendar.MONTH) + ", year : " + cal.get(Calendar.YEAR));
+			
+			boolean isPre = mCurYear > cal.get(Calendar.YEAR) && mCurMonth > cal.get(Calendar.MONTH);
+			
 			mCurMonth = cal.get(Calendar.MONTH);
 			mCurYear = cal.get(Calendar.YEAR);
 			mBtnBackCurmonth.setVisibility(View.GONE);
 			mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月", System.currentTimeMillis()));
 			if(tag.equals(tagCalendar)){
-				showCalendarMonth(NEXT_MONTH);
+				if(isPre){
+					showCalendarMonth(NEXT_MONTH, true);
+				}else{
+					showCalendarMonth(PRE_MONTH, true);
+				}
 			}else{
 				mlvMonthNotes.setAdapter(new LocalNoteAdapter(mContext, ServiceManager
 						.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear)));
@@ -757,8 +764,22 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月", time.getTimeInMillis()));
 	}
 	
-	private void showCalendarMonth(int preORnext){
-		System.out.println("====showCalendarMonth====" + mCurMonth);
+	private void showCalendarMonth(int preORnext, boolean needAnimation){
+		System.out.println("====showCalendarMonth====" + mCurMonth + "==" + needAnimation);
+
+	    if(needAnimation){
+		    if(preORnext == NEXT_MONTH){
+		    	flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_in));
+		    	flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_out));
+		    }else{
+		    	flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_in));
+				flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_out));
+		    }
+	    }else{
+	    	flipper.setInAnimation(null);
+	    	flipper.setOutAnimation(null);
+	    }
+		
 		addGridView();   //添加一个gridview
 		mCalendarAdapter = new CalendarAdapter(this, getResources(), mCurYear, mCurMonth,calendarHeight, Constant.flagType);
 	    mGridView.setAdapter(mCalendarAdapter);
@@ -767,15 +788,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	    //System.out.println(flipper.getChildCount() + "~~~~~~~1~~~~~~" + flipper.getDisplayedChild());
 	    flipper.addView(mGridView);
         
-	    if(!isFirst){
-		    if(preORnext == NEXT_MONTH){
-		    	flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_in));
-		    	flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_out));
-		    }else{
-		    	flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_in));
-				flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_right_out));
-		    }
-	    }
+
 	    
 		flipper.setDisplayedChild(flipper.getChildCount()-1);
 		//System.out.println(flipper.getChildCount() + "~~~~~~~2~~~~~~"+ flipper.getDisplayedChild());
@@ -793,7 +806,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		if(mllHomePage.getVisibility() == View.VISIBLE){
 			mllHomePage.setVisibility(View.GONE);
 			mllCalendarPage.setVisibility(View.VISIBLE);
-			showCalendarMonth(NEXT_MONTH);
+			showCalendarMonth(NEXT_MONTH, false);
 			MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHOW_OR_HIDE_BUTTON_BACK));
 			MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra("title", mContext.getResources().getString(R.string.home_screen_title)));
 		}else{

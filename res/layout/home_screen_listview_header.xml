@@ -46,6 +46,7 @@
               android:textSize="@dimen/home_screen_cur_month_text_size"
               android:textColor="@color/note_info_text_color"
               android:gravity="center_horizontal"
+              android:paddingBottom="20dp"
               />
 
 </LinearLayout>
