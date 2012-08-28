@@ -37,8 +37,8 @@ import com.weibo.net.WeiboException;
 
 public class AccountScreen extends Screen implements OnClickListener {
 
-	public static final String APPKEY_SINA = "1294484213";// 申请的新浪KEY
-	public static final String APPSECRET_SINA = "69c73b5fa22fbda126d4db68118afaa6"; // 申请的新浪SECRET
+	public static final String APPKEY_SINA = "3366130678";// 申请的新浪KEY
+	public static final String APPSECRET_SINA = "8bdbc9095e53791249c47db21dad550c"; // 申请的新浪SECRET
 	public static final String APPKEY_QQ = "801210743";// 申请的腾讯KEY
 	public static final String APPSECRET_QQ = "bee5553c65ee5ebb84f08f0c45630c4d"; // 申请的腾讯SECRET
 	public static final String APPKEY_RENREN = "87e5e8e6175b46519fe9eb40968ba2dc";// 申请的人人KEY
