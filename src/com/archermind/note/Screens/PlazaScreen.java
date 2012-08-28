@@ -4,7 +4,7 @@ package com.archermind.note.Screens;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.webkit.CookieManager;
@@ -23,7 +23,7 @@ public class PlazaScreen extends Screen {
 	public static boolean isFirstPage = true;
 
 	
-
+		@SuppressLint("SetJavaScriptEnabled")
 		@Override
 	    public void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
