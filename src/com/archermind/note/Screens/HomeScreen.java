@@ -114,16 +114,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_screen);
         
-        NoteApplication.getInstance().setTopWindowContext(this);
-        boolean networkIsOk = false;
-		try {
-			ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
-			NetworkInfo ni = cm.getActiveNetworkInfo();
-			networkIsOk = (ni != null ? ni.isConnectedOrConnecting() : false);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		if(networkIsOk && NoteApplication.IS_AUTO_UPDATE) {
+		if(NoteApplication.networkIsOk && NoteApplication.IS_AUTO_UPDATE) {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {

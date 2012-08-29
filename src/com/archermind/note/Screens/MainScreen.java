@@ -14,7 +14,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -92,6 +96,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	private ListView mlvSetting;
 	private PopupWindow mMorePopupWindow;
 	
+	private Handler handler;
 	public static GestureDetector mGestureDetector = null;
 	public static long snoteCreateTime = 0;
 	
@@ -100,12 +105,21 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	public MainScreen(){
 		super();
 		mContext = this;
+		handler = new Handler();
 	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_screen);
+		
+		NoteApplication.getInstance().setTopWindowContext(this);
+        NoteApplication.getInstance().setHandler(handler);
+        NoteApplication.networkIsOk = false;
+        if (ServiceManager.getNetworkService().acquire(false)) {
+        	NoteApplication.networkIsOk = true;
+        }
+
 		
 		boolean isHasSD = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
 		

@@ -227,6 +227,10 @@
 			
     <string name="sd_card_not_enough_space">Sdcard in insufficient storage, please clean up!</string>
     <string name="get_network_failed">Please check if your network is available</string>
+	<!-- net -->		
+	<string name="no_network">Network unavailable</string>
+	<string name="wifi_unable">Wifi unavailable</string>
+	<string name="n_3g_unable">2G/3G unavailable</string>
 			
     <!-- city -->
     <string name="city_1">北京</string>

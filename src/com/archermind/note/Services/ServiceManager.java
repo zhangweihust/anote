@@ -11,6 +11,8 @@ import com.archermind.note.Utils.BitmapCache;
 public class ServiceManager extends Service {
 
 	private static final EventService eventService = new EventService();
+	private static final NetworkService networkService = new NetworkService();
+	private static final ExceptionService exceptionService = new ExceptionService();
 	private static boolean started;
 	private static DatabaseManager dbManager = new DatabaseManager(NoteApplication.getContext());
 	
@@ -36,7 +38,9 @@ public class ServiceManager extends Service {
 		
 		boolean success = true;
 
+		success &= exceptionService.start();
 		success &= eventService.start();
+		success &= networkService.start();
 		
 		dbManager.open();
 
@@ -60,7 +64,9 @@ public class ServiceManager extends Service {
 		
 		boolean success = true;
 
+		success &= networkService.stop();
 		success &= eventService.stop();
+		success &= exceptionService.stop();
 		
 		dbManager.close();
 		
@@ -74,6 +80,9 @@ public class ServiceManager extends Service {
 	
 	public static EventService getEventservice() {
 		return eventService;
+	}
+	public static NetworkService getNetworkService() {
+		return networkService;
 	}
 	
 	public static DatabaseManager getDbManager() {

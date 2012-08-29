@@ -25,7 +25,7 @@ public class VersionUtil {
 	public static String getVerName(Context context) {
 		String verName = "";
 		try {
-			verName = context.getPackageManager().getPackageInfo("com.amusic.media", 0).versionName;
+			verName = context.getPackageManager().getPackageInfo("com.archermind.note", 0).versionName;
 		} catch (NameNotFoundException e) {
 			
 		}

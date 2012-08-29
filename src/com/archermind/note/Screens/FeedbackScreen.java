@@ -5,13 +5,17 @@ import com.archermind.note.R;
 import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
 
+import android.content.Context;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,7 +25,7 @@ public class FeedbackScreen extends Screen implements OnClickListener {
 	private FeedbackScreen mContext;
 	private ImageButton mBtnBack;
 	private Button mBtnCommit;
-	private TextView mFeedbackContent;
+	private EditText mFeedbackContent;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -36,7 +40,32 @@ public class FeedbackScreen extends Screen implements OnClickListener {
 		mBtnCommit = (Button) findViewById(R.id.feedback_commit);
 		mBtnCommit.setOnClickListener(this);
 		
-		mFeedbackContent = (TextView) findViewById(R.id.feedback_content);
+		mFeedbackContent = (EditText) findViewById(R.id.feedback_content);
+		mFeedbackContent.setFocusable(true);
+		mFeedbackContent.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+			@Override
+			public void onFocusChange(View arg0, boolean hasFocus) {
+				// TODO Auto-generated method stub
+				final boolean isFocus = hasFocus;
+				(new Handler()).postDelayed(new Runnable() {
+					public void run() {
+						InputMethodManager imm = (InputMethodManager) mFeedbackContent
+								.getContext().getSystemService(
+										Context.INPUT_METHOD_SERVICE);
+						if (isFocus) {
+							imm.toggleSoftInput(0,
+									InputMethodManager.HIDE_NOT_ALWAYS);
+						} else {
+							imm.hideSoftInputFromWindow(mFeedbackContent
+									.getWindowToken(), 0);
+						}
+					}
+				}, 100);
+			}
+
+		});
+		mFeedbackContent.requestFocus();
 	}
 	
 	private String mapErrorCode(int errCode) {
@@ -67,9 +96,14 @@ public class FeedbackScreen extends Screen implements OnClickListener {
 				FeedbackScreen.this.finish();
 				break;
 			default:
-				Toast.makeText(NoteApplication.getContext(),
-						R.string.feedback_commit_failure, Toast.LENGTH_SHORT)
-						.show();
+				if (NoteApplication.networkIsOk == false) {
+					Toast.makeText(NoteApplication.getContext(),
+							R.string.network_none, Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(NoteApplication.getContext(),
+							R.string.feedback_commit_failure,
+							Toast.LENGTH_SHORT).show();
+				}
 				FeedbackScreen.this.finish();
 				break;
 			}

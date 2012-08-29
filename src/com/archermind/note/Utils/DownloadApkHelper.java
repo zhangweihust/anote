@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -41,7 +42,7 @@ import android.widget.Toast;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Screens.HomeScreen;
-import com.archermind.note.Views.CustomDialog;
+//import com.archermind.note.Views.CustomDialog;
 import com.archermind.note.dialog.DialogCheckSignature;
 import com.archermind.note.download.DownloadJob;
 import com.archermind.note.download.DownloadTask;
@@ -375,10 +376,13 @@ public class DownloadApkHelper {
 	}
 
 	private void notNewVersionShow() {
-		CustomDialog.Builder customBuilder = new CustomDialog.Builder(instance);
+//		CustomDialog.Builder customBuilder = new CustomDialog.Builder(instance);
+//		customBuilder
+//				.setWhichViewVisible(CustomDialog.contentIsTextView)
+
+		AlertDialog.Builder customBuilder = new AlertDialog.Builder(instance);
 		customBuilder
 				.setTitle(instance.getString(R.string.app_name))
-				.setWhichViewVisible(CustomDialog.contentIsTextView)
 				.setMessage(
 						instance
 								.getString(R.string.screen_update_not_need_update))
@@ -390,16 +394,20 @@ public class DownloadApkHelper {
 								dialog.dismiss();
 							}
 						});
+		
 		updateDialog = customBuilder.create();
 		updateDialog.show();
 	}
 
 	private void installDownloadedApk(final File apkFile) {
-		CustomDialog.Builder customBuilder = new CustomDialog.Builder(instance);
+//		CustomDialog.Builder customBuilder = new CustomDialog.Builder(instance);
+//		customBuilder
+//				.setWhichViewVisible(CustomDialog.contentIsTextView)
+				
+		AlertDialog.Builder customBuilder = new AlertDialog.Builder(instance);	
 		customBuilder
 				.setTitle(
 						instance.getString(R.string.screen_update_have_update))
-				.setWhichViewVisible(CustomDialog.contentIsTextView)
 				.setMessage(
 						instance
 								.getString(R.string.screen_update_select_to_install))
@@ -570,11 +578,14 @@ public class DownloadApkHelper {
 		sb.append(instance.getString(R.string.screen_update_version_info)
 				+ "\n");
 		sb.append(apkInfo.newVersionInfo);
-		CustomDialog.Builder customBuilder = new CustomDialog.Builder(instance);
+//		CustomDialog.Builder customBuilder = new CustomDialog.Builder(instance);
+//		customBuilder
+//				.setWhichViewVisible(CustomDialog.contentIsTextView)
+		
+		AlertDialog.Builder customBuilder = new AlertDialog.Builder(instance);
 		customBuilder
 				.setTitle(
 						instance.getString(R.string.screen_update_have_update))
-				.setWhichViewVisible(CustomDialog.contentIsTextView)
 				.setMessage(ToDBC(sb.toString()))
 				.setPositiveButton(
 						instance.getString(R.string.screen_update_install_now),
@@ -774,14 +785,7 @@ public class DownloadApkHelper {
 
 	private void toastShow(int type) {
 		if (type == TOAST_DOWNLOAD_BACKGROUND) {
-			handler.post(new Runnable() {
-				@Override
-				public void run() {
-					Toast.makeText(NoteApplication.getContext(),
-							R.string.screen_version_download_update_background,
-							Toast.LENGTH_SHORT).show();
-				}
-			});
+			NoteApplication.toastShow(handler, R.string.screen_version_download_update_background);
 		}
 	}
 

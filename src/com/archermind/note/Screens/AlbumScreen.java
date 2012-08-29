@@ -560,8 +560,8 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				break;
 			case  UPLOAD_ALBUM_ERROR:
 				int uploadcount = msg.getData().getInt("uploadcount");
-				if (uploadcount > 3 || uploadcount <= 0)  {
-					System.out.println("UPLOAD_ALBUM_ERROR, try count over 3");
+				if (uploadcount > 3 || uploadcount <= 0 || NoteApplication.networkIsOk == false)  {
+					System.out.println("UPLOAD_ALBUM_ERROR");
 					String aFilePath = msg.getData().getString("filelocalpath");
 					new File(aFilePath).delete();
 					Toast.makeText(AlbumScreen.this, getString(R.string.image_upload_failed), Toast.LENGTH_SHORT).show();

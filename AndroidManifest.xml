@@ -46,6 +46,7 @@
         <activity android:name=".Screens.AboutScreen" />
         <activity android:name=".Screens.FeedbackScreen" />
 
+        <service android:name=".Services.CrashReportService" />
         <service android:name=".Services.ServiceManager" />
     </application>
 

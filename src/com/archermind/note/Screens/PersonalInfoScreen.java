@@ -439,8 +439,8 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 				break;
 			case UPLOAD_PHOTO_ERROR: {
 				int uploadcount = msg.getData().getInt("uploadcount");
-				if (uploadcount > 3 || uploadcount <= 0) {
-					System.out.println("UPLOAD_ALBUM_ERROR, try count over 3");
+				if (uploadcount > 3 || uploadcount <= 0 || NoteApplication.networkIsOk == false ) {
+					System.out.println("UPLOAD_ALBUM_ERROR");
 					String aFilePath = msg.getData().getString("filelocalpath");
 					new File(aFilePath).delete();
 					Toast.makeText(PersonalInfoScreen.this,
@@ -548,8 +548,8 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 				break;
 			case UPLOAD_INFO_ERROR: {
 				int uploadcount = msg.getData().getInt("uploadcount");
-				if (uploadcount > 3 || uploadcount <= 0) {
-					System.out.println("UPLOAD_INFO_ERROR, try count over 3");
+				if (uploadcount > 3 || uploadcount <= 0 || NoteApplication.networkIsOk == false) {
+					System.out.println("UPLOAD_INFO_ERROR");
 					Toast.makeText(NoteApplication.getContext(),
 							getString(R.string.personal_info_set_fail),
 							Toast.LENGTH_SHORT).show();
