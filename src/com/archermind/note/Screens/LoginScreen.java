@@ -297,7 +297,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 				SharedPreferences sp = getSharedPreferences(
 						PreferencesHelper.XML_NAME, 0);
 				Editor editor = sp.edit();
-				editor.putString(PreferencesHelper.XML_RENREN_ACCTSS_TOKEN,
+				editor.putString(PreferencesHelper.XML_RENREN_ACCESS_TOKEN,
 						values.getString("access_token"));
 				editor.commit();
 				Log.i(TAG, "renrenuid:" + renren.getCurrentUid());
@@ -351,7 +351,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 					SharedPreferences sp = getSharedPreferences(
 							PreferencesHelper.XML_NAME, 0);
 					Editor editor = sp.edit();
-					editor.putString(PreferencesHelper.XML_QQ_ACCTSS_TOKEN,
+					editor.putString(PreferencesHelper.XML_QQ_ACCESS_TOKEN,
 							oAuthV2.getAccessToken());
 					editor.putString(PreferencesHelper.XML_QQ_OPENID,
 							oAuthV2.getOpenid());
@@ -377,9 +377,9 @@ public class LoginScreen extends Screen implements OnClickListener {
 			SharedPreferences sp = getSharedPreferences(
 					PreferencesHelper.XML_NAME, 0);
 			Editor editor = sp.edit();
-			editor.putString(PreferencesHelper.XML_SINA_ACCTSS_TOKEN,
+			editor.putString(PreferencesHelper.XML_SINA_ACCESS_TOKEN,
 					values.getString("access_token"));
-			editor.commit();
+			editor.commit();	
 			if (values.getString("uid") != null
 					&& !values.getString("uid").equals(""))
 				login_others(ServerInterface.LOGIN_TYPE_SINA,

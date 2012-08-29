@@ -1847,6 +1847,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	        BufferedOutputStream bos = new BufferedOutputStream(
 	                                                 new FileOutputStream(myCaptureFile));
 	        viewBitmap.compress(Bitmap.CompressFormat.PNG, 80, bos);
+	        viewBitmap.recycle();
 	        bos.flush();
 	        bos.close();
 		} catch (Exception e) {

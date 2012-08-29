@@ -307,7 +307,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 									+ oAuthV2.getExpiresIn() + "  "
 									+ oAuthV2.getOpenid());
 					Editor editor = mPreferences.edit();
-					editor.putString(PreferencesHelper.XML_QQ_ACCTSS_TOKEN,
+					editor.putString(PreferencesHelper.XML_QQ_ACCESS_TOKEN,
 							oAuthV2.getAccessToken());
 					editor.putString(PreferencesHelper.XML_QQ_OPENID,
 							oAuthV2.getOpenid());
@@ -377,7 +377,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 				Log.e(TAG, values.getString("access_token"));
 				Log.e(TAG, values.getString("expires_in"));
 				Editor editor = mPreferences.edit();
-				editor.putString(PreferencesHelper.XML_RENREN_ACCTSS_TOKEN,
+				editor.putString(PreferencesHelper.XML_RENREN_ACCESS_TOKEN,
 						values.getString("access_token"));
 				editor.commit();
 				if (renren.isSessionKeyValid()) {
@@ -415,7 +415,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 			SharedPreferences sp = getSharedPreferences(
 					PreferencesHelper.XML_NAME, 0);
 			Editor editor = sp.edit();
-			editor.putString(PreferencesHelper.XML_SINA_ACCTSS_TOKEN,
+			editor.putString(PreferencesHelper.XML_SINA_ACCESS_TOKEN,
 					values.getString("access_token"));
 			editor.commit();
 			if (values.getString("uid") != null

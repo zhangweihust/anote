@@ -7,6 +7,8 @@ import org.json.JSONObject;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Events.EventArgs;
+import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.NetworkUtils;
@@ -97,14 +99,14 @@ public class ShareScreen extends Screen implements OnClickListener {
 		mRenrenButton = (Button) findViewById(R.id.btn_share_renren);
 		mRenrenButton.setOnClickListener(this);
 
-		//上传笔记图片至服务器（待修改）
-//		ServerInterface sInterface = new ServerInterface();
-//		sInterface.InitAmtCloud(ShareScreen.this);
-//		for (int i = 0; i < mPicPathList.size(); i++) {
-//			sInterface.uploadFile(ShareScreen.this,
-//					String.valueOf(NoteApplication.getInstance().getUserId()),
-//					mPicPathList.get(i));
-//		}
+		// 上传笔记图片至服务器（待修改）
+		// ServerInterface sInterface = new ServerInterface();
+		// sInterface.InitAmtCloud(ShareScreen.this);
+		// for (int i = 0; i < mPicPathList.size(); i++) {
+		// sInterface.uploadFile(ShareScreen.this,
+		// String.valueOf(NoteApplication.getInstance().getUserId()),
+		// mPicPathList.get(i));
+		// }
 
 		// 异步执行分享到广场
 		SquareTask squareTask = new SquareTask();
@@ -188,9 +190,13 @@ public class ShareScreen extends Screen implements OnClickListener {
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 			if (result.equals("success")) {
-				dismssProgressBar(R.string.share_success,true);
+				dismssProgressBar(R.string.share_success, true);
+				MainScreen.eventService.onUpdateEvent(new EventArgs(
+						EventTypes.SHARE_NOTE_SUCCESSED));
 			} else {
-				dismssProgressBar(R.string.share_failed,false);
+				dismssProgressBar(R.string.share_failed, false);
+				MainScreen.eventService.onUpdateEvent(new EventArgs(
+						EventTypes.SHARE_NOTE_FAILED));
 			}
 		}
 
@@ -199,15 +205,11 @@ public class ShareScreen extends Screen implements OnClickListener {
 	private void shareToSina(String imgPath, String msg) {
 		if (NoteApplication.getInstance().ismBound_Sina()) {
 			String token = mPreferences.getString(
-					PreferencesHelper.XML_SINA_ACCTSS_TOKEN, null);
+					PreferencesHelper.XML_SINA_ACCESS_TOKEN, null);
 			if (token != null) {
 				Weibo weibo = Weibo.getInstance();
-				weibo.setAccessToken(new AccessToken(token,
-						AccountScreen.APPSECRET_SINA));
-				Utility.setAuthorization(new Oauth2AccessTokenHeader()); // 必需，设置发送的http请求头信息，不设会出现auth
-																			// faild
 				WeiboParameters bundle = new WeiboParameters();
-				bundle.add("source", AccountScreen.APPKEY_SINA);
+				bundle.add("access_token", token);
 				bundle.add("pic", imgPath);// 图片路径
 				bundle.add("status", msg);
 				String url = Weibo.SERVER + "statuses/upload.json";
@@ -221,7 +223,8 @@ public class ShareScreen extends Screen implements OnClickListener {
 								runOnUiThread(new Runnable() {
 									@Override
 									public void run() {
-										dismssProgressBar(R.string.share_failed, false);
+										dismssProgressBar(
+												R.string.share_failed, false);
 									}
 								});
 								e.printStackTrace();
@@ -234,7 +237,9 @@ public class ShareScreen extends Screen implements OnClickListener {
 									runOnUiThread(new Runnable() {
 										@Override
 										public void run() {
-											dismssProgressBar(R.string.share_failed, false);
+											dismssProgressBar(
+													R.string.share_failed,
+													false);
 											showLoginAlertDialog(R.string.share_sina_expired);
 										}
 									});
@@ -242,7 +247,9 @@ public class ShareScreen extends Screen implements OnClickListener {
 									runOnUiThread(new Runnable() {
 										@Override
 										public void run() {
-											dismssProgressBar(R.string.share_failed, false);
+											dismssProgressBar(
+													R.string.share_failed,
+													false);
 											Toast.makeText(
 													ShareScreen.this,
 													R.string.share_err_equal_weibo,
@@ -254,7 +261,9 @@ public class ShareScreen extends Screen implements OnClickListener {
 									runOnUiThread(new Runnable() {
 										@Override
 										public void run() {
-											dismssProgressBar(R.string.share_failed, false);
+											dismssProgressBar(
+													R.string.share_failed,
+													false);
 											Toast.makeText(
 													ShareScreen.this,
 													"Sina Weibo错误码："
@@ -272,7 +281,8 @@ public class ShareScreen extends Screen implements OnClickListener {
 								runOnUiThread(new Runnable() {
 									@Override
 									public void run() {
-										dismssProgressBar(R.string.share_success,true);
+										dismssProgressBar(
+												R.string.share_success, true);
 									}
 								});
 							}
@@ -347,7 +357,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 	private void shareToQQ(String imgPath, String msg) {
 		if (NoteApplication.getInstance().ismBound_QQ()) {
 			String token = mPreferences.getString(
-					PreferencesHelper.XML_QQ_ACCTSS_TOKEN, null);
+					PreferencesHelper.XML_QQ_ACCESS_TOKEN, null);
 			String openid = mPreferences.getString(
 					PreferencesHelper.XML_QQ_OPENID, null);
 			if (token != null && openid != null) {
@@ -364,7 +374,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 	private void shareToRenren(String imgPath, String msg) {
 		if (NoteApplication.getInstance().ismBound_Renren()) {
 			String token = mPreferences.getString(
-					PreferencesHelper.XML_RENREN_ACCTSS_TOKEN, null);
+					PreferencesHelper.XML_RENREN_ACCESS_TOKEN, null);
 			if (token != null) {
 				Renren renren = new Renren(AccountScreen.APPKEY_RENREN,
 						AccountScreen.APPSECRET_RENREN,
@@ -383,7 +393,8 @@ public class ShareScreen extends Screen implements OnClickListener {
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									dismssProgressBar(R.string.share_failed, false);
+									dismssProgressBar(R.string.share_failed,
+											false);
 									showLoginAlertDialog(R.string.share_renren_expired);
 								}
 							});
@@ -391,7 +402,8 @@ public class ShareScreen extends Screen implements OnClickListener {
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									dismssProgressBar(R.string.share_failed, false);
+									dismssProgressBar(R.string.share_failed,
+											false);
 								}
 							});
 						}
@@ -474,9 +486,9 @@ public class ShareScreen extends Screen implements OnClickListener {
 	private void dismssProgressBar(int id, boolean isSuccessed) {
 		mProgressBar.setVisibility(View.GONE);
 		mResultImageView.setVisibility(View.VISIBLE);
-		if(isSuccessed){
+		if (isSuccessed) {
 			mResultImageView.setImageResource(R.drawable.face_a8);
-		}else {
+		} else {
 			mResultImageView.setImageResource(R.drawable.face_a5);
 		}
 		mProgressText.setText(id);

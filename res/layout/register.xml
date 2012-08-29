@@ -242,6 +242,8 @@
                         android:hint="@string/register_username_hint"
                         android:textColor="@color/register_text_content"
                         android:textSize="@dimen/login_register_text_size" >
+
+                        <requestFocus />
                     </EditText>
                 </LinearLayout>
 

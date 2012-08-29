@@ -31,10 +31,10 @@ public class PreferencesHelper {
 	public static final String XML_USER_REGION_CITY = "region_city";
 	public static final String XML_USER_ACCOUNT = "account";
 	public static final String XML_USER_PASSWD = "passwd";
-	public static final String XML_SINA_ACCTSS_TOKEN = "sina_access_token";
-	public static final String XML_QQ_ACCTSS_TOKEN = "qq_access_token";
+	public static final String XML_SINA_ACCESS_TOKEN = "sina_access_token";
+	public static final String XML_QQ_ACCESS_TOKEN = "qq_access_token";
 	public static final String XML_QQ_OPENID = "qq_openid";
-	public static final String XML_RENREN_ACCTSS_TOKEN = "renren_access_token";
+	public static final String XML_RENREN_ACCESS_TOKEN = "renren_access_token";
 	
 	private static Bitmap mUserAvatarBitmap;
 	private static ArrayList<Map<String, Object>> mProvinceLists;

@@ -138,10 +138,10 @@
     <string name="register_woman">女</string>
     <string name="register_man">男</string>
     <string name="register_location">地区：</string>
-    <string name="register_activate_account">激活微笔记账号</string>
+    <string name="register_activate_account">激活分享笔记账号</string>
     <string name="register_warning">（必填）</string>
-    <string name="register_tip">填写账号并设置密码，以后可用此账号直接登录微笔记</string>
-    <string name="register_username">微笔记账号：</string>
+    <string name="register_tip">以后可用此账号直接登录分享笔记</string>
+    <string name="register_username">邮箱账号：</string>
     <string name="register_username_hint">你的常用邮箱(密码找回)</string>
     <string name="register_password">输入密码：</string>
     <string name="register_password_hint">6至16位字母数字组合</string>
@@ -186,7 +186,7 @@
     <string name="share_qq_expired">QQ账号授权已过期，请重新使用QQ账号登录！</string>
     <string name="share_renren_expired">人人账号授权已过期，请重新使用人人账号登录！</string>
     <string name="share_err_equal_weibo">你已分享过相同的内容啦！</string>
-    <string name="share_success">恭喜你,分享成功！</string>
+    <string name="share_success">恭喜你,分享成功!</string>
     <string name="share_failed">呃,分享失败了!</string>
     <string name="share_dialog_bound">去绑定</string>
 
