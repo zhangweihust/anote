@@ -34,8 +34,8 @@ public class DatabaseManager {
 		database.close();
 	}
 	
-	public long insertLocalNotes(ContentValues values, long timeInMillis) {
-		Cursor c = queryTodayLocalNOTEs(timeInMillis);
+	public long insertLocalNotes(ContentValues values) {
+		Cursor c = queryTodayLocalNOTEs(values.getAsLong(databaseHelper.COLUMN_NOTE_CREATE_TIME));
 		values.put(DatabaseHelper.COLUMN_NOTE_LAST_FLAG, true);
 		if(c.getCount()>0){
 			c.moveToFirst();
@@ -43,8 +43,8 @@ public class DatabaseManager {
 			ContentValues v = new ContentValues();
 			v.put(DatabaseHelper.COLUMN_NOTE_LAST_FLAG, false);
 			updateLocalNotes(v, _id);
-			c.close();
 		}
+		c.close();
 		return database.insert(DatabaseHelper.TAB_NOTE, null, values);
 	}
 
@@ -58,10 +58,10 @@ public class DatabaseManager {
 	    database.update(DatabaseHelper.TAB_NOTE, values, DatabaseHelper.COLUMN_NOTE_ID + " =? ", new String[] { String.valueOf(id)});
 	}
 	
-	public void deleteLocalNOTEs(int id, boolean lastFlag, long timeInMillis) {
-		
+	public void deleteLocalNOTEs(int id,long timeInMillis) {	
 		   Cursor dCursor = database.query(DatabaseHelper.TAB_NOTE, null, DatabaseHelper.COLUMN_NOTE_ID + " = ? ", new String[]{String.valueOf(id)}, null, null, null); 
 		   if(dCursor.moveToNext()){ 
+			   boolean lastFlag = dCursor.getInt(dCursor.getColumnIndex(databaseHelper.COLUMN_NOTE_LAST_FLAG)) == 1;
 			   database.delete(DatabaseHelper.TAB_NOTE,
 						DatabaseHelper.COLUMN_NOTE_ID + " =? ",
 						new String[] { String.valueOf(id) });
@@ -73,8 +73,8 @@ public class DatabaseManager {
 						ContentValues values = new ContentValues();
 						values.put(DatabaseHelper.COLUMN_NOTE_LAST_FLAG, true);
 						updateLocalNotes(values, _id);
-						c.close();
 					}
+					c.close();
 				}
 		   }
 		   dCursor.close();

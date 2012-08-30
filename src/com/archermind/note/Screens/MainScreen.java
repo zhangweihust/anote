@@ -342,14 +342,14 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	public boolean onFling(MotionEvent arg0, MotionEvent arg1, float arg2,
 			float arg3) {
 		// TODO Auto-generated method stub
-		System.out.println("mainscreen onfling ");
+		System.out.println("mainscreen onfling " + (arg0.getX() - arg1.getX()));
 		if(mTabHost.getCurrentTabTag().equalsIgnoreCase(TAB_HOME)){
 			 String direction = null;
-			if (arg0.getX() - arg1.getX() > 50) {
+			if (arg0.getX() - arg1.getX() > 130) {
 				direction = this.LEFT;
 				HomeScreen.eventService.onUpdateEvent(new EventArgs(
 						EventTypes.HOMESCREEN_FLING).putExtra("direction", direction));
-			}else if(arg0.getX() - arg1.getX() < -50){
+			}else if(arg0.getX() - arg1.getX() < -130){
 				direction = this.RIGHT;
 				HomeScreen.eventService.onUpdateEvent(new EventArgs(
 						EventTypes.HOMESCREEN_FLING).putExtra("direction", direction));

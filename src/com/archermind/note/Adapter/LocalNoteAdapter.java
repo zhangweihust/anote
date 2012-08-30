@@ -117,7 +117,7 @@ public class LocalNoteAdapter  extends CursorAdapter {
 							mDb.updateLocalNotes(contentValues, id);
 							break;
 						case 2:
-							mDb.deleteLocalNOTEs(id, lastFlag, time);
+							mDb.deleteLocalNOTEs(id, time);
 							break;
 						default:
 							break;

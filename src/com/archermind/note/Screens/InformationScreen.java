@@ -68,6 +68,7 @@ public class InformationScreen extends Screen implements IXListViewListener,OnXS
         mbtnBack.setOnClickListener(this);
         
         mcInformations = ServiceManager.getDbManager().queryInformations();
+        startManagingCursor(mcInformations);
         cursorToListData(mcInformations, malInformations);
         mInformationAdapter = new InformationAdapter(this, malInformations);
         mxlvInformation.setAdapter(mInformationAdapter);

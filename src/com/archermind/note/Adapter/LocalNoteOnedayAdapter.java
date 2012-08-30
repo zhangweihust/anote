@@ -87,8 +87,10 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 			long duration = (DateTimeUtils.getToday(Calendar.PM, System.currentTimeMillis()) - time)/(1000 * 60 * 60 * 24);
 			if(duration == 0){
 				item.tvDays.setText("今天");
-			}else{
+			}else if(duration > 0){
 				item.tvDays.setText(duration+"天前");
+			}else{
+				item.tvDays.setText(-duration+"天后");
 			}
 			//item.tvWeekDay.setVisibility(View.VISIBLE);
 /*			String weekday = DateTimeUtils.time2String("EEEE", time);
@@ -152,7 +154,7 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 							mDb.updateLocalNotes(contentValues, id);
 							break;
 						case 2:
-							mDb.deleteLocalNOTEs(id, lastFlag, time);
+							mDb.deleteLocalNOTEs(id,time);
 							if (notePath != null) {
 							    File file = new File(notePath);
 							    if (file.exists()) {

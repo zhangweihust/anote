@@ -107,7 +107,7 @@ public class NoteSaveDialog implements OnClickListener{
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT, diaryPath);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER, weather);
-					long id = ServiceManager.getDbManager().insertLocalNotes(contentValues, System.currentTimeMillis());
+					long id = ServiceManager.getDbManager().insertLocalNotes(contentValues);
 					
 					if (NetworkUtils.getNetworkState(MainScreen.mContext) == NetworkUtils.NETWORN_NONE) {
 						Toast.makeText(mEditNote, "网络不通，无法分享", Toast.LENGTH_SHORT).show();
@@ -162,7 +162,9 @@ public class NoteSaveDialog implements OnClickListener{
 						action = "A";
 						serviceID = "0";
 					}
-									
+					
+					cursor.close();
+					
 					Intent intent = new Intent(mEditNote,ShareScreen.class);
 					intent.putStringArrayListExtra("picpathlist", mEditNote.mPicPathList);
 					intent.putExtra("noteid", String.valueOf(noteId));
@@ -201,7 +203,7 @@ public class NoteSaveDialog implements OnClickListener{
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT, diaryPath);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER, weather);
-					long id = ServiceManager.getDbManager().insertLocalNotes(contentValues, System.currentTimeMillis());
+					long id = ServiceManager.getDbManager().insertLocalNotes(contentValues);
 					Log.d("=UUU=","id = " + id);
 				} else {
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,title);

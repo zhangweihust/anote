@@ -1002,6 +1002,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		final String weekStr = sdf1.format(timeCal.getTime());
 		
 		String weather = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_WEATHER));
+		cursor.close();
 		int weatherId = 0;
 		if (weather == null || "".equals(weather)) {
 			new Thread(new Runnable() {
