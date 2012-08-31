@@ -104,7 +104,7 @@ public class ImageManager {
 	//
 	public static Uri addImage(ContentResolver cr, String title,
 			long dateTaken, Location location, String directory,
-			String filename, Bitmap source, byte[] jpegData, int[] degree) {
+			String filename, Bitmap source, byte[] data, CompressFormat format, int[] degree) {
 		// We should store image data earlier than insert it to ContentProvider,
 		// otherwise we may not be able to generate thumbnail in time.
 		OutputStream outputStream = null;
@@ -121,10 +121,10 @@ public class ImageManager {
 			File file = new File(directory, filename);
 			outputStream = new FileOutputStream(file);
 			if (source != null) {
-				source.compress(CompressFormat.JPEG, 100, outputStream);
+				source.compress(format, 100, outputStream);
 				degree[0] = 0;
 			} else {
-				outputStream.write(jpegData);
+				outputStream.write(data);
 				degree[0] = getExifOrientation(filePath);
 			}
 		} catch (FileNotFoundException ex) {

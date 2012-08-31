@@ -175,9 +175,10 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 				if (extras != null) {
 					ByteArrayOutputStream stream = new ByteArrayOutputStream();
 					Bitmap photo = extras.getParcelable("data");
-					photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+					photo = PreferencesHelper.toRoundCorner(photo, 15);
+					photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
 					byte[] b = stream.toByteArray();
-					this.mImgCapture.storeImage(b, null);
+					this.mImgCapture.storeImage(b, null, Bitmap.CompressFormat.PNG);
 					String filepath = getFilepathFromUri(this.mImgCapture
 							.getLastCaptureUri());
 					File file = new File(filepath);
@@ -479,6 +480,9 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 						newmsg.what = DOWNLOAD_PHOTO_JSON_ERROR;
 						handler.sendMessage(newmsg);
 						return;
+					}
+					if (retCode == 1) {
+						aPhotoUrl = "";
 					}
 				} catch (NumberFormatException e) {
 				}

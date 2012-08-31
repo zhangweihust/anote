@@ -54,17 +54,17 @@ public class ImageCapture {
 	}
 
 	// Returns the rotation degree in the jpeg header.
-	public int storeImage(byte[] data, Location loc) {
+	public int storeImage(byte[] data, Location loc, CompressFormat format) {
 		try {
 			long dateTaken = System.currentTimeMillis();
 			String title = createName(dateTaken);
-			String filename = title + ".jpg";
+			String filename = title + "." + mapToFormatStr(format);
 			int[] degree = new int[1];
 			mLastContentUri = ImageManager.addImage(this.mContentResolver,
 					title, dateTaken,
 					loc, // location from gps/network
 					IMAGE_CACHE_PATH, filename, null,
-					data, degree);
+					data, format, degree);
 			return degree[0];
 		} catch (Exception ex) {
 			Log.e("ImageCapture", "Exception while compressing image.", ex);
@@ -88,6 +88,30 @@ public class ImageCapture {
 		return mLastContentUri;
 	}
 	
+	public static String mapToFormatStr(CompressFormat format) {
+		if (CompressFormat.JPEG == format) {
+			return "jpg";
+		} else if (CompressFormat.PNG == format) {
+			return "png";
+		} 
+		return "";
+	}
+	
+	public static CompressFormat mapFormatStr(String formatStr) {
+		CompressFormat format = CompressFormat.JPEG;
+		
+		if (formatStr == null || "".equals(formatStr)) {
+			System.out.println("mapFormatStr: formatStr is null");
+		} else if ("jpg".equals(formatStr)) {
+			format = CompressFormat.JPEG;
+		} else if ("png".equals(formatStr)) {
+			format = CompressFormat.PNG;
+		} else {
+			System.out.println("mapFormatStr: error formatStr");
+		}
+		return format;
+	}
+	
 	public static String getLocalCacheImageNameFromUrl(String url) {
 		String []items = url.split("&");
 		if (items.length == 0)
@@ -101,10 +125,10 @@ public class ImageCapture {
 				mediaName = str[str.length-1];
 			}
 			
-//			if (items[i].contains("mediaType=")) {
-//				String []str=items[i].split("=");
-//				mediaType = str[str.length-1];
-//			}
+			if (items[i].contains("mediaType=")) {
+				String []str=items[i].split("=");
+				mediaType = str[str.length-1].toLowerCase();
+			}
 		}
 		
 		if ("".equals(mediaName) || "".equals(mediaType))
@@ -123,55 +147,49 @@ public class ImageCapture {
 		System.out.println("url:"+url);
 		System.out.println("localpath:"+localpath);
 		int retCode = 0;
-		Bitmap bitmap = null;
-		try {
-			URLConnection conn = new URL(url).openConnection();
-			conn.setConnectTimeout(CONNECT_TIMEOUT);
-			conn.setReadTimeout(READ_TIMEOUT);
-			bitmap = BitmapFactory
-					.decodeStream((InputStream) conn.getContent());
-		} catch (MalformedURLException urlEx) {
-			urlEx.printStackTrace();
-			Log.e("ImageCapture", "Exception while read image.", urlEx);
-			retCode = -2;
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.e("ImageCapture", "Exception while read image.", e);
-			retCode = -1;
-		}
+		BufferedOutputStream ostream = null;
 
-		if (bitmap == null) {
-			Log.e("ImageCapture", "Exception while read image.");
-			return retCode;
-		}
-		
 		File directory = new File(IMAGE_CACHE_PATH);
 		if (!directory.isDirectory()) {
 			directory.mkdirs();
 		}
 		
-		BufferedOutputStream ostream = null;
 		try {
+			URLConnection conn = new URL(url).openConnection();
+			conn.setConnectTimeout(CONNECT_TIMEOUT);
+			conn.setReadTimeout(READ_TIMEOUT);
+			InputStream is = (InputStream) conn.getContent();
+			
+			int DATA_BUFFER = 8192;
 			ostream = new BufferedOutputStream(new FileOutputStream(new File(
-					localpath)), 2 * 1024);
-			bitmap.compress(CompressFormat.JPEG, 90, ostream);
+					localpath)), DATA_BUFFER);
+			
+			byte buffer[] = new byte[DATA_BUFFER];
+            int readSize = 0;
+            while((readSize = is.read(buffer)) > 0){
+            	ostream.write(buffer, 0, readSize);
+            	//ostream.flush();
+            }
+		} catch (MalformedURLException urlEx) {
+			urlEx.printStackTrace();
+			Log.e("ImageCapture", "Exception while read image.", urlEx);
+			retCode = -2;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			retCode = -3;
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.e("ImageCapture", "Exception while read image.", e);
+			retCode = -1;
 		} finally {
 			try {
 				if (ostream != null) {
 					ostream.flush();
 					ostream.close();
 				}
-				if (bitmap != null) {
-					bitmap.recycle();
-					bitmap = null;
-				}
 			} catch (IOException e) {
 			}
 		}
-		
 		return retCode;
 	}
 	

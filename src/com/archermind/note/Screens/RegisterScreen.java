@@ -258,9 +258,9 @@ public class RegisterScreen extends Screen implements OnClickListener {
 				if (extras != null) {
 					ByteArrayOutputStream stream = new ByteArrayOutputStream();
 					Bitmap photo = extras.getParcelable("data");
-					photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+					photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
 					byte[] b = stream.toByteArray();
-					this.mImgCapture.storeImage(b, null);
+					this.mImgCapture.storeImage(b, null, Bitmap.CompressFormat.PNG);
 					mAvatarPath = getFilepathFromUri(this.mImgCapture
 							.getLastCaptureUri());
 					PreferencesHelper.UpdateAvatar(this, "", mAvatarPath);

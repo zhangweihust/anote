@@ -76,7 +76,7 @@ public class PreferencesHelper {
 				mUserAvatarBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.my_photo);
 			}
 		}
-		mUserAvatarBitmap = toRoundCorner(mUserAvatarBitmap, 15);
+		//mUserAvatarBitmap = toRoundCorner(mUserAvatarBitmap, 15);
 		mIsLoadAvatar = true;
 		
 		return mUserAvatarBitmap;
