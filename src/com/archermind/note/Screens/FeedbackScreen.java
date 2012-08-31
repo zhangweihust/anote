@@ -2,11 +2,9 @@ package com.archermind.note.Screens;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
-import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
 
 import android.content.Context;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,7 +15,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class FeedbackScreen extends Screen implements OnClickListener {
@@ -126,18 +123,18 @@ public class FeedbackScreen extends Screen implements OnClickListener {
 						mapErrorCode(errCode),
 						Toast.LENGTH_SHORT).show();
 			} else {
-				new Thread() {
+				this.runOnUiThread(new Runnable() {
 
 					@Override
 					public void run() {
+						// TODO Auto-generated method stub
+						showProgress(null, getString(R.string.feedback_commiting_info));
 						int result = ServerInterface.suggestionfeedback(String
 								.valueOf(NoteApplication.getInstance()
 										.getUserId()), "", strFeedbackContent);
-
 						mHandler.sendEmptyMessage(result);
-					}
-
-				}.start();
+						dismissProgress();
+					}});
 			}
 		}
 			break;

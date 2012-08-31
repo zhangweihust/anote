@@ -253,7 +253,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 							uploadImage(name, expandname, filepath, 1);
 				        } else {
 				        	System.out.println("ALBUM create_cache_file_failed ");
-				        	Toast.makeText(AlbumScreen.this, getString(R.string.image_create_cache_file_failed), Toast.LENGTH_SHORT).show();
+				        	Toast.makeText(AlbumScreen.this, getString(R.string.image_create_cache_file_failed_io), Toast.LENGTH_SHORT).show();
 				        }
 					}
 				}
@@ -272,8 +272,14 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					uploadImage(name, expandname, filepath, 1);
 				}
 			} else {
+				if (resultCode != RESULT_CANCELED) {
 				System.out.println("CAMERA create_cache_file_failed ");
-				Toast.makeText(AlbumScreen.this, getString(R.string.image_create_cache_file_failed), Toast.LENGTH_SHORT).show();
+					Toast
+							.makeText(
+									AlbumScreen.this,
+									getString(R.string.image_create_cache_file_failed_io),
+									Toast.LENGTH_SHORT).show();
+				}
 			}
 			break;
 			
@@ -456,22 +462,23 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					return;
 				}
 
-				try {
-					JSONArray jsonArray = new JSONArray(json);
-
-					if (jsonArray.length() > 0) {
-						JSONObject jsonObject = (JSONObject) jsonArray.opt(0);
-						mAlbumUrllist = jsonObject.getString("album_url");
-					}
-
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					Message msg = new Message();
-					msg.what = DOWNLOAD_THUMB_ALBUM_JSON_ERROR;
-					handler.sendMessage(msg);
-					e.printStackTrace();
-					return;
-				}
+//				try {
+					mAlbumUrllist = json;
+//					JSONArray jsonArray = new JSONArray(json);
+//
+//					if (jsonArray.length() > 0) {
+//						JSONObject jsonObject = (JSONObject) jsonArray.opt(0);
+//						mAlbumUrllist = jsonObject.getString("album_url");
+//					}
+//
+//				} catch (JSONException e) {
+//					// TODO Auto-generated catch block
+//					Message msg = new Message();
+//					msg.what = DOWNLOAD_THUMB_ALBUM_JSON_ERROR;
+//					handler.sendMessage(msg);
+//					e.printStackTrace();
+//					return;
+//				}
 					
 				Message msg = new Message();
 				msg.what = DOWNLOAD_THUMB_ALBUM_JSON_OK;

@@ -28,11 +28,11 @@ public class ServerInterface {
 	public static final String URL_getReplyFromUser = URL_SERVER + "ci/index.php/anote/getReplyFromUser";
 	public static final String URL_MODIFYPASSWORD = URL_SERVER + "ci/index.php/anote/pswModify";
 	public static final String URL_FINDPASSWORD = URL_SERVER + "ci/index.php/anote/findPassWord";
-	//public static final String URL_get_version_info = URL_SERVER + "ci/index.php/anote/get_version_info";
-	public static final String URL_get_version_info = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_version_info";
+	public static final String URL_get_version_info = URL_SERVER + "ci/index.php/anote/get_version_info";
+	//public static final String URL_get_version_info = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_version_info";
 	public static final String URL_feedback = URL_SERVER + "ci/index.php/anote/suggestionfeedback";
-	//public static final String URL_send_reports = URL_SERVER + "ci/index.php/anote/send_reports";
-	public static final String URL_send_reports = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/send_reports";
+	public static final String URL_send_reports = URL_SERVER + "ci/index.php/anote/send_reports";
+	//public static final String URL_send_reports = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/send_reports";
 	public static final String app_id = "0ba7932602af4a45bd866bad93be0e50";
 	public static final String app_secret = "2411edd1a2c44249a98e6451592062bc";
 
@@ -199,7 +199,7 @@ public class ServerInterface {
 	public static int uploadAlbum(Context context,String user_id, String albumname,
 			String username, String filepath ,String filename,String expandname) {
 		AmtFileObject fileObj = new AmtFileObject(context);
-		fileObj.uploadFile(app_id, username, filepath);
+		fileObj.uploadFile(app_id, user_id, filepath);
 //		String url = "http://yun.archermind.com/mobile/service/showMedia?appId="
 //				+ app_id
 //				+ "&userName="
@@ -239,7 +239,8 @@ public class ServerInterface {
 	 */
 	public static int uploadPhoto(Context context,String user_id,String username,String filepath,String filename,String expandname) {
 		AmtFileObject fileObj = new AmtFileObject(context);
-		fileObj.uploadFile(app_id, username, filepath);
+		System.out.println("=CCC= username:"+ username + "filepath:" +filepath);
+		fileObj.uploadFile(app_id, user_id, filepath);
 //		String url = "http://yun.archermind.com/mobile/service/showMedia?appId="
 //			+ app_id
 //			+ "&userName="

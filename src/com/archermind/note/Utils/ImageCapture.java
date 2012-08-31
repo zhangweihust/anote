@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
@@ -112,9 +113,16 @@ public class ImageCapture {
 			return ImageCapture.IMAGE_CACHE_PATH + "/" + mediaName + "." + mediaType;
 	}
 	
-	public static void createLocalCacheImageFromUrl(String url, String localpath) {
+	/**
+	 * *
+	 * @param url
+	 * @param localpath
+	 * @return 0 success; -1 unknown Exception; -2 MalformedURLException; -3 FileNotFoundException
+	 */
+	public static int createLocalCacheImageFromUrl(String url, String localpath) {
 		System.out.println("url:"+url);
 		System.out.println("localpath:"+localpath);
+		int retCode = 0;
 		Bitmap bitmap = null;
 		try {
 			URLConnection conn = new URL(url).openConnection();
@@ -122,14 +130,19 @@ public class ImageCapture {
 			conn.setReadTimeout(READ_TIMEOUT);
 			bitmap = BitmapFactory
 					.decodeStream((InputStream) conn.getContent());
+		} catch (MalformedURLException urlEx) {
+			urlEx.printStackTrace();
+			Log.e("ImageCapture", "Exception while read image.", urlEx);
+			retCode = -2;
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.e("ImageCapture", "Exception while read image.", e);
+			retCode = -1;
 		}
 
 		if (bitmap == null) {
 			Log.e("ImageCapture", "Exception while read image.");
-			return;
+			return retCode;
 		}
 		
 		File directory = new File(IMAGE_CACHE_PATH);
@@ -144,6 +157,7 @@ public class ImageCapture {
 			bitmap.compress(CompressFormat.JPEG, 90, ostream);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+			retCode = -3;
 		} finally {
 			try {
 				if (ostream != null) {
@@ -157,6 +171,8 @@ public class ImageCapture {
 			} catch (IOException e) {
 			}
 		}
+		
+		return retCode;
 	}
 	
 	public String createThumbnailFile(String srcFilePath) {

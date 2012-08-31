@@ -81,6 +81,7 @@
     <string name="account_change_passwd">更改密码</string>
     <string name="account_new_passwd">新密码</string>
     <string name="account_confirm_passwd">确认密码</string>
+    <string name="commiting_info">正在提交修改...</string>
     <string name="confirm_change">确认修改</string>
     <string name="confirm_success">修改成功</string>
 
@@ -90,7 +91,9 @@
     <string name="image_upload_failed" translatable="false">上传图片失败，网络环境或服务器不可访问</string>
     <string name="image_download_failed" translatable="false">下载图片失败，网络环境或服务器不可访问</string>
     <string name="image_file_name_format" translatable="false">"_yyyyMMdd_HHmmss"</string>
-    <string name="image_create_cache_file_failed" translatable="false">生成本地缓存文件失败，请检测是否未插入sdcard</string>
+    <string name="image_create_cache_file_failed_unknown" translatable="false">生成本地缓存文件失败，未知错误</string>
+    <string name="image_create_cache_file_failed_io" translatable="false">生成本地缓存文件失败，请检测是否未插入sdcard</string>
+    <string name="image_create_cache_file_failed_web" translatable="false">获取图片错误</string>
 
     <!-- personal_info_title -->
     <string name="personal_info_title">个人信息</string>
@@ -172,6 +175,7 @@
     <string name="feedback_err_input_is_null">输入不能为空</string>
     <string name="feedback_commit_success">提交反馈成功</string>
     <string name="feedback_commit_failure">提交反馈失败</string>
+    <string name="feedback_commiting_info">正在提交反馈...</string>
     
     <!-- share -->
     <string name="share_title">分享</string>
@@ -195,7 +199,7 @@
     <string name="sign">标记</string>
     <string name="delete">删除</string>
 
-    <!-- screen_update -->
+    <!-- screen_update
     <string name="screen_update_download_finished">Download finished</string>
     <string name="screen_update_download_error">Update package download error</string>
     <string name="screen_update_click_to_install">Download finished, click to install</string>
@@ -209,14 +213,33 @@
     <string name="screen_update_version_info">Info:</string>
     <string name="screen_update_ok">OK</string>
     <string name="screen_update_error">The update package signature inconsistent, please uninstall the program later installed</string>
+    -->
+    <string name="screen_update_download_finished">下载完成</string>
+    <string name="screen_update_download_error">安装包下载出现错误</string>
+    <string name="screen_update_click_to_install">下载完成，单击进行安装</string>
+    <string name="screen_update_not_need_update">未发现新版本</string>
+    <string name="screen_update_have_update">分享笔记有新版本啦</string>
+    <string name="screen_update_select_to_install">新版本下载完成, 请进行安装</string>
+    <string name="screen_update_install_now">立刻更新</string>
+    <string name="screen_update_install_later">稍后更新</string>
+    <string name="screen_update_version">新版本:</string>
+    <string name="screen_update_version_size">大小:</string>
+    <string name="screen_update_version_info">更新说明:</string>
+    <string name="screen_update_ok">确定</string>
+    <string name="screen_update_error">安装包数字签名不匹配, 请先卸载老版本再进行安装</string>
     
-    <!-- screen_version.xml -->
+    <!-- screen_version.xml 
     <string name="screen_version_top_title">Version info</string>
     <string name="screen_version_title">aNote&#160;v</string>
     <string name="screen_version_check_update">Check Update</string>
     <string name="screen_version_download_update_background">Updates is downloading background...</string>
+    -->
+    <string name="screen_version_top_title">版本信息</string>
+    <string name="screen_version_title">分析笔记&#160;v</string>
+    <string name="screen_version_check_update">检测更新</string>
+    <string name="screen_version_download_update_background">安装包正在后台下载...</string>
     
-    <!-- dialog_check_signature -->
+    <!-- dialog_check_signature 
     <string name="dialog_check_signature_title">Check the new apk</string>
     <string name="dialog_check_signature_checking">Checking, please wait...</string>
     <string name="dialog_check_sinature_not_match">The signature is not match, uninstall the old app, and install the new one.the location is sdcard/aNote/package</string>
@@ -227,11 +250,27 @@
 			
     <string name="sd_card_not_enough_space">Sdcard in insufficient storage, please clean up!</string>
     <string name="get_network_failed">Please check if your network is available</string>
-	<!-- net -->		
-	<string name="no_network">Network unavailable</string>
-	<string name="wifi_unable">Wifi unavailable</string>
-	<string name="n_3g_unable">2G/3G unavailable</string>
+    -->
+    <string name="dialog_check_signature_title">检测新apk</string>
+    <string name="dialog_check_signature_checking">正在检测，请稍候...</string>
+    <string name="dialog_check_sinature_not_match">数字签名不匹配，请先卸载旧版本，再进行新版本安装，安装包保存在 sdcard/aNote/package</string>
+    <string name="dialog_check_sinature_not_match_title">数字签名不匹配，请先卸载旧版本，再进行新版本安装。</string>
+    <string name="dialog_check_sinature_not_match_info">安装包保存在 sdcard/aNote/package</string>
+    <string name="dialog_check_signature_ok">确定</string>
+    <string name="dialog_check_signature_cancel">取消</string>
 			
+    <string name="sd_card_not_enough_space">sd卡没有足够的储存空间，请进行清理！</string>
+    <string name="get_network_failed">请检测您的网络是否可用</string>
+    
+    <!-- net 		
+    <string name="no_network">Network unavailable</string>
+    <string name="wifi_unable">Wifi unavailable</string>
+    <string name="n_3g_unable">2G/3G unavailable</string>
+    -->
+    <string name="no_network">网络不可用</string>
+    <string name="wifi_unable">Wifi不可用</string>
+    <string name="n_3g_unable">2G/3G不可用</string>
+	
     <!-- city -->
     <string name="city_1">北京</string>
     <string name="city_2">天津</string>

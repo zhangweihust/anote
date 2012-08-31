@@ -81,6 +81,8 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 
 	private static final int UPLOAD_PHOTO = 9;
 	private static final int DOWNLOAD_PHOTO = 10;
+	private static final int UPLOAD_INFO = 11;
+	private static final int DOWNLOAD_INFO = 12;
 	
 	private ContentResolver mContentResolver;
 
@@ -317,13 +319,15 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 		final String aGender = gender;
 		final String aRegion = region;
 		final int aUploadCount = uploadcount;
-		new Thread(new Runnable() {
+		this.runOnUiThread(new Runnable() {
+
 			@Override
 			public void run() {
+				showProgress(null, getString(R.string.commiting_info));
 				String user_id = String.valueOf(NoteApplication.getInstance()
 						.getUserId());
-				Looper.prepare();
-				int result = serverInterface.set_info(user_id, aNickname, aGender, aRegion);
+				int result = serverInterface.set_info(user_id, aNickname,
+						aGender, aRegion);
 
 				Message msg = new Message();
 				msg.getData().putString("nickname", aNickname);
@@ -337,9 +341,9 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 					msg.what = UPLOAD_INFO_ERROR;
 				}
 				handler.sendMessage(msg);
+				dismissProgress();
 			}
-
-		}).start();
+		});
 	}
 	
 	private void downloadInfo() {
@@ -461,30 +465,22 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 						.getUserId());
 
 				Message newmsg = new Message();
-				String json = serverInterface.getPhoto(user_id);
-				if (json == null || "".equals(json) || "-1".equals(json)
-						|| "-2".equals(json)) {
+				String aPhotoUrl = serverInterface.getPhoto(user_id);
+				if (aPhotoUrl == null || "".equals(aPhotoUrl)) {
 					newmsg.what = DOWNLOAD_PHOTO_JSON_ERROR;
 					handler.sendMessage(newmsg);
 					return;
 				}
-
-				String aPhotoUrl = "";
+				
+				aPhotoUrl = aPhotoUrl.replace("\\", "").replace("\"", "");
 				try {
-					JSONArray jsonArray = new JSONArray(json);
-
-					if (jsonArray.length() > 0) {
-						JSONObject jsonObject = (JSONObject) jsonArray.opt(0);
-						aPhotoUrl = jsonObject.getString("portrait");
-						// System.out.println("aPhotoUrl:" + aPhotoUrl);
+					int retCode = Integer.valueOf(aPhotoUrl);
+					if (retCode < 0) {
+						newmsg.what = DOWNLOAD_PHOTO_JSON_ERROR;
+						handler.sendMessage(newmsg);
+						return;
 					}
-
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					newmsg.what = DOWNLOAD_PHOTO_JSON_ERROR;
-					handler.sendMessage(newmsg);
-					e.printStackTrace();
-					return;
+				} catch (NumberFormatException e) {
 				}
 
 				newmsg.what = DOWNLOAD_PHOTO_JSON_OK;
@@ -507,17 +503,25 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 				}
 				
 				File file = new File(filelocalpath);
+				int retCode = 0;
 				if (!file.exists()) {
-					ImageCapture.createLocalCacheImageFromUrl(aPhotoUrl,
+					retCode = ImageCapture.createLocalCacheImageFromUrl(aPhotoUrl,
 							filelocalpath);
 				}
 
 				if (!new File(filelocalpath).exists()) {
-					System.out
-							.println(getString(R.string.image_create_cache_file_failed));
-					Toast.makeText(PersonalInfoScreen.this,
-							getString(R.string.image_create_cache_file_failed),
-							Toast.LENGTH_SHORT).show();
+					if (retCode != 0) {
+						int resid;
+						if (retCode == -1)
+							resid = R.string.image_create_cache_file_failed_unknown;
+						else if (retCode == -2)
+							resid = R.string.image_create_cache_file_failed_web;
+						else
+							resid = R.string.image_create_cache_file_failed_io;
+						
+						Toast.makeText(PersonalInfoScreen.this,
+								getString(resid), Toast.LENGTH_SHORT).show();
+					}
 					return;
 				}
 

@@ -1,5 +1,6 @@
 package com.archermind.note.Screens;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,10 +8,15 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
+import android.view.View.OnTouchListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -66,6 +72,8 @@ public class AccountScreen extends Screen implements OnClickListener {
 	private String mCurrentTask = null;
 	private NetThread mNetThread;
 	private static final String TAG = "AccountScreen";
+	private Handler handle;
+	private InputMethodManager imm;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -97,8 +105,11 @@ public class AccountScreen extends Screen implements OnClickListener {
 		mConfirmPasswdLabel.setTextColor(Color.GRAY);
 		mNewPasswd.setTextColor(Color.GRAY);
 		mConfirmPasswd.setTextColor(Color.GRAY);
-		mNewPasswd.setEnabled(false);
-		mConfirmPasswd.setEnabled(false);
+		setEditable(mNewPasswd, false, false);
+		setEditable(mConfirmPasswd, false, false);
+		imm = (InputMethodManager) mContext.getSystemService(
+				Context.INPUT_METHOD_SERVICE);
+		handle = new Handler();
 		cb.setChecked(false);
 		cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
@@ -106,8 +117,8 @@ public class AccountScreen extends Screen implements OnClickListener {
 			public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
 				// TODO Auto-generated method stub
 				if (arg1) {
-					mNewPasswd.setEnabled(true);
-					mConfirmPasswd.setEnabled(true);
+					setEditable(mNewPasswd, true, true);
+					setEditable(mConfirmPasswd, true, false);
 
 					mNewPasswdLabel.setTextColor(Color.BLACK);
 					mConfirmPasswdLabel.setTextColor(Color.BLACK);
@@ -118,8 +129,8 @@ public class AccountScreen extends Screen implements OnClickListener {
 					btnConfirmChange.setEnabled(true);
 
 				} else {
-					mNewPasswd.setEnabled(false);
-					mConfirmPasswd.setEnabled(false);
+					setEditable(mNewPasswd, false, false);
+					setEditable(mConfirmPasswd, false, false);
 
 					mNewPasswdLabel.setTextColor(Color.GRAY);
 					mConfirmPasswdLabel.setTextColor(Color.GRAY);
@@ -139,6 +150,29 @@ public class AccountScreen extends Screen implements OnClickListener {
 
 	}
 
+	private void setEditable(EditText mEdit, boolean enable, boolean requestFocus) {
+		mEdit.setEnabled(enable);
+        mEdit.setCursorVisible(enable);
+        mEdit.setFocusableInTouchMode(enable);
+	    if (enable) {
+	        if (requestFocus) {
+	        	mEdit.requestFocus();
+				IBinder windowToken = mEdit.getWindowToken();
+				if (windowToken != null) {
+					imm.toggleSoftInputFromWindow(windowToken, 0, InputMethodManager.HIDE_NOT_ALWAYS);
+				}
+	        }
+	    }
+	    else {
+	        if (mEdit.hasFocus()) {
+				mEdit.clearFocus();
+				IBinder windowToken = mEdit.getWindowToken();
+				if (windowToken != null) {
+					imm.hideSoftInputFromWindow(windowToken, 0);
+				}
+			}
+	    }
+	}
 	private Handler mHandler = new Handler() {
 
 		@Override
@@ -230,17 +264,17 @@ public class AccountScreen extends Screen implements OnClickListener {
 						Toast.LENGTH_SHORT).show();
 				return;
 			}
-			new Thread() {
+			this.runOnUiThread(new Runnable() {
 
 				@Override
 				public void run() {
+					showProgress(null, getString(R.string.commiting_info));
 					int result = ServerInterface.modifyPassword(NoteApplication
 							.getInstance().getUserName(), password);
 					mPasswd = password;
 					mHandler.sendEmptyMessage(result);
-				}
-
-			}.start();
+					dismissProgress();
+				}});
 			break;
 		case R.id.acount_sina_unbound:
 			if(NetworkUtils.getNetworkState(this)!= NetworkUtils.NETWORN_NONE){
