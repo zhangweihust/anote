@@ -227,17 +227,19 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 			        	
 			        	if (store != null && store.getGestures(value) != null) {
 				        	AmGesture gesture = store.getGestures(value).get(0);
-				        	Bitmap bmp = Bitmap.createBitmap(DensityUtil.dip2px(context,50), DensityUtil.dip2px(context,71), Bitmap.Config.ARGB_8888);;
-				        	bmp.eraseColor(0x00000000);
-				        	Canvas canvas = new Canvas(bmp);
-				        	canvas.drawBitmap(gesture.toBitmap(DensityUtil.dip2px(context,44), DensityUtil.dip2px(context,44), 0, gesture.getGesturePaintColor()), DensityUtil.dip2px(context,3), DensityUtil.dip2px(context,20), null);
-				        	Drawable drawable = new BitmapDrawable(bmp);
-				            drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
-				  		    ImageSpan span = new ImageSpan(drawable,ImageSpan.ALIGN_BOTTOM);
-				  			SpannableString spanStr = new SpannableString(value);
-				  			spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				  			item.tvNoteContent.append(spanStr);
-				  			wordNum++;
+				        	if (gesture != null) {
+				        		Bitmap bmp = Bitmap.createBitmap(DensityUtil.dip2px(context,50), DensityUtil.dip2px(context,71), Bitmap.Config.ARGB_8888);;
+					        	bmp.eraseColor(0x00000000);
+					        	Canvas canvas = new Canvas(bmp);
+					        	canvas.drawBitmap(gesture.toBitmap(DensityUtil.dip2px(context,44), DensityUtil.dip2px(context,44), 0, gesture.getGesturePaintColor()), DensityUtil.dip2px(context,3), DensityUtil.dip2px(context,20), null);
+					        	Drawable drawable = new BitmapDrawable(bmp);
+					            drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
+					  		    ImageSpan span = new ImageSpan(drawable,ImageSpan.ALIGN_BOTTOM);
+					  			SpannableString spanStr = new SpannableString(value);
+					  			spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					  			item.tvNoteContent.append(spanStr);
+					  			wordNum++;
+				        	}
 			        	}
 			    	} else if (line.startsWith("face:")) {
 			    		String value = line.substring("face:".length(), line.length());

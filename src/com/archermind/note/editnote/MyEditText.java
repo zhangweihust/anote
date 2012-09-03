@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
+import com.archermind.note.NoteApplication;
 import com.archermind.note.Screens.EditNoteScreen;
 import com.archermind.note.gesture.AmGesture;
 import com.archermind.note.gesture.AmGestureLibraries;
@@ -38,7 +39,6 @@ import android.widget.TextView;
 
 
 public class MyEditText extends EditText implements ColorPickerDialog.OnColorChangedListener {
-	private Rect mRect;
     private Paint mPaint;
     /**
      * 字体大小
@@ -115,7 +115,6 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
     public MyEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
         
-        mRect = new Rect();
         mPaint = new Paint();
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setColor(lineColor);
@@ -220,11 +219,14 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 		    mBmp.recycle();
 		    mBmp = null;
 		}
+		if (mStrokeBuffer != null) {
+		    mStrokeBuffer.clear();
+		}
 	}
 	
 	public boolean save() {
 		if (graffitFile == null) {
-			graffitFile = new File("/sdcard/aNote/graffit");
+			graffitFile = new File(NoteApplication.savePath + "graffit");
     	}
     	
     	if (!graffitFile.exists()) {
@@ -255,7 +257,7 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 		
 
 		if (graffitFile == null) {
-			graffitFile = new File("/sdcard/aNote/graffit");
+			graffitFile = new File(NoteApplication.savePath + "graffit");
     	}
     	
     	if (!graffitFile.exists()) {
@@ -283,7 +285,7 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 	
 	public void reloadGraffit(String name) {
 		if (graffitFile == null) {
-			graffitFile = new File("/sdcard/aNote/graffit");
+			graffitFile = new File(NoteApplication.savePath + "graffit");
     	}
     	
     	if (!graffitFile.exists()) {

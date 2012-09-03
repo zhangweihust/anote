@@ -12,6 +12,7 @@
     <string name="menu_right_feedback">反馈</string>
     <string name="menu_right_setting">设置</string>
     <string name="edit_pick_color">请选择颜色</string>
+    <string name="edit_pick_face">请选择表情：</string>
 
     <!-- calendar -->
     <string name="calendar_mon">周一</string>
@@ -43,6 +44,7 @@
     <string name="save_and_share">保存并分享</string>
     <string name="save_only">仅保存</string>
     <string name="not_save">不保存</string>
+    <string name="saving_note_now">正在保存笔记</string>
     
     <string name="note_input_title">请输入标题！</string>
     

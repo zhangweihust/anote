@@ -15,6 +15,8 @@ import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.archermind.note.NoteApplication;
+
  
 /**  
 * @author  
@@ -22,7 +24,7 @@ import java.util.zip.ZipInputStream;
 */   
 public class SetSystemProperty {   
     //属性文件的路径   
-    static String profilepath="/sdcard/aNote/picmap";   
+    static String profilepath= NoteApplication.savePath + "picmap";   
     /**  
      * 采用静态方法  
      */   

@@ -56,7 +56,7 @@ public class NoteSaveDialog implements OnClickListener{
 		note_save_ok.setOnClickListener(this);
 		note_save_cancel.setOnClickListener(this);
 		
-		noteSaveDialog.setTitle(MainScreen.mContext.getString(R.string.note_input_title));
+		noteSaveDialog.setTitle(mEditNote.getString(R.string.note_input_title));
 		mEditText = (EditText) noteSaveDialog.findViewById(R.id.editText1);
 	}
 	
@@ -78,14 +78,13 @@ public class NoteSaveDialog implements OnClickListener{
 		switch(v.getId()){
 		case R.id.note_save_ok:
 			if (saveGroup.getCheckedRadioButtonId() == R.id.save_and_share) {
-				if (mEditNote.hasChanged()) {
-				    mEditNote.save();
-				}
-				
 				final String title = mEditText.getEditableText().toString();// 标题
 				if ("".equals(title) || title == null) {
 					Toast.makeText(mEditNote, "标题为空，请输入标题", Toast.LENGTH_SHORT).show();
 					return;
+				}
+				if (mEditNote.hasChanged()) {
+				    mEditNote.save();
 				}
 				long updateTime = System.currentTimeMillis();// 更新时间
 				String diaryPath = mEditNote.getDiaryPath();// 存储地址
@@ -94,8 +93,6 @@ public class NoteSaveDialog implements OnClickListener{
 				
 				ContentValues contentValues = new ContentValues();
 				if (mEditNote.getIntent().getBooleanExtra("isNewNote", false)) {
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,title);
-					
 					long firstTime = mEditNote.getIntent().getLongExtra("time", 0);
 					long createTime = 0;
 					if (firstTime != 0) { // 如果是在指定日期下创建笔记
@@ -103,12 +100,13 @@ public class NoteSaveDialog implements OnClickListener{
 					} else { // 直接创建笔记
 						createTime = MainScreen.snoteCreateTime;
 					}
+					contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,title);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, createTime);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT, diaryPath);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER, weather);
 					long id = ServiceManager.getDbManager().insertLocalNotes(contentValues);
-					
+					mEditNote.getIntent().putExtra("isNewNote", false);
 					if (NetworkUtils.getNetworkState(MainScreen.mContext) == NetworkUtils.NETWORN_NONE) {
 						Toast.makeText(mEditNote, "网络不通，无法分享", Toast.LENGTH_SHORT).show();
 					    return;
@@ -119,13 +117,22 @@ public class NoteSaveDialog implements OnClickListener{
 						mEditNote.startActivity(intent);
 						return;
 					}
-					Intent intent = new Intent(mEditNote,ShareScreen.class);
+					
+					EventArgs args = new EventArgs();
+					args.setType(EventTypes.NOTE_TO_BE_SHARE);
+					args.putExtra("noteid", String.valueOf(id));
+					args.putExtra("title", title);
+					args.putExtra("action", "A");
+					args.putExtra("sid", "0");
+					ServiceManager.getEventservice().onUpdateEvent(args);
+					
+					/*Intent intent = new Intent(mEditNote,ShareScreen.class);
 					intent.putStringArrayListExtra("picpathlist", mEditNote.mPicPathList);
 					intent.putExtra("noteid", String.valueOf(id));
 					intent.putExtra("title", title);
 					intent.putExtra("action", "A");
 					intent.putExtra("sid", "0");
-					mEditNote.startActivity(intent);
+					mEditNote.startActivity(intent);*/
 					dismiss();
 					
 				} else {
@@ -150,11 +157,10 @@ public class NoteSaveDialog implements OnClickListener{
 						mEditNote.startActivity(intent);
 						return;
 					}
-					
-				
-					
+				    
 					cursor.moveToFirst();
 					String serviceID = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID));
+					cursor.close();
 					String action = "N";
 					if (serviceID != null && Integer.parseInt(serviceID) > 0) {
 						action = "M";
@@ -162,16 +168,24 @@ public class NoteSaveDialog implements OnClickListener{
 						action = "A";
 						serviceID = "0";
 					}
+						
+					Log.d("=AAAA=","share now");
+					EventArgs args = new EventArgs();
+					args.setType(EventTypes.NOTE_TO_BE_SHARE);
+					args.putExtra("noteid", String.valueOf(noteId));
+					args.putExtra("title", title);
+					args.putExtra("action", action);
+					args.putExtra("sid", serviceID);
+					ServiceManager.getEventservice().onUpdateEvent(args);
 					
-					cursor.close();
 					
-					Intent intent = new Intent(mEditNote,ShareScreen.class);
+					/*Intent intent = new Intent(mEditNote,ShareScreen.class);
 					intent.putStringArrayListExtra("picpathlist", mEditNote.mPicPathList);
 					intent.putExtra("noteid", String.valueOf(noteId));
 					intent.putExtra("title", title);
 					intent.putExtra("action", action);
 					intent.putExtra("sid", serviceID);
-					mEditNote.startActivity(intent);
+					mEditNote.startActivity(intent);*/
 					dismiss();
 					
 				}
@@ -191,7 +205,6 @@ public class NoteSaveDialog implements OnClickListener{
 				long createTime = 0;
 				if (firstTime != 0) {
 					createTime = DateTimeUtils.getTimeOfOneDay(firstTime, MainScreen.snoteCreateTime);
-					
 				} else {
 					createTime = MainScreen.snoteCreateTime;
 				}
@@ -204,6 +217,7 @@ public class NoteSaveDialog implements OnClickListener{
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER, weather);
 					long id = ServiceManager.getDbManager().insertLocalNotes(contentValues);
+					mEditNote.getIntent().putExtra("isNewNote", false);
 					Log.d("=UUU=","id = " + id);
 				} else {
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,title);
@@ -212,7 +226,8 @@ public class NoteSaveDialog implements OnClickListener{
 					ServiceManager.getDbManager().updateLocalNotes(contentValues, noteId);
 				}
 				dismiss();
-				mEditNote.finish();
+				ServiceManager.getEventservice().onUpdateEvent(new EventArgs(EventTypes.NOTE_SAVE_OVER));
+//				mEditNote.finish();
 			} else {
 				dismiss();
 				mEditNote.finish();
