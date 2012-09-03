@@ -6,33 +6,52 @@ import java.util.regex.Pattern;
 
 import com.amtcloud.mobile.android.core.AmtApplication;
 import com.amtcloud.mobile.android.file.AmtFileObject;
+import com.archermind.note.Screens.LoginScreen;
 
 import android.R.integer;
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 
 public class ServerInterface {
 
-	public static final String URL_SERVER = "http://player.archermind.com/";
-	public static final String URL_LOGIN = URL_SERVER + "ci/index.php/anote/login";
-	public static final String URL_REGISTER = URL_SERVER + "ci/index.php/anote/register";
-	public static final String URL_CHECK = URL_SERVER + "ci/index.php/anote/check_bin_acc";
-	public static final String URL_BOUNDACCOUNT = URL_SERVER + "ci/index.php/anote/bind_acc";
-	public static final String URL_uploadAlbum = URL_SERVER + "ci/index.php/anote/send_url";
-	public static final String URL_getAlbumUrl = URL_SERVER + "ci/index.php/anote/get_url";
-	public static final String URL_setPhotoUrl = URL_SERVER + "ci/index.php/anote/set_portrait_url";
-	public static final String URL_getPhotoUrl = URL_SERVER + "ci/index.php/anote/get_portrait_url";
-	public static final String URL_get_info = URL_SERVER + "ci/index.php/anote/get_info";
-	public static final String URL_set_info = URL_SERVER + "ci/index.php/anote/set_info";
-	public static final String URL_upload_note = URL_SERVER + "ci/index.php/anote/shareNote";
-	public static final String URL_getReplyFromUser = URL_SERVER + "ci/index.php/anote/getReplyFromUser";
-	public static final String URL_MODIFYPASSWORD = URL_SERVER + "ci/index.php/anote/pswModify";
-	public static final String URL_FINDPASSWORD = URL_SERVER + "ci/index.php/anote/findPassWord";
-	public static final String URL_get_version_info = URL_SERVER + "ci/index.php/anote/get_version_info";
-	//public static final String URL_get_version_info = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_version_info";
-	public static final String URL_feedback = URL_SERVER + "ci/index.php/anote/suggestionfeedback";
-	public static final String URL_send_reports = URL_SERVER + "ci/index.php/anote/send_reports";
-	//public static final String URL_send_reports = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/send_reports";
+	public static final String URL_SERVER = "http://note.archermind.com/";
+	public static final String URL_LOGIN = URL_SERVER
+			+ "ci/index.php/anote/login";
+	public static final String URL_REGISTER = URL_SERVER
+			+ "ci/index.php/anote/register";
+	public static final String URL_CHECK = URL_SERVER
+			+ "ci/index.php/anote/check_bin_acc";
+	public static final String URL_BOUNDACCOUNT = URL_SERVER
+			+ "ci/index.php/anote/bind_acc";
+	public static final String URL_uploadAlbum = URL_SERVER
+			+ "ci/index.php/anote/send_url";
+	public static final String URL_getAlbumUrl = URL_SERVER
+			+ "ci/index.php/anote/get_url";
+	public static final String URL_setPhotoUrl = URL_SERVER
+			+ "ci/index.php/anote/set_portrait_url";
+	public static final String URL_getPhotoUrl = URL_SERVER
+			+ "ci/index.php/anote/get_portrait_url";
+	public static final String URL_get_info = URL_SERVER
+			+ "ci/index.php/anote/get_info";
+	public static final String URL_set_info = URL_SERVER
+			+ "ci/index.php/anote/set_info";
+	public static final String URL_upload_note = URL_SERVER
+			+ "ci/index.php/anote/shareNote";
+	public static final String URL_getReplyFromUser = URL_SERVER
+			+ "ci/index.php/anote/getReplyFromUser";
+	public static final String URL_MODIFYPASSWORD = URL_SERVER
+			+ "ci/index.php/anote/pswModify";
+	public static final String URL_FINDPASSWORD = URL_SERVER
+			+ "ci/index.php/anote/findPassWord";
+	// public static final String URL_get_version_info = URL_SERVER +
+	// "ci/index.php/anote/get_version_info";
+	public static final String URL_get_version_info = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_version_info";
+	public static final String URL_feedback = URL_SERVER
+			+ "ci/index.php/anote/suggestionfeedback";
+	// public static final String URL_send_reports = URL_SERVER +
+	// "ci/index.php/anote/send_reports";
+	public static final String URL_send_reports = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/send_reports";
 	public static final String app_id = "0ba7932602af4a45bd866bad93be0e50";
 	public static final String app_secret = "2411edd1a2c44249a98e6451592062bc";
 
@@ -59,8 +78,10 @@ public class ServerInterface {
 
 	public static final int ERROR_PASSWORD_WRONG = 201;
 	public static final int ERROR_USER_NOT_EXIST = 202;
-	public static final int ERROR_USER_NOT_BIND = 203;
-	public static final int USER_BINDED = 204;
+	public static final int USER_NOT_BIND = 203;
+	public static final int ERROR_USER_BINDED = -5;
+
+	public static final int COOKIES_ERROR = -600;
 
 	/**
 	 * 用户注册 输入参数：用户名，用户密码 返回值： SUCCESS 注册成功
@@ -69,7 +90,14 @@ public class ServerInterface {
 			String password, String nickname, int sex, String region) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user", username);
-		map.put("password", password);
+		// 将密码加密后存储到服务器
+		try {
+			map.put("password",
+					CookieCrypt.encrypt(LoginScreen.USERINFO_KEY, password));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "";
+		}
 		map.put("nickname", nickname);
 		map.put("acc_type", String.valueOf(type));
 		map.put("bin_acc", bin_uid);
@@ -106,26 +134,26 @@ public class ServerInterface {
 		map.put("bin_acc", uid);
 		String res = HttpUtils.doPost(map, URL_BOUNDACCOUNT);
 		try {
-			if (Integer.valueOf(res) == 0) {
+			if (res.equals("0")) {
 				return 1;
-			} else if (Integer.valueOf(res) == -3) {
+			} else if (res.equals("-3")) {
 				return -3;
-			} else {
-				return -1;
+			} else if (Integer.parseInt(res) == COOKIES_ERROR) {
+				return COOKIES_ERROR;
 			}
 		} catch (Exception e) {
-			return -1;
+			e.printStackTrace();
 		}
-
+		return -1;
 	}
 
 	/**
 	 * 修改密码 输入参数：用户名，原密码，新密码 返回值： SUCCESS 修改成功
 	 */
-	public static int modifyPassword(String username,String newpassword) {
+	public static int modifyPassword(String username, String newpassword) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user", username);
-		//map.put("password", oldpassword);
+		// map.put("password", oldpassword);
 		map.put("newpass", newpassword);
 		return Integer.valueOf(HttpUtils.doPost(map, URL_MODIFYPASSWORD));
 	}
@@ -152,9 +180,8 @@ public class ServerInterface {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("city", city);
 		map.put("prov", prov);
-		weather = HttpUtils
-				.doPost(map,
-						URL_SERVER + "ci/index.php/aschedule/getWeather");
+		weather = HttpUtils.doPost(map, URL_SERVER
+				+ "ci/index.php/aschedule/getWeather");
 		return weather;
 	}
 	/*
@@ -307,7 +334,8 @@ public class ServerInterface {
 	 * 获取用户信息 输入参数：用户id
 	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
 	 */
-	public static int uploadNote(long id,String user_id,String nid,String action,String title,String content,String page) {
+	public static int uploadNote(long id, String user_id, String nid,
+			String action, String title, String content, String page) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user_id", user_id);
 		map.put("nid", nid);
@@ -315,23 +343,34 @@ public class ServerInterface {
 		map.put("title", title);
 		map.put("content", content);
 		map.put("page", page);
-		String res= HttpUtils.doPost(map, URL_upload_note);
-		
+		int res;
+		try {
+			res = Integer.parseInt(HttpUtils.doPost(map, URL_upload_note));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return -1;
+		}
+
 		if ("A".equals(action)) {
-			if (Integer.parseInt(res) > 0) {
-				return Integer.parseInt(res);
+			if (res > 0) {
+				return res;
+			} else if (res == COOKIES_ERROR) {
+				// cookies过期，由httpUtil发送event统一管理
+				return COOKIES_ERROR;
 			} else {
 				return -1;
 			}
 		} else if ("M".equals(action)) {
-			if (Integer.parseInt(res) == 0) {
+			if (res == 0) {
 				return 0;
+			} else if (res == COOKIES_ERROR) {
+				// cookies过期，由httpUtil发送event统一管理
+				return COOKIES_ERROR;
 			} else {
-				return 1;
+				return -1;
 			}
 		}
-		return 0;
-		
+		return -1;
 	}
 	/**
 	 * 获取用户信息 输入参数：用户id

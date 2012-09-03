@@ -24,9 +24,7 @@ import com.tencent.weibo.api.TAPI;
 import com.tencent.weibo.constants.OAuthConstants;
 import com.tencent.weibo.oauthv2.OAuthV2;
 import com.tencent.weibo.oauthv2.OAuthV2Client;
-import com.weibo.net.AccessToken;
 import com.weibo.net.AsyncWeiboRunner;
-import com.weibo.net.Oauth2AccessTokenHeader;
 import com.weibo.net.Utility;
 import com.weibo.net.Weibo;
 import com.weibo.net.WeiboException;
@@ -41,13 +39,15 @@ import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,14 +57,23 @@ public class ShareScreen extends Screen implements OnClickListener {
 	private Button mBackButton;
 	private ImageView mImageView;
 	private EditText mEditText;
-	private ProgressBar mProgressBar;
-	private TextView mProgressText;
-	private ImageView mResultImageView;
+	private LinearLayout mProgressLayout;
+	private TextView mUploadingView;
+	private TextView mReuploadView;
 	private Button mSinaButton;
 	private Button mQQButton;
 	private Button mRenrenButton;
 	private ArrayList<String> mPicPathList;
 	private static final String TAG = "ShareScreen";
+	private Handler mHandler = new Handler(){
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			Log.i(TAG, "msg.what = " + msg.what);
+		}
+		
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -82,10 +91,11 @@ public class ShareScreen extends Screen implements OnClickListener {
 		mImageView
 				.setImageBitmap(BitmapFactory.decodeFile(mPicPathList.get(0)));
 
+		mProgressLayout = (LinearLayout) findViewById(R.id.share_progress_layout);
+		mUploadingView = (TextView) findViewById(R.id.share_text_uploading);
+		mReuploadView = (TextView) findViewById(R.id.share_text_reupload);
+		mReuploadView.setOnClickListener(this);
 		mEditText = (EditText) findViewById(R.id.share_edit);
-		mProgressBar = (ProgressBar) findViewById(R.id.share_progressBar);
-		mProgressText = (TextView) findViewById(R.id.share_progress_text);
-		mResultImageView = (ImageView) findViewById(R.id.share_progress_result);
 
 		mSinaButton = (Button) findViewById(R.id.btn_share_sina);
 		mSinaButton.setOnClickListener(this);
@@ -99,14 +109,13 @@ public class ShareScreen extends Screen implements OnClickListener {
 		mRenrenButton = (Button) findViewById(R.id.btn_share_renren);
 		mRenrenButton.setOnClickListener(this);
 
-		// 上传笔记图片至服务器（待修改）
-		// ServerInterface sInterface = new ServerInterface();
-		// sInterface.InitAmtCloud(ShareScreen.this);
-		// for (int i = 0; i < mPicPathList.size(); i++) {
-		// sInterface.uploadFile(ShareScreen.this,
-		// String.valueOf(NoteApplication.getInstance().getUserId()),
-		// mPicPathList.get(i));
-		// }
+//		 //上传笔记图片至服务器（待修改）
+//	
+//		 for (int i = 0; i < mPicPathList.size(); i++) {
+//		 ServerInterface.uploadFile(this,mHandler,
+//		 NoteApplication.getInstance().getUserName(),
+//		 mPicPathList.get(i));
+//		 }
 
 		// 异步执行分享到广场
 		SquareTask squareTask = new SquareTask();
@@ -141,8 +150,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 	class SquareTask extends AsyncTask<String, integer, String> {
 
 		@Override
-		protected String doInBackground(String... params) {
-
+		protected String doInBackground(String... params) {	
 			String userIdStr = String.valueOf(NoteApplication.getInstance()
 					.getUserId());
 			int totalPage = 0;
@@ -159,31 +167,36 @@ public class ShareScreen extends Screen implements OnClickListener {
 			int serviceId = ServerInterface.uploadNote(
 					Long.parseLong(params[0]), userIdStr, params[3], params[2],
 					params[1], context, String.valueOf(totalPage));
-			if ("A".equals(params[2])) {
-				if (serviceId > 0) {
-					ContentValues contentValues2 = new ContentValues();
-					contentValues2.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID,
-							String.valueOf(serviceId));
-					contentValues2.put(DatabaseHelper.COLUMN_NOTE_USER_ID,
-							Integer.parseInt(userIdStr));
-					ServiceManager.getDbManager().updateLocalNotes(
-							contentValues2, Integer.parseInt(params[0]));
-					Log.i(TAG, "===============分享到广场成功===============");
-					return "success";
-				} else {
-					Log.i(TAG, "===============分享到广场失败===============");
-					return "failed";
+			if(serviceId == ServerInterface.COOKIES_ERROR){
+				return "cookis_error";
+			}else {
+				if ("A".equals(params[2])) {
+					if (serviceId > 0) {
+						ContentValues contentValues2 = new ContentValues();
+						contentValues2.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID,
+								String.valueOf(serviceId));
+						contentValues2.put(DatabaseHelper.COLUMN_NOTE_USER_ID,
+								Integer.parseInt(userIdStr));
+						ServiceManager.getDbManager().updateLocalNotes(
+								contentValues2, Integer.parseInt(params[0]));
+						Log.i(TAG, "===============分享到广场成功===============");
+						return "success";
+					} else {
+						Log.i(TAG, "===============分享到广场失败===============");
+						return "failed";
+					}
+				} else if ("M".equals(params[2])) {
+					if (serviceId == 0) {
+						Log.i(TAG, "===============分享到广场成功===============");
+						return "success";
+					} else {
+						Log.i(TAG, "===============分享到广场失败===============");
+						return "failed";
+					}
 				}
-			} else if ("M".equals(params[2])) {
-				if (serviceId == 0) {
-					Log.i(TAG, "===============分享到广场成功===============");
-					return "success";
-				} else {
-					Log.i(TAG, "===============分享到广场失败===============");
-					return "failed";
-				}
+				return null;
 			}
-			return null;
+			
 		}
 
 		@Override
@@ -193,10 +206,13 @@ public class ShareScreen extends Screen implements OnClickListener {
 				dismssProgressBar(R.string.share_success, true);
 				MainScreen.eventService.onUpdateEvent(new EventArgs(
 						EventTypes.SHARE_NOTE_SUCCESSED));
-			} else {
+			} else if (result.equals("failed")) {
 				dismssProgressBar(R.string.share_failed, false);
+				mReuploadView.setVisibility(View.VISIBLE);
 				MainScreen.eventService.onUpdateEvent(new EventArgs(
 						EventTypes.SHARE_NOTE_FAILED));
+			} else if (result.equals("cookies_error")) {
+				dismssProgressBar(R.string.share_failed, false);
 			}
 		}
 
@@ -248,12 +264,8 @@ public class ShareScreen extends Screen implements OnClickListener {
 										@Override
 										public void run() {
 											dismssProgressBar(
-													R.string.share_failed,
-													false);
-											Toast.makeText(
-													ShareScreen.this,
 													R.string.share_err_equal_weibo,
-													Toast.LENGTH_SHORT).show();
+													false);
 										}
 									});
 
@@ -472,26 +484,23 @@ public class ShareScreen extends Screen implements OnClickListener {
 						.show();
 			}
 			break;
+		case R.id.share_text_reupload:
+			showProgressBar(R.string.share_dialog_msg_square);
+			mReuploadView.setVisibility(View.GONE);
+			break;
 		default:
 			break;
 		}
 	}
 
 	private void showProgressBar(int id) {
-		mProgressBar.setVisibility(View.VISIBLE);
-		mResultImageView.setImageResource(R.drawable.face_a4);
-		mProgressText.setText(id);
+		mProgressLayout.setVisibility(View.VISIBLE);
+		mUploadingView.setText(id);
 	}
 
 	private void dismssProgressBar(int id, boolean isSuccessed) {
-		mProgressBar.setVisibility(View.GONE);
-		mResultImageView.setVisibility(View.VISIBLE);
-		if (isSuccessed) {
-			mResultImageView.setImageResource(R.drawable.face_a8);
-		} else {
-			mResultImageView.setImageResource(R.drawable.face_a5);
-		}
-		mProgressText.setText(id);
+		mProgressLayout.setVisibility(View.GONE);
+		Toast.makeText(this, id, Toast.LENGTH_SHORT).show();
 	}
 
 	private void showLoginAlertDialog(int id) {

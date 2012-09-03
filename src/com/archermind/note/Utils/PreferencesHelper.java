@@ -35,6 +35,7 @@ public class PreferencesHelper {
 	public static final String XML_QQ_ACCESS_TOKEN = "qq_access_token";
 	public static final String XML_QQ_OPENID = "qq_openid";
 	public static final String XML_RENREN_ACCESS_TOKEN = "renren_access_token";
+	public static final String XML_COOKIES = "cookies";
 	
 	private static Bitmap mUserAvatarBitmap;
 	private static ArrayList<Map<String, Object>> mProvinceLists;

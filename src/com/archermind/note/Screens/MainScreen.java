@@ -64,43 +64,46 @@ import com.archermind.note.Utils.ServerInterface;
 import com.archermind.note.Views.MenuRightHorizontalScrollView;
 
 public class MainScreen extends TabActivity implements OnTabChangeListener,
-		OnClickListener,OnGestureListener, IEventHandler {
+		OnClickListener, OnGestureListener, IEventHandler {
 	/** Called when the activity is first created. */
 	private TabHost mTabHost;
 	private final int INIT_SELECT = 0;
 	private final int MENU_RIGHT_WIDTH_DP = 70;
-	//private int MENU_RIGHT_WIDTH_PX;
+	// private int MENU_RIGHT_WIDTH_PX;
 	private String TAB_HOME = "home";
 	private String TAB_PLAZA = "plaza";
 
-/*	private Button mbtnTitleBarCalendar;*/
+	/* private Button mbtnTitleBarCalendar; */
 	private Button mbtnNewNote;
-/*	private Button mbtnTitleBarNotebook;*/
+	/* private Button mbtnTitleBarNotebook; */
 	private TextView mtvTitleBarTitle;/*
-	private ListView mMenuList;
-	private MenuRightHorizontalScrollView mScrollMenu;*/
+									 * private ListView mMenuList; private
+									 * MenuRightHorizontalScrollView
+									 * mScrollMenu;
+									 */
 	private FrameLayout mflTabhost;
 	private Button mbtnMore;
 	private Button mbtnBack;
-	
+
 	public static String TYPE_NOTE = "note";
 	public static String TYPE_CALENDAR = "calender";
-	
+
 	public static String RIGHT = "right";
 	public static String LEFT = "left";
-	
+
 	private static String type;
-	
+
 	public static Context mContext;
-	
+
 	private ListView mlvSetting;
 	private PopupWindow mMorePopupWindow;
-	
+
 	private Handler handler;
 	public static GestureDetector mGestureDetector = null;
 	public static long snoteCreateTime = 0;
-	
-	public static final EventService eventService = ServiceManager.getEventservice();
+
+	public static final EventService eventService = ServiceManager
+			.getEventservice();
 
 	public MainScreen(){
 		super();

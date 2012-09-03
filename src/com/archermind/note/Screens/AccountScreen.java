@@ -57,8 +57,6 @@ public class AccountScreen extends Screen implements OnClickListener {
 	private TextView mRenren_unbound;
 	private TextView mRenren_bounded;
 
-	private Context mContext;
-
 	private TextView mNewPasswdLabel;
 	private TextView mConfirmPasswdLabel;
 	private EditText mNewPasswd;
@@ -79,8 +77,6 @@ public class AccountScreen extends Screen implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.account_screen);
-
-		mContext = AccountScreen.this;
 
 		initViews();// 账号绑定相关的视图初始化
 
@@ -107,7 +103,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 		mConfirmPasswd.setTextColor(Color.GRAY);
 		setEditable(mNewPasswd, false, false);
 		setEditable(mConfirmPasswd, false, false);
-		imm = (InputMethodManager) mContext.getSystemService(
+		imm = (InputMethodManager)getSystemService(
 				Context.INPUT_METHOD_SERVICE);
 		handle = new Handler();
 		cb.setChecked(false);
@@ -203,22 +199,16 @@ public class AccountScreen extends Screen implements OnClickListener {
 				dismissProgress();
 				if (mCurrentTask.equals("sina")) {
 					NoteApplication.getInstance().setmBound_Sina(true);
-					mSina_unbound.setVisibility(View.GONE);
-					mSina_bounded.setVisibility(View.VISIBLE);
 					Toast.makeText(NoteApplication.getContext(),
 							R.string.account_bound_success_sina,
 							Toast.LENGTH_LONG).show();
 				} else if (mCurrentTask.equals("qq")) {
 					NoteApplication.getInstance().setmBound_QQ(true);
-					mQQ_unbound.setVisibility(View.GONE);
-					mQQ_bounded.setVisibility(View.VISIBLE);
 					Toast.makeText(NoteApplication.getContext(),
 							R.string.account_bound_success_qq,
 							Toast.LENGTH_LONG).show();
 				} else if (mCurrentTask.equals("renren")) {
 					NoteApplication.getInstance().setmBound_Renren(true);
-					mRenren_unbound.setVisibility(View.GONE);
-					mRenren_bounded.setVisibility(View.VISIBLE);
 					Toast.makeText(NoteApplication.getContext(),
 							R.string.account_bound_success_renren,
 							Toast.LENGTH_LONG).show();
@@ -277,27 +267,27 @@ public class AccountScreen extends Screen implements OnClickListener {
 				}});
 			break;
 		case R.id.acount_sina_unbound:
-			if(NetworkUtils.getNetworkState(this)!= NetworkUtils.NETWORN_NONE){
+			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
 				boundSinaweibo();
-			}else {
+			} else {
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
-				.show();
+						.show();
 			}
 			break;
 		case R.id.acount_qq_unbound:
-			if(NetworkUtils.getNetworkState(this)!= NetworkUtils.NETWORN_NONE){
+			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
 				boundQQweibo();
-			}else {
+			} else {
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
-				.show();
+						.show();
 			}
 			break;
 		case R.id.acount_renren_unbound:
-			if(NetworkUtils.getNetworkState(this)!= NetworkUtils.NETWORN_NONE){
+			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
 				boundRenRen();
-			}else {
+			} else {
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
-				.show();
+						.show();
 			}
 			break;
 		}
@@ -307,23 +297,28 @@ public class AccountScreen extends Screen implements OnClickListener {
 		mSina_unbound = (TextView) findViewById(R.id.acount_sina_unbound);
 		mSina_unbound.setOnClickListener(this);
 		mSina_bounded = (TextView) findViewById(R.id.acount_sina_bounded);
-		if(NoteApplication.getInstance().ismBound_Sina()){
-			mSina_unbound.setVisibility(View.GONE);
-			mSina_bounded.setVisibility(View.VISIBLE);
-		}
 
 		mQQ_unbound = (TextView) findViewById(R.id.acount_qq_unbound);
 		mQQ_unbound.setOnClickListener(this);
 		mQQ_bounded = (TextView) findViewById(R.id.acount_qq_bounded);
-		if(NoteApplication.getInstance().ismBound_QQ()){
-			mQQ_unbound.setVisibility(View.GONE);
-			mQQ_bounded.setVisibility(View.VISIBLE);
-		}
 
 		mRenren_unbound = (TextView) findViewById(R.id.acount_renren_unbound);
 		mRenren_unbound.setOnClickListener(this);
 		mRenren_bounded = (TextView) findViewById(R.id.acount_renren_bounded);
-		if(NoteApplication.getInstance().ismBound_Renren()){
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (NoteApplication.getInstance().ismBound_Sina()) {
+			mSina_unbound.setVisibility(View.GONE);
+			mSina_bounded.setVisibility(View.VISIBLE);
+		}
+		if (NoteApplication.getInstance().ismBound_QQ()) {
+			mQQ_unbound.setVisibility(View.GONE);
+			mQQ_bounded.setVisibility(View.VISIBLE);
+		}
+		if (NoteApplication.getInstance().ismBound_Renren()) {
 			mRenren_unbound.setVisibility(View.GONE);
 			mRenren_bounded.setVisibility(View.VISIBLE);
 		}

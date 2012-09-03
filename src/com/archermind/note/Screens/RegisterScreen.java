@@ -2,7 +2,7 @@ package com.archermind.note.Screens;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,23 +12,7 @@ import com.archermind.note.R;
 import com.archermind.note.Utils.ImageCapture;
 import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
-import com.renren.api.connect.android.AsyncRenren;
-import com.renren.api.connect.android.Renren;
-import com.renren.api.connect.android.common.AbstractRequestListener;
-import com.renren.api.connect.android.exception.RenrenError;
-import com.renren.api.connect.android.users.UserInfo.HomeTownLocation;
-import com.renren.api.connect.android.users.UsersGetInfoRequestParam;
-import com.renren.api.connect.android.users.UsersGetInfoResponseBean;
-import com.tencent.weibo.api.UserAPI;
-import com.tencent.weibo.constants.OAuthConstants;
-import com.tencent.weibo.oauthv2.OAuthV2;
-import com.weibo.net.AsyncWeiboRunner;
-import com.weibo.net.Utility;
-import com.weibo.net.Weibo;
-import com.weibo.net.WeiboException;
-import com.weibo.net.WeiboParameters;
 
-import android.R.integer;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -37,11 +21,9 @@ import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
@@ -120,7 +102,12 @@ public class RegisterScreen extends Screen implements OnClickListener {
 				// String aFilePath = msg.getData().getString("filelocalpath");
 				// uploadImage(aName, aExpandName, aFilePath, uploadcount + 1);
 				// }
-			} else {
+			} else if (result.equals("" + ServerInterface.ERROR_USER_BINDED)) {
+				Toast.makeText(RegisterScreen.this,
+						R.string.account_bound_failed_exist, Toast.LENGTH_SHORT)
+						.show();
+				dismissProgress();
+			}else {
 				dismissProgress();
 				try {
 					JSONObject jsonObject = new JSONObject(result);
@@ -147,16 +134,18 @@ public class RegisterScreen extends Screen implements OnClickListener {
 								.optInt("flag_renren") == 0 ? false : true);
 						noteApplication.setLogin(true);
 
-						// 开始上传头像(待修改)
+						// 开始上传头像文件
 						// if (mAvatarPath != null) {
-						// String name = mAvatarPath.substring(
-						// mAvatarPath.lastIndexOf("/") + 1,
-						// mAvatarPath.length());
-						// String expandname = mAvatarPath.substring(
-						// mAvatarPath.lastIndexOf(".") + 1,
-						// mAvatarPath.length());
-						// name = name.substring(0, name.lastIndexOf("."));
-						// uploadImage(name, expandname, mAvatarPath, 1);
+						// // String name = mAvatarPath.substring(
+						// // mAvatarPath.lastIndexOf("/") + 1,
+						// // mAvatarPath.length());
+						// // String expandname = mAvatarPath.substring(
+						// // mAvatarPath.lastIndexOf(".") + 1,
+						// // mAvatarPath.length());
+						// // name = name.substring(0, name.lastIndexOf("."));
+						// ServerInterface.uploadFile(RegisterScreen.this,
+						// mHandler, noteApplication.getUserName(),
+						// mAvatarPath);
 						// Log.i(TAG, "register sucess,start upload avatar");
 						// } else {
 						Toast.makeText(RegisterScreen.this,
@@ -167,11 +156,11 @@ public class RegisterScreen extends Screen implements OnClickListener {
 						// }
 					}
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
+					Toast.makeText(RegisterScreen.this, R.string.login_failed,
+							Toast.LENGTH_SHORT).show();
 					e.printStackTrace();
 				}
 			}
-
 		}
 
 	};
@@ -184,8 +173,6 @@ public class RegisterScreen extends Screen implements OnClickListener {
 		mContentResolver = getContentResolver();
 		mImgCapture = new ImageCapture(this, mContentResolver);
 		mPreferences = PreferencesHelper.getSharedPreferences(this, 0);
-		Bundle data = getIntent().getExtras();
-		getNickname(data.getInt("type"), data.getString("uid"));
 	}
 
 	@Override
@@ -203,14 +190,27 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	}
 
 	private void initViews() {
+		Intent intent = getIntent();
 		mSetAvatar = (LinearLayout) findViewById(R.id.register_set_avatar_layout);
 		mSetAvatar.setOnClickListener(this);
 		mUserAvatar = (ImageView) findViewById(R.id.register_imageview_avatar);
-		mUserName = (EditText) findViewById(R.id.register_editText_username);
 		mNickName = (EditText) findViewById(R.id.register_edittext_nickname);
+		mNickName.setText(intent.getStringExtra("nickname"));
 		mSex = (RadioGroup) findViewById(R.id.register_ridiogroup_sex);
+		if (intent.getIntExtra("type", 0) == ServerInterface.LOGIN_TYPE_SINA) {
+			mSex.check(intent.getStringExtra("sex").equals("m") ? R.id.register_ridiogroup_man
+					: R.id.register_ridiogroup_woman);
+		} else if (intent.getIntExtra("type", 0) == ServerInterface.LOGIN_TYPE_QQ) {
+			mSex.check(intent.getStringExtra("sex").equals("1") ? R.id.register_ridiogroup_man
+					: R.id.register_ridiogroup_woman);
+		} else if (intent.getIntExtra("type", 0) == ServerInterface.LOGIN_TYPE_RENREN) {
+			mSex.check(intent.getStringExtra("sex").equals("1") ? R.id.register_ridiogroup_man
+					: R.id.register_ridiogroup_woman);
+		}
 		mRegion = (TextView) findViewById(R.id.register_tv_region);
+		mRegion.setText(intent.getStringExtra("location"));
 		mRegion.setOnClickListener(this);
+		mUserName = (EditText) findViewById(R.id.register_editText_username);
 		mPassWord = (EditText) findViewById(R.id.register_editText_password);
 		mPswdConfirm = (EditText) findViewById(R.id.register_editText_pswdconfirm);
 		mRegisterButton = (Button) findViewById(R.id.btn_register);
@@ -398,18 +398,22 @@ public class RegisterScreen extends Screen implements OnClickListener {
 
 			@Override
 			public void run() {
-				String result = ServerInterface
-						.register(
-								getIntent().getExtras().getInt("type"),
-								getIntent().getExtras().getString("uid"),
-								username,
-								password,
-								nickname,
-								mSex.getCheckedRadioButtonId() == R.id.register_ridiogroup_man ? 1
-										: 2, mRegion.getText().toString());
-				Message message = new Message();
-				message.obj = result;
-				mHandler.sendMessage(message);
+				int type = getIntent().getIntExtra("type", 0);
+				String uid = getIntent().getStringExtra("uid");
+				if (type != 0 && uid != null) {
+					String result = ServerInterface
+							.register(
+									type,
+									uid,
+									username,
+									password,
+									nickname,
+									mSex.getCheckedRadioButtonId() == R.id.register_ridiogroup_man ? 1
+											: 2, mRegion.getText().toString());
+					Message message = new Message();
+					message.obj = result;
+					mHandler.sendMessage(message);
+				}
 			}
 
 		}.start();
@@ -447,176 +451,31 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	// }.start();
 	// }
 
-	class UploadImgTask extends AsyncTask<String, integer, String> {
-
-		@Override
-		protected String doInBackground(String... params) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-	}
-
-	// 获取用户新浪，腾讯，人人的昵称
-	private void getNickname(int type, String uid) {
-		if (type == ServerInterface.LOGIN_TYPE_SINA) {
-			Weibo weibo = Weibo.getInstance();
-			String url = Weibo.SERVER + "users/show.json";
-			WeiboParameters bundle = new WeiboParameters();
-			bundle.add("access_token", mPreferences.getString(
-					PreferencesHelper.XML_SINA_ACCESS_TOKEN, null));
-			bundle.add("uid", uid);
-			AsyncWeiboRunner weiboRunner = new AsyncWeiboRunner(weibo);
-			weiboRunner.request(this, url, bundle, Utility.HTTPMETHOD_GET,
-					new AsyncWeiboRunner.RequestListener() {
-
-						@Override
-						public void onIOException(IOException e) {
-							// TODO Auto-generated method stub
-							e.printStackTrace();
-						}
-
-						@Override
-						public void onError(WeiboException e) {
-							// TODO Auto-generated method stub
-							e.printStackTrace();
-						}
-
-						@Override
-						public void onComplete(String response) {
-							try {
-								Log.i(TAG, "获取的sina用户信息json:" + response);
-								JSONObject jsonObject = new JSONObject(response);
-								final String nickname = jsonObject
-										.optString("screen_name");
-								final String sex = jsonObject
-										.optString("gender");
-								final String location = jsonObject
-										.optString("location");
-								runOnUiThread(new Runnable() {
-
-									@Override
-									public void run() {
-										mNickName.setText(nickname);
-										mSex.check(sex.equals("m") ? R.id.register_ridiogroup_man
-												: R.id.register_ridiogroup_woman);
-										mRegion.setText(location);
-									}
-								});
-							} catch (JSONException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}
-					});
-		} else if (type == ServerInterface.LOGIN_TYPE_QQ) {
-			QQAsyncTask qqAsyncTask = new QQAsyncTask();
-			qqAsyncTask.execute(mPreferences.getString(
-					PreferencesHelper.XML_QQ_ACCESS_TOKEN, null), uid);
-
-		} else if (type == ServerInterface.LOGIN_TYPE_RENREN) {
-			Renren renren = new Renren(AccountScreen.APPKEY_RENREN,
-					AccountScreen.APPSECRET_RENREN, AccountScreen.APPID_RENREN,
-					this);
-			renren.updateAccessToken(mPreferences.getString(
-					PreferencesHelper.XML_RENREN_ACCESS_TOKEN, null));
-			AsyncRenren asyncRenren = new AsyncRenren(renren);
-			UsersGetInfoRequestParam param = new UsersGetInfoRequestParam(new String[] {uid}, 
-					UsersGetInfoRequestParam.FIELDS_ALL);
-			asyncRenren.getUsersInfo(param,
-					new AbstractRequestListener<UsersGetInfoResponseBean>() {
-
-						@Override
-						public void onRenrenError(RenrenError renrenError) {
-							// TODO Auto-generated method stub
-							renrenError.printStackTrace();
-						}
-
-						@Override
-						public void onFault(Throwable fault) {
-							// TODO Auto-generated method stub
-							fault.printStackTrace();
-						}
-
-						@Override
-						public void onComplete(
-								final UsersGetInfoResponseBean bean) {
-								Log.i(TAG, "获取的人人用户信息：" + bean.toString());
-								runOnUiThread(new Runnable() {
-
-									@Override
-									public void run() {
-										try {
-											mNickName.setText(bean.getUsersInfo()
-													.get(0).getName());
-											mSex.check(bean.getUsersInfo().get(0)
-													.getSex() == 1 ? R.id.register_ridiogroup_man
-													: R.id.register_ridiogroup_woman);
-											
-											//由于人人网的接口问题，暂无法获得地区...
-//											HomeTownLocation location = bean
-//													.getUsersInfo().get(0)
-//													.getHomeTownLocation().get(0);
-//											mRegion.setText(location.getProvince()
-//													+ " " + location.getCity());
-										} catch (Exception e) {
-											e.printStackTrace();
-										}
-										
-									}
-								});
-
-						}
-					});
-		}
-
-	}
-
-	// 用于获取腾讯用户昵称的异步类
-	class QQAsyncTask extends AsyncTask<String, integer, String> {
-
-		@Override
-		protected String doInBackground(String... params) {
-			OAuthV2 oAuthV2 = new OAuthV2("http://www.archermind.com");
-			oAuthV2.setClientId(AccountScreen.APPKEY_QQ);
-			oAuthV2.setAccessToken(params[0]);
-			oAuthV2.setOpenid(params[1]);
-			UserAPI userAPI = new UserAPI(OAuthConstants.OAUTH_VERSION_2_A);
-			String response;
-			try {
-				response = userAPI.info(oAuthV2, "json");// 调用QWeiboSDK获取用户信息
-				Log.i(TAG, "获取的腾讯用户信息json:" + response);
-				return response;
-			} catch (Exception e) {
-				e.printStackTrace();
-				return null;
-			} finally {
-				userAPI.shutdownConnection();
-			}
-
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			if (result != null) {
-				JSONObject jsonObject;
-				try {
-					jsonObject = new JSONObject(result);
-					String data = jsonObject.optString("data");
-					jsonObject = new JSONObject(data);
-					mNickName.setText(jsonObject.optString("nick"));
-					mSex.check(jsonObject.optString("sex").equals("1") ? R.id.register_ridiogroup_man
-							: R.id.register_ridiogroup_woman);
-					String location = jsonObject.optString("location");
-					mRegion.setText(location.substring(location.lastIndexOf("中国")+3));
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-
-		}
-	}
+	// class LoadImgTask extends AsyncTask<String, integer, Drawable>{
+	//
+	// @Override
+	// protected Drawable doInBackground(String... params) {
+	// // TODO Auto-generated method stub
+	// try {
+	// Log.i(TAG, params[0]);
+	// Drawable drawable = Drawable.createFromStream(new
+	// URL(params[0]).openStream(), "image.png");
+	// return drawable;
+	// } catch (MalformedURLException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// } catch (IOException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// return null;
+	// }
+	//
+	// @Override
+	// protected void onPostExecute(Drawable result) {
+	// super.onPostExecute(result);
+	// mUserAvatar.setImageDrawable(result);
+	// }
+	// }
 
 }

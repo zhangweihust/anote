@@ -37,7 +37,9 @@
         </activity>
         <activity android:name="com.tencent.weibo.webview.OAuthV2AuthorizeWebView" />
         <activity android:name=".Screens.PreferencesScreen" />
-        <activity android:name=".Screens.AccountScreen" />
+        <activity
+            android:name=".Screens.AccountScreen"
+            android:windowSoftInputMode="stateHidden" />
         <activity android:name=".Screens.AlbumScreen" />
         <activity android:name=".Screens.PersonalInfoScreen" />
         <activity android:name=".Screens.PersonalInfoRegionScreen" />

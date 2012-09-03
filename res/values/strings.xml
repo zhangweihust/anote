@@ -116,7 +116,7 @@
     <string name="login_qq">QQ账号</string>
     <string name="login_renren">人人账号</string>
     <string name="login_or">或者</string>
-    <string name="login_username">请输入微笔记帐号</string>
+    <string name="login_username">请输入分享笔记帐号</string>
     <string name="login_password">请输入密码</string>
     <string name="login_btn">账号登录</string>
     <string name="logout_btn">退出登录</string>
@@ -132,7 +132,8 @@
     <string name="login_dialog_msg">正在登录...</string>
     <string name="login_findpassword_success">系统已将密码发送至您的邮箱，请查收！</string>
     <string name="login_findpassword_err_user_none">该用户不存在！</string>
-     <string name="login_findpassword_failed">邮件发送失败，请重试！</string>
+    <string name="login_findpassword_failed">邮件发送失败，请重试！</string>
+    <string name="cookies_error">登录已过期，请重新登录哦！</string>
 
     <!-- register -->
     <string name="register_title">补充个人信息</string>
@@ -192,8 +193,9 @@
     <string name="share_qq_expired">QQ账号授权已过期，请重新使用QQ账号登录！</string>
     <string name="share_renren_expired">人人账号授权已过期，请重新使用人人账号登录！</string>
     <string name="share_err_equal_weibo">你已分享过相同的内容啦！</string>
-    <string name="share_success">恭喜你,分享成功!</string>
-    <string name="share_failed">呃,分享失败了!</string>
+    <string name="share_success">分享成功!</string>
+    <string name="share_failed">呃！分享失败了，再试一次吧！</string>
+    <string name="share_click_to_reupload">点击重试！</string>
     <string name="share_dialog_bound">去绑定</string>
 
     <!-- dialog local_note_item_transact -->

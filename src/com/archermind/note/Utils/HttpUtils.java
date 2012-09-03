@@ -13,23 +13,39 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
+import com.archermind.note.NoteApplication;
+import com.archermind.note.R;
+import com.archermind.note.Events.EventArgs;
+import com.archermind.note.Events.EventTypes;
+import com.archermind.note.Services.ServiceManager;
+
+import android.content.SharedPreferences;
 import android.util.Log;
+import android.widget.Toast;
 
 public class HttpUtils {
 
+	public static String httphead = "";
+	public static String murl = "";
+
 	public static String doPost(Map<String, String> parmas, String url) {
 		DefaultHttpClient client = new DefaultHttpClient();
+		client.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, 30000);
+		client.getParams().setParameter(
+				CoreConnectionPNames.CONNECTION_TIMEOUT, 30000);
 		HttpPost httpPost = new HttpPost(url);
 
 		ArrayList<BasicNameValuePair> pairs = new ArrayList<BasicNameValuePair>();
@@ -46,16 +62,85 @@ public class HttpUtils {
 					HTTP.UTF_8);
 
 			httpPost.setEntity(p_entity);
-
+			if (httphead != null && !httphead.equals("")) {
+				httphead = httphead.replace("\r\n", "");
+			}
+			String m_cookie = PreferencesHelper.getSharedPreferences(
+					NoteApplication.getContext(), 0).getString(
+					PreferencesHelper.XML_COOKIES, "");
+			System.out.println("testcookie:" + m_cookie);
+			if (m_cookie != null && !m_cookie.equals("")) {
+				m_cookie = m_cookie.replace("\r\n", "");
+			}
+			httpPost.setHeader("Cookie", "sid=" + m_cookie);
 			HttpResponse response = client.execute(httpPost);
 
 			if (response.getStatusLine().getStatusCode() == 200) {
-				String strResult = EntityUtils.toString(response.getEntity(),HTTP.UTF_8);
-				//strResult = strResult.replace("\"", "");
-				Log.i("HttpUtils", "strResult:" + strResult);
+				if (url.indexOf("login") > 0
+						|| url.indexOf("check_bin_acc") > 0) {
+					Header[] head = null;
+					head = response.getHeaders("Set-Cookie");
+					for (int i = 0; i < head.length; i++) {
+						// if (head == null) {
+						// break;
+						// }
+						httphead = httphead + "header:" + head[i] + "\r\n";
+					}
+					// System.out.println("xiaopashu-------:"+httphead);
+					httphead = java.net.URLDecoder.decode(httphead, "utf8");
+					// Pattern p = Pattern.compile("s:32:\"([^\"]+)\"");
+					// Matcher m = p.matcher(httphead);
+					// if(m.find()){
+					// httphead =m.group();
+					// httphead =httphead.replace("s:32:", "");
+					// httphead =httphead.replace("\"", "");
+					// }
+
+					if (httphead.indexOf("sid=") > 0) {
+						httphead = httphead
+								.substring(httphead.indexOf("sid=") + 4);
+						if (httphead != null && !httphead.equals("")) {
+							httphead = httphead.replace("\r\n", "");
+						}
+					} else {
+						httphead = "";
+					}
+					SharedPreferences sp = PreferencesHelper
+							.getSharedPreferences(NoteApplication.getContext(),
+									0);
+					sp.edit()
+							.putString(PreferencesHelper.XML_COOKIES, httphead)
+							.commit();
+				}
+				String strResult = EntityUtils.toString(response.getEntity(),
+						HTTP.UTF_8);
+				// strResult = strResult.replace("\"", "");
+				Log.e("HttpUtils", "strResult:" + strResult);
+				if (strResult.equals("-600")) {
+					NoteApplication.getInstance().setLogin(false);
+					Toast.makeText(NoteApplication.getContext(),
+							R.string.cookies_error, Toast.LENGTH_SHORT).show();
+				}
 				return strResult;
+			} else {
+				for (int i = 0; i < 2; i++) {
+					response = client.execute(httpPost);
+					if (response.getStatusLine().getStatusCode() == 200) {
+						String strResult = EntityUtils.toString(
+								response.getEntity(), HTTP.UTF_8);
+						Log.e("HttpUtils", "strResult:" + strResult);
+						if (strResult.equals("-600")) {
+							NoteApplication.getInstance().setLogin(false);
+							Toast.makeText(NoteApplication.getContext(),
+									R.string.cookies_error, Toast.LENGTH_SHORT).show();
+						}
+						return strResult;
+					}
+				}
 			}
-			Log.e("HttpUtils", "Http Error Response: "+response.getStatusLine().getStatusCode());
+			Log.e("HttpUtils", "statuscode:" + response.getStatusLine().getStatusCode());
+			return Integer.toString(response.getStatusLine().getStatusCode());
+
 		} catch (IllegalStateException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -63,9 +148,9 @@ public class HttpUtils {
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 		}
-
-		return String.valueOf(ServerInterface.ERROR_SERVER_INTERNAL);
+		return Integer.toString(ServerInterface.ERROR_SERVER_INTERNAL);
 	}
+
 	public static long getFileSize(String sURL) {
 		int nFileLength = -1;
 		try {
@@ -102,7 +187,15 @@ public class HttpUtils {
 		return nFileLength;
 	}
 
-	public static long DownloadFile( String sURL,String sFilepath) {
+	public static void SetCookie(String cookie) {
+		httphead = cookie;
+	}
+
+	public static String GetCookie() {
+		return httphead;
+	}
+
+	public static long DownloadFile(String sURL, String sFilepath) {
 		long nStartPos = 0;
 		int nRead = 0;
 		String sName = sURL;
@@ -117,22 +210,21 @@ public class HttpUtils {
 				return -1;
 			}
 		} else {
-			nStartPos =file.length();//有一种情况就是程序装之前本地aMusic文件下面有没有下载完的临时文件。
-			System.out.println("nStartPos=="+nStartPos);
-		}		
+			nStartPos = file.length();// 有一种情况就是程序装之前本地aMusic文件下面有没有下载完的临时文件。
+			System.out.println("nStartPos==" + nStartPos);
+		}
 		try {
 			URL url = new URL(sURL);
 			HttpURLConnection httpConnection = (HttpURLConnection) url
 					.openConnection();
 			long nEndPos = getFileSize(sURL);
-			System.out.println("nEndPos=="+nEndPos);
-			if(nEndPos <= 0){
+			System.out.println("nEndPos==" + nEndPos);
+			if (nEndPos <= 0) {
 				return -2;
 			}
 			httpConnection.setConnectTimeout(30000);
 			httpConnection.setReadTimeout(30000);
-			RandomAccessFile oSavedFile = new RandomAccessFile(sFilepath,
-					"rw");
+			RandomAccessFile oSavedFile = new RandomAccessFile(sFilepath, "rw");
 			String sProperty = "bytes=" + nStartPos + "-";
 			// 文件长度，字节数
 			long fileLength = oSavedFile.length();

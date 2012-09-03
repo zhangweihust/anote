@@ -27,7 +27,6 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 	private ImageView mUserAvatar;
 	private Button mLoginButton;
 	private Button mLogoutButton;
-	private LinearLayout mShareLayout;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
