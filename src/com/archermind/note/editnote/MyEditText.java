@@ -92,7 +92,7 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 	private Canvas mCanvas = null;
     
 	private AmGesture mCurrentGesture;
-	private final ArrayList<AmGesturePoint> mStrokeBuffer = new ArrayList<AmGesturePoint>(100);
+	private ArrayList<AmGesturePoint> mStrokeBuffer = new ArrayList<AmGesturePoint>(100);
     
     private File graffitFile = null;
 	private AmGestureLibrary mStore = null;
@@ -109,7 +109,6 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 	
 	private int mVelocityX = 0;
 	
-	private int inType = 0;
     
     // we need this constructor for LayoutInflater
     public MyEditText(Context context, AttributeSet attrs) {
@@ -121,8 +120,6 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
         setTextSize(fontSize);
         setTextColor(fontColor);
         setLongClickable(false);
-        
-        inType = getInputType(); 
         
         mPath = new Path();
         mFingerPen = new Paint();
@@ -221,6 +218,7 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 		}
 		if (mStrokeBuffer != null) {
 		    mStrokeBuffer.clear();
+		    mStrokeBuffer = null;
 		}
 	}
 	

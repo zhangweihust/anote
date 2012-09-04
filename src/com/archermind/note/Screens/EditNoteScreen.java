@@ -122,10 +122,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
     
     private SeekBar thickness_seekbar = null;
 	
-	private int inType = 0;
+//	private int inType = 0;
 	private AmGesture mGesture;
 	private static final float LENGTH_THRESHOLD = 40.0f;
-	private InputMethodManager  imm = null;
+//	private InputMethodManager  imm = null;
 	
 	private LinearLayout edit_type = null; // 输入方式
 	private LinearLayout pic_type = null; // 图片的类型：表情/图片
@@ -215,7 +215,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
     private String mShareNoteAction = "";
     private String mShareNoteSid = "";
     
-    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -227,7 +226,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		gestureview.addOnGestureListener(new GesturesProcessorHandWrite()); 
 		
 		myEdit = (MyEditText) findViewById(R.id.editText_view);
-		inType = myEdit.getInputType(); 
+//		inType = myEdit.getInputType(); 
 		
 		//最底下一排的四个按钮
 		ImageButton edit_insert = (ImageButton) findViewById(R.id.edit_insert);
@@ -272,7 +271,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		edit_insert_newline.setOnClickListener(this);
 		
         
-		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		
 		weather_tv = (TextView) findViewById(R.id.edit_weather_textview);
 		
@@ -935,6 +934,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	    	
 	    	flipper.setDisplayedChild(0);
 			Selection.setSelection(myEdit.getEditableText(), myEdit.getText().length());
+			isNeedSaveChange = true;
 		    return true;
 		}
 		return false;
@@ -975,6 +975,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	    	
 	    	flipper.setDisplayedChild(0);
 			Selection.setSelection(myEdit.getEditableText(), myEdit.getText().length());
+			isNeedSaveChange = true;
 		}
 	}
 	
@@ -1799,6 +1800,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		deleteDefaultFiles();
 		myEdit.getText().clear();
 		myEdit.recycleBitmap();
+		ServiceManager.getEventservice().remove(this);
 		if (mStrList != null) {
 		    mStrList.clear();
 		}
@@ -2619,8 +2621,13 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	
 	private void saveOverAndFinish() {
 		if (isPicSaveOver && isNoteSaveOver) {
-			dismissProgress();
-			finish();
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					dismissProgress();
+					finish();
+				}
+			});
 		}
 	}
 }

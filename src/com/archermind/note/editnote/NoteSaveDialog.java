@@ -134,7 +134,6 @@ public class NoteSaveDialog implements OnClickListener{
 					intent.putExtra("sid", "0");
 					mEditNote.startActivity(intent);*/
 					dismiss();
-					
 				} else {
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,title);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
@@ -187,7 +186,6 @@ public class NoteSaveDialog implements OnClickListener{
 					intent.putExtra("sid", serviceID);
 					mEditNote.startActivity(intent);*/
 					dismiss();
-					
 				}
 			} else if (saveGroup.getCheckedRadioButtonId() == R.id.save_only) {
 				mEditNote.save();
