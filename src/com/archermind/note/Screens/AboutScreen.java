@@ -24,7 +24,7 @@ import com.archermind.note.Utils.VersionUtil;
 
 public class AboutScreen extends Screen implements OnClickListener {
 	private AboutScreen mContext;
-	private ImageButton mBtnBack;
+	private Button mBtnBack;
 	private Button mBtnCheckUpdate;
 	private TextView mlogoTitle;
 	private Handler handler;
@@ -53,7 +53,7 @@ public class AboutScreen extends Screen implements OnClickListener {
 	        
 		mContext = AboutScreen.this;
 
-		mBtnBack = (ImageButton) findViewById(R.id.back);
+		mBtnBack = (Button) findViewById(R.id.back);
 		mBtnBack.setOnClickListener(this);
 		
 		mBtnCheckUpdate = (Button) findViewById(R.id.about_check_update);

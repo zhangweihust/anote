@@ -681,5 +681,8 @@
     <string name="check_sd_title">温馨提示</string>
 	<string name="check_sd_ok">确定</string>
 	<string name="check_sd_msg">请插入sd卡，否则无法使用本产品，点击确定退出</string>
-
+	
+	<string name="back">返回</string>
+	<string name="cancel">取消</string>
+	<string name="refresh">刷新</string>
 </resources>

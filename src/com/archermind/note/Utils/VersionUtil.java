@@ -7,6 +7,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.archermind.note.NoteApplication;
+
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 
@@ -15,7 +17,7 @@ public class VersionUtil {
 	public static int getVerCode(Context context) {
 		int verCode = -1;
 		try {
-			verCode = context.getPackageManager().getPackageInfo("com.archermind.note", 0).versionCode;
+			verCode = context.getPackageManager().getPackageInfo(NoteApplication.getContext().getPackageName(), 0).versionCode;
 		} catch (NameNotFoundException e) {
 			
 		}
@@ -25,7 +27,7 @@ public class VersionUtil {
 	public static String getVerName(Context context) {
 		String verName = "";
 		try {
-			verName = context.getPackageManager().getPackageInfo("com.archermind.note", 0).versionName;
+			verName = context.getPackageManager().getPackageInfo(NoteApplication.getContext().getPackageName(), 0).versionName;
 		} catch (NameNotFoundException e) {
 			
 		}

@@ -4,12 +4,12 @@
 	>
 	<item
 		android:state_pressed="true"
-		android:drawable="@drawable/btn_change_passwd_pressed"
+		android:drawable="@drawable/button_pressed_bg"
 		>
 	</item>
 	<item
 		android:state_focused="true"
-		android:drawable="@drawable/btn_change_passwd_pressed"
+		android:drawable="@drawable/button_pressed_bg"
 		>
 	</item>
 	<item
@@ -19,7 +19,7 @@
 		>
 	</item>
 	<item
-		android:drawable="@drawable/btn_change_passwd"
+		android:drawable="@drawable/button_bg"
 		>
 	</item>
 </selector>

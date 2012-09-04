@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -29,7 +30,7 @@ public class PersonalInfoRegionScreen extends Screen implements OnClickListener 
 		
 		mContext = PersonalInfoRegionScreen.this;
 		
-		ImageButton btnback = (ImageButton) this.findViewById(R.id.back);
+		Button btnback = (Button) this.findViewById(R.id.back);
 		btnback.setOnClickListener(this);
 		
 		final RegionInfoAdapter adapter1 = new RegionInfoAdapter(this, RegionInfoAdapter.REGION_PROVINCE);

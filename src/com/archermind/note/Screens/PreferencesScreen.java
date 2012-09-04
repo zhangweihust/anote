@@ -35,7 +35,7 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 
 		mContext = PreferencesScreen.this;
 
-		ImageButton btnback = (ImageButton) this.findViewById(R.id.back);
+		Button btnback = (Button) this.findViewById(R.id.back);
 		btnback.setOnClickListener(this);
 
 		View personal_info = (View) this

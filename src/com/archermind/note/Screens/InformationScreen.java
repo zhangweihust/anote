@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.xml.datatype.Duration;
+import javax.xml.transform.Templates;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,6 +24,8 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AbsListView;
@@ -53,6 +56,44 @@ public class InformationScreen extends Screen implements IXListViewListener,OnXS
     private InformationAdapter mInformationAdapter;
     private static int PER_FRESH_COUNT = 10;
     private static int LOCAL_KEEP_COUNT = 30;
+    private ArrayList<InformationData> listdata;
+    
+    protected static final int ON_Refresh = 0x101;
+    protected static final int ON_LoadMore = 0x102;
+    protected static final int ON_LoadData = 0x103;
+    protected static final int ON_Null = 0x104;
+    
+	Handler mHandler = new Handler() {
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what) {
+			case ON_Refresh:
+				mInformationAdapter.addPreData(listdata);
+				mxlvInformation.setSelection(1);
+				Toast.makeText(InformationScreen.this, "共有" + listdata.size() + "条更新", Toast.LENGTH_LONG).show();
+				refreshCompleted();
+				break;
+			case ON_LoadMore:
+				mInformationAdapter.addAfterData(listdata);
+				mxlvInformation.setSelection(mInformationAdapter.getCount());
+				Toast.makeText(InformationScreen.this, "更新了" + listdata.size() + "条通知", Toast.LENGTH_LONG).show();
+				moreCompleted();
+				break;
+			case ON_LoadData:
+				mInformationAdapter.addPreData(malInformations);
+		        if(mInformationAdapter.isEmpty()){
+		        	mInformationAdapter.setNoInformationPrompt(System.currentTimeMillis());
+		        }
+				break;	
+			case ON_Null:
+		    	Toast.makeText(InformationScreen.this, "暂时没有更新", Toast.LENGTH_LONG).show();
+		    	refreshCompleted();
+		    	break;
+			}
+
+		}
+	};
+    
     
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,20 +102,24 @@ public class InformationScreen extends Screen implements IXListViewListener,OnXS
        
         mxlvInformation = (XListView)findViewById(R.id.xlv_information);
         mxlvInformation.setXListViewListener(this);
-        mxlvInformation.setOnScrollListener(this);
-        mxlvInformation.setPullLoadEnable(true); 
         
         mbtnBack = (Button)findViewById(R.id.btn_back);
         mbtnBack.setOnClickListener(this);
         
-        mcInformations = ServiceManager.getDbManager().queryInformations();
-        startManagingCursor(mcInformations);
-        cursorToListData(mcInformations, malInformations);
         mInformationAdapter = new InformationAdapter(this, malInformations);
         mxlvInformation.setAdapter(mInformationAdapter);
-        if(mInformationAdapter.isEmpty()){
-        	mInformationAdapter.setNoInformationPrompt(System.currentTimeMillis());
-        }
+        
+        new Thread(new Runnable() {			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				   mcInformations = ServiceManager.getDbManager().queryInformations();
+			       System.out.println("===" + mcInformations.getCount());
+			       cursorToListData(mcInformations, malInformations);
+			       mcInformations.close();
+			       mHandler.sendEmptyMessage(ON_LoadData);
+			}
+		}).start();
 	}
 	
 	
@@ -95,18 +140,29 @@ public class InformationScreen extends Screen implements IXListViewListener,OnXS
 	 * */
 	private void parseJsonandUpdateDatabase(String s){
 		try {
-			JSONArray infoArray = new JSONArray(s);
-			InformationData info = null;
-			JSONObject jsonObject = null;
-			for(int i=0; i< infoArray.length(); i++){
-				jsonObject = (JSONObject) infoArray.opt(i);
-				info = new InformationData();
-				info.content = jsonObject.getString("content");
-				info.nickname = jsonObject.getString("nickname");
-				info.photo = jsonObject.getString("portrait");	
-				info.title = jsonObject.getString("title");
-				info.time = jsonObject.getLong("date");
-				insertData(info);
+			if(s.contains("[")){
+				String photoUrl = s.substring(0, s.indexOf("["));
+				JSONArray infoArray = new JSONArray(s.substring(s.indexOf("[")));
+				InformationData info = null;
+				JSONObject jsonObject = null;
+				for(int i=0; i< infoArray.length(); i++){
+					jsonObject = (JSONObject) infoArray.opt(i);
+					info = new InformationData();
+					info.content = jsonObject.getString("content");
+					info.nickname = jsonObject.getString("nickname");
+					info.userid = jsonObject.getInt("user_id");
+					String tmp = jsonObject.getString("portrait");
+					System.out.println("url0 = " + tmp);
+					if(tmp != null && photoUrl.contains(",,,,") && photoUrl.contains("####") && tmp.contains(".")){
+						info.photo = photoUrl.replace("####", tmp.substring(0, tmp.indexOf("."))).replace(",,,,", info.userid + "") + tmp.substring(tmp.lastIndexOf(".")+1);
+						System.out.println("url = " + info.photo);
+					}
+					info.title = jsonObject.getString("title");
+					info.time = jsonObject.getLong("date");
+					insertData(info);
+				}
+			}else{
+				return;
 			}
 			
 		} catch (JSONException e) {
@@ -116,20 +172,30 @@ public class InformationScreen extends Screen implements IXListViewListener,OnXS
 	}
 	
 	private void parseJsonandUpdateArraylist(String s, ArrayList<InformationData> listdata){
-		try {
-			JSONArray infoArray = new JSONArray(s);
+		try{
+		if(s.contains("[")){
+			String photoUrl = s.substring(0, s.indexOf("["));
+			JSONArray infoArray = new JSONArray(s.substring(s.indexOf("[")));
 			InformationData info = null;
 			JSONObject jsonObject = null;
-			for(int i=0 ; i < infoArray.length(); i++){
+			for(int i=0; i< infoArray.length(); i++){
 				jsonObject = (JSONObject) infoArray.opt(i);
 				info = new InformationData();
 				info.content = jsonObject.getString("content");
 				info.nickname = jsonObject.getString("nickname");
-				info.photo = jsonObject.getString("portrait");	
+				info.userid = jsonObject.getInt("user_id");
+				String tmp = jsonObject.getString("portrait");
+				if(tmp != null && photoUrl.contains(",,,,") && photoUrl.contains("####") && tmp.contains(".")){
+					info.photo = photoUrl.replace("####", tmp.substring(0, tmp.indexOf("."))).replace(",,,,", info.userid + "") + tmp.substring(tmp.lastIndexOf(".")+1);
+					System.out.println("url = " + info.photo);
+				}
 				info.title = jsonObject.getString("title");
 				info.time = jsonObject.getLong("date");
 				listdata.add(info);
 			}
+		}else{
+			return;
+		}
 			
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -186,40 +252,41 @@ public class InformationScreen extends Screen implements IXListViewListener,OnXS
 			refreshCompleted();
 			return;
 		}
-		int userid = NoteApplication.getInstance().getUserId();
-		String result = null;
-		if(mInformationAdapter.getLatestTime()==0){
-			result = ServerInterface.getReplyFromUser(userid, mInformationAdapter.getLatestTime(), PER_FRESH_COUNT);
-		}else{
-			result = ServerInterface.getReplyFromUser(userid, mInformationAdapter.getLatestTime(), 1000);
-		}
-		if(result != null && result.contains("date")){
-	    	parseJsonandUpdateDatabase(result);
-	    }else {
-	    	Toast.makeText(InformationScreen.this, "暂时没有更新", Toast.LENGTH_LONG).show();
-	    	refreshCompleted();
-			return;
-		}
+		new Thread(new Runnable(){
+			@Override
+			public void run() {
+				int userid = NoteApplication.getInstance().getUserId();
+				String result = null;
+				if(mInformationAdapter.getLatestTime()==0){
+					result = ServerInterface.getReplyFromUser(userid, mInformationAdapter.getLatestTime(), PER_FRESH_COUNT);
+				}else{
+					System.out.println("lastestTime : " + mInformationAdapter.getLatestTime());
+					result = ServerInterface.getReplyFromUser(userid, mInformationAdapter.getLatestTime(), 1000);
+				}
+				if(result != null && result.contains("date")){
+			    	parseJsonandUpdateDatabase(result);
+			    	Cursor c;
+					 // data after mInformationAdapter.getLatestTime();
+					if (mcInformations.getCount() == 0)
+					{
+						c = ServiceManager.getDbManager().queryInformations();
+					}
+					else
+					{
+						System.out.println("mcinformation " + mcInformations.getColumnCount());
+						c = ServiceManager.getDbManager().queryInformationsAfter(mInformationAdapter.getLatestTime());
+					}
+					listdata = new ArrayList<InformationData>();
+					cursorToListData(c,listdata);
+					//Collections.reverse(listdata);		// 数据库查询时按照降序排列，因此此处需要将listdata中数据倒序 
+					c.close();
+					mHandler.sendEmptyMessage(ON_Refresh);
+			    }else {
+			    	mHandler.sendEmptyMessage(ON_Null);
+				}
 	    
-		Cursor c;
-		 // data after mInformationAdapter.getLatestTime();
-		if (mcInformations.getCount() == 0)
-		{
-			c = ServiceManager.getDbManager().queryInformations();
-		}
-		else
-		{
-			System.out.println("mcinformation " + mcInformations.getColumnCount());
-			c = ServiceManager.getDbManager().queryInformationsAfter(mInformationAdapter.getLatestTime());
-		}
-		ArrayList<InformationData> listdata = new ArrayList<InformationData>();
-		cursorToListData(c,listdata);
-		Collections.reverse(listdata);		// 数据库查询时按照降序排列，因此此处需要将listdata中数据倒序 
-		c.close();
-		mInformationAdapter.addPreData(listdata);
-		mxlvInformation.setSelection(1);
-		Toast.makeText(InformationScreen.this, "共有" + c.getCount() + "条更新", Toast.LENGTH_LONG).show();
-		refreshCompleted();
+			}
+		}).start();
 	}
 	@Override
 	public void onLoadMore() {
@@ -235,20 +302,25 @@ public class InformationScreen extends Screen implements IXListViewListener,OnXS
 			moreCompleted();
 			return;
 		}
-		int userid = NoteApplication.getInstance().getUserId();
-	    String result = ServerInterface.getReplyFromUser(userid, mInformationAdapter.getEarlistTime(), -PER_FRESH_COUNT);
-	    ArrayList<InformationData> listdata = new ArrayList<InformationData>();
-	    if(result != null && result.contains("date")){
-	    	parseJsonandUpdateArraylist(result, listdata);
-	    }else {
-	    	moreCompleted();
-			return;
-		}
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				int userid = NoteApplication.getInstance().getUserId();
+			    String result = ServerInterface.getReplyFromUser(userid, mInformationAdapter.getEarlistTime(), -PER_FRESH_COUNT);
+			    listdata = new ArrayList<InformationData>();
+			    if(result != null && result.contains("date")){
+			    	parseJsonandUpdateArraylist(result, listdata);
+			    	mHandler.sendEmptyMessage(ON_LoadMore);
+			    }else {
+			    	mHandler.sendEmptyMessage(ON_Null);
+				}
+			}
+		}).start();
+
 	    
-		mInformationAdapter.addAfterData(listdata);
-		mxlvInformation.setSelection(mInformationAdapter.getCount());
-		Toast.makeText(InformationScreen.this, "更新了" + listdata.size() + "条通知", Toast.LENGTH_LONG).show();
-		moreCompleted();
+
 	}
 	
 	private void refreshCompleted() {
@@ -272,26 +344,6 @@ public class InformationScreen extends Screen implements IXListViewListener,OnXS
 			break;
 		}
 	}
-
-	public static Bitmap getHttpBitmap(String url) {
-		
-		Bitmap bitmap = null;
-		try {
-			URL myFileUrl = new URL(url);
-			HttpURLConnection conn = (HttpURLConnection) myFileUrl.openConnection();
-			conn.setConnectTimeout(0);
-			conn.setDoInput(true);
-			conn.connect();
-			InputStream is = conn.getInputStream();
-			bitmap = BitmapFactory.decodeStream(is);
-			is.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e){
-			e.printStackTrace();
-		}
-			return bitmap;
-		}
 
 	@Override
 	protected void onDestroy() {

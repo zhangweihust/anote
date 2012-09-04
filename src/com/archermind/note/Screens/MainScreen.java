@@ -123,38 +123,6 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
         	NoteApplication.networkIsOk = true;
         }
 
-		
-		boolean isHasSD = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
-		
-		if(!isHasSD){
-			AlertDialog.Builder builder = new Builder(MainScreen.this);
-			  builder.setMessage(getResources().getString(R.string.check_sd_msg));
-
-			  builder.setTitle(getResources().getString(R.string.check_sd_title));
-
-			  builder.setNegativeButton(R.string.check_sd_ok, new DialogInterface.OnClickListener() {
-				
-				public void onClick(DialogInterface arg0, int arg1) {
-					// TODO Auto-generated method stub
-					MainScreen.this.finish();
-					ServiceManager.exit();
-				}
-			});
-
-			builder.setOnKeyListener(new DialogInterface.OnKeyListener() {
-				
-				@Override
-				public boolean onKey(DialogInterface arg0, int arg1, KeyEvent arg2) {
-					// TODO Auto-generated method stub
-					if(arg2.getKeyCode() == KeyEvent.KEYCODE_BACK || arg2.getKeyCode() == KeyEvent.KEYCODE_HOME){
-						return true;
-					}
-					return false;
-				}
-			});
-			
-			builder.create().show();
-		}
 		mTabHost = this.getTabHost();
 		mTabHost.addTab(buildTabSpec(TAB_HOME,
 				R.drawable.tabhost_home_selector, new Intent(this,
@@ -252,7 +220,8 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 					mtvTitleBarTitle.setText(MainScreen.this.getResources()
 							.getText(R.string.plaza_screen_title));
 					mflTabhost.setBackgroundResource(R.drawable.tab_bottom_background_plaza);
-
+					mbtnBack.setVisibility(View.VISIBLE);
+					mbtnBack.setText(getResources().getString(R.string.refresh));
 				}
 			});
 		}
@@ -294,12 +263,16 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					mbtnBack.setVisibility(View.GONE);
-					mtvTitleBarTitle.setText(mContext.getResources().getString(R.string.home_screen_title));
+					if(mTabHost.getCurrentTabTag() == TAB_HOME){
+					  mbtnBack.setVisibility(View.GONE);
+					  mtvTitleBarTitle.setText(mContext.getResources().getString(R.string.home_screen_title));
+					  HomeScreen.eventService.onUpdateEvent(new EventArgs(
+								EventTypes.HOME_SCREEN_ONEDAY_NOTE_BACK_PRESSED));
+					}else if(mTabHost.getCurrentTabTag() == TAB_PLAZA){
+						PlazaScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.REFRESH_WEBVIEW));
+					}
 				}
 			});
-			HomeScreen.eventService.onUpdateEvent(new EventArgs(
-					EventTypes.HOME_SCREEN_ONEDAY_NOTE_BACK_PRESSED));
 			break;
 		case R.id.btn_more:
 			MainScreen.this.runOnUiThread(new Runnable() {

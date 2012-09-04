@@ -23,12 +23,13 @@
 
         <Button
             android:id="@+id/screen_top_play_control_back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:background="@drawable/screen_go_back_selector" />
+            android:layout_width="42dp" 
+            android:layout_height="32dp"
+			android:layout_centerVertical="true"
+			android:text="@string/cancel"
+            android:background="@drawable/button_selector" 
+            android:layout_marginLeft="3dip"
+            android:textColor="@color/white"/>
     </RelativeLayout>
 
     <ScrollView

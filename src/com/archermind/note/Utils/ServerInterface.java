@@ -54,6 +54,9 @@ public class ServerInterface {
 	public static final String URL_send_reports = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/send_reports";
 	public static final String app_id = "0ba7932602af4a45bd866bad93be0e50";
 	public static final String app_secret = "2411edd1a2c44249a98e6451592062bc";
+	public static final String URL_DEVICEINFO = URL_SERVER + "ci/index.php/anote/setClientInfo";
+    public static final String URL_USERACTIVEINFO = URL_SERVER + "ci/index.php/anote/setUserActionInfo";
+	//"http://219.138.163.58/"
 
 	public static final int SUCCESS = 0;
 

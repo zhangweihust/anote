@@ -67,8 +67,8 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	private View mPhotoGalleryLayout;
 	private View mPhotoGridLayout;
 	
-	private ImageButton mBtnGalleryBack;
-	private ImageButton mBtnGridBack;
+	private Button mBtnGalleryBack;
+	private Button mBtnGridBack;
 	private ImageButton mBtnGallerySetAvatar;
 	private ImageButton mBtnGridInsertImage;
 	
@@ -144,8 +144,8 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		mPhotoView = (AlbumScrollLayout) findViewById(R.id.ScrollLayoutTest);
 		mPhotoGridLayout = findViewById(R.id.p_grid_layout);
 		
-		mBtnGalleryBack = (ImageButton) findViewById(R.id.p_gallery_back);
-		mBtnGridBack = (ImageButton) findViewById(R.id.p_grid_back);
+		mBtnGalleryBack = (Button) findViewById(R.id.p_gallery_back);
+		mBtnGridBack = (Button) findViewById(R.id.p_grid_back);
 		mBtnGallerySetAvatar = (ImageButton) findViewById(R.id.p_gallery_set_avatar);
 		mBtnGridInsertImage = (ImageButton) findViewById(R.id.p_grid_insert_image);
 		

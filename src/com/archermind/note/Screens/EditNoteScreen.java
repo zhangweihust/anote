@@ -286,7 +286,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		mStrList = new ArrayList<String>();
 		mPicPathList = new ArrayList<String>();
 		
-		ImageButton backButton = (ImageButton) findViewById(R.id.screen_top_play_control_back);
+		Button backButton = (Button) findViewById(R.id.screen_top_play_control_back);
 		backButton.setOnClickListener(this);
 		
 		deleteDefaultFiles();

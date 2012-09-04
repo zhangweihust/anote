@@ -8,4 +8,5 @@ public class InformationData {
 	public String title;
 	public String nickname;
 	public String photo;
+	public int userid;
 }

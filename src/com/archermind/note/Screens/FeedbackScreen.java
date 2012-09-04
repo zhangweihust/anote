@@ -20,7 +20,7 @@ import android.widget.Toast;
 public class FeedbackScreen extends Screen implements OnClickListener {
 
 	private FeedbackScreen mContext;
-	private ImageButton mBtnBack;
+	private Button mBtnBack;
 	private Button mBtnCommit;
 	private EditText mFeedbackContent;
 
@@ -31,7 +31,7 @@ public class FeedbackScreen extends Screen implements OnClickListener {
 		
 		mContext = FeedbackScreen.this;
 		
-		mBtnBack = (ImageButton) findViewById(R.id.back);
+		mBtnBack = (Button) findViewById(R.id.back);
 		mBtnBack.setOnClickListener(this);
 		
 		mBtnCommit = (Button) findViewById(R.id.feedback_commit);

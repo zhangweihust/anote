@@ -13,6 +13,7 @@ public class ServiceManager extends Service {
 	private static final EventService eventService = new EventService();
 	private static final NetworkService networkService = new NetworkService();
 	private static final ExceptionService exceptionService = new ExceptionService();
+	private static final UserInfoService userinfoService = new UserInfoService();
 	private static boolean started;
 	private static DatabaseManager dbManager = new DatabaseManager(NoteApplication.getContext());
 	
@@ -41,6 +42,7 @@ public class ServiceManager extends Service {
 		success &= exceptionService.start();
 		success &= eventService.start();
 		success &= networkService.start();
+		success &= userinfoService.start();
 		
 		dbManager.open();
 
@@ -67,6 +69,7 @@ public class ServiceManager extends Service {
 		success &= networkService.stop();
 		success &= eventService.stop();
 		success &= exceptionService.stop();
+		success &= userinfoService.stop();
 		
 		dbManager.close();
 		
@@ -83,6 +86,10 @@ public class ServiceManager extends Service {
 	}
 	public static NetworkService getNetworkService() {
 		return networkService;
+	}
+	
+	public static UserInfoService getUserInfoService(){
+		return userinfoService;
 	}
 	
 	public static DatabaseManager getDbManager() {

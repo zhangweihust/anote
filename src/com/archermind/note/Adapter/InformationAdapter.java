@@ -9,6 +9,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.archermind.note.R;
+import com.archermind.note.Events.EventArgs;
+import com.archermind.note.Image.SmartImageView;
 import com.archermind.note.Utils.DateTimeUtils;
 import com.archermind.note.Utils.InformationData;
 
@@ -55,22 +57,20 @@ public class InformationAdapter extends BaseAdapter
 		if(convertView == null){
 			convertView = LayoutInflater.from(mCtx).inflate(R.layout.information_listview_item, null);
 			item = new ListItemsView();
-			item.ivPhoto = (ImageView) convertView.findViewById(R.id.iv_photo);
+			item.ivPhoto = (SmartImageView) convertView.findViewById(R.id.iv_photo);
 			item.tvNickname = (TextView) convertView.findViewById(R.id.tv_nickname);
 			item.tvTitle = (TextView) convertView.findViewById(R.id.tv_title);
 			item.tvContent = (TextView) convertView.findViewById(R.id.tv_content);
 			item.tvTime = (TextView) convertView.findViewById(R.id.tv_time);
-			convertView.setTag(item);
+			convertView.setTag(R.layout.information_listview_item, item);
 		}else{
-			item = (ListItemsView)convertView.getTag();
+			item = (ListItemsView)convertView.getTag(R.layout.information_listview_item);
 		}
-		
+		System.out.println("========================================");
 	    InformationData data = mDatas.get(position);
+	    if(data != null){
 	    if(data.photo != null){
-	    	Bitmap bitmap = getHttpBitmap(data.photo);
-	    	if(bitmap != null){
-	    		item.ivPhoto.setImageBitmap(bitmap);
-	    	}
+	    	item.ivPhoto.setImageUrl(data.photo, R.drawable.my_photo, R.drawable.my_photo);
 	    }
 	    if(data.nickname != null){
 	    	item.tvNickname.setText(data.nickname);
@@ -90,8 +90,10 @@ public class InformationAdapter extends BaseAdapter
 	    }else{
 	    	item.tvTime.setText(DateTimeUtils.time2String("HH:mm", data.time));
 	    }
-	    
-		
+	    EventArgs args = new EventArgs();
+        args.putExtra("time", data.time);
+        convertView.setTag(args);
+	    }
 		return convertView;
 	}
 
@@ -109,9 +111,8 @@ public class InformationAdapter extends BaseAdapter
 	
 	public void addPreData(List<InformationData> predata)
 	{
-		int i = 0;
-		int size = predata.size();
-		if (size <= 0)
+
+		if (predata==null ||predata.size() <= 0)
 		{
 			return;
 		}
@@ -120,7 +121,8 @@ public class InformationAdapter extends BaseAdapter
 			mDatas.clear();
 			existsPrompt = false;
 		}
-		while (i < size)
+		int i = 0;
+		while (i < predata.size())
 		{
 			mDatas.add(i, predata.get(i));
 			i++;
@@ -130,7 +132,7 @@ public class InformationAdapter extends BaseAdapter
 	
 	public void addAfterData(List<InformationData> afterdata)
 	{
-		if (afterdata.size() <= 0)
+		if (afterdata == null || afterdata.size() <= 0)
 		{
 			return;
 		}
@@ -158,7 +160,7 @@ public class InformationAdapter extends BaseAdapter
 	{
 		long time = System.currentTimeMillis()/1000;
 		int size = mDatas.size();
-		if (size > 0)
+		if  ((size > 0 && !existsPrompt)||(size > 1))
 		{
 			time = mDatas.get(size - 1).time;
 		}
@@ -173,31 +175,11 @@ public class InformationAdapter extends BaseAdapter
 	
 	
 	public final class ListItemsView{
-		public ImageView ivPhoto;
+		public SmartImageView ivPhoto;
 		public TextView tvNickname;
 		public TextView tvTitle;
 		public TextView tvContent;
 		public TextView tvTime;
 	}
-	
-	public static Bitmap getHttpBitmap(String url) {
-		
-		Bitmap bitmap = null;
-		try {
-			URL myFileUrl = new URL(url);
-			HttpURLConnection conn = (HttpURLConnection) myFileUrl.openConnection();
-			conn.setConnectTimeout(0);
-			conn.setDoInput(true);
-			conn.connect();
-			InputStream is = conn.getInputStream();
-			bitmap = BitmapFactory.decodeStream(is);
-			is.close();
-			conn.disconnect();
-		} catch (IOException e) {
-			//e.printStackTrace();
-		} catch (Exception e){
-			//e.printStackTrace();
-		}
-			return bitmap;
-		}
+
 }

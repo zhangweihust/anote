@@ -15,13 +15,18 @@ import android.webkit.WebViewClient;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Events.EventArgs;
+import com.archermind.note.Events.IEventHandler;
+import com.archermind.note.Services.EventService;
+import com.archermind.note.Services.ServiceManager;
 
-public class PlazaScreen extends Screen {
+public class PlazaScreen extends Screen implements IEventHandler{
 	
 	private WebView mWebView;
-	private static String url = "http://10.52.31.122/";
+	private static String url = "http://note.archermind.com/web/index.php";
 	public static boolean isFirstPage = true;
-
+	public static final EventService eventService = ServiceManager
+			.getEventservice();
 	
 		@SuppressLint("SetJavaScriptEnabled")
 		@Override
@@ -40,11 +45,11 @@ public class PlazaScreen extends Screen {
 	        CookieSyncManager.getInstance().startSync();
 	     //    CookieManager.getInstance().removeSessionCookie();
 	       // CookieManager.getInstance().removeAllCookie();
-	        System.out.println(CookieManager.getInstance().getCookie(url) + "~~~~~~~~~~~~~~~~~~");
+	       // System.out.println(CookieManager.getInstance().getCookie(url) + "~~~~~~~~~~~~~~~~~~");
 	        CookieManager.getInstance().setCookie(url, "userid=" + NoteApplication.getInstance().getUserId() + ";");
 	        mWebView.clearCache(true);
 	        mWebView.clearHistory();
-	       System.out.println(CookieManager.getInstance().getCookie(url) + "~~~~~~~~~~~~~~~~~~");
+	      // System.out.println(CookieManager.getInstance().getCookie(url) + "~~~~~~~~~~~~~~~~~~");
 	        }
 
 	       
@@ -60,6 +65,7 @@ public class PlazaScreen extends Screen {
          });    
 	        
 	        mWebView.loadUrl(url);
+	        eventService.add(this);
 			
 		}
 	 
@@ -96,6 +102,14 @@ public class PlazaScreen extends Screen {
 		    
 		}
 	 
+	 	public  void refresh(){
+	 		System.out.println("===refresh===");
+
+	        mWebView.getSettings().setJavaScriptEnabled(true); 
+	        mWebView.getSettings().setBuiltInZoomControls(true);
+	        mWebView.requestFocus();
+	 		mWebView.reload();
+	 	}
 	 	
 	 	@Override
 	 	protected void onResume() {
@@ -120,4 +134,15 @@ public class PlazaScreen extends Screen {
 	 	  CookieSyncManager.getInstance().sync();
 	 	 }
 	 	}
+
+		@Override
+		public boolean onEvent(Object sender, EventArgs e) {
+			// TODO Auto-generated method stub
+			switch(e.getType()){
+			case REFRESH_WEBVIEW:
+				refresh();
+				break;
+			}
+			return false;
+		}
 }

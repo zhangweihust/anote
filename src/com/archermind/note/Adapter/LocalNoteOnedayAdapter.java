@@ -84,13 +84,28 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 		if(lastFlag){
 			item.tvDays.setVisibility(View.VISIBLE);
 			//item.tvDate.setVisibility(View.VISIBLE);
-			long duration = (DateTimeUtils.getToday(Calendar.PM, System.currentTimeMillis()) - time)/(1000 * 60 * 60 * 24);
-			if(duration == 0){
+			long durationN = (time - DateTimeUtils.getToday(Calendar.PM, System.currentTimeMillis()));
+			long durationP = (DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis()) - time);
+			long tmp = 0;
+			long duration = 0;
+			if(durationN<=0 && durationP<=0){
 				item.tvDays.setText("今天");
-			}else if(duration > 0){
+			}else if(durationP > 0){
+				tmp = durationP%(1000 * 60 * 60 * 24);
+				if(tmp == 0){
+					duration = durationP/(1000 * 60 * 60 * 24);
+				}else{
+					duration = durationP/(1000 * 60 * 60 * 24) + 1;
+				}
 				item.tvDays.setText(duration+"天前");
-			}else{
-				item.tvDays.setText(-duration+"天后");
+			}else if(durationN > 0 ){
+				tmp = durationN%(1000 * 60 * 60 * 24);
+				if(tmp == 0){
+					duration = durationN/(1000 * 60 * 60 * 24);
+				}else{
+					duration = durationN/(1000 * 60 * 60 * 24) + 1;
+				}
+				item.tvDays.setText(duration+"天后");
 			}
 			//item.tvWeekDay.setVisibility(View.VISIBLE);
 /*			String weekday = DateTimeUtils.time2String("EEEE", time);

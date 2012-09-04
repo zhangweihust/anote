@@ -127,8 +127,10 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
         
         mListHeader = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.home_screen_listview_header, null);
         mTvMyNoteInfo = (TextView)mListHeader.findViewById(R.id.tv_my_note_info);
-        Typeface type = Typeface.createFromAsset(getAssets(),"xdxwzt.ttf");
-		mTvMyNoteInfo.setTypeface(type);
+        if(android.os.Build.VERSION.SDK_INT > 8){
+	        Typeface type = Typeface.createFromAsset(getAssets(),"xdxwzt.ttf");
+			mTvMyNoteInfo.setTypeface(type);
+        }
         
         mTvCurMonth = (TextView)mListHeader.findViewById(R.id.tv_cur_month);
         
@@ -391,15 +393,16 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 			mRecentTime = time;
 			while (localNotes.moveToNext()) {
 				time = Long.parseLong(localNotes.getString(localNotes.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CREATE_TIME)));
-				if(Math.abs(time - System.currentTimeMillis()) < sub){
+				long sub1 = Math.abs(time - System.currentTimeMillis());
+				if( sub1 < sub){
 					mRecentTime = time;
+					sub = sub1;
+					//System.out.println("=====recent time +++" + DateTimeUtils.time2String("yyyyMMdd", mRecentTime));
 				}
-			}
-			if(mRecentTime ==0){
-				mRecentTime = System.currentTimeMillis();
-			}
-		
+			}		
 		}
+		
+		//System.out.println("=====recent time ======" + DateTimeUtils.time2String("yyyyMMdd", mRecentTime));
 		
 		localNotes.close();
 		if(mllCalendarPage.getVisibility() == View.VISIBLE && mListHeader.getTag().equals(tagCalendar)){
@@ -592,7 +595,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 					public void run() {
 						mllHomePage.setVisibility(View.GONE);
 						mllCalendarPage.setVisibility(View.VISIBLE);
-						showCalendarMonth(NEXT_MONTH, true);
+						showCalendarMonth(NEXT_MONTH, false);
 					}});
 				break;
 		}

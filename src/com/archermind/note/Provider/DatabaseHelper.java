@@ -111,6 +111,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	public static final String COLUMN_REPLY_TITLE = "title";//帖子的标题
 	public static final String COLUMN_REPLY_CONTENT = "content";//回帖的内容
 	public static final String COLUMN_REPLY_TIME = "time";//回帖的时间
+	public static final String COLUMN_REPLY_USER_ID = "user_id";//回帖人的ID
 
 	private static final String CRETAE_TAB_REPLY= " CREATE TABLE IF NOT EXISTS "
 			+ TAB_REPLY
@@ -126,7 +127,9 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 			+ COLUMN_REPLY_CONTENT
 			+ " TEXT, "
 			+ COLUMN_REPLY_TIME
-			+ " TEXT"
+			+ " TEXT, "
+			+ COLUMN_REPLY_USER_ID
+			+ " INTEGER"
 			+ ")";
 	
 	public static final String TAB_PHOTO = "photo";

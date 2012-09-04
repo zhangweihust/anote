@@ -62,7 +62,7 @@ public class SendCrashReportsTask extends AsyncTask<Void, Void, Integer> {
 	 * @param ctx
 	 */
 	private void sendCrashReportsToServer() {
-		String[] crFiles = getCrashReportFiles();
+		/*String[] crFiles = getCrashReportFiles();
 		if (crFiles != null && crFiles.length > 0) {
 			TreeSet<String> sortedFiles = new TreeSet<String>();
 			sortedFiles.addAll(Arrays.asList(crFiles));
@@ -83,7 +83,7 @@ public class SendCrashReportsTask extends AsyncTask<Void, Void, Integer> {
 			NoteApplication.LogD(SendCrashReportsTask.class, "本地没有LOG文件");
 		}
 		if(mService != null)
-			mService.stopSelf();
+			mService.stopSelf();*/
 	}
 
 	private boolean postReport(File file) {

@@ -18,4 +18,5 @@ public enum EventTypes {
 	NOTE_PIC_SAVE_OVER,
 	NOTE_TO_BE_SHARE,
 	NOTE_SAVE_OVER,
+	REFRESH_WEBVIEW,
 }

@@ -13,17 +13,15 @@
         android:layout_alignParentTop="true"
         android:orientation="horizontal" >
 
-        <ImageButton
+        <Button
             android:id="@+id/screen_top_play_control_back"
-            android:layout_width="48dp"
-            android:layout_height="30dp"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="5dp"
-            android:layout_weight="0"
-            android:background="@drawable/screen_go_back_selector" />
-        
-       
+            android:layout_width="42dp" 
+            android:layout_height="32dp"
+			android:layout_centerVertical="true"
+			android:text="@string/back"
+            android:background="@drawable/button_selector" 
+            android:layout_marginLeft="8dip"
+            android:textColor="@color/white"/>       
             
         <TextView 
             android:id="@+id/edit_dropdown_textview"

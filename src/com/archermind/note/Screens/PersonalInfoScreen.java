@@ -108,7 +108,7 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 
 		mContext = PersonalInfoScreen.this;
 
-		ImageButton btnback = (ImageButton) this.findViewById(R.id.back);
+		Button btnback = (Button) this.findViewById(R.id.back);
 		btnback.setOnClickListener(this);
 
 		View set_avatar = (View) this.findViewById(R.id.set_avatar_layout);

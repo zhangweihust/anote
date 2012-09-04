@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal" 
     android:background="@color/content_background">
-    <ImageView 
+    <com.archermind.note.Image.SmartImageView
         android:id="@+id/iv_photo"
         android:layout_width="72dip"
 		android:layout_height="72dip"

@@ -80,7 +80,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 
 		initViews();// 账号绑定相关的视图初始化
 
-		ImageButton btnback = (ImageButton) this.findViewById(R.id.back);
+		Button btnback = (Button) this.findViewById(R.id.back);
 		btnback.setOnClickListener(this);
 
 		mNewPasswdLabel = (TextView) this.findViewById(R.id.new_passwd_label);
