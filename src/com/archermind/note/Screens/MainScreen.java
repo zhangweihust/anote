@@ -203,6 +203,8 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 				@Override
 				public void run() {
 					mflTabhost.setBackgroundResource(R.drawable.tab_bottom_background_note);
+					mbtnBack.setVisibility(View.GONE);
+					mbtnBack.setText(R.string.back);
 					if (type.equals(TYPE_CALENDAR)) {
 						mtvTitleBarTitle.setText(MainScreen.this.getResources()
 								.getText(R.string.home_screen_calendar_page_title));
@@ -410,7 +412,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					if(mbtnBack.getVisibility() != View.VISIBLE){
+					if(Integer.parseInt(e.getExtra("isVisible").toString()) == View.VISIBLE){
 						mbtnBack.setVisibility(View.VISIBLE);
 					}else{
 						mbtnBack.setVisibility(View.GONE);

@@ -66,11 +66,10 @@ public class InformationAdapter extends BaseAdapter
 		}else{
 			item = (ListItemsView)convertView.getTag(R.layout.information_listview_item);
 		}
-		System.out.println("========================================");
 	    InformationData data = mDatas.get(position);
 	    if(data != null){
 	    if(data.photo != null){
-	    	item.ivPhoto.setImageUrl(data.photo, R.drawable.my_photo, R.drawable.my_photo);
+	    	item.ivPhoto.setImageUrl(data.photo, R.drawable.default_photo, R.drawable.default_photo);
 	    }
 	    if(data.nickname != null){
 	    	item.tvNickname.setText(data.nickname);

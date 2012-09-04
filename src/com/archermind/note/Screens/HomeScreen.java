@@ -585,7 +585,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				    	}else{
 				    		mbtnBackRecent.setVisibility(View.GONE);
 				    	}
-						MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHOW_OR_HIDE_BUTTON_BACK));
+						MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHOW_OR_HIDE_BUTTON_BACK).putExtra("isVisible", View.VISIBLE));
 						MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra("title", DateTimeUtils.time2String("yyyy.MM.dd", time)));
 					}});
 				break;
@@ -748,7 +748,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 			mllHomePage.setVisibility(View.GONE);
 			mllCalendarPage.setVisibility(View.VISIBLE);
 			showCalendarMonth(NEXT_MONTH, false);
-			MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHOW_OR_HIDE_BUTTON_BACK));
+			MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHOW_OR_HIDE_BUTTON_BACK).putExtra("isVisible", View.GONE));
 			MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra("title", mContext.getResources().getString(R.string.home_screen_title)));
 		}else{
 			super.onBackPressed();

@@ -8,7 +8,7 @@
         android:id="@+id/iv_photo"
         android:layout_width="72dip"
 		android:layout_height="72dip"
-		android:src="@drawable/my_photo"
+		android:src="@drawable/default_photo"
 		android:scaleType="fitCenter"
 		android:padding="8dip"
         />

@@ -34,7 +34,7 @@ public class EventService implements IEventDispatcher, IService{
 			new Thread(new Runnable() {
 				public void run() {
 					if (!handler.onEvent(this, eargs)) {
-						Log.w(handler.getClass().getName(), "onEvent failed");
+						//Log.w(handler.getClass().getName(), "onEvent failed");
 					}
 				}
 			}).start();

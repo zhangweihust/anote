@@ -67,14 +67,14 @@ public class PreferencesHelper {
 		String filepath = sharedata.getString(XML_USER_AVATAR, null);
 		
 		if (filepath == null) {
-			mUserAvatarBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.my_photo);
+			mUserAvatarBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.default_photo);
 		}else{
 			File file = new File(filepath);
 			if (file.exists()) {
 				mHasLocalAvatarBitmap = true;
 				mUserAvatarBitmap = BitmapFactory.decodeFile(filepath);
 			} else {
-				mUserAvatarBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.my_photo);
+				mUserAvatarBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.default_photo);
 			}
 		}
 		//mUserAvatarBitmap = toRoundCorner(mUserAvatarBitmap, 15);
