@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 import org.json.JSONObject;
 
+import com.amtcloud.mobile.android.business.AlbumObj;
+import com.amtcloud.mobile.android.business.MessageTypes;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Events.EventArgs;
@@ -64,15 +66,38 @@ public class ShareScreen extends Screen implements OnClickListener {
 	private Button mQQButton;
 	private Button mRenrenButton;
 	private ArrayList<String> mPicPathList;
+	private AlbumObj mAlbumObj;
 	private static final String TAG = "ShareScreen";
-	private Handler mHandler = new Handler(){
+	private Handler mHandler = new Handler() {
 
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-			Log.i(TAG, "msg.what = " + msg.what);
+			Log.i(TAG, "handler_message:" + msg.what);
+			switch (msg.what) {
+			// case MessageTypes.ERROR_MESSAGE:
+			// break;
+			// case MessageTypes.MESSAGE_CREATEALBUM:
+			// mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()
+			// .getUserName());
+			// break;
+			// case MessageTypes.MESSAGE_GETALBUM:
+			//
+			// break;
+			case -1:
+				// 异步执行分享到广场
+				SquareTask squareTask = new SquareTask();
+				Intent intent = getIntent();
+				squareTask.execute(intent.getStringExtra("noteid"),
+						intent.getStringExtra("title"),
+						intent.getStringExtra("action"),
+						intent.getStringExtra("sid"));
+				break;
+			default:
+				break;
+			}
 		}
-		
+
 	};
 
 	@Override
@@ -81,8 +106,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.share);
 		mPreferences = PreferencesHelper.getSharedPreferences(this, 0);
-		Intent intent = getIntent();
-		mPicPathList = intent.getStringArrayListExtra("picpathlist");
+		mPicPathList = getIntent().getStringArrayListExtra("picpathlist");
 
 		mBackButton = (Button) findViewById(R.id.screen_top_play_control_back);
 		mBackButton.setOnClickListener(this);
@@ -109,20 +133,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 		mRenrenButton = (Button) findViewById(R.id.btn_share_renren);
 		mRenrenButton.setOnClickListener(this);
 
-//		 //上传笔记图片至服务器（待修改）
-//	
-//		 for (int i = 0; i < mPicPathList.size(); i++) {
-//		 ServerInterface.uploadFile(this,mHandler,
-//		 NoteApplication.getInstance().getUserName(),
-//		 mPicPathList.get(i));
-//		 }
-
-		// 异步执行分享到广场
-		SquareTask squareTask = new SquareTask();
-		squareTask.execute(intent.getStringExtra("noteid"),
-				intent.getStringExtra("title"),
-				intent.getStringExtra("action"), intent.getStringExtra("sid"));
-
+		shareToSquare();// 分享到广场
 	}
 
 	@Override
@@ -150,7 +161,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 	class SquareTask extends AsyncTask<String, integer, String> {
 
 		@Override
-		protected String doInBackground(String... params) {	
+		protected String doInBackground(String... params) {
 			String userIdStr = String.valueOf(NoteApplication.getInstance()
 					.getUserId());
 			int totalPage = 0;
@@ -167,13 +178,14 @@ public class ShareScreen extends Screen implements OnClickListener {
 			int serviceId = ServerInterface.uploadNote(
 					Long.parseLong(params[0]), userIdStr, params[3], params[2],
 					params[1], context, String.valueOf(totalPage));
-			if(serviceId == ServerInterface.COOKIES_ERROR){
+			if (serviceId == ServerInterface.COOKIES_ERROR) {
 				return "cookis_error";
-			}else {
+			} else {
 				if ("A".equals(params[2])) {
 					if (serviceId > 0) {
 						ContentValues contentValues2 = new ContentValues();
-						contentValues2.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID,
+						contentValues2.put(
+								DatabaseHelper.COLUMN_NOTE_SERVICE_ID,
 								String.valueOf(serviceId));
 						contentValues2.put(DatabaseHelper.COLUMN_NOTE_USER_ID,
 								Integer.parseInt(userIdStr));
@@ -196,7 +208,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 				}
 				return null;
 			}
-			
+
 		}
 
 		@Override
@@ -204,18 +216,40 @@ public class ShareScreen extends Screen implements OnClickListener {
 			super.onPostExecute(result);
 			if (result.equals("success")) {
 				dismssProgressBar(R.string.share_success, true);
-				MainScreen.eventService.onUpdateEvent(new EventArgs(
-						EventTypes.SHARE_NOTE_SUCCESSED));
+				ServiceManager.getEventservice().onUpdateEvent(
+						new EventArgs(EventTypes.SHARE_NOTE_SUCCESSED));
 			} else if (result.equals("failed")) {
 				dismssProgressBar(R.string.share_failed, false);
 				mReuploadView.setVisibility(View.VISIBLE);
-				MainScreen.eventService.onUpdateEvent(new EventArgs(
-						EventTypes.SHARE_NOTE_FAILED));
+				ServiceManager.getEventservice().onUpdateEvent(
+						new EventArgs(EventTypes.SHARE_NOTE_FAILED));
 			} else if (result.equals("cookies_error")) {
 				dismssProgressBar(R.string.share_failed, false);
 			}
 		}
 
+	}
+
+	private void shareToSquare() {
+		// 上传笔记图片至服务器
+		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
+			if (mPicPathList != null) {
+				ArrayList<String> picnameList = new ArrayList<String>();
+				for (String s : mPicPathList) {
+					picnameList.add(s.substring(s.lastIndexOf("/") + 1));
+				}
+				mAlbumObj = new AlbumObj();
+				mAlbumObj.setHandler(mHandler);
+				mAlbumObj.uploadPicFiles(ServerInterface.app_id, NoteApplication
+						.getInstance().getUserName(), mPicPathList,
+						picnameList, 1, "http://10.11.18.53:8080/amtcloud/1/");
+//				mAlbumObj.createAlbum(NoteApplication.getInstance()
+//						.getUserName(), "share");
+			}
+		} else {
+			dismssProgressBar(R.string.network_none, false);
+			mReuploadView.setVisibility(View.VISIBLE);
+		}
 	}
 
 	private void shareToSina(String imgPath, String msg) {

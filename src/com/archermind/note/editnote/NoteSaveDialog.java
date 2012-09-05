@@ -107,14 +107,9 @@ public class NoteSaveDialog implements OnClickListener{
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER, weather);
 					long id = ServiceManager.getDbManager().insertLocalNotes(contentValues);
 					mEditNote.getIntent().putExtra("isNewNote", false);
-					if (NetworkUtils.getNetworkState(MainScreen.mContext) == NetworkUtils.NETWORN_NONE) {
-						Toast.makeText(mEditNote, "网络不通，无法分享", Toast.LENGTH_SHORT).show();
-					    return;
-					}
 					
 					if (!NoteApplication.getInstance().isLogin()) {
-						Intent intent = new Intent(NoteApplication.getContext(),LoginScreen.class);
-						mEditNote.startActivity(intent);
+						Toast.makeText(mEditNote, R.string.no_login_info, Toast.LENGTH_SHORT).show();
 						return;
 					}
 					
@@ -134,15 +129,16 @@ public class NoteSaveDialog implements OnClickListener{
 					intent.putExtra("sid", "0");
 					mEditNote.startActivity(intent);*/
 					dismiss();
+					
 				} else {
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,title);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER, weather);
 					ServiceManager.getDbManager().updateLocalNotes(contentValues, noteId);
 					
-					if (NetworkUtils.getNetworkState(MainScreen.mContext) == NetworkUtils.NETWORN_NONE) {
-						Toast.makeText(mEditNote, "网络不通，无法分享", Toast.LENGTH_SHORT).show();
-					    return;
+					if (!NoteApplication.getInstance().isLogin()) {
+						Toast.makeText(mEditNote, R.string.no_login_info, Toast.LENGTH_SHORT).show();
+						return;
 					}
 					
 					Cursor cursor = ServiceManager.getDbManager().queryLocalNotesById(noteId);
@@ -150,13 +146,6 @@ public class NoteSaveDialog implements OnClickListener{
 						System.out.println("================不存在此数据===========");
 						return;
 					}
-					
-					if (!NoteApplication.getInstance().isLogin()) {
-						Intent intent = new Intent(NoteApplication.getContext(),LoginScreen.class);
-						mEditNote.startActivity(intent);
-						return;
-					}
-				    
 					cursor.moveToFirst();
 					String serviceID = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID));
 					cursor.close();

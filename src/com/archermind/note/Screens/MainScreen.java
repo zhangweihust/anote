@@ -72,9 +72,6 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	private String TAB_HOME = "home";
 	private String TAB_PLAZA = "plaza";
 
-	public static int TAB_HOME_ID = 0;
-	public static int TAB_PLAZA_ID = 1;
-	
 	/* private Button mbtnTitleBarCalendar; */
 	private Button mbtnNewNote;
 	/* private Button mbtnTitleBarNotebook; */
@@ -103,27 +100,26 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	private Handler handler;
 	public static GestureDetector mGestureDetector = null;
 	public static long snoteCreateTime = 0;
-	public static int mlastTab = 0;
 
 	public static final EventService eventService = ServiceManager
 			.getEventservice();
 
-	public MainScreen(){
+	public MainScreen() {
 		super();
 		mContext = this;
 		handler = new Handler();
 	}
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_screen);
 		NoteApplication.getInstance().setTopWindowContext(this);
-        NoteApplication.getInstance().setHandler(handler);
-        NoteApplication.networkIsOk = false;
-        if (ServiceManager.getNetworkService().acquire(false)) {
-        	NoteApplication.networkIsOk = true;
-        }
+		NoteApplication.getInstance().setHandler(handler);
+		NoteApplication.networkIsOk = false;
+		if (ServiceManager.getNetworkService().acquire(false)) {
+			NoteApplication.networkIsOk = true;
+		}
 
 		mTabHost = this.getTabHost();
 		mTabHost.addTab(buildTabSpec(TAB_HOME,
@@ -132,29 +128,28 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		mTabHost.addTab(buildTabSpec(TAB_PLAZA,
 				R.drawable.tabhost_plaza_selector, new Intent(this,
 						PlazaScreen.class)));
-		mTabHost.setCurrentTab(TAB_HOME_ID);
+		mTabHost.setCurrentTab(0);
 		mTabHost.setOnTabChangedListener(this);
-		
 
 		mbtnNewNote = (Button) findViewById(R.id.btn_new_note);
 		mbtnNewNote.setOnClickListener(this);
 
-
 		mtvTitleBarTitle = (TextView) findViewById(R.id.tv_title_bar_title);
 
-		mbtnMore = (Button)findViewById(R.id.btn_more);
+		mbtnMore = (Button) findViewById(R.id.btn_more);
 		mbtnMore.setOnClickListener(this);
-		
+
 		type = TYPE_NOTE;
-		
+
 		mGestureDetector = new GestureDetector(this);
-		
-		mbtnBack = (Button)findViewById(R.id.btn_title_bar_back);
+
+		mbtnBack = (Button) findViewById(R.id.btn_title_bar_back);
 		mbtnBack.setOnClickListener(this);
 		eventService.add(this);
 		initPopupwindow();
 		autoLogin();// 自动登录
-        mflTabhost = (FrameLayout)findViewById(R.id.fl_tabhost);
+		ServerInterface.initAmtCloud(this);// 初始化云服务
+		mflTabhost = (FrameLayout) findViewById(R.id.fl_tabhost);
 	}
 
 	private TabSpec buildTabSpec(String tag, int iconId, Intent intent) {
@@ -163,13 +158,13 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 				R.layout.tab_item_view, null);
 		ImageView icon = (ImageView) tabSpecView.findViewById(R.id.imageview);
 		icon.setImageResource(iconId);
-		if(iconId == R.drawable.tabhost_home_selector){
+		if (iconId == R.drawable.tabhost_home_selector) {
 			tabSpecView.setPadding(DensityUtil.dip2px(mContext, 20), 0, 0, 0);
-		}else{
+		} else {
 			tabSpecView.setPadding(DensityUtil.dip2px(mContext, 111), 0, 0, 0);
 		}
-		TabSpec tabSpec = this.mTabHost.newTabSpec(tag).setIndicator(
-				tabSpecView).setContent(intent);
+		TabSpec tabSpec = this.mTabHost.newTabSpec(tag)
+				.setIndicator(tabSpecView).setContent(intent);
 		return tabSpec;
 	}
 
@@ -180,61 +175,66 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					mflTabhost.setBackgroundResource(R.drawable.tab_bottom_background_note);
+					mflTabhost
+							.setBackgroundResource(R.drawable.tab_bottom_background_note);
 					mbtnBack.setVisibility(View.GONE);
 					mbtnBack.setText(R.string.back);
 					if (type.equals(TYPE_CALENDAR)) {
-						mtvTitleBarTitle.setText(MainScreen.this.getResources()
-								.getText(R.string.home_screen_calendar_page_title));
-					}else{
+						mtvTitleBarTitle
+								.setText(MainScreen.this
+										.getResources()
+										.getText(
+												R.string.home_screen_calendar_page_title));
+					} else {
 						mtvTitleBarTitle.setText(MainScreen.this.getResources()
 								.getText(R.string.home_screen_title));
 					}
 				}
 			});
-		}else {
+		} else {
 			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
 					mtvTitleBarTitle.setText(MainScreen.this.getResources()
 							.getText(R.string.plaza_screen_title));
-					mflTabhost.setBackgroundResource(R.drawable.tab_bottom_background_plaza);
+					mflTabhost
+							.setBackgroundResource(R.drawable.tab_bottom_background_plaza);
 					mbtnBack.setVisibility(View.VISIBLE);
 					mbtnBack.setText(getResources().getString(R.string.refresh));
 				}
 			});
 		}
 
-	}	
+	}
 
 	@Override
 	public void onClick(View arg0) {
 		// TODO Auto-generated method stub
 		switch (arg0.getId()) {
-/*		case R.id.btn_title_bar_calendar:
-			MainScreen.this.runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					type = TYPE_CALENDAR;
-					mbtnTitleBarCalendar.setVisibility(View.GONE);
-					mbtnTitleBarNotebook.setVisibility(View.VISIBLE);
-					mtvTitleBarTitle.setText(MainScreen.this.getResources()
-							.getText(R.string.home_screen_calendar_page_title));
-				}
-			});
-			HomeScreen.eventService.onUpdateEvent(new EventArgs(
-					EventTypes.TITLE_BAR_CALENDER_CLICKED));
-			break;*/
+		/*
+		 * case R.id.btn_title_bar_calendar: MainScreen.this.runOnUiThread(new
+		 * Runnable() {
+		 * 
+		 * @Override public void run() { // TODO Auto-generated method stub type
+		 * = TYPE_CALENDAR; mbtnTitleBarCalendar.setVisibility(View.GONE);
+		 * mbtnTitleBarNotebook.setVisibility(View.VISIBLE);
+		 * mtvTitleBarTitle.setText(MainScreen.this.getResources()
+		 * .getText(R.string.home_screen_calendar_page_title)); } });
+		 * HomeScreen.eventService.onUpdateEvent(new EventArgs(
+		 * EventTypes.TITLE_BAR_CALENDER_CLICKED)); break;
+		 */
 		case R.id.btn_new_note:
 			Intent intent = new Intent();
 			intent.setClass(mContext, EditNoteScreen.class);
 			intent.putExtra("isNewNote", true);
-			if(HomeScreen.mCalendarAdapter != null && HomeScreen.mCalendarAdapter.lastClickTime != -1){
-				intent.putExtra("time", HomeScreen.mCalendarAdapter.lastClickTime);
-				mlastTab = mTabHost.getCurrentTab();
-				System.out.println("clicktime is " + DateTimeUtils.time2String("yyyyMMdd", HomeScreen.mCalendarAdapter.lastClickTime));
+			if (HomeScreen.mCalendarAdapter != null
+					&& HomeScreen.mCalendarAdapter.lastClickTime != -1) {
+				intent.putExtra("time",
+						HomeScreen.mCalendarAdapter.lastClickTime);
+				System.out.println("clicktime is "
+						+ DateTimeUtils.time2String("yyyyMMdd",
+								HomeScreen.mCalendarAdapter.lastClickTime));
 			}
 			mContext.startActivity(intent);
 			snoteCreateTime = System.currentTimeMillis();
@@ -244,13 +244,16 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					if(mTabHost.getCurrentTabTag() == TAB_HOME){
-					  mbtnBack.setVisibility(View.GONE);
-					  mtvTitleBarTitle.setText(mContext.getResources().getString(R.string.home_screen_title));
-					  HomeScreen.eventService.onUpdateEvent(new EventArgs(
-								EventTypes.HOME_SCREEN_ONEDAY_NOTE_BACK_PRESSED));
-					}else if(mTabHost.getCurrentTabTag() == TAB_PLAZA){
-						PlazaScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.REFRESH_WEBVIEW));
+					if (mTabHost.getCurrentTabTag() == TAB_HOME) {
+						mbtnBack.setVisibility(View.GONE);
+						mtvTitleBarTitle.setText(mContext.getResources()
+								.getString(R.string.home_screen_title));
+						HomeScreen.eventService
+								.onUpdateEvent(new EventArgs(
+										EventTypes.HOME_SCREEN_ONEDAY_NOTE_BACK_PRESSED));
+					} else if (mTabHost.getCurrentTabTag() == TAB_PLAZA) {
+						PlazaScreen.eventService.onUpdateEvent(new EventArgs(
+								EventTypes.REFRESH_WEBVIEW));
 					}
 				}
 			});
@@ -259,31 +262,28 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-/*					if (mScrollMenu.MenuOut()) {
-						mScrollMenu.scrollBy(-MENU_RIGHT_WIDTH_PX, 0);
-						mScrollMenu.MenuOut(false);
-					} else {
-						mScrollMenu.scrollBy(MENU_RIGHT_WIDTH_PX, 0);
-						mScrollMenu.MenuOut(true);
-					}*/
+					/*
+					 * if (mScrollMenu.MenuOut()) {
+					 * mScrollMenu.scrollBy(-MENU_RIGHT_WIDTH_PX, 0);
+					 * mScrollMenu.MenuOut(false); } else {
+					 * mScrollMenu.scrollBy(MENU_RIGHT_WIDTH_PX, 0);
+					 * mScrollMenu.MenuOut(true); }
+					 */
 					System.out.println("more is clicked");
-						if (mMorePopupWindow.isShowing()) {
-							mMorePopupWindow.dismiss();
-						} else {
-							mMorePopupWindow.showAsDropDown(mbtnMore, 0, -3);
-						}
-					
-					
-			}
+					if (mMorePopupWindow.isShowing()) {
+						mMorePopupWindow.dismiss();
+					} else {
+						mMorePopupWindow.showAsDropDown(mbtnMore, 0, -3);
+					}
+
+				}
 			});
 			break;
 		default:
 
 		}
-	}	
+	}
 
-	
-	
 	@Override
 	protected void onNewIntent(Intent intent) {
 		// TODO Auto-generated method stub
@@ -293,9 +293,9 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent ev) {
-		// TODO Auto-generated method stub 
-	    mGestureDetector.onTouchEvent(ev);
-	    return super.dispatchTouchEvent(ev);
+		// TODO Auto-generated method stub
+		mGestureDetector.onTouchEvent(ev);
+		return super.dispatchTouchEvent(ev);
 	}
 
 	@Override
@@ -309,18 +309,20 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			float arg3) {
 		// TODO Auto-generated method stub
 		System.out.println("mainscreen onfling " + (arg0.getX() - arg1.getX()));
-		if(mTabHost.getCurrentTabTag().equalsIgnoreCase(TAB_HOME)){
-			 String direction = null;
+		if (mTabHost.getCurrentTabTag().equalsIgnoreCase(TAB_HOME)) {
+			String direction = null;
 			if (arg0.getX() - arg1.getX() > 130) {
 				direction = this.LEFT;
 				HomeScreen.eventService.onUpdateEvent(new EventArgs(
-						EventTypes.HOMESCREEN_FLING).putExtra("direction", direction));
-			}else if(arg0.getX() - arg1.getX() < -130){
+						EventTypes.HOMESCREEN_FLING).putExtra("direction",
+						direction));
+			} else if (arg0.getX() - arg1.getX() < -130) {
 				direction = this.RIGHT;
 				HomeScreen.eventService.onUpdateEvent(new EventArgs(
-						EventTypes.HOMESCREEN_FLING).putExtra("direction", direction));
+						EventTypes.HOMESCREEN_FLING).putExtra("direction",
+						direction));
 			}
-			
+
 		}
 		return false;
 	}
@@ -328,7 +330,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	@Override
 	public void onLongPress(MotionEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -341,7 +343,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	@Override
 	public void onShowPress(MotionEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -349,9 +351,9 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
+
 	public void initPopupwindow() {
-		
+
 		View view = getLayoutInflater().inflate(R.layout.more_popup_window,
 				null);
 		mlvSetting = (ListView) view.findViewById(R.id.lv_setting);
@@ -361,48 +363,52 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			@Override
 			public boolean onKey(View arg0, int arg1, KeyEvent arg2) {
 				// TODO Auto-generated method stub
-				if(arg2.getKeyCode() == KeyEvent.KEYCODE_MENU && arg2.getAction() == KeyEvent.ACTION_UP && mMorePopupWindow.isShowing()){
+				if (arg2.getKeyCode() == KeyEvent.KEYCODE_MENU
+						&& arg2.getAction() == KeyEvent.ACTION_UP
+						&& mMorePopupWindow.isShowing()) {
 					mMorePopupWindow.dismiss();
 				}
 				return false;
 			}
 		});
-	mlvSetting.setOnItemClickListener(new OnItemClickListener() {
+		mlvSetting.setOnItemClickListener(new OnItemClickListener() {
 
-		@Override
-		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-				long arg3) {
-			// TODO Auto-generated method stub
-			if(arg2 == 1){
-				Intent i = new Intent(mContext, PreferencesScreen.class);
-				mContext.startActivity(i);
-			}else if(arg2 == 0){
-				Intent i = new Intent(mContext, InformationScreen.class);
-				mContext.startActivity(i);
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				// TODO Auto-generated method stub
+				if (arg2 == 1) {
+					Intent i = new Intent(mContext, PreferencesScreen.class);
+					mContext.startActivity(i);
+				} else if (arg2 == 0) {
+					Intent i = new Intent(mContext, InformationScreen.class);
+					mContext.startActivity(i);
+				}
+				mMorePopupWindow.dismiss();
 			}
-			mMorePopupWindow.dismiss();
-		}
-	});
-	DisplayMetrics dm = new DisplayMetrics();
-	dm = mContext.getApplicationContext().getResources().getDisplayMetrics();
-	mMorePopupWindow = new PopupWindow(view, DensityUtil.dip2px(mContext, 150),
-			(int) (52 * dm.density * 2), true);
-	mMorePopupWindow.setBackgroundDrawable(mContext.getResources().getDrawable(R.drawable.more_pop));
-	mMorePopupWindow.setOutsideTouchable(true);
+		});
+		DisplayMetrics dm = new DisplayMetrics();
+		dm = mContext.getApplicationContext().getResources()
+				.getDisplayMetrics();
+		mMorePopupWindow = new PopupWindow(view, DensityUtil.dip2px(mContext,
+				150), (int) (52 * dm.density * 2), true);
+		mMorePopupWindow.setBackgroundDrawable(mContext.getResources()
+				.getDrawable(R.drawable.more_pop));
+		mMorePopupWindow.setOutsideTouchable(true);
 	}
 
 	@Override
 	public boolean onEvent(Object sender, final EventArgs e) {
 		// TODO Auto-generated method stub
-		//System.out.println("-----------main onEvent" + e.getType());
+		// System.out.println("-----------main onEvent" + e.getType());
 		switch (e.getType()) {
 		case SHOW_OR_HIDE_BUTTON_BACK:
 			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					if(Integer.parseInt(e.getExtra("isVisible").toString()) == View.VISIBLE){
+					if (Integer.parseInt(e.getExtra("isVisible").toString()) == View.VISIBLE) {
 						mbtnBack.setVisibility(View.VISIBLE);
-					}else{
+					} else {
 						mbtnBack.setVisibility(View.GONE);
 					}
 				}
@@ -423,93 +429,102 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	}
 
 	private boolean mExit_Flag;// 退出标记
-	private long mExit_time = 0; //第一次点击退出的时间 
-	 
-		@Override
-		public boolean dispatchKeyEvent(KeyEvent event) {
-			System.out.println("=====mainscreen==dispatchKeyEvent=====");
-			System.out.println("mainscreen ondispatchKeyEvent" + event.getKeyCode() + ", " + event.getAction() + ", " + mExit_time + ", " + mExit_Flag);
-			//System.out.println(mTabHost.getCurrentTabTag() + " , PlazaScreen.isFirstPage : " + PlazaScreen.isFirstPage);
-			if(event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP){
-				if(HomeScreen.isSubPage() == View.VISIBLE || (mTabHost.getCurrentTabTag().equalsIgnoreCase(TAB_PLAZA) && !PlazaScreen.isFirstPage)){
-					return super.dispatchKeyEvent(event);
-				}else if (mExit_Flag && (System.currentTimeMillis() - mExit_time < 3000 )) {
-					this.finish();
-					ServiceManager.exit();
-				} else {
-					Toast.makeText(this, getString(R.string.exit), Toast.LENGTH_SHORT)
-							.show();
-					mExit_Flag = true;
-					mExit_time = System.currentTimeMillis();
-				}
-		        return true;
-	        }else if(event.getKeyCode() == KeyEvent.KEYCODE_MENU && event.getAction()== KeyEvent.ACTION_UP){
-				System.out.println("on menu click");
-	        	
-	        	MainScreen.this.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						if (mMorePopupWindow.isShowing()) {
-							mMorePopupWindow.dismiss();
-						} else {
-							mMorePopupWindow.showAsDropDown(mbtnMore, 0, -3);
-						}
-				}
-				});	        	
-	        	return true;
-	        }
-	        return super.dispatchKeyEvent(event);
-		}
-		
-	private void autoLogin() {
-		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
+	private long mExit_time = 0; // 第一次点击退出的时间
 
-			new Thread() {
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		System.out.println("=====mainscreen==dispatchKeyEvent=====");
+		System.out.println("mainscreen ondispatchKeyEvent" + event.getKeyCode()
+				+ ", " + event.getAction() + ", " + mExit_time + ", "
+				+ mExit_Flag);
+		// System.out.println(mTabHost.getCurrentTabTag() +
+		// " , PlazaScreen.isFirstPage : " + PlazaScreen.isFirstPage);
+		if (event.getKeyCode() == KeyEvent.KEYCODE_BACK
+				&& event.getAction() == KeyEvent.ACTION_UP) {
+			if (HomeScreen.isSubPage() == View.VISIBLE
+					|| (mTabHost.getCurrentTabTag().equalsIgnoreCase(TAB_PLAZA) && !PlazaScreen.isFirstPage)) {
+				return super.dispatchKeyEvent(event);
+			} else if (mExit_Flag
+					&& (System.currentTimeMillis() - mExit_time < 3000)) {
+				this.finish();
+				ServiceManager.exit();
+			} else {
+				Toast.makeText(this, getString(R.string.exit),
+						Toast.LENGTH_SHORT).show();
+				mExit_Flag = true;
+				mExit_time = System.currentTimeMillis();
+			}
+			return true;
+		} else if (event.getKeyCode() == KeyEvent.KEYCODE_MENU
+				&& event.getAction() == KeyEvent.ACTION_UP) {
+			System.out.println("on menu click");
 
+			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					SharedPreferences sp = PreferencesHelper
-							.getSharedPreferences(MainScreen.this, 0);
-					String username = sp.getString(
-							PreferencesHelper.XML_USER_ACCOUNT, null);
-					String password = sp.getString(
-							PreferencesHelper.XML_USER_PASSWD, null);
-					if (username != null && password != null) {
-						String result = ServerInterface.login(username,
-								password);
-						try {
-							JSONObject jsonObject = new JSONObject(result);
-							if (jsonObject.optString("flag").equals(
-									"" + ServerInterface.SUCCESS)) {
-								// 保存至Application
-								NoteApplication noteApplication = NoteApplication
-										.getInstance();
-								noteApplication.setUserName(jsonObject
-										.optString("email"));
-								noteApplication.setUserId(jsonObject
-										.optInt("user_id"));
-								noteApplication.setmBound_Sina(jsonObject
-										.optInt("flag_sina") == 0 ? false
-										: true);
-								noteApplication.setmBound_QQ(jsonObject
-										.optInt("flag_qq") == 0 ? false : true);
-								noteApplication.setmBound_Renren(jsonObject
-										.optInt("flag_renren") == 0 ? false
-										: true);
-								noteApplication.setLogin(true);
-								Log.i("MainScreen", "autologin success");
-							}
-						} catch (JSONException e) {
-							e.printStackTrace();
-							Log.i("MainScreen", "autologin failed");
-						}
+					if (mMorePopupWindow.isShowing()) {
+						mMorePopupWindow.dismiss();
+					} else {
+						mMorePopupWindow.showAsDropDown(mbtnMore, 0, -3);
 					}
 				}
+			});
+			return true;
+		}
+		return super.dispatchKeyEvent(event);
+	}
 
-			}.start();
+	private void autoLogin() {
+		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
+			if (PreferencesHelper.getSharedPreferences(this, 0).getBoolean(
+					PreferencesHelper.XML_AUTOLOGIN, false)) {
+				new Thread() {
+
+					@Override
+					public void run() {
+						SharedPreferences sp = PreferencesHelper
+								.getSharedPreferences(MainScreen.this, 0);
+						String username = sp.getString(
+								PreferencesHelper.XML_USER_ACCOUNT, null);
+						String password = sp.getString(
+								PreferencesHelper.XML_USER_PASSWD, null);
+						if (username != null && password != null) {
+							String result = ServerInterface.login(username,
+									password);
+							try {
+								JSONObject jsonObject = new JSONObject(result);
+								if (jsonObject.optString("flag").equals(
+										"" + ServerInterface.SUCCESS)) {
+									// 保存至Application
+									NoteApplication noteApplication = NoteApplication
+											.getInstance();
+									noteApplication.setUserName(jsonObject
+											.optString("email"));
+									noteApplication.setUserId(jsonObject
+											.optInt("user_id"));
+									noteApplication.setmBound_Sina(jsonObject
+											.optInt("flag_sina") == 0 ? false
+											: true);
+									noteApplication.setmBound_QQ(jsonObject
+											.optInt("flag_qq") == 0 ? false
+											: true);
+									noteApplication.setmBound_Renren(jsonObject
+											.optInt("flag_renren") == 0 ? false
+											: true);
+									noteApplication.setLogin(true);
+									Log.i("MainScreen", "autologin success");
+								}
+							} catch (JSONException e) {
+								e.printStackTrace();
+								Log.i("MainScreen", "autologin failed");
+							}
+						}
+					}
+
+				}.start();
+			}
 		}
 	}
-	
 
 	@Override
 	protected void onDestroy() {

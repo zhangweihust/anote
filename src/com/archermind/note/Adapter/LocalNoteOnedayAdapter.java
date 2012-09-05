@@ -7,10 +7,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 
+import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Provider.DatabaseHelper;
@@ -18,6 +20,7 @@ import com.archermind.note.Provider.DatabaseManager;
 import com.archermind.note.Screens.EditNoteScreen;
 import com.archermind.note.Screens.MainScreen;
 import com.archermind.note.Screens.HomeScreen;
+import com.archermind.note.Screens.ShareScreen;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DateTimeUtils;
 import com.archermind.note.Utils.DensityUtil;
@@ -54,6 +57,7 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class LocalNoteOnedayAdapter  extends CursorAdapter {
 	private LayoutInflater mInflater;
@@ -62,9 +66,11 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 	private AlertDialog.Builder mbuilder;
 	private AlertDialog madTransact;
 	private static DatabaseManager mDb = ServiceManager.getDbManager();
+	private Context mContext;
 	
 	public LocalNoteOnedayAdapter(Context context, Cursor c) {
 		super(context, c);
+		mContext = context;
 		mInflater = LayoutInflater.from(context);
 		mbuilder = new AlertDialog.Builder(context);  
 		mbuilder.setTitle("请操作");
@@ -160,7 +166,24 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 				        dialog.dismiss();
 				        switch (item) {
 						case 0:
-							
+							if (!NoteApplication.getInstance().isLogin()) {
+								Toast.makeText(mContext, R.string.no_login_info, Toast.LENGTH_SHORT).show();
+								return;
+							}
+							ArrayList<String> picPathList = EditNoteScreen.getNotePictureFromZip(cursor.getString(cursor
+									.getColumnIndex(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT)));
+							String sid = cursor.getString((cursor
+									.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID)));
+							String action = sid == null ? "A" : "M";
+							Intent intent = new Intent(mContext,
+									ShareScreen.class);
+							intent.putStringArrayListExtra("picpathlist",
+									picPathList);
+							intent.putExtra("noteid", String.valueOf(id));
+							intent.putExtra("title", title);
+							intent.putExtra("action", action);
+							intent.putExtra("sid", sid);
+							mContext.startActivity(intent);
 							break;
 						case 1:
 							ContentValues contentValues = new ContentValues();					

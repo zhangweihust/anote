@@ -1,11 +1,14 @@
 package com.archermind.note.Utils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.amtcloud.mobile.android.core.AmtApplication;
-import com.amtcloud.mobile.android.file.AmtFileObject;
+//import com.amtcloud.mobile.android.core.AmtApplication;
+//import com.amtcloud.mobile.android.file.AmtFileObject;
+import com.amtcloud.mobile.android.business.AlbumObj;
+import com.amtcloud.mobile.android.business.AmtApplication;
 import com.archermind.note.Screens.LoginScreen;
 
 import android.R.integer;
@@ -90,8 +93,8 @@ public class ServerInterface {
 	/**
 	 * 用户注册 输入参数：用户名，用户密码 返回值： SUCCESS 注册成功
 	 */
-	public static String register(int type, String bin_uid, String username,
-			String password, String nickname, int sex, String region) {
+	public static String register(String type, String bin_uid, String username,
+			String password, String nickname, String sex, String region) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user", username);
 		// 将密码加密后存储到服务器
@@ -103,9 +106,9 @@ public class ServerInterface {
 			return "";
 		}
 		map.put("nickname", nickname);
-		map.put("acc_type", String.valueOf(type));
+		map.put("acc_type", type);
 		map.put("bin_acc", bin_uid);
-		map.put("sex", String.valueOf(sex));
+		map.put("sex", sex);
 		map.put("region", region);
 		return HttpUtils.doPost(map, URL_REGISTER);
 	}
@@ -193,7 +196,7 @@ public class ServerInterface {
 	 * 参数 ：上下文参数(this)
 	 * 返回值：void
 	 */
-	public void InitAmtCloud(Context context) {
+	public static void initAmtCloud(Context context) {
 		AmtApplication.amtAppInitialize(context, app_id, app_secret);
 	}
 	/*
@@ -201,9 +204,18 @@ public class ServerInterface {
 	 * 参数 ：上下文参数(this)，用户名，文件路径
 	 * 返回值：void
 	 */
-	public void uploadFile(Context context, String username, String filepath) {
-		AmtFileObject fileObj = new AmtFileObject(context);
-		fileObj.uploadFile(app_id, username, filepath);
+	public static int uploadAvatar(String user_id,String picName) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("user_id", user_id);
+		map.put("portrait", picName);
+		String res = HttpUtils.doPost(map, URL_setPhotoUrl);
+		int result = 0;
+		try {
+			result = Integer.parseInt(res);
+		} catch (Exception e) {
+			result = -3; // 其他异常情况
+		}
+		return result;
 	}
 
 	/*
@@ -227,32 +239,34 @@ public class ServerInterface {
 	 * 上传相册 输入参数：用户id，相册名，用户名，文件路径，文件名，文件扩展名 
 	 * 返回值： 0 成功  -1 url为空  -2：数据库操作失败
 	 */
-	public static int uploadAlbum(Context context,String user_id, String albumname,
-			String username, String filepath ,String filename,String expandname) {
-		AmtFileObject fileObj = new AmtFileObject(context);
-		fileObj.uploadFile(app_id, user_id, filepath);
-//		String url = "http://yun.archermind.com/mobile/service/showMedia?appId="
-//				+ app_id
-//				+ "&userName="
-//				+ username
-//				+ "&mediaName="
-//				+ filename
-//				+ "&mediaType=" + expandname;
-		String url =filename+ "." +expandname;
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("user_id", user_id);
-		map.put("albumname", albumname);
-		map.put("albumurl", url);
-		String res= HttpUtils.doPost(map, URL_uploadAlbum);
-		
-		int result =0;
-		try{
-			result =Integer.parseInt(res);
-		}catch (Exception e){
-			result =-3;   //其他异常情况
-		}
-		return result;
-	}
+	// public static int uploadAlbum(Context context,String user_id, String
+	// albumname,
+	// String username, String filepath ,String filename,String expandname) {
+	// AmtFileObject fileObj = new AmtFileObject(context);
+	// fileObj.uploadFile(app_id, user_id, filepath);
+	// // String url =
+	// "http://yun.archermind.com/mobile/service/showMedia?appId="
+	// // + app_id
+	// // + "&userName="
+	// // + username
+	// // + "&mediaName="
+	// // + filename
+	// // + "&mediaType=" + expandname;
+	// String url =filename+ "." +expandname;
+	// Map<String, String> map = new HashMap<String, String>();
+	// map.put("user_id", user_id);
+	// map.put("albumname", albumname);
+	// map.put("albumurl", url);
+	// String res= HttpUtils.doPost(map, URL_uploadAlbum);
+	//
+	// int result =0;
+	// try{
+	// result =Integer.parseInt(res);
+	// }catch (Exception e){
+	// result =-3; //其他异常情况
+	// }
+	// return result;
+	// }
 	/**
 	 * 获取相册里的照片 输入参数：用户id，相册名
 	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
@@ -264,34 +278,8 @@ public class ServerInterface {
 		String res= HttpUtils.doPost(map, URL_getAlbumUrl);		
 		return res;
 	}
-	/**
-	 * 上传头像 输入参数：用户id,用户名，文件路径，文件名，文件扩展名 
-	 * 返回值： 0 成功  -1 url为空  -2：数据库操作失败
-	 */
-	public static int uploadPhoto(Context context,String user_id,String username,String filepath,String filename,String expandname) {
-		AmtFileObject fileObj = new AmtFileObject(context);
-		System.out.println("=CCC= username:"+ username + "filepath:" +filepath);
-		fileObj.uploadFile(app_id, user_id, filepath);
-//		String url = "http://yun.archermind.com/mobile/service/showMedia?appId="
-//			+ app_id
-//			+ "&userName="
-//			+ username
-//			+ "&mediaName="
-//			+ filename
-//			+ "&mediaType=" + expandname;
-		String url =filename+ "." +expandname;
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("user_id", user_id);
-		map.put("portrait", url);
-		String res= HttpUtils.doPost(map, URL_setPhotoUrl);		
-		int result =0;
-		try{
-			result =Integer.parseInt(res);
-		}catch (Exception e){
-			result =-3;   //其他异常情况
-		}
-		return result;
-	}
+
+
 	/**
 	 * 获取头像 输入参数：用户id
 	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败

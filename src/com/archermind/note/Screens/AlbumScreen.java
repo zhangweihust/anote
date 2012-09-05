@@ -223,7 +223,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		mImgCapture = new ImageCapture(this, mContentResolver);
 		
 		serverInterface = new ServerInterface();
-		serverInterface.InitAmtCloud(mContext);
+//		serverInterface.InitAmtCloud(mContext);
 		
 		loadAlbumData();
 	}
@@ -508,30 +508,30 @@ public class AlbumScreen extends Screen implements OnClickListener {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case UPLOAD_ALBUM: {
-				String user_id = String.valueOf(NoteApplication.getInstance()
-						.getUserId());
-				String username = NoteApplication.getInstance().getUserName();
-				String albumname = username;
-				String aName = msg.getData().getString("name");
-				String aExpandName = msg.getData().getString("expandname");
-				String aFilePath = msg.getData().getString("filelocalpath");
-				int aUploadCount = msg.getData().getInt("uploadcount");
-
-				int result = serverInterface.uploadAlbum(mContext, user_id,
-						albumname, username, aFilePath, aName, aExpandName);
-
-				Message newmsg = new Message();
-				newmsg.getData().putString("name", aName);
-				newmsg.getData().putString("expandname", aExpandName);
-				newmsg.getData().putString("filelocalpath", aFilePath);
-				newmsg.getData().putInt("uploadcount", aUploadCount);
-
-				if (result == 0) {
-					newmsg.what = UPLOAD_ALBUM_OK;
-				} else {
-					newmsg.what = UPLOAD_ALBUM_ERROR;
-				}
-				handler.sendMessage(newmsg);
+//				String user_id = String.valueOf(NoteApplication.getInstance()
+//						.getUserId());
+//				String username = NoteApplication.getInstance().getUserName();
+//				String albumname = username;
+//				String aName = msg.getData().getString("name");
+//				String aExpandName = msg.getData().getString("expandname");
+//				String aFilePath = msg.getData().getString("filelocalpath");
+//				int aUploadCount = msg.getData().getInt("uploadcount");
+//
+//				int result = serverInterface.uploadAlbum(mContext, user_id,
+//						albumname, username, aFilePath, aName, aExpandName);
+//
+//				Message newmsg = new Message();
+//				newmsg.getData().putString("name", aName);
+//				newmsg.getData().putString("expandname", aExpandName);
+//				newmsg.getData().putString("filelocalpath", aFilePath);
+//				newmsg.getData().putInt("uploadcount", aUploadCount);
+//
+//				if (result == 0) {
+//					newmsg.what = UPLOAD_ALBUM_OK;
+//				} else {
+//					newmsg.what = UPLOAD_ALBUM_ERROR;
+//				}
+//				handler.sendMessage(newmsg);
 			}
 				break;
 				

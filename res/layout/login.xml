@@ -129,6 +129,7 @@
             android:background="@color/edittext_background_color"
             android:hint="@string/login_username"
             android:padding="8dp"
+            android:singleLine="true"
             android:textSize="@dimen/login_register_text_size" />
 
         <View
@@ -145,6 +146,7 @@
             android:hint="@string/login_password"
             android:inputType="textPassword"
             android:padding="8dp"
+            android:singleLine="true"
             android:textSize="@dimen/login_register_text_size" />
     </LinearLayout>
 
@@ -170,6 +172,18 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:orientation="horizontal" >
+
+            <CheckBox
+                android:id="@+id/login_checkBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:button="@drawable/checkbox_selector"
+                android:checked="false"
+                android:text="@string/login_auto"
+                android:textColor="@color/login_text_color"
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/login_findpassword"

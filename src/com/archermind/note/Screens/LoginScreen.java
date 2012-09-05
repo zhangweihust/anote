@@ -7,6 +7,8 @@ import org.json.JSONObject;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Events.EventArgs;
+import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Utils.CookieCrypt;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;
@@ -44,6 +46,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +63,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 	private TextView mLoginButton_sina;
 	private TextView mLoginButton_qq;
 	private TextView mLoginButton_renren;
+	private CheckBox mCheckBox;
 	private TextView mFindPassword;
 	private Handler mHandler;
 	private NetThread mNetThread;
@@ -160,6 +166,19 @@ public class LoginScreen extends Screen implements OnClickListener {
 		mLoginButton_renren = (TextView) findViewById(R.id.btn_login_renren);
 		mLoginButton_renren.setOnClickListener(this);
 		mFindPassword = (TextView) findViewById(R.id.login_findpassword);
+		mCheckBox = (CheckBox) findViewById(R.id.login_checkBox);
+		mCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				SharedPreferences sp = getSharedPreferences(PreferencesHelper.XML_NAME,
+						0);
+				Editor editor = sp.edit();
+				editor.putBoolean(PreferencesHelper.XML_AUTOLOGIN, isChecked ? true : false);
+				editor.commit();
+			}
+		});
+		mCheckBox.setChecked(true);
 		mFindPassword.setOnClickListener(this);
 	}
 
@@ -634,6 +653,14 @@ public class LoginScreen extends Screen implements OnClickListener {
 	}
 
 	private class FindPswdTask extends AsyncTask<String, integer, String> {
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			Toast.makeText(LoginScreen.this,
+					R.string.login_findpassword_prepare, Toast.LENGTH_SHORT)
+					.show();
+		}
 
 		@Override
 		protected String doInBackground(String... params) {

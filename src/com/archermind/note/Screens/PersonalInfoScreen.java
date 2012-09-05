@@ -139,7 +139,7 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 		mImgCapture = new ImageCapture(this, mContentResolver);
 
 		serverInterface = new ServerInterface();
-		serverInterface.InitAmtCloud(mContext);
+//		serverInterface.InitAmtCloud(mContext);
 
 		handler = new UpDownloadHandler();
 
@@ -406,31 +406,30 @@ public class PersonalInfoScreen extends Screen implements OnClickListener {
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
-			case UPLOAD_PHOTO: {
-				String user_id = String.valueOf(NoteApplication.getInstance()
-						.getUserId());
-				String username = NoteApplication.getInstance().getUserName();
-				String aName = msg.getData().getString("name");
-				String aExpandName = msg.getData().getString("expandname");
-				String aFilePath = msg.getData().getString("filelocalpath");
-				int uploadcount = msg.getData().getInt("uploadcount");
-
-				int result = serverInterface.uploadPhoto(mContext, user_id,
-						username, aFilePath, aName, aExpandName);
-
-				Message newmsg = new Message();
-				newmsg.getData().putString("name", aName);
-				newmsg.getData().putString("expandname", aExpandName);
-				newmsg.getData().putString("filelocalpath", aFilePath);
-				newmsg.getData().putInt("uploadcount", uploadcount);
-
-				if (result == 0) {
-					newmsg.what = UPLOAD_PHOTO_OK;
-				} else {
-					newmsg.what = UPLOAD_PHOTO_ERROR;
-				}
-				handler.sendMessage(newmsg);
-			}
+			case UPLOAD_PHOTO:
+//				String user_id = String.valueOf(NoteApplication.getInstance()
+//						.getUserId());
+//				String username = NoteApplication.getInstance().getUserName();
+//				String aName = msg.getData().getString("name");
+//				String aExpandName = msg.getData().getString("expandname");
+//				String aFilePath = msg.getData().getString("filelocalpath");
+//				int uploadcount = msg.getData().getInt("uploadcount");
+//
+//				int result = serverInterface.uploadPhoto(mContext, user_id,
+//						username, aFilePath, aName, aExpandName);
+//
+//				Message newmsg = new Message();
+//				newmsg.getData().putString("name", aName);
+//				newmsg.getData().putString("expandname", aExpandName);
+//				newmsg.getData().putString("filelocalpath", aFilePath);
+//				newmsg.getData().putInt("uploadcount", uploadcount);
+//
+//				if (result == 0) {
+//					newmsg.what = UPLOAD_PHOTO_OK;
+//				} else {
+//					newmsg.what = UPLOAD_PHOTO_ERROR;
+//				}
+//				handler.sendMessage(newmsg);
 				break;
 			case UPLOAD_PHOTO_OK:
 				PreferencesHelper.UpdateAvatar(mContext, mUserAvatarPath, msg

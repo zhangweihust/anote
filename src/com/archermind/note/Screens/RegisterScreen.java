@@ -3,16 +3,17 @@ package com.archermind.note.Screens;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.amtcloud.mobile.android.business.AlbumObj;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Utils.ImageCapture;
 import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
 
+import android.R.integer;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -21,6 +22,7 @@ import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -52,8 +54,6 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	private static final int CAMERA_RESULT = 2;
 	private static final int CROP_RESULT = 3;
 	private static final int REGION_RESULT = 4;
-	private static final String UPLOAD_PHOTO_OK = "ok";
-	private static final String UPLOAD_PHOTO_ERROR = "error";
 	private SharedPreferences mPreferences;
 	private Dialog mPicChooseDialog;
 	private ContentResolver mContentResolver;
@@ -62,104 +62,28 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	private String mAvatarPath;
 	private static final String TAG = "RegisterScreen";
 	private Handler mHandler = new Handler() {
-
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-			String result = (String) msg.obj;
-			if (result.equals("" + ServerInterface.ERROR_SERVER_INTERNAL)) {
+			// 处理图片上传过程发送的消息
+			switch (msg.what) {
+			case 1000:
+				// 上传头像文件成功，开始执行插入数据库操作
+				String picName = mAvatarPath.substring(
+						mAvatarPath.lastIndexOf("/") + 1, mAvatarPath.length());
+				UploadAvatarTask uploadAvatarTask = new UploadAvatarTask();
+				uploadAvatarTask.execute(String.valueOf(NoteApplication
+						.getInstance().getUserId()), picName);
+				break;
+			case -1:
+				dismissProgress();
 				Toast.makeText(RegisterScreen.this,
-						R.string.register_err_server_internal,
+						R.string.register_success_upload_photo_failed,
 						Toast.LENGTH_SHORT).show();
-				dismissProgress();
-			} else if (result.equals("" + ServerInterface.ERROR_ACCOUNT_EXIST)) {
-				Toast.makeText(RegisterScreen.this,
-						R.string.register_err_account_exist, Toast.LENGTH_SHORT)
-						.show();
-				dismissProgress();
-				// } else if (result.equals(UPLOAD_PHOTO_OK)) {
-				// dismissProgress();
-				// Toast.makeText(RegisterScreen.this,
-				// R.string.register_success,
-				// Toast.LENGTH_SHORT).show();
-				// Log.i(TAG, "upload avatar success");
-				// finish();
-				// } else if (result.equals(UPLOAD_PHOTO_ERROR)) {
-				// int uploadcount = msg.getData().getInt("uploadcount");
-				// if (uploadcount > 3 || uploadcount <= 0) {
-				// dismissProgress();
-				// Toast.makeText(RegisterScreen.this,
-				// R.string.register_success_upload_photo_failed,
-				// Toast.LENGTH_SHORT).show();
-				// Log.i(TAG, "upload avatar failed");
-				// finish();
-				// } else {
-				// Log.i(TAG,
-				// "upload avatar---try count:"
-				// + String.valueOf(uploadcount + 1));
-				// String aName = msg.getData().getString("name");
-				// String aExpandName = msg.getData().getString("expandname");
-				// String aFilePath = msg.getData().getString("filelocalpath");
-				// uploadImage(aName, aExpandName, aFilePath, uploadcount + 1);
-				// }
-			} else if (result.equals("" + ServerInterface.ERROR_USER_BINDED)) {
-				Toast.makeText(RegisterScreen.this,
-						R.string.account_bound_failed_exist, Toast.LENGTH_SHORT)
-						.show();
-				dismissProgress();
-			}else {
-				dismissProgress();
-				try {
-					JSONObject jsonObject = new JSONObject(result);
-					if (jsonObject.optString("flag").equals(
-							"" + ServerInterface.SUCCESS)) {
-						// 保存本地
-						Editor editor = mPreferences.edit();
-						editor.putString(PreferencesHelper.XML_USER_ACCOUNT,
-								jsonObject.optString("email"));
-						editor.putString(PreferencesHelper.XML_USER_PASSWD,
-								jsonObject.getString("pswd"));
-						editor.commit();
-						// 保存至Application
-						NoteApplication noteApplication = NoteApplication
-								.getInstance();
-						noteApplication.setUserName(jsonObject
-								.optString("email"));
-						noteApplication.setUserId(jsonObject.optInt("user_id"));
-						noteApplication.setmBound_Sina(jsonObject
-								.optInt("flag_sina") == 0 ? false : true);
-						noteApplication.setmBound_QQ(jsonObject
-								.optInt("flag_qq") == 0 ? false : true);
-						noteApplication.setmBound_Renren(jsonObject
-								.optInt("flag_renren") == 0 ? false : true);
-						noteApplication.setLogin(true);
-
-						// 开始上传头像文件
-						// if (mAvatarPath != null) {
-						// // String name = mAvatarPath.substring(
-						// // mAvatarPath.lastIndexOf("/") + 1,
-						// // mAvatarPath.length());
-						// // String expandname = mAvatarPath.substring(
-						// // mAvatarPath.lastIndexOf(".") + 1,
-						// // mAvatarPath.length());
-						// // name = name.substring(0, name.lastIndexOf("."));
-						// ServerInterface.uploadFile(RegisterScreen.this,
-						// mHandler, noteApplication.getUserName(),
-						// mAvatarPath);
-						// Log.i(TAG, "register sucess,start upload avatar");
-						// } else {
-						Toast.makeText(RegisterScreen.this,
-								R.string.register_success, Toast.LENGTH_SHORT)
-								.show();
-						Log.i(TAG, "register success");
-						finish();
-						// }
-					}
-				} catch (JSONException e) {
-					Toast.makeText(RegisterScreen.this, R.string.login_failed,
-							Toast.LENGTH_SHORT).show();
-					e.printStackTrace();
-				}
+				finish();
+				break;
+			default:
+				break;
 			}
 		}
 
@@ -260,7 +184,8 @@ public class RegisterScreen extends Screen implements OnClickListener {
 					Bitmap photo = extras.getParcelable("data");
 					photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
 					byte[] b = stream.toByteArray();
-					this.mImgCapture.storeImage(b, null, Bitmap.CompressFormat.PNG);
+					this.mImgCapture.storeImage(b, null,
+							Bitmap.CompressFormat.PNG);
 					mAvatarPath = getFilepathFromUri(this.mImgCapture
 							.getLastCaptureUri());
 					PreferencesHelper.UpdateAvatar(this, "", mAvatarPath);
@@ -393,63 +318,143 @@ public class RegisterScreen extends Screen implements OnClickListener {
 					Toast.LENGTH_SHORT).show();
 			return;
 		}
-		showProgress(null, getString(R.string.register_dialog_msg));// 显示进度框
-		new Thread() {
+		RegisterTask registerTask = new RegisterTask();
+		registerTask
+				.execute(
+						String.valueOf(getIntent().getIntExtra("type", 0)),
+						getIntent().getStringExtra("uid"),
+						username,
+						password,
+						nickname,
+						mSex.getCheckedRadioButtonId() == R.id.register_ridiogroup_man ? "1"
+								: "2", mRegion.getText().toString());
+	}
+	
+	/*
+	 * 注册异步封装类(数据库操作)
+	 */
+	class RegisterTask extends AsyncTask<String, integer, String> {
 
-			@Override
-			public void run() {
-				int type = getIntent().getIntExtra("type", 0);
-				String uid = getIntent().getStringExtra("uid");
-				if (type != 0 && uid != null) {
-					String result = ServerInterface
-							.register(
-									type,
-									uid,
-									username,
-									password,
-									nickname,
-									mSex.getCheckedRadioButtonId() == R.id.register_ridiogroup_man ? 1
-											: 2, mRegion.getText().toString());
-					Message message = new Message();
-					message.obj = result;
-					mHandler.sendMessage(message);
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			showProgress(null, getString(R.string.register_dialog_msg));// 显示进度框
+		}
+
+		@Override
+		protected String doInBackground(String... params) {
+			String result = ServerInterface.register(params[0], params[1],
+					params[2], params[3], params[4], params[5], params[6]);
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			if (result.equals("" + ServerInterface.ERROR_SERVER_INTERNAL)) {
+				Toast.makeText(RegisterScreen.this,
+						R.string.register_err_server_internal,
+						Toast.LENGTH_SHORT).show();
+				dismissProgress();
+			} else if (result.equals("" + ServerInterface.ERROR_ACCOUNT_EXIST)) {
+				Toast.makeText(RegisterScreen.this,
+						R.string.register_err_account_exist, Toast.LENGTH_SHORT)
+						.show();
+				dismissProgress();
+			} else if (result.equals("" + ServerInterface.ERROR_USER_BINDED)) {
+				Toast.makeText(RegisterScreen.this,
+						R.string.account_bound_failed_exist, Toast.LENGTH_SHORT)
+						.show();
+				dismissProgress();
+			} else {
+				try {
+					JSONObject jsonObject = new JSONObject(result);
+					if (jsonObject.optString("flag").equals(
+							"" + ServerInterface.SUCCESS)) {
+						// 保存本地
+						Editor editor = mPreferences.edit();
+						editor.putString(PreferencesHelper.XML_USER_ACCOUNT,
+								jsonObject.optString("email"));
+						editor.putString(PreferencesHelper.XML_USER_PASSWD,
+								jsonObject.getString("pswd"));
+						editor.commit();
+						// 保存至Application
+						NoteApplication noteApplication = NoteApplication
+								.getInstance();
+						noteApplication.setUserName(jsonObject
+								.optString("email"));
+						noteApplication.setUserId(jsonObject.optInt("user_id"));
+						noteApplication.setmBound_Sina(jsonObject
+								.optInt("flag_sina") == 0 ? false : true);
+						noteApplication.setmBound_QQ(jsonObject
+								.optInt("flag_qq") == 0 ? false : true);
+						noteApplication.setmBound_Renren(jsonObject
+								.optInt("flag_renren") == 0 ? false : true);
+						noteApplication.setLogin(true);
+
+						// 文件操作：上传头像文件
+						if (mAvatarPath != null) {
+							AlbumObj albumObj = new AlbumObj();
+							albumObj.setHandler(mHandler);
+							albumObj.uploadPicFile(ServerInterface.app_id,
+									noteApplication.getUserName(), mAvatarPath,
+									mAvatarPath.substring(
+											mAvatarPath.lastIndexOf("/") + 1,
+											mAvatarPath.length()), 1,
+									"http://10.11.18.53:8080/amtcloud/1/");
+							Log.i(TAG, "register sucess,start upload avatar");
+						} else {
+							Toast.makeText(RegisterScreen.this,
+									R.string.register_success,
+									Toast.LENGTH_SHORT).show();
+							Log.i(TAG, "register success");
+							dismissProgress();
+							finish();
+						}
+					}
+				} catch (JSONException e) {
+					dismissProgress();
+					Toast.makeText(RegisterScreen.this, R.string.login_failed,
+							Toast.LENGTH_SHORT).show();
+					e.printStackTrace();
 				}
 			}
+		}
 
-		}.start();
 	}
 
-	// private void uploadImage(String name, String expandname, String filepath,
-	// int uploadcount) {
-	// final String aName = name;
-	// final String aExpandName = expandname;
-	// final String aFilePath = filepath;
-	// final int aUploadCount = uploadcount;
-	// new Thread() {
-	// @Override
-	// public void run() {
-	// String user_id = String.valueOf(NoteApplication.getInstance()
-	// .getUserId());
-	// String username = NoteApplication.getInstance().getUserName();
-	// Looper.prepare();
-	// int result = ServerInterface.uploadPhoto(RegisterScreen.this,
-	// user_id, username, aFilePath, aName, aExpandName);
-	//
-	// Message msg = new Message();
-	// msg.getData().putString("name", aName);
-	// msg.getData().putString("expandname", aExpandName);
-	// msg.getData().putString("filelocalpath", aFilePath);
-	// msg.getData().putInt("uploadcount", aUploadCount);
-	// if (result == 0) {
-	// msg.obj = String.valueOf(UPLOAD_PHOTO_OK);
-	// } else {
-	// msg.obj = String.valueOf(UPLOAD_PHOTO_ERROR);
-	// }
-	// mHandler.sendMessage(msg);
-	// }
-	//
-	// }.start();
-	// }
+	
+	/*
+	 * 上传头像异步封装类(数据库操作:插入图片地址)
+	 */
+	class UploadAvatarTask extends AsyncTask<String, integer, String> {
+
+		@Override
+		protected String doInBackground(String... params) {
+			int result = ServerInterface.uploadAvatar(params[0], params[1]);
+			if (result == ServerInterface.SUCCESS) {
+				return "success";
+			} else {
+				return "failed";
+			}
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			if (result.equals("success")) {
+				Toast.makeText(RegisterScreen.this, R.string.register_success,
+						Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(RegisterScreen.this,
+						R.string.register_success_upload_photo_failed,
+						Toast.LENGTH_SHORT).show();
+			}
+			dismissProgress();
+			finish();
+		}
+
+	}
 
 	// class LoadImgTask extends AsyncTask<String, integer, Drawable>{
 	//

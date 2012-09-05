@@ -117,6 +117,7 @@
     <string name="login_renren">人人账号</string>
     <string name="login_or">或者</string>
     <string name="login_username">请输入分享笔记帐号</string>
+    <string name="login_auto">下次自动登录</string>
     <string name="login_password">请输入密码</string>
     <string name="login_btn">账号登录</string>
     <string name="logout_btn">退出登录</string>
@@ -130,6 +131,7 @@
     <string name="login_findpassword">忘记密码？</string>
     <string name="logout_title">确定退出登录？</string>
     <string name="login_dialog_msg">正在登录...</string>
+    <string name="login_findpassword_prepare">邮件发送中...</string>
     <string name="login_findpassword_success">系统已将密码发送至您的邮箱，请查收！</string>
     <string name="login_findpassword_err_user_none">该用户不存在！</string>
     <string name="login_findpassword_failed">邮件发送失败，请重试！</string>
