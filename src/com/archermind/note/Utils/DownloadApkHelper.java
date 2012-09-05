@@ -424,7 +424,7 @@ public class DownloadApkHelper {
 										instance.runOnUiThread(new Runnable() {
 											@Override
 											public void run() {
-												mDialogCheckSignature = new DialogCheckSignature(NoteApplication.getInstance().getTopWindowContext());
+												mDialogCheckSignature = new DialogCheckSignature(instance);
 												mDialogCheckSignature.show();
 											}
 										});
@@ -457,7 +457,7 @@ public class DownloadApkHelper {
 															@Override
 															public void run() {
 																mDialogCheckSignature
-																		.changeText();
+																		.changeDialog();
 															}
 														});
 											}
@@ -467,7 +467,7 @@ public class DownloadApkHelper {
 														@Override
 														public void run() {
 															mDialogCheckSignature
-																	.changeText();
+																	.changeDialog();
 														}
 													});
 										}
@@ -631,10 +631,8 @@ public class DownloadApkHelper {
 											if (totalSize == file.length()) {// 文件下载完成
 												Intent intent = new Intent(
 														Intent.ACTION_VIEW);
-												intent
-														.setDataAndType(
-																Uri
-																		.fromFile(file),
+												intent.setDataAndType(
+																Uri.fromFile(file),
 																"application/vnd.android.package-archive");
 												instance.startActivity(intent);
 											} else {// 文件没有下载完成,开始断点续传了

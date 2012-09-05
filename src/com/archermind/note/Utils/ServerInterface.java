@@ -46,7 +46,8 @@ public class ServerInterface {
 			+ "ci/index.php/anote/findPassWord";
 	// public static final String URL_get_version_info = URL_SERVER +
 	// "ci/index.php/anote/get_version_info";
-	public static final String URL_get_version_info = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_version_info";
+//	public static final String URL_get_version_info = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_version_info";
+	public static final String URL_get_version_info = URL_SERVER+"ci/index.php/anote/get_version_info";
 	public static final String URL_feedback = URL_SERVER
 			+ "ci/index.php/anote/suggestionfeedback";
 	// public static final String URL_send_reports = URL_SERVER +
