@@ -145,13 +145,6 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	 	 }
 	 	}
 
-	 	@Override
-	 	protected void onStop() {
-	 	  super.onStop();
-	 	  mWebView.destroy();
-	 	  this.finish();
-	 	  
-	 	}
 
 	 	@Override
 	 	protected void onPause() {
@@ -177,5 +170,12 @@ public class PlazaScreen extends Screen implements IEventHandler{
 				break;
 			}
 			return false;
+		}
+		
+		@Override
+		protected void onDestroy() {
+			// TODO Auto-generated method stub
+			super.onDestroy();
+			eventService.remove(this);
 		}
 }

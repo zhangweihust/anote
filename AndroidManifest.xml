@@ -12,7 +12,7 @@
         android:label="@string/app_name"
         android:configChanges="orientation|keyboardHidden" >
         <activity
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:name=".Screens.MainScreen"	
         	android:screenOrientation="portrait"
         	android:theme="@style/ActivityNoTitle">

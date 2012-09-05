@@ -67,12 +67,14 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		OnClickListener, OnGestureListener, IEventHandler {
 	/** Called when the activity is first created. */
 	private TabHost mTabHost;
-	private final int INIT_SELECT = 0;
 	private final int MENU_RIGHT_WIDTH_DP = 70;
 	// private int MENU_RIGHT_WIDTH_PX;
 	private String TAB_HOME = "home";
 	private String TAB_PLAZA = "plaza";
 
+	public static int TAB_HOME_ID = 0;
+	public static int TAB_PLAZA_ID = 1;
+	
 	/* private Button mbtnTitleBarCalendar; */
 	private Button mbtnNewNote;
 	/* private Button mbtnTitleBarNotebook; */
@@ -101,6 +103,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	private Handler handler;
 	public static GestureDetector mGestureDetector = null;
 	public static long snoteCreateTime = 0;
+	public static int mlastTab = 0;
 
 	public static final EventService eventService = ServiceManager
 			.getEventservice();
@@ -115,7 +118,6 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_screen);
-		
 		NoteApplication.getInstance().setTopWindowContext(this);
         NoteApplication.getInstance().setHandler(handler);
         NoteApplication.networkIsOk = false;
@@ -130,43 +132,19 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		mTabHost.addTab(buildTabSpec(TAB_PLAZA,
 				R.drawable.tabhost_plaza_selector, new Intent(this,
 						PlazaScreen.class)));
-		mTabHost.setCurrentTab(INIT_SELECT);
+		mTabHost.setCurrentTab(TAB_HOME_ID);
 		mTabHost.setOnTabChangedListener(this);
 		
-/*		mbtnTitleBarCalendar = (Button) findViewById(R.id.btn_title_bar_calendar);
-		mbtnTitleBarCalendar.setOnClickListener(this);*/
 
 		mbtnNewNote = (Button) findViewById(R.id.btn_new_note);
 		mbtnNewNote.setOnClickListener(this);
 
-	/*	mbtnTitleBarNotebook = (Button) findViewById(R.id.btn_title_bar_notebook);
-		mbtnTitleBarNotebook.setOnClickListener(this);*/
 
 		mtvTitleBarTitle = (TextView) findViewById(R.id.tv_title_bar_title);
 
 		mbtnMore = (Button)findViewById(R.id.btn_more);
 		mbtnMore.setOnClickListener(this);
 		
-	/*	mbtnMore.setOnKeyListener(new OnKeyListener() {
-			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if (keyCode == KeyEvent.KEYCODE_MENU
-						|| keyCode == KeyEvent.KEYCODE_BACK) {
-					if (mMorePopupWindow.isShowing()
-							&& event.getAction() != KeyEvent.ACTION_UP) {
-						mMorePopupWindow.dismiss();
-					}
-				}
-				return false;
-			}
-		});*/
-		
-/*		mMenuList = (ListView)findViewById(R.id.menuList);
-		mMenuList.setAdapter(new MenuRightListAdapter(this));
-		
-		mScrollMenu = (MenuRightHorizontalScrollView) findViewById(R.id.scroll_menu);*/
-		//MENU_RIGHT_WIDTH_PX = (int) (getResources().getDisplayMetrics().density
-		//		* MENU_RIGHT_WIDTH_DP + 0.5f);
 		type = TYPE_NOTE;
 		
 		mGestureDetector = new GestureDetector(this);
@@ -228,7 +206,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			});
 		}
 
-	}
+	}	
 
 	@Override
 	public void onClick(View arg0) {
@@ -255,6 +233,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			intent.putExtra("isNewNote", true);
 			if(HomeScreen.mCalendarAdapter != null && HomeScreen.mCalendarAdapter.lastClickTime != -1){
 				intent.putExtra("time", HomeScreen.mCalendarAdapter.lastClickTime);
+				mlastTab = mTabHost.getCurrentTab();
 				System.out.println("clicktime is " + DateTimeUtils.time2String("yyyyMMdd", HomeScreen.mCalendarAdapter.lastClickTime));
 			}
 			mContext.startActivity(intent);
@@ -302,6 +281,15 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 
 		}
 	}	
+
+	
+	
+	@Override
+	protected void onNewIntent(Intent intent) {
+		// TODO Auto-generated method stub
+		super.onNewIntent(intent);
+		System.out.println("=====mainscreen==onNewIntent=====");
+	}
 
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent ev) {
@@ -386,10 +374,10 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 				long arg3) {
 			// TODO Auto-generated method stub
 			if(arg2 == 1){
-				Intent i = new Intent(MainScreen.this, PreferencesScreen.class);
+				Intent i = new Intent(mContext, PreferencesScreen.class);
 				mContext.startActivity(i);
 			}else if(arg2 == 0){
-				Intent i = new Intent(MainScreen.this, InformationScreen.class);
+				Intent i = new Intent(mContext, InformationScreen.class);
 				mContext.startActivity(i);
 			}
 			mMorePopupWindow.dismiss();
@@ -439,7 +427,8 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	 
 		@Override
 		public boolean dispatchKeyEvent(KeyEvent event) {
-			//System.out.println("mainscreen ondispatchKeyEvent" + event.getKeyCode() + ", " + event.getAction());
+			System.out.println("=====mainscreen==dispatchKeyEvent=====");
+			System.out.println("mainscreen ondispatchKeyEvent" + event.getKeyCode() + ", " + event.getAction() + ", " + mExit_time + ", " + mExit_Flag);
 			//System.out.println(mTabHost.getCurrentTabTag() + " , PlazaScreen.isFirstPage : " + PlazaScreen.isFirstPage);
 			if(event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP){
 				if(HomeScreen.isSubPage() == View.VISIBLE || (mTabHost.getCurrentTabTag().equalsIgnoreCase(TAB_PLAZA) && !PlazaScreen.isFirstPage)){
@@ -519,5 +508,13 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 
 			}.start();
 		}
+	}
+	
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		eventService.remove(this);
 	}
 }

@@ -2467,7 +2467,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 //		super.onBackPressed();
 		if (!hasChanged) {
 			String [] fileNames = {NoteApplication.savePath + "picmap",NoteApplication.savePath + "text",NoteApplication.savePath + "gesture",NoteApplication.savePath + "graffit"};
-			deletefiles(fileNames);
+			deletefiles(fileNames);			
 			finish();
 			return;
 		}

@@ -7,8 +7,6 @@ import org.json.JSONObject;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
-import com.archermind.note.Events.EventArgs;
-import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Utils.CookieCrypt;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;

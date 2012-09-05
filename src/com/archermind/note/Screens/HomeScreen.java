@@ -769,4 +769,13 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	public static int isSubPage(){
 		return mllHomePage.getVisibility();
 	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		eventService.remove(this);
+	}
+	
+	
 }
