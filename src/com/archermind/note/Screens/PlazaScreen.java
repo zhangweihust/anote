@@ -95,9 +95,11 @@ public class PlazaScreen extends Screen implements IEventHandler{
 			if(wl.getCurrentIndex() > 1){
 	    		isFirstPage = false;
 	    		mWebView.goBack();
-	    	}else if(wl.getCurrentIndex() == 1){
+	    	}else if(wl.getCurrentIndex() == 1 || wl.getCurrentIndex() == -1){
 	    		isFirstPage = true;
-	    		mWebView.goBack();
+	    		if(mWebView.canGoBack()){
+	    			mWebView.goBack();
+	    		}
 	    	}else{
 	    		super.onBackPressed();
 	    	}
@@ -108,11 +110,11 @@ public class PlazaScreen extends Screen implements IEventHandler{
 			System.out.println("plazascreen dispatchKeyEvent : " + event.getKeyCode() + ", " + event.getAction());
 			WebBackForwardList wl = mWebView.copyBackForwardList();
 			System.out.println("wl.getCurrentIndex() : " + wl.getCurrentIndex());
-			if(event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN && wl.getCurrentIndex()!= 0){
+			if(event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN && wl.getCurrentIndex() > 0){
 				isFirstPage = false;
 			}	
 	    	System.out.println(mWebView.canGoBack() + ", " + event.getRepeatCount());	    
-	    	if (mWebView.canGoBack() && event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP && event.getRepeatCount() == 0) { 
+	    	if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP && event.getRepeatCount() == 0) { 
 		    	this.onBackPressed();
 		        return true;  
 		    }
