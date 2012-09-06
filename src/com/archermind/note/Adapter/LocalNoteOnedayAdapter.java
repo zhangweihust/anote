@@ -281,22 +281,46 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 			        	}
 			    	} else if (line.startsWith("face:")) {
 			    		String value = line.substring("face:".length(), line.length());
-			    		if (value.endsWith("face_a1")) {
-			    			appendFace(R.drawable.face_a1,item.tvNoteContent);
-			    		} else if (value.endsWith("face_a2")) {
-			    			appendFace(R.drawable.face_a2,item.tvNoteContent);
-			    		} else if (value.endsWith("face_a3")) {
-			    			appendFace(R.drawable.face_a3,item.tvNoteContent);
-			    		} else if (value.endsWith("face_a4")) {
-			    			appendFace(R.drawable.face_a4,item.tvNoteContent);
-			    		} else if (value.endsWith("face_a5")) {
-			    			appendFace(R.drawable.face_a5,item.tvNoteContent);
-			    		} else if (value.endsWith("face_a6")) {
-			    			appendFace(R.drawable.face_a6,item.tvNoteContent);
-			    		} else if (value.endsWith("face_a7")) {
-			    			appendFace(R.drawable.face_a7,item.tvNoteContent);
-			    		} else if (value.endsWith("face_a8")) {
-			    			appendFace(R.drawable.face_a8,item.tvNoteContent);
+			    		if (value.endsWith("face_0")) {
+			    			appendFace(R.drawable.face_0,item.tvNoteContent);
+			    		} else if (value.endsWith("face_1")) {
+			    			appendFace(R.drawable.face_1,item.tvNoteContent);
+			    		} else if (value.endsWith("face_2")) {
+			    			appendFace(R.drawable.face_2,item.tvNoteContent);
+			    		} else if (value.endsWith("face_3")) {
+			    			appendFace(R.drawable.face_3,item.tvNoteContent);
+			    		} else if (value.endsWith("face_4")) {
+			    			appendFace(R.drawable.face_4,item.tvNoteContent);
+			    		} else if (value.endsWith("face_5")) {
+			    			appendFace(R.drawable.face_5,item.tvNoteContent);
+			    		} else if (value.endsWith("face_6")) {
+			    			appendFace(R.drawable.face_6,item.tvNoteContent);
+			    		} else if (value.endsWith("face_7")) {
+			    			appendFace(R.drawable.face_7,item.tvNoteContent);
+			    		} else if (value.endsWith("face_8")) {
+			    			appendFace(R.drawable.face_8,item.tvNoteContent);
+			    		} else if (value.endsWith("face_9")) {
+			    			appendFace(R.drawable.face_9,item.tvNoteContent);
+			    		} else if (value.endsWith("face_10")) {
+			    			appendFace(R.drawable.face_10,item.tvNoteContent);
+			    		} else if (value.endsWith("face_11")) {
+			    			appendFace(R.drawable.face_11,item.tvNoteContent);
+			    		} else if (value.endsWith("face_12")) {
+			    			appendFace(R.drawable.face_12,item.tvNoteContent);
+			    		} else if (value.endsWith("face_13")) {
+			    			appendFace(R.drawable.face_13,item.tvNoteContent);
+			    		} else if (value.endsWith("face_14")) {
+			    			appendFace(R.drawable.face_14,item.tvNoteContent);
+			    		} else if (value.endsWith("face_15")) {
+			    			appendFace(R.drawable.face_15,item.tvNoteContent);
+			    		} else if (value.endsWith("face_16")) {
+			    			appendFace(R.drawable.face_16,item.tvNoteContent);
+			    		} else if (value.endsWith("face_17")) {
+			    			appendFace(R.drawable.face_17,item.tvNoteContent);
+			    		}else if (value.endsWith("face_18")) {
+			    			appendFace(R.drawable.face_18,item.tvNoteContent);
+			    		}else if (value.endsWith("face_19")) {
+			    			appendFace(R.drawable.face_19,item.tvNoteContent);
 			    		}
 			    		wordNum++;
 			    	} else if (line.startsWith("gft:")) {

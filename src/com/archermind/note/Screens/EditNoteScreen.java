@@ -673,22 +673,44 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			myEdit.getText().append(spanStr);
     	} else if (tempString.startsWith("face:")) {
     		String value = tempString.substring("face:".length(), tempString.length());
-    		if (value.endsWith("face_a1")) {
-    			appendFace(R.drawable.face_a1);
-    		} else if (value.endsWith("face_a2")) {
-    			appendFace(R.drawable.face_a2);
-    		} else if (value.endsWith("face_a3")) {
-    			appendFace(R.drawable.face_a3);
-    		} else if (value.endsWith("face_a4")) {
-    			appendFace(R.drawable.face_a4);
-    		} else if (value.endsWith("face_a5")) {
-    			appendFace(R.drawable.face_a5);
-    		} else if (value.endsWith("face_a6")) {
-    			appendFace(R.drawable.face_a6);
-    		} else if (value.endsWith("face_a7")) {
-    			appendFace(R.drawable.face_a7);
-    		} else if (value.endsWith("face_a8")) {
-    			appendFace(R.drawable.face_a8);
+    		if (value.endsWith("face_0")) {
+    			appendFace(R.drawable.face_0);
+    		} else if(value.endsWith("face_1")) {
+    			appendFace(R.drawable.face_1);
+    		} else if (value.endsWith("face_2")) {
+    			appendFace(R.drawable.face_2);
+    		} else if (value.endsWith("face_3")) {
+    			appendFace(R.drawable.face_3);
+    		} else if (value.endsWith("face_4")) {
+    			appendFace(R.drawable.face_4);
+    		} else if (value.endsWith("face_5")) {
+    			appendFace(R.drawable.face_5);
+    		} else if (value.endsWith("face_6")) {
+    			appendFace(R.drawable.face_6);
+    		} else if (value.endsWith("face_7")) {
+    			appendFace(R.drawable.face_7);
+    		} else if (value.endsWith("face_8")) {
+    			appendFace(R.drawable.face_8);
+    		} else if (value.endsWith("face_11")) {
+    			appendFace(R.drawable.face_11);
+    		} else if (value.endsWith("face_12")) {
+    			appendFace(R.drawable.face_12);
+    		} else if (value.endsWith("face_13")) {
+    			appendFace(R.drawable.face_13);
+    		} else if (value.endsWith("face_14")) {
+    			appendFace(R.drawable.face_14);
+    		} else if (value.endsWith("face_15")) {
+    			appendFace(R.drawable.face_15);
+    		} else if (value.endsWith("face_16")) {
+    			appendFace(R.drawable.face_16);
+    		} else if (value.endsWith("face_17")) {
+    			appendFace(R.drawable.face_17);
+    		} else if (value.endsWith("face_18")) {
+    			appendFace(R.drawable.face_18);
+    		} else if (value.endsWith("face_19")) {
+    			appendFace(R.drawable.face_19);
+    		} else if (value.endsWith("face_10")) {
+    			appendFace(R.drawable.face_10);
     		}
     	}
 		
@@ -2483,14 +2505,27 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	 */
 	public void makeAdapters() {
 		ArrayList<Integer> faces = new ArrayList<Integer>();
-		faces.add(R.drawable.face_a1);
-		faces.add(R.drawable.face_a2);
-		faces.add(R.drawable.face_a3);
-		faces.add(R.drawable.face_a4);
-		faces.add(R.drawable.face_a5);
-		faces.add(R.drawable.face_a6);
-		faces.add(R.drawable.face_a7);
-		faces.add(R.drawable.face_a8);
+		faces.add(R.drawable.face_0);
+		faces.add(R.drawable.face_1);
+		faces.add(R.drawable.face_2);
+		faces.add(R.drawable.face_3);
+		faces.add(R.drawable.face_4);
+		faces.add(R.drawable.face_5);
+		faces.add(R.drawable.face_6);
+		faces.add(R.drawable.face_7);
+		faces.add(R.drawable.face_8);
+		faces.add(R.drawable.face_9);
+		faces.add(R.drawable.face_10);
+		faces.add(R.drawable.face_11);
+		faces.add(R.drawable.face_12);
+		faces.add(R.drawable.face_13);
+		faces.add(R.drawable.face_14);
+		faces.add(R.drawable.face_15);
+		faces.add(R.drawable.face_16);
+		faces.add(R.drawable.face_17);
+		faces.add(R.drawable.face_18);
+		faces.add(R.drawable.face_19);
+		
 		faceAdapter = new FaceAdapter(this, faces);
 	}
 	
@@ -2506,9 +2541,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 				int viewId = (Integer) ((FrameLayout) view).getChildAt(0)
 				.getTag();
 //				View childView = ((FrameLayout) view).getChildAt(1);
-				for(int index = 0; index < 8; index++){
+				for(int index = 0; index < faceAdapter.getCount(); index++){
 					View tempView = parent.getChildAt(index);
-					((FrameLayout) tempView).getChildAt(1).setVisibility(View.GONE);
+					//((FrameLayout) tempView).getChildAt(1).setVisibility(View.GONE);
 				}
 //				childView.setVisibility(View.VISIBLE);
 				

@@ -7,16 +7,9 @@
 
     <ImageView
         android:id="@+id/fongColor_image"
-        android:layout_width="89px"
-        android:layout_height="88px"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center">
     </ImageView>
-
-        <Button 
-        android:layout_width="89px"
-        android:layout_height="88px"
-        android:layout_gravity="center"
-        android:background="@drawable/popwindow_item_pressed"
-        android:visibility="gone"/>
 
 </FrameLayout>
