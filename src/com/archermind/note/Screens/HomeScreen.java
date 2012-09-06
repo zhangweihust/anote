@@ -71,7 +71,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	private static int mCurMonth = 0;
 	private static int mCurYear = 0;
 	
-	private static long mCurTime = 0;
+	public static long mCurTime = 0;
 /*	private Cursor mAllNotesCursor;
 	public static int mCurPosition = 0;*/
 	

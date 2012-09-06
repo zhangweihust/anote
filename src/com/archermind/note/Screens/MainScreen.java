@@ -177,17 +177,25 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 				public void run() {
 					mflTabhost
 							.setBackgroundResource(R.drawable.tab_bottom_background_note);
-					mbtnBack.setVisibility(View.GONE);
-					mbtnBack.setText(R.string.back);
 					if (type.equals(TYPE_CALENDAR)) {
+						mbtnBack.setVisibility(View.GONE);
+						mbtnBack.setText(getResources().getString(R.string.back));
 						mtvTitleBarTitle
 								.setText(MainScreen.this
 										.getResources()
 										.getText(
 												R.string.home_screen_calendar_page_title));
 					} else {
-						mtvTitleBarTitle.setText(MainScreen.this.getResources()
-								.getText(R.string.home_screen_title));
+						if (HomeScreen.isSubPage() == View.VISIBLE){
+							mbtnBack.setVisibility(View.VISIBLE);
+							mbtnBack.setText(getResources().getString(R.string.back));
+							mtvTitleBarTitle.setText(DateTimeUtils.time2String("yyyy.MM.dd", HomeScreen.mCurTime));
+						}else{
+							mbtnBack.setVisibility(View.GONE);
+							mbtnBack.setText(getResources().getString(R.string.back));
+							mtvTitleBarTitle.setText(MainScreen.this.getResources()
+									.getText(R.string.home_screen_title));
+						}
 					}
 				}
 			});
@@ -284,12 +292,6 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		}
 	}
 
-	@Override
-	protected void onNewIntent(Intent intent) {
-		// TODO Auto-generated method stub
-		super.onNewIntent(intent);
-		System.out.println("=====mainscreen==onNewIntent=====");
-	}
 
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent ev) {
