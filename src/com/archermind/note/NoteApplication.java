@@ -29,10 +29,9 @@ public class NoteApplication extends Application {
 
 	private int mUserId;
 	private String mUserName;
-	private boolean mBound_Sina = false;
-	private boolean mBound_QQ = false;
-	private boolean mBound_Renren = false;
-
+	private String mSina_nickname;
+	private String mQQ_nickname;
+	private String mRenren_nickname;
 	private Context mTopWindowContext;
 
 	private Handler mHandler;
@@ -98,28 +97,30 @@ public class NoteApplication extends Application {
 		this.mUserName = userName;
 	}
 	
-	public boolean ismBound_Sina() {
-		return mBound_Sina;
+	
+
+	public String getmSina_nickname() {
+		return mSina_nickname;
 	}
 
-	public void setmBound_Sina(boolean mBound_Sina) {
-		this.mBound_Sina = mBound_Sina;
+	public void setmSina_nickname(String mSina_nickname) {
+		this.mSina_nickname = mSina_nickname;
 	}
 
-	public boolean ismBound_QQ() {
-		return mBound_QQ;
+	public String getmQQ_nickname() {
+		return mQQ_nickname;
 	}
 
-	public void setmBound_QQ(boolean mBound_QQ) {
-		this.mBound_QQ = mBound_QQ;
+	public void setmQQ_nickname(String mQQ_nickname) {
+		this.mQQ_nickname = mQQ_nickname;
 	}
 
-	public boolean ismBound_Renren() {
-		return mBound_Renren;
+	public String getmRenren_nickname() {
+		return mRenren_nickname;
 	}
 
-	public void setmBound_Renren(boolean mBound_Renren) {
-		this.mBound_Renren = mBound_Renren;
+	public void setmRenren_nickname(String mRenren_nickname) {
+		this.mRenren_nickname = mRenren_nickname;
 	}
 
 	public int getUserId() {

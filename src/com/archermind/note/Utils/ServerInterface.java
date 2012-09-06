@@ -21,8 +21,8 @@ public class ServerInterface {
 	public static final String URL_SERVER = "http://note.archermind.com/";
 	public static final String URL_LOGIN = URL_SERVER
 			+ "ci/index.php/anote/login";
-	public static final String URL_REGISTER = URL_SERVER
-			+ "ci/index.php/anote/register";
+	 public static final String URL_REGISTER = URL_SERVER
+	 + "ci/index.php/anote/register";
 	public static final String URL_CHECK = URL_SERVER
 			+ "ci/index.php/anote/check_bin_acc";
 	public static final String URL_BOUNDACCOUNT = URL_SERVER
@@ -49,8 +49,10 @@ public class ServerInterface {
 			+ "ci/index.php/anote/findPassWord";
 	// public static final String URL_get_version_info = URL_SERVER +
 	// "ci/index.php/anote/get_version_info";
-//	public static final String URL_get_version_info = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_version_info";
-	public static final String URL_get_version_info = URL_SERVER+"ci/index.php/anote/get_version_info";
+	// public static final String URL_get_version_info =
+	// "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_version_info";
+	public static final String URL_get_version_info = URL_SERVER
+			+ "ci/index.php/anote/get_version_info";
 	public static final String URL_feedback = URL_SERVER
 			+ "ci/index.php/anote/suggestionfeedback";
 	// public static final String URL_send_reports = URL_SERVER +
@@ -58,9 +60,11 @@ public class ServerInterface {
 	public static final String URL_send_reports = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/send_reports";
 	public static final String app_id = "0ba7932602af4a45bd866bad93be0e50";
 	public static final String app_secret = "2411edd1a2c44249a98e6451592062bc";
-	public static final String URL_DEVICEINFO = URL_SERVER + "ci/index.php/anote/setClientInfo";
-    public static final String URL_USERACTIVEINFO = URL_SERVER + "ci/index.php/anote/setUserActionInfo";
-	//"http://219.138.163.58/"
+	public static final String URL_DEVICEINFO = URL_SERVER
+			+ "ci/index.php/anote/setClientInfo";
+	public static final String URL_USERACTIVEINFO = URL_SERVER
+			+ "ci/index.php/anote/setUserActionInfo";
+	// "http://219.138.163.58/"
 
 	public static final int SUCCESS = 0;
 
@@ -93,8 +97,9 @@ public class ServerInterface {
 	/**
 	 * 用户注册 输入参数：用户名，用户密码 返回值： SUCCESS 注册成功
 	 */
-	public static String register(String type, String bin_uid, String username,
-			String password, String nickname, String sex, String region) {
+	public static String register(String type, String bin_uid,
+			String bin_nickname, String username, String password,
+			String nickname, String sex, String region) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user", username);
 		// 将密码加密后存储到服务器
@@ -108,6 +113,7 @@ public class ServerInterface {
 		map.put("nickname", nickname);
 		map.put("acc_type", type);
 		map.put("bin_acc", bin_uid);
+		map.put("bin_nickname", bin_nickname);
 		map.put("sex", sex);
 		map.put("region", region);
 		return HttpUtils.doPost(map, URL_REGISTER);
@@ -134,11 +140,13 @@ public class ServerInterface {
 		return HttpUtils.doPost(map, URL_CHECK);
 	}
 
-	public static int boundAccount(int userId, int type, String uid) {
+	public static int boundAccount(int userId, int type, String bin_uid,
+			String bin_nickname) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user_id", String.valueOf(userId));
 		map.put("acc_type", String.valueOf(type));
-		map.put("bin_acc", uid);
+		map.put("bin_acc", bin_uid);
+		map.put("bin_nickname", bin_nickname);
 		String res = HttpUtils.doPost(map, URL_BOUNDACCOUNT);
 		try {
 			if (res.equals("0")) {
@@ -191,20 +199,18 @@ public class ServerInterface {
 				+ "ci/index.php/aschedule/getWeather");
 		return weather;
 	}
+
 	/*
-	 * 初始化 在主界面启动的时候调用
-	 * 参数 ：上下文参数(this)
-	 * 返回值：void
+	 * 初始化 在主界面启动的时候调用 参数 ：上下文参数(this) 返回值：void
 	 */
 	public static void initAmtCloud(Context context) {
 		AmtApplication.amtAppInitialize(context, app_id, app_secret);
 	}
+
 	/*
-	 * 上传文件：
-	 * 参数 ：上下文参数(this)，用户名，文件路径
-	 * 返回值：void
+	 * 上传文件： 参数 ：上下文参数(this)，用户名，文件路径 返回值：void
 	 */
-	public static int uploadAvatar(String user_id,String picName) {
+	public static int uploadAvatar(String user_id, String picName) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user_id", user_id);
 		map.put("portrait", picName);
@@ -219,9 +225,7 @@ public class ServerInterface {
 	}
 
 	/*
-	 * 获取文件的下载地址
-	 * 参数 ：用户名，文件名（不带扩展名），扩展名
-	 * 返回值：外链下载地址
+	 * 获取文件的下载地址 参数 ：用户名，文件名（不带扩展名），扩展名 返回值：外链下载地址
 	 */
 	public String makeDownloadUrl(String username, String filename,
 			String expandname) {
@@ -234,10 +238,9 @@ public class ServerInterface {
 				+ "&mediaType=" + expandname;
 		return url;
 	}
-	
+
 	/**
-	 * 上传相册 输入参数：用户id，相册名，用户名，文件路径，文件名，文件扩展名 
-	 * 返回值： 0 成功  -1 url为空  -2：数据库操作失败
+	 * 上传相册 输入参数：用户id，相册名，用户名，文件路径，文件名，文件扩展名 返回值： 0 成功 -1 url为空 -2：数据库操作失败
 	 */
 	// public static int uploadAlbum(Context context,String user_id, String
 	// albumname,
@@ -268,63 +271,59 @@ public class ServerInterface {
 	// return result;
 	// }
 	/**
-	 * 获取相册里的照片 输入参数：用户id，相册名
-	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
+	 * 获取相册里的照片 输入参数：用户id，相册名 返回值： json 成功 -1 url为空 -2：数据库操作失败
 	 */
 	public static String getAlbumDownloadUrl(String user_id, String albumname) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user_id", user_id);
 		map.put("albumname", albumname);
-		String res= HttpUtils.doPost(map, URL_getAlbumUrl);		
+		String res = HttpUtils.doPost(map, URL_getAlbumUrl);
 		return res;
 	}
 
-
 	/**
-	 * 获取头像 输入参数：用户id
-	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
+	 * 获取头像 输入参数：用户id 返回值： json 成功 -1 url为空 -2：数据库操作失败
 	 */
 	public static String getPhoto(String user_id) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user_id", user_id);
-		String res= HttpUtils.doPost(map, URL_getPhotoUrl);		
+		String res = HttpUtils.doPost(map, URL_getPhotoUrl);
 		return res;
 	}
-	
+
 	/**
-	 * 获取用户信息 输入参数：用户id
-	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
+	 * 获取用户信息 输入参数：用户id 返回值： json 成功 -1 url为空 -2：数据库操作失败
 	 */
 	public static String get_info(String user_id) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user_id", user_id);
-		String res= HttpUtils.doPost(map, URL_get_info);		
+		String res = HttpUtils.doPost(map, URL_get_info);
 		return res;
 	}
+
 	/**
-	 * 获取用户信息 输入参数：用户id
-	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
+	 * 获取用户信息 输入参数：用户id 返回值： json 成功 -1 url为空 -2：数据库操作失败
 	 */
-	public static int set_info(String user_id,String nickname,String gender,String region) {
+	public static int set_info(String user_id, String nickname, String gender,
+			String region) {
 
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user_id", user_id);
 		map.put("nickname", nickname);
 		map.put("gender", gender);
 		map.put("region", region);
-		String res= HttpUtils.doPost(map, URL_set_info);
-		int result =0;
-		try{
-			result =Integer.parseInt(res);
-		}catch (Exception e){
-			result =-3;   //其他异常情况
+		String res = HttpUtils.doPost(map, URL_set_info);
+		int result = 0;
+		try {
+			result = Integer.parseInt(res);
+		} catch (Exception e) {
+			result = -3; // 其他异常情况
 		}
 		return result;
 	}
-	
+
 	/**
-	 * 获取用户信息 输入参数：用户id
-	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
+	 * 获取用户信息 输入参数：用户id 返回值： json 成功 -1 url为空 -2：数据库操作失败
 	 */
 	public static int uploadNote(long id, String user_id, String nid,
 			String action, String title, String content, String page) {
@@ -364,52 +363,51 @@ public class ServerInterface {
 		}
 		return -1;
 	}
+
 	/**
-	 * 获取用户信息 输入参数：用户id
-	 * 返回值： json 成功  -1 url为空  -2：数据库操作失败
+	 * 获取用户信息 输入参数：用户id 返回值： json 成功 -1 url为空 -2：数据库操作失败
 	 */
-	public static String getReplyFromUser(int user_id,long date,int count) {
+	public static String getReplyFromUser(int user_id, long date, int count) {
 
 		Map<String, String> map = new HashMap<String, String>();
 		System.out.println(user_id + " , " + date + ", " + count + ", ");
 		map.put("user_id", user_id + "");
 		map.put("date", date + "");
 		map.put("items", count + "");
-		String res= HttpUtils.doPost(map, URL_getReplyFromUser);
-		return res;
-	}
-	
-	/**
-	 * 获取版本信息
-	 * 返回值： json 成功  -1 url为空 
-	 */
-	public static String get_version_info() {
-		String res= HttpUtils.doPost(null, URL_get_version_info);		
+		String res = HttpUtils.doPost(map, URL_getReplyFromUser);
 		return res;
 	}
 
-    public static int suggestionfeedback(String user_id,String tel,String suggestion) {
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("user_id", user_id);
-        map.put("tel", tel);
-        map.put("suggestion", suggestion);
-        String ret = HttpUtils
-                .doPost(map, URL_feedback);
-        int result =0;
-        try{
-            result =Integer.parseInt(ret);
-        }catch (Exception e){
-            result =-3;
-        }
-        return result;
-    }
 	/**
-	 * 找回密码
-	 * 返回值： 0 成功，-1 用户名不存在， -2 邮件发送失败
+	 * 获取版本信息 返回值： json 成功 -1 url为空
 	 */
-	public static String FindPassword(String username){
+	public static String get_version_info() {
+		String res = HttpUtils.doPost(null, URL_get_version_info);
+		return res;
+	}
+
+	public static int suggestionfeedback(String user_id, String tel,
+			String suggestion) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("user_id", user_id);
+		map.put("tel", tel);
+		map.put("suggestion", suggestion);
+		String ret = HttpUtils.doPost(map, URL_feedback);
+		int result = 0;
+		try {
+			result = Integer.parseInt(ret);
+		} catch (Exception e) {
+			result = -3;
+		}
+		return result;
+	}
+
+	/**
+	 * 找回密码 返回值： 0 成功，-1 用户名不存在， -2 邮件发送失败
+	 */
+	public static String FindPassword(String username) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("email", username);
 		return HttpUtils.doPost(map, URL_FINDPASSWORD);
-		}
+	}
 }

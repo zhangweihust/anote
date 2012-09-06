@@ -1,11 +1,18 @@
 package com.archermind.note.Screens;
 
+import java.io.IOException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.R.integer;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -28,18 +35,29 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Screens.LoginScreen.QQAsyncTask;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
+import com.renren.api.connect.android.AsyncRenren;
 import com.renren.api.connect.android.Renren;
+import com.renren.api.connect.android.common.AbstractRequestListener;
 import com.renren.api.connect.android.exception.RenrenAuthError;
+import com.renren.api.connect.android.exception.RenrenError;
+import com.renren.api.connect.android.users.UsersGetInfoRequestParam;
+import com.renren.api.connect.android.users.UsersGetInfoResponseBean;
 import com.renren.api.connect.android.view.RenrenAuthListener;
+import com.tencent.weibo.api.UserAPI;
+import com.tencent.weibo.constants.OAuthConstants;
 import com.tencent.weibo.oauthv2.OAuthV2;
 import com.tencent.weibo.webview.OAuthV2AuthorizeWebView;
+import com.weibo.net.AsyncWeiboRunner;
 import com.weibo.net.DialogError;
+import com.weibo.net.Utility;
 import com.weibo.net.Weibo;
 import com.weibo.net.WeiboDialogListener;
 import com.weibo.net.WeiboException;
+import com.weibo.net.WeiboParameters;
 
 public class AccountScreen extends Screen implements OnClickListener {
 
@@ -67,11 +85,76 @@ public class AccountScreen extends Screen implements OnClickListener {
 	private static final int BOUNDACCOUNT_OK = 1;
 	private static final int BOUNDACCOUNT_FAILED = -1;
 	private static final int BOUNDACCOUNT_FAILED_EXIST = -3;
-	private String mCurrentTask = null;
+	private int mType; // 绑定账号的类型
+	private String mNickname; // 绑定账号的昵称
 	private NetThread mNetThread;
 	private static final String TAG = "AccountScreen";
-	private Handler handle;
 	private InputMethodManager imm;
+	private Handler mHandler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what) {
+			case ServerInterface.SUCCESS:
+				Editor editor = mPreferences.edit();
+				editor.putString(PreferencesHelper.XML_USER_PASSWD, mPasswd);
+				editor.commit();
+				Toast.makeText(NoteApplication.getContext(),
+						R.string.confirm_success, Toast.LENGTH_SHORT).show();
+				AccountScreen.this.finish();
+				break;
+			case ServerInterface.ERROR_ACCOUNT_EXIST:
+				Toast.makeText(NoteApplication.getContext(),
+						R.string.register_err_account_exist, Toast.LENGTH_SHORT)
+						.show();
+				AccountScreen.this.finish();
+				break;
+			case ServerInterface.ERROR_SERVER_INTERNAL:
+				Toast.makeText(NoteApplication.getContext(),
+						R.string.register_err_server_internal,
+						Toast.LENGTH_SHORT).show();
+				AccountScreen.this.finish();
+				break;
+			case BOUNDACCOUNT_OK:
+				dismissProgress();
+				if (mType == ServerInterface.LOGIN_TYPE_SINA) {
+					NoteApplication.getInstance().setmSina_nickname(mNickname);
+					Toast.makeText(NoteApplication.getContext(),
+							R.string.account_bound_success_sina,
+							Toast.LENGTH_LONG).show();
+				} else if (mType == ServerInterface.LOGIN_TYPE_QQ) {
+					NoteApplication.getInstance().setmQQ_nickname(mNickname);
+					Toast.makeText(NoteApplication.getContext(),
+							R.string.account_bound_success_qq,
+							Toast.LENGTH_LONG).show();
+				} else if (mType == ServerInterface.LOGIN_TYPE_RENREN) {
+					NoteApplication.getInstance()
+							.setmRenren_nickname(mNickname);
+					Toast.makeText(NoteApplication.getContext(),
+							R.string.account_bound_success_renren,
+							Toast.LENGTH_LONG).show();
+				}
+				onResume();//刷新界面
+				break;
+			case BOUNDACCOUNT_FAILED:
+				dismissProgress();
+				Toast.makeText(NoteApplication.getContext(),
+						R.string.account_bound_failed, Toast.LENGTH_SHORT)
+						.show();
+				break;
+			case BOUNDACCOUNT_FAILED_EXIST:
+				dismissProgress();
+				Toast.makeText(NoteApplication.getContext(),
+						R.string.account_bound_failed_exist, Toast.LENGTH_SHORT)
+						.show();
+				break;
+			default:
+				break;
+			}
+		}
+
+	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -103,9 +186,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 		mConfirmPasswd.setTextColor(Color.GRAY);
 		setEditable(mNewPasswd, false, false);
 		setEditable(mConfirmPasswd, false, false);
-		imm = (InputMethodManager)getSystemService(
-				Context.INPUT_METHOD_SERVICE);
-		handle = new Handler();
+		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		cb.setChecked(false);
 		cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
@@ -146,92 +227,30 @@ public class AccountScreen extends Screen implements OnClickListener {
 
 	}
 
-	private void setEditable(EditText mEdit, boolean enable, boolean requestFocus) {
+	private void setEditable(EditText mEdit, boolean enable,
+			boolean requestFocus) {
 		mEdit.setEnabled(enable);
-        mEdit.setCursorVisible(enable);
-        mEdit.setFocusableInTouchMode(enable);
-	    if (enable) {
-	        if (requestFocus) {
-	        	mEdit.requestFocus();
+		mEdit.setCursorVisible(enable);
+		mEdit.setFocusableInTouchMode(enable);
+		if (enable) {
+			if (requestFocus) {
+				mEdit.requestFocus();
 				IBinder windowToken = mEdit.getWindowToken();
 				if (windowToken != null) {
-					imm.toggleSoftInputFromWindow(windowToken, 0, InputMethodManager.HIDE_NOT_ALWAYS);
+					imm.toggleSoftInputFromWindow(windowToken, 0,
+							InputMethodManager.HIDE_NOT_ALWAYS);
 				}
-	        }
-	    }
-	    else {
-	        if (mEdit.hasFocus()) {
+			}
+		} else {
+			if (mEdit.hasFocus()) {
 				mEdit.clearFocus();
 				IBinder windowToken = mEdit.getWindowToken();
 				if (windowToken != null) {
 					imm.hideSoftInputFromWindow(windowToken, 0);
 				}
 			}
-	    }
-	}
-	private Handler mHandler = new Handler() {
-
-		@Override
-		public void handleMessage(Message msg) {
-			super.handleMessage(msg);
-			switch (msg.what) {
-			case ServerInterface.SUCCESS:
-				Editor editor = mPreferences.edit();
-				editor.putString(PreferencesHelper.XML_USER_PASSWD, mPasswd);
-				editor.commit();
-				Toast.makeText(NoteApplication.getContext(),
-						R.string.confirm_success, Toast.LENGTH_SHORT).show();
-				AccountScreen.this.finish();
-				break;
-			case ServerInterface.ERROR_ACCOUNT_EXIST:
-				Toast.makeText(NoteApplication.getContext(),
-						R.string.register_err_account_exist, Toast.LENGTH_SHORT)
-						.show();
-				AccountScreen.this.finish();
-				break;
-			case ServerInterface.ERROR_SERVER_INTERNAL:
-				Toast.makeText(NoteApplication.getContext(),
-						R.string.register_err_server_internal,
-						Toast.LENGTH_SHORT).show();
-				AccountScreen.this.finish();
-				break;
-			case BOUNDACCOUNT_OK:
-				dismissProgress();
-				if (mCurrentTask.equals("sina")) {
-					NoteApplication.getInstance().setmBound_Sina(true);
-					Toast.makeText(NoteApplication.getContext(),
-							R.string.account_bound_success_sina,
-							Toast.LENGTH_LONG).show();
-				} else if (mCurrentTask.equals("qq")) {
-					NoteApplication.getInstance().setmBound_QQ(true);
-					Toast.makeText(NoteApplication.getContext(),
-							R.string.account_bound_success_qq,
-							Toast.LENGTH_LONG).show();
-				} else if (mCurrentTask.equals("renren")) {
-					NoteApplication.getInstance().setmBound_Renren(true);
-					Toast.makeText(NoteApplication.getContext(),
-							R.string.account_bound_success_renren,
-							Toast.LENGTH_LONG).show();
-				}
-				break;
-			case BOUNDACCOUNT_FAILED:
-				dismissProgress();
-				Toast.makeText(NoteApplication.getContext(),
-						R.string.account_bound_failed, Toast.LENGTH_SHORT)
-						.show();
-				break;
-			case BOUNDACCOUNT_FAILED_EXIST:
-				dismissProgress();
-				Toast.makeText(NoteApplication.getContext(),
-						R.string.account_bound_failed_exist, Toast.LENGTH_SHORT)
-						.show();
-				break;
-			default:
-				break;
-			}
 		}
-
-	};
+	}
 
 	@Override
 	public void onClick(View v) {
@@ -264,7 +283,8 @@ public class AccountScreen extends Screen implements OnClickListener {
 					mPasswd = password;
 					mHandler.sendEmptyMessage(result);
 					dismissProgress();
-				}});
+				}
+			});
 			break;
 		case R.id.acount_sina_unbound:
 			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
@@ -310,17 +330,23 @@ public class AccountScreen extends Screen implements OnClickListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (NoteApplication.getInstance().ismBound_Sina()) {
+		if (!NoteApplication.getInstance().getmSina_nickname().equals("")) {
 			mSina_unbound.setVisibility(View.GONE);
 			mSina_bounded.setVisibility(View.VISIBLE);
+			mSina_bounded.setText(NoteApplication.getInstance()
+					.getmSina_nickname());
 		}
-		if (NoteApplication.getInstance().ismBound_QQ()) {
+		if (!NoteApplication.getInstance().getmQQ_nickname().equals("")) {
 			mQQ_unbound.setVisibility(View.GONE);
 			mQQ_bounded.setVisibility(View.VISIBLE);
+			mQQ_bounded
+					.setText(NoteApplication.getInstance().getmQQ_nickname());
 		}
-		if (NoteApplication.getInstance().ismBound_Renren()) {
+		if (!NoteApplication.getInstance().getmRenren_nickname().equals("")) {
 			mRenren_unbound.setVisibility(View.GONE);
 			mRenren_bounded.setVisibility(View.VISIBLE);
+			mRenren_bounded.setText(NoteApplication.getInstance()
+					.getmRenren_nickname());
 		}
 	}
 
@@ -341,8 +367,8 @@ public class AccountScreen extends Screen implements OnClickListener {
 					editor.putString(PreferencesHelper.XML_QQ_OPENID,
 							oAuthV2.getOpenid());
 					editor.commit();
-					boundAccount(NoteApplication.getInstance().getUserId(),
-							ServerInterface.LOGIN_TYPE_QQ, oAuthV2.getOpenid());
+					getOthersUserInfo(ServerInterface.LOGIN_TYPE_QQ,
+							oAuthV2.getOpenid());
 				} else {
 					Toast.makeText(this, getString(R.string.login_failed),
 							Toast.LENGTH_SHORT).show();
@@ -351,10 +377,10 @@ public class AccountScreen extends Screen implements OnClickListener {
 		}
 	}
 
-	private void boundAccount(int userId, int type, String uid) {
-		showProgress(null, getString(R.string.account_bound_progross));
+	private void boundAccount(int userId, int type, String bin_uid,
+			String bin_nickname) {
 		if (mNetThread == null || !mNetThread.isAlive()) {
-			mNetThread = new NetThread(userId, type, uid);
+			mNetThread = new NetThread(userId, type, bin_uid, bin_nickname);
 			mNetThread.start();
 		}
 	}
@@ -363,18 +389,59 @@ public class AccountScreen extends Screen implements OnClickListener {
 	 * 绑定新浪微博 Oauth2.0 隐式授权认证方式
 	 */
 	private void boundSinaweibo() {
-		mCurrentTask = "sina";
+		mType = ServerInterface.LOGIN_TYPE_SINA;
 		Weibo weibo = Weibo.getInstance();
 		weibo.setupConsumerConfig(APPKEY_SINA, APPSECRET_SINA);
 		weibo.setRedirectUrl("http://www.sina.com");// 此处使用的URL必须和新浪微博上应用提供的回调地址一样
-		weibo.authorize(this, new AuthDialogListener());
+		weibo.authorize(this, new WeiboDialogListener() {
+
+			@Override
+			public void onComplete(Bundle values) {
+				Log.i(TAG,
+						values.getString("access_token") + "  "
+								+ values.getString("expires_in") + "  "
+								+ values.getString("uid"));
+				SharedPreferences sp = getSharedPreferences(
+						PreferencesHelper.XML_NAME, 0);
+				Editor editor = sp.edit();
+				editor.putString(PreferencesHelper.XML_SINA_ACCESS_TOKEN,
+						values.getString("access_token"));
+				editor.commit();
+				if (values.getString("uid") != null
+						&& !values.getString("uid").equals("")) {
+					getOthersUserInfo(ServerInterface.LOGIN_TYPE_SINA,
+							values.getString("uid"));
+				}
+
+			}
+
+			@Override
+			public void onWeiboException(WeiboException e) {
+				Toast.makeText(AccountScreen.this, R.string.account_bound_failed,
+						Toast.LENGTH_SHORT).show();
+				e.printStackTrace();
+			}
+
+			@Override
+			public void onError(DialogError e) {
+				Toast.makeText(AccountScreen.this, R.string.account_bound_failed,
+						Toast.LENGTH_SHORT).show();
+				e.printStackTrace();
+			}
+
+			@Override
+			public void onCancel() {
+				// TODO Auto-generated method stub
+			}
+
+		});
 	}
 
 	/*
 	 * 绑定腾讯微博 OAuth Version 2 授权认证方式
 	 */
 	private void boundQQweibo() {
-		mCurrentTask = "qq";
+		mType = ServerInterface.LOGIN_TYPE_QQ;
 		OAuthV2 oAuthV2 = new OAuthV2("http://www.archermind.com");
 		oAuthV2.setClientId(APPKEY_QQ);
 		oAuthV2.setClientSecret(APPSECRET_QQ);
@@ -388,7 +455,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 	 * 绑定人人账号
 	 */
 	private void boundRenRen() {
-		mCurrentTask = "renren";
+		mType = ServerInterface.LOGIN_TYPE_RENREN;
 		final Renren renren = new Renren(APPKEY_RENREN, APPSECRET_RENREN,
 				APPID_RENREN, this);
 		renren.logout(this);
@@ -396,8 +463,8 @@ public class AccountScreen extends Screen implements OnClickListener {
 
 			@Override
 			public void onRenrenAuthError(RenrenAuthError renrenAuthError) {
-				// TODO Auto-generated method stub
-
+				Toast.makeText(AccountScreen.this, R.string.account_bound_failed,
+						Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
@@ -410,11 +477,11 @@ public class AccountScreen extends Screen implements OnClickListener {
 						values.getString("access_token"));
 				editor.commit();
 				if (renren.isSessionKeyValid()) {
-					boundAccount(NoteApplication.getInstance().getUserId(),
-							ServerInterface.LOGIN_TYPE_RENREN,
+					getOthersUserInfo(ServerInterface.LOGIN_TYPE_RENREN,
 							String.valueOf(renren.getCurrentUid()));
+
 				} else {
-					Toast.makeText(AccountScreen.this, R.string.login_failed,
+					Toast.makeText(AccountScreen.this, R.string.account_bound_failed,
 							Toast.LENGTH_SHORT).show();
 				}
 			}
@@ -433,67 +500,184 @@ public class AccountScreen extends Screen implements OnClickListener {
 		});
 	}
 
-	private class AuthDialogListener implements WeiboDialogListener {
+	// 获取用户新浪，腾讯，人人的昵称
+	private void getOthersUserInfo(final int type, final String uid) {
+		showProgress(null, getString(R.string.account_bound_progross));// 显示“正在绑定“进度框
+		if (type == ServerInterface.LOGIN_TYPE_SINA) {
+			Weibo weibo = Weibo.getInstance();
+			String url = Weibo.SERVER + "users/show.json";
+			WeiboParameters bundle = new WeiboParameters();
+			bundle.add(
+					"access_token",
+					getSharedPreferences(PreferencesHelper.XML_NAME, 0)
+							.getString(PreferencesHelper.XML_SINA_ACCESS_TOKEN,
+									null));
+			bundle.add("uid", uid);
+			AsyncWeiboRunner weiboRunner = new AsyncWeiboRunner(weibo);
+			weiboRunner.request(this, url, bundle, Utility.HTTPMETHOD_GET,
+					new AsyncWeiboRunner.RequestListener() {
+
+						@Override
+						public void onIOException(IOException e) {
+							showToast_Async(R.string.account_bound_failed);
+							dismissProgress();
+							e.printStackTrace();
+						}
+
+						@Override
+						public void onError(WeiboException e) {
+							showToast_Async(R.string.account_bound_failed);
+							dismissProgress();
+							e.printStackTrace();
+						}
+
+						@Override
+						public void onComplete(String response) {
+							try {
+								Log.i(TAG, "获取的sina用户信息json:" + response);
+								JSONObject jsonObject = new JSONObject(response);
+								mNickname = jsonObject.optString("screen_name");
+								boundAccount(NoteApplication.getInstance()
+										.getUserId(),
+										ServerInterface.LOGIN_TYPE_SINA, uid,
+										mNickname);
+							} catch (JSONException e) {
+								showToast_Async(R.string.account_bound_failed);
+								dismissProgress();
+								e.printStackTrace();
+							}
+						}
+					});
+		} else if (type == ServerInterface.LOGIN_TYPE_QQ) {
+			QQAsyncTask qqAsyncTask = new QQAsyncTask();
+			qqAsyncTask.execute(
+					getSharedPreferences(PreferencesHelper.XML_NAME, 0)
+							.getString(PreferencesHelper.XML_QQ_ACCESS_TOKEN,
+									null), uid);
+
+		} else if (type == ServerInterface.LOGIN_TYPE_RENREN) {
+			Renren renren = new Renren(AccountScreen.APPKEY_RENREN,
+					AccountScreen.APPSECRET_RENREN, AccountScreen.APPID_RENREN,
+					this);
+			renren.updateAccessToken(getSharedPreferences(
+					PreferencesHelper.XML_NAME, 0).getString(
+					PreferencesHelper.XML_RENREN_ACCESS_TOKEN, null));
+			AsyncRenren asyncRenren = new AsyncRenren(renren);
+			UsersGetInfoRequestParam param = new UsersGetInfoRequestParam(
+					new String[] { uid }, UsersGetInfoRequestParam.FIELDS_ALL);
+			asyncRenren.getUsersInfo(param,
+					new AbstractRequestListener<UsersGetInfoResponseBean>() {
+
+						@Override
+						public void onRenrenError(RenrenError renrenError) {
+							showToast_Async(R.string.account_bound_failed);
+							dismissProgress();
+							renrenError.printStackTrace();
+						}
+
+						@Override
+						public void onFault(Throwable fault) {
+							showToast_Async(R.string.account_bound_failed);
+							dismissProgress();
+							fault.printStackTrace();
+						}
+
+						@Override
+						public void onComplete(UsersGetInfoResponseBean bean) {
+							Log.i(TAG, "获取的人人用户信息：" + bean.toString());
+							try {
+								mNickname = bean.getUsersInfo().get(0)
+										.getName();
+								boundAccount(NoteApplication.getInstance()
+										.getUserId(),
+										ServerInterface.LOGIN_TYPE_RENREN, uid,
+										mNickname);
+							} catch (Exception e) {
+								showToast_Async(R.string.account_bound_failed);
+								dismissProgress();
+								e.printStackTrace();
+							}
+						}
+					});
+		}
+
+	}
+
+	// 用于获取腾讯用户昵称的异步类
+	class QQAsyncTask extends AsyncTask<String, integer, String> {
 
 		@Override
-		public void onComplete(Bundle values) {
-			Log.i(TAG,
-					values.getString("access_token") + "  "
-							+ values.getString("expires_in") + "  "
-							+ values.getString("uid"));
-			SharedPreferences sp = getSharedPreferences(
-					PreferencesHelper.XML_NAME, 0);
-			Editor editor = sp.edit();
-			editor.putString(PreferencesHelper.XML_SINA_ACCESS_TOKEN,
-					values.getString("access_token"));
-			editor.commit();
-			if (values.getString("uid") != null
-					&& !values.getString("uid").equals("")) {
-				boundAccount(NoteApplication.getInstance().getUserId(),
-						ServerInterface.LOGIN_TYPE_SINA,
-						values.getString("uid"));
+		protected String doInBackground(String... params) {
+			OAuthV2 oAuthV2 = new OAuthV2("http://www.archermind.com");
+			oAuthV2.setClientId(AccountScreen.APPKEY_QQ);
+			oAuthV2.setAccessToken(params[0]);
+			oAuthV2.setOpenid(params[1]);
+			UserAPI userAPI = new UserAPI(OAuthConstants.OAUTH_VERSION_2_A);
+			String response;
+			try {
+				response = userAPI.info(oAuthV2, "json");// 调用QWeiboSDK获取用户信息
+				Log.i(TAG, "获取的腾讯用户信息json:" + response);
+				return response;
+			} catch (Exception e) {
+				return null;
+			} finally {
+				userAPI.shutdownConnection();
 			}
 
 		}
 
 		@Override
-		public void onWeiboException(WeiboException e) {
-			// TODO Auto-generated method stub
-
+		protected void onPostExecute(String result) {
+			JSONObject jsonObject;
+			try {
+				jsonObject = new JSONObject(result);
+				String data = jsonObject.optString("data");
+				jsonObject = new JSONObject(data);
+				String uid = jsonObject.optString("openid");
+				mNickname = jsonObject.optString("nick");
+				boundAccount(NoteApplication.getInstance().getUserId(),
+						ServerInterface.LOGIN_TYPE_QQ, uid, mNickname);
+			} catch (JSONException e) {
+				Toast.makeText(NoteApplication.getContext(),
+						R.string.account_bound_failed, Toast.LENGTH_SHORT)
+						.show();
+				dismissProgress();
+				e.printStackTrace();
+			}
 		}
-
-		@Override
-		public void onError(DialogError e) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void onCancel() {
-			// TODO Auto-generated method stub
-
-		}
-
 	}
 
 	private class NetThread extends Thread {
 		int userId;// 微笔记userid
 		int type;// 绑定账号类型
-		String uid;// 绑定账号的uid
+		String bin_uid;// 绑定账号的uid
+		String bin_nickname;// 绑定账号的昵称
 
-		public NetThread(int userid, int type, String uid) {
+		public NetThread(int userid, int type, String bin_uid,
+				String bin_nickname) {
 			super();
 			this.userId = userid;
 			this.type = type;
-			this.uid = uid;
+			this.bin_uid = bin_uid;
+			this.bin_nickname = bin_nickname;
 		}
 
 		@Override
 		public void run() {
-			int result = ServerInterface.boundAccount(userId, type, uid);
+			int result = ServerInterface.boundAccount(userId, type, bin_uid,
+					bin_nickname);
 			mHandler.sendEmptyMessage(result);
 		}
 
+	}
+
+	private void showToast_Async(final int id) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				Toast.makeText(NoteApplication.getContext(), id,
+						Toast.LENGTH_SHORT).show();
+			}
+		});
 	}
 
 }

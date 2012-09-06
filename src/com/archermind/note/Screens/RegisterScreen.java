@@ -2,13 +2,17 @@ package com.archermind.note.Screens;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.amtcloud.mobile.android.business.AlbumObj;
+import com.amtcloud.mobile.android.business.MessageTypes;
+import com.amtcloud.mobile.android.business.AlbumObj.AlbumItem;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Utils.AlbumInfoUtil;
 import com.archermind.note.Utils.ImageCapture;
 import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
@@ -60,6 +64,8 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	private String mCameraImageFilePath;
 	private ImageCapture mImgCapture;
 	private String mAvatarPath;
+	private AlbumObj mAlbumObj;
+	private static final String ALBUMNAME_AVATAR = "avatar";
 	private static final String TAG = "RegisterScreen";
 	private Handler mHandler = new Handler() {
 		@Override
@@ -67,21 +73,45 @@ public class RegisterScreen extends Screen implements OnClickListener {
 			super.handleMessage(msg);
 			// 处理图片上传过程发送的消息
 			switch (msg.what) {
-			case 1000:
+			case MessageTypes.ERROR_MESSAGE:
+				Toast.makeText(RegisterScreen.this,
+						R.string.register_success_upload_photo_failed,
+						Toast.LENGTH_SHORT).show();
+				dismissProgress();
+				break;
+			case MessageTypes.MESSAGE_CREATEALBUM:
+				mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()
+						.getUserName());
+				break;
+			case MessageTypes.MESSAGE_GETALBUM:
+				AlbumItem[] albumItems = AlbumInfoUtil.getAlbumInfos(mAlbumObj,
+						msg.obj);
+				if (albumItems == null) {
+					mAlbumObj.createAlbum(NoteApplication.getInstance()
+							.getUserName(), ALBUMNAME_AVATAR);
+					break;
+				}
+				int albumid = -1;
+				for (int i = 0; i < albumItems.length; i++) {
+					if (albumItems[i].albumname.equals(ALBUMNAME_AVATAR)) {
+						albumid = albumItems[i].albumid;
+					}
+				}
+				if (albumid == -1) {
+					mAlbumObj.createAlbum(NoteApplication.getInstance()
+							.getUserName(), ALBUMNAME_AVATAR);
+				} else {
+					// mAlbumObj.uploadPicFiles(appId, userName, picPath,
+					// PicNameOrId, categoryid, url)
+				}
+				break;
+			case MessageTypes.MESSAGE_UPLOADPIC:
 				// 上传头像文件成功，开始执行插入数据库操作
 				String picName = mAvatarPath.substring(
 						mAvatarPath.lastIndexOf("/") + 1, mAvatarPath.length());
 				UploadAvatarTask uploadAvatarTask = new UploadAvatarTask();
 				uploadAvatarTask.execute(String.valueOf(NoteApplication
 						.getInstance().getUserId()), picName);
-				break;
-			case -1:
-				dismissProgress();
-				Toast.makeText(RegisterScreen.this,
-						R.string.register_success_upload_photo_failed,
-						Toast.LENGTH_SHORT).show();
-				finish();
-				break;
 			default:
 				break;
 			}
@@ -119,7 +149,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 		mSetAvatar.setOnClickListener(this);
 		mUserAvatar = (ImageView) findViewById(R.id.register_imageview_avatar);
 		mNickName = (EditText) findViewById(R.id.register_edittext_nickname);
-		mNickName.setText(intent.getStringExtra("nickname"));
+		mNickName.setText(intent.getStringExtra("bin_nickname"));
 		mSex = (RadioGroup) findViewById(R.id.register_ridiogroup_sex);
 		if (intent.getIntExtra("type", 0) == ServerInterface.LOGIN_TYPE_SINA) {
 			mSex.check(intent.getStringExtra("sex").equals("m") ? R.id.register_ridiogroup_man
@@ -322,14 +352,15 @@ public class RegisterScreen extends Screen implements OnClickListener {
 		registerTask
 				.execute(
 						String.valueOf(getIntent().getIntExtra("type", 0)),
-						getIntent().getStringExtra("uid"),
+						getIntent().getStringExtra("bin_uid"),
+						getIntent().getStringExtra("bin_nickname"),
 						username,
 						password,
 						nickname,
 						mSex.getCheckedRadioButtonId() == R.id.register_ridiogroup_man ? "1"
 								: "2", mRegion.getText().toString());
 	}
-	
+
 	/*
 	 * 注册异步封装类(数据库操作)
 	 */
@@ -344,7 +375,8 @@ public class RegisterScreen extends Screen implements OnClickListener {
 		@Override
 		protected String doInBackground(String... params) {
 			String result = ServerInterface.register(params[0], params[1],
-					params[2], params[3], params[4], params[5], params[6]);
+					params[2], params[3], params[4], params[5], params[6],
+					params[7]);
 			return result;
 		}
 
@@ -384,24 +416,20 @@ public class RegisterScreen extends Screen implements OnClickListener {
 						noteApplication.setUserName(jsonObject
 								.optString("email"));
 						noteApplication.setUserId(jsonObject.optInt("user_id"));
-						noteApplication.setmBound_Sina(jsonObject
-								.optInt("flag_sina") == 0 ? false : true);
-						noteApplication.setmBound_QQ(jsonObject
-								.optInt("flag_qq") == 0 ? false : true);
-						noteApplication.setmBound_Renren(jsonObject
-								.optInt("flag_renren") == 0 ? false : true);
+						noteApplication.setmSina_nickname(jsonObject
+								.optString("flag_sina"));
+						noteApplication.setmQQ_nickname(jsonObject
+								.optString("flag_qq"));
+						noteApplication.setmRenren_nickname(jsonObject
+								.optString("flag_renren"));
 						noteApplication.setLogin(true);
 
 						// 文件操作：上传头像文件
 						if (mAvatarPath != null) {
-							AlbumObj albumObj = new AlbumObj();
-							albumObj.setHandler(mHandler);
-							albumObj.uploadPicFile(ServerInterface.app_id,
-									noteApplication.getUserName(), mAvatarPath,
-									mAvatarPath.substring(
-											mAvatarPath.lastIndexOf("/") + 1,
-											mAvatarPath.length()), 1,
-									"http://10.11.18.53:8080/amtcloud/1/");
+							mAlbumObj = new AlbumObj();
+							mAlbumObj.setHandler(mHandler);
+							mAlbumObj.createAlbum(NoteApplication.getInstance()
+									.getUserName(), ALBUMNAME_AVATAR);
 							Log.i(TAG, "register sucess,start upload avatar");
 						} else {
 							Toast.makeText(RegisterScreen.this,
@@ -423,7 +451,6 @@ public class RegisterScreen extends Screen implements OnClickListener {
 
 	}
 
-	
 	/*
 	 * 上传头像异步封装类(数据库操作:插入图片地址)
 	 */

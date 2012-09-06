@@ -110,6 +110,8 @@ public class NoteSaveDialog implements OnClickListener{
 					
 					if (!NoteApplication.getInstance().isLogin()) {
 						Toast.makeText(mEditNote, R.string.no_login_info, Toast.LENGTH_SHORT).show();
+						Intent intent = new Intent(mEditNote,LoginScreen.class);
+						mEditNote.startActivity(intent);
 						return;
 					}
 					

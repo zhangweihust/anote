@@ -7,12 +7,14 @@ import org.json.JSONObject;
 
 import com.amtcloud.mobile.android.business.AlbumObj;
 import com.amtcloud.mobile.android.business.MessageTypes;
+import com.amtcloud.mobile.android.business.AlbumObj.AlbumItem;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Services.ServiceManager;
+import com.archermind.note.Utils.AlbumInfoUtil;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
@@ -68,6 +70,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 	private ArrayList<String> mPicPathList;
 	private AlbumObj mAlbumObj;
 	private static final String TAG = "ShareScreen";
+	private static final String ALBUMNAME_SHARE = "share";
 	private Handler mHandler = new Handler() {
 
 		@Override
@@ -75,17 +78,39 @@ public class ShareScreen extends Screen implements OnClickListener {
 			super.handleMessage(msg);
 			Log.i(TAG, "handler_message:" + msg.what);
 			switch (msg.what) {
-			// case MessageTypes.ERROR_MESSAGE:
-			// break;
-			// case MessageTypes.MESSAGE_CREATEALBUM:
-			// mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()
-			// .getUserName());
-			// break;
-			// case MessageTypes.MESSAGE_GETALBUM:
-			//
-			// break;
-			case -1:
-				// 异步执行分享到广场
+			case MessageTypes.ERROR_MESSAGE:
+				dismssProgressBar(R.string.share_failed, false);
+				mReuploadView.setVisibility(View.VISIBLE);
+				break;
+			case MessageTypes.MESSAGE_CREATEALBUM:
+				mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()
+						.getUserName());
+				break;
+			case MessageTypes.MESSAGE_GETALBUM:
+				AlbumItem[] albumItems = AlbumInfoUtil.getAlbumInfos(mAlbumObj,
+						msg.obj);
+				if(albumItems == null){
+					mAlbumObj.createAlbum(NoteApplication.getInstance()
+							.getUserName(), ALBUMNAME_SHARE);
+					break;
+				}
+				int albumid = -1;
+				for (int i = 0; i < albumItems.length; i++) {
+					if (albumItems[i].albumname.equals(ALBUMNAME_SHARE)) {
+						albumid = albumItems[i].albumid;
+					}
+				}
+				if (albumid == -1) {
+					mAlbumObj.createAlbum(NoteApplication.getInstance()
+							.getUserName(), ALBUMNAME_SHARE);
+				} else {
+					
+					// mAlbumObj.uploadPicFiles(appId, userName, picPath,
+					// PicNameOrId, categoryid, url)
+				}
+				break;
+			case MessageTypes.MESSAGE_UPLOADPIC:
+				// 上传笔记图片成功后，异步执行分享到广场
 				SquareTask squareTask = new SquareTask();
 				Intent intent = getIntent();
 				squareTask.execute(intent.getStringExtra("noteid"),
@@ -126,38 +151,38 @@ public class ShareScreen extends Screen implements OnClickListener {
 
 		mQQButton = (Button) findViewById(R.id.btn_share_qq);
 		mQQButton.setOnClickListener(this);
-		if (!NoteApplication.getInstance().ismBound_QQ()) {
-			mQQButton.setBackgroundResource(R.drawable.qq_gray);
-		}
 
 		mRenrenButton = (Button) findViewById(R.id.btn_share_renren);
 		mRenrenButton.setOnClickListener(this);
 
-		shareToSquare();// 分享到广场
+		uploadNotePic();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (NoteApplication.getInstance().ismBound_Sina()) {
+		if (!NoteApplication.getInstance().getmSina_nickname().equals("")) {
 			mSinaButton.setBackgroundResource(R.drawable.btn_sina_selector);
 		} else {
 			mSinaButton.setBackgroundResource(R.drawable.sina_gray);
 		}
 
-		if (NoteApplication.getInstance().ismBound_QQ()) {
+		if (!NoteApplication.getInstance().getmQQ_nickname().equals("")) {
 			mQQButton.setBackgroundResource(R.drawable.btn_qq_selector);
 		} else {
 			mQQButton.setBackgroundResource(R.drawable.qq_gray);
 		}
 
-		if (NoteApplication.getInstance().ismBound_Renren()) {
+		if (!NoteApplication.getInstance().getmRenren_nickname().equals("")) {
 			mRenrenButton.setBackgroundResource(R.drawable.btn_renren_selector);
 		} else {
 			mRenrenButton.setBackgroundResource(R.drawable.renren_gray);
 		}
 	}
 
+	/*
+	 * 用于分享到广场的异步类
+	 */
 	class SquareTask extends AsyncTask<String, integer, String> {
 
 		@Override
@@ -221,8 +246,6 @@ public class ShareScreen extends Screen implements OnClickListener {
 			} else if (result.equals("failed")) {
 				dismssProgressBar(R.string.share_failed, false);
 				mReuploadView.setVisibility(View.VISIBLE);
-				ServiceManager.getEventservice().onUpdateEvent(
-						new EventArgs(EventTypes.SHARE_NOTE_FAILED));
 			} else if (result.equals("cookies_error")) {
 				dismssProgressBar(R.string.share_failed, false);
 			}
@@ -230,22 +253,15 @@ public class ShareScreen extends Screen implements OnClickListener {
 
 	}
 
-	private void shareToSquare() {
-		// 上传笔记图片至服务器
+	/*
+	 * 上传笔记图片至服务器
+	 */
+	private void uploadNotePic() {
 		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
-			if (mPicPathList != null) {
-				ArrayList<String> picnameList = new ArrayList<String>();
-				for (String s : mPicPathList) {
-					picnameList.add(s.substring(s.lastIndexOf("/") + 1));
-				}
-				mAlbumObj = new AlbumObj();
-				mAlbumObj.setHandler(mHandler);
-				mAlbumObj.uploadPicFiles(ServerInterface.app_id, NoteApplication
-						.getInstance().getUserName(), mPicPathList,
-						picnameList, 1, "http://10.11.18.53:8080/amtcloud/1/");
-//				mAlbumObj.createAlbum(NoteApplication.getInstance()
-//						.getUserName(), "share");
-			}
+			mAlbumObj = new AlbumObj();
+			mAlbumObj.setHandler(mHandler);
+			mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()
+					.getUserName());
 		} else {
 			dismssProgressBar(R.string.network_none, false);
 			mReuploadView.setVisibility(View.VISIBLE);
@@ -253,7 +269,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 	}
 
 	private void shareToSina(String imgPath, String msg) {
-		if (NoteApplication.getInstance().ismBound_Sina()) {
+		if (!NoteApplication.getInstance().getmSina_nickname().equals("")) {
 			String token = mPreferences.getString(
 					PreferencesHelper.XML_SINA_ACCESS_TOKEN, null);
 			if (token != null) {
@@ -401,7 +417,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 	};
 
 	private void shareToQQ(String imgPath, String msg) {
-		if (NoteApplication.getInstance().ismBound_QQ()) {
+		if (!NoteApplication.getInstance().getmQQ_nickname().equals("")) {
 			String token = mPreferences.getString(
 					PreferencesHelper.XML_QQ_ACCESS_TOKEN, null);
 			String openid = mPreferences.getString(
@@ -418,7 +434,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 	}
 
 	private void shareToRenren(String imgPath, String msg) {
-		if (NoteApplication.getInstance().ismBound_Renren()) {
+		if (!NoteApplication.getInstance().getmRenren_nickname().equals("")) {
 			String token = mPreferences.getString(
 					PreferencesHelper.XML_RENREN_ACCESS_TOKEN, null);
 			if (token != null) {
@@ -521,6 +537,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 		case R.id.share_text_reupload:
 			showProgressBar(R.string.share_dialog_msg_square);
 			mReuploadView.setVisibility(View.GONE);
+			uploadNotePic();
 			break;
 		default:
 			break;

@@ -124,12 +124,12 @@ public class LoginScreen extends Screen implements OnClickListener {
 									.optString("email"));
 							noteApplication.setUserId(jsonObject
 									.optInt("user_id"));
-							noteApplication.setmBound_Sina(jsonObject
-									.optInt("flag_sina") == 0 ? false : true);
-							noteApplication.setmBound_QQ(jsonObject
-									.optInt("flag_qq") == 0 ? false : true);
-							noteApplication.setmBound_Renren(jsonObject
-									.optInt("flag_renren") == 0 ? false : true);
+							noteApplication.setmSina_nickname(jsonObject
+									.optString("flag_sina"));
+							noteApplication.setmQQ_nickname(jsonObject
+									.optString("flag_qq"));
+							noteApplication.setmRenren_nickname(jsonObject
+									.optString("flag_renren"));
 							noteApplication.setLogin(true);
 							Log.i(TAG, "login success");
 							finish();
@@ -168,13 +168,15 @@ public class LoginScreen extends Screen implements OnClickListener {
 		mFindPassword = (TextView) findViewById(R.id.login_findpassword);
 		mCheckBox = (CheckBox) findViewById(R.id.login_checkBox);
 		mCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
+
 			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				SharedPreferences sp = getSharedPreferences(PreferencesHelper.XML_NAME,
-						0);
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				SharedPreferences sp = getSharedPreferences(
+						PreferencesHelper.XML_NAME, 0);
 				Editor editor = sp.edit();
-				editor.putBoolean(PreferencesHelper.XML_AUTOLOGIN, isChecked ? true : false);
+				editor.putBoolean(PreferencesHelper.XML_AUTOLOGIN,
+						isChecked ? true : false);
 				editor.commit();
 			}
 		});
@@ -293,7 +295,44 @@ public class LoginScreen extends Screen implements OnClickListener {
 		weibo.setupConsumerConfig(AccountScreen.APPKEY_SINA,
 				AccountScreen.APPSECRET_SINA);
 		weibo.setRedirectUrl("http://www.sina.com");// 此处使用的URL必须和新浪微博上应用提供的回调地址一样
-		weibo.authorize(this, new AuthDialogListener());
+		weibo.authorize(this, new WeiboDialogListener() {
+
+			@Override
+			public void onComplete(Bundle values) {
+				Log.i(TAG,
+						values.getString("access_token") + "  "
+								+ values.getString("expires_in") + "  "
+								+ values.getString("uid"));
+				SharedPreferences sp = getSharedPreferences(
+						PreferencesHelper.XML_NAME, 0);
+				Editor editor = sp.edit();
+				editor.putString(PreferencesHelper.XML_SINA_ACCESS_TOKEN,
+						values.getString("access_token"));
+				editor.commit();
+				if (values.getString("uid") != null
+						&& !values.getString("uid").equals(""))
+					login_others(ServerInterface.LOGIN_TYPE_SINA,
+							values.getString("uid"));
+			}
+
+			@Override
+			public void onWeiboException(WeiboException e) {
+				Toast.makeText(LoginScreen.this, R.string.login_failed,
+						Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onError(DialogError e) {
+				Toast.makeText(LoginScreen.this, R.string.login_failed,
+						Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onCancel() {
+				// TODO Auto-generated method stub
+			}
+
+		});
 	}
 
 	/*
@@ -360,6 +399,9 @@ public class LoginScreen extends Screen implements OnClickListener {
 		});
 	}
 
+	/*
+	 * 找回密码
+	 */
 	private void findPassword() {
 		String username = mUserName.getText().toString().trim();
 		if (!ServerInterface.isEmail(username)) {
@@ -402,47 +444,9 @@ public class LoginScreen extends Screen implements OnClickListener {
 		}
 	}
 
-	private class AuthDialogListener implements WeiboDialogListener {
-
-		@Override
-		public void onComplete(Bundle values) {
-			Log.i(TAG,
-					values.getString("access_token") + "  "
-							+ values.getString("expires_in") + "  "
-							+ values.getString("uid"));
-			SharedPreferences sp = getSharedPreferences(
-					PreferencesHelper.XML_NAME, 0);
-			Editor editor = sp.edit();
-			editor.putString(PreferencesHelper.XML_SINA_ACCESS_TOKEN,
-					values.getString("access_token"));
-			editor.commit();
-			if (values.getString("uid") != null
-					&& !values.getString("uid").equals(""))
-				login_others(ServerInterface.LOGIN_TYPE_SINA,
-						values.getString("uid"));
-		}
-
-		@Override
-		public void onWeiboException(WeiboException e) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void onError(DialogError e) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void onCancel() {
-			// TODO Auto-generated method stub
-
-		}
-
-	}
-
-	// 获取用户新浪，腾讯，人人的昵称
+	/*
+	 * 获取用户新浪，腾讯，人人的昵称
+	 */
 	private void getOthersUserInfo(final int type, final String uid) {
 		if (type == ServerInterface.LOGIN_TYPE_SINA) {
 			Weibo weibo = Weibo.getInstance();
@@ -460,17 +464,15 @@ public class LoginScreen extends Screen implements OnClickListener {
 
 						@Override
 						public void onIOException(IOException e) {
-							Toast.makeText(LoginScreen.this,
-									R.string.login_failed, Toast.LENGTH_SHORT)
-									.show();
+							showToast_Async(R.string.login_failed);
+							dismissProgress();
 							e.printStackTrace();
 						}
 
 						@Override
 						public void onError(WeiboException e) {
-							Toast.makeText(LoginScreen.this,
-									R.string.login_failed, Toast.LENGTH_SHORT)
-									.show();
+							showToast_Async(R.string.login_failed);
+							dismissProgress();
 							e.printStackTrace();
 						}
 
@@ -487,16 +489,16 @@ public class LoginScreen extends Screen implements OnClickListener {
 								Intent intent = new Intent(LoginScreen.this,
 										RegisterScreen.class);
 								intent.putExtra("type", type);
-								intent.putExtra("uid", uid);
-								intent.putExtra("nickname", nickname);
+								intent.putExtra("bin_uid", uid);
+								intent.putExtra("bin_nickname", nickname);
 								intent.putExtra("sex", sex);
 								intent.putExtra("location", location);
 								dismissProgress(); // 消除进度框，准备跳转到注册页面
 								startActivity(intent);
 								finish();
 							} catch (JSONException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								showToast_Async(R.string.login_failed);
+								dismissProgress();
 							}
 						}
 					});
@@ -522,17 +524,15 @@ public class LoginScreen extends Screen implements OnClickListener {
 
 						@Override
 						public void onRenrenError(RenrenError renrenError) {
-							Toast.makeText(LoginScreen.this,
-									R.string.login_failed, Toast.LENGTH_SHORT)
-									.show();
+							showToast_Async(R.string.login_failed);
+							dismissProgress();
 							renrenError.printStackTrace();
 						}
 
 						@Override
 						public void onFault(Throwable fault) {
-							Toast.makeText(LoginScreen.this,
-									R.string.login_failed, Toast.LENGTH_SHORT)
-									.show();
+							showToast_Async(R.string.login_failed);
+							dismissProgress();
 							fault.printStackTrace();
 						}
 
@@ -551,17 +551,16 @@ public class LoginScreen extends Screen implements OnClickListener {
 								Intent intent = new Intent(LoginScreen.this,
 										RegisterScreen.class);
 								intent.putExtra("type", type);
-								intent.putExtra("uid", uid);
-								intent.putExtra("nickname", nickname);
+								intent.putExtra("bin_uid", uid);
+								intent.putExtra("bin_nickname", nickname);
 								intent.putExtra("sex", sex);
 								intent.putExtra("location", "");
 								dismissProgress(); // 消除进度框，准备跳转到注册页面
 								startActivity(intent);
 								finish();
 							} catch (Exception e) {
-								Toast.makeText(LoginScreen.this,
-										R.string.login_failed,
-										Toast.LENGTH_SHORT).show();
+								showToast_Async(R.string.login_failed);
+								dismissProgress();
 								e.printStackTrace();
 							}
 						}
@@ -570,7 +569,11 @@ public class LoginScreen extends Screen implements OnClickListener {
 
 	}
 
-	// 用于获取腾讯用户昵称的异步类
+	
+	
+	/*
+	 * 用于获取腾讯用户昵称的异步类
+	 */
 	class QQAsyncTask extends AsyncTask<String, integer, String> {
 
 		@Override
@@ -609,25 +612,30 @@ public class LoginScreen extends Screen implements OnClickListener {
 						RegisterScreen.class);
 				intent.putExtra("type", ServerInterface.LOGIN_TYPE_QQ);
 				intent.putExtra(
-						"uid",
+						"bin_uid",
 						getSharedPreferences(PreferencesHelper.XML_NAME, 0)
 								.getString(PreferencesHelper.XML_QQ_OPENID,
 										null));
-				intent.putExtra("url", jsonObject.optString("head") + "/100");
-				intent.putExtra("nickname", nickname);
+				// intent.putExtra("url", jsonObject.optString("head") +
+				// "/100");
+				intent.putExtra("bin_nickname", nickname);
 				intent.putExtra("sex", sex);
 				intent.putExtra("location", location);
 				dismissProgress(); // 消除进度框，准备跳转到注册页面
 				startActivity(intent);
 				finish();
 			} catch (JSONException e) {
-				Toast.makeText(LoginScreen.this, R.string.login_failed,
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(NoteApplication.getContext(),
+						R.string.login_failed, Toast.LENGTH_SHORT).show();
+				dismissProgress();
 				e.printStackTrace();
 			}
 		}
 	}
 
+	/*
+	 * 网络线程，用于新浪，腾讯，人人账号的登录
+	 */
 	private class NetThread extends Thread {
 		int type;
 		String uid;
@@ -652,6 +660,9 @@ public class LoginScreen extends Screen implements OnClickListener {
 
 	}
 
+	/*
+	 * 用于找回密码的异步类
+	 */
 	private class FindPswdTask extends AsyncTask<String, integer, String> {
 
 		@Override
@@ -685,5 +696,17 @@ public class LoginScreen extends Screen implements OnClickListener {
 			}
 		}
 
+	}
+
+	/*
+	 * 在异步线程中更新ui
+	 */
+	private void showToast_Async(final int id) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				Toast.makeText(NoteApplication.getContext(), id,
+						Toast.LENGTH_SHORT).show();
+			}
+		});
 	}
 }
