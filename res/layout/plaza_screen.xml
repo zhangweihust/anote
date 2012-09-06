@@ -17,6 +17,6 @@
         android:layout_height="wrap_content"
         android:text="@string/network_none"
         android:visibility="gone"
-        android:textSize="16dp"
+        android:textSize="18dp"
         />
 </LinearLayout>

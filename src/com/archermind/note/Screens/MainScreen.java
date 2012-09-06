@@ -391,7 +391,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		dm = mContext.getApplicationContext().getResources()
 				.getDisplayMetrics();
 		mMorePopupWindow = new PopupWindow(view, DensityUtil.dip2px(mContext,
-				150), (int) (52 * dm.density * 2), true);
+				128), (int) (92 * dm.density ), true);
 		mMorePopupWindow.setBackgroundDrawable(mContext.getResources()
 				.getDrawable(R.drawable.more_pop));
 		mMorePopupWindow.setOutsideTouchable(true);

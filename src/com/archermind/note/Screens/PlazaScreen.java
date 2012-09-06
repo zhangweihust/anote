@@ -5,6 +5,7 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.annotation.SuppressLint;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -40,7 +41,11 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.plaza_screen);
 	        mWebView = (WebView) findViewById(R.id.plaza_page);
-	        mTextView = (TextView) findViewById(R.id.tv_no_web);	      
+	        mTextView = (TextView) findViewById(R.id.tv_no_web);	
+	        if(android.os.Build.VERSION.SDK_INT > 8){
+		        Typeface type = Typeface.createFromAsset(getAssets(),"xdxwzt.ttf");
+				mTextView.setTypeface(type);
+	        }
 			init();
 		}
 	 

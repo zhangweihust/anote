@@ -1,5 +1,6 @@
 package com.archermind.note.Screens;
 
+import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Services.ServiceManager;
 
@@ -64,12 +65,12 @@ public class LogoScreen extends Screen{
 							});
 							
 							builder.create().show();
+						}else{
+							Intent intent = new Intent();
+							intent.setClass(mContext, MainScreen.class);
+							mContext.startActivity(intent);
+							LogoScreen.this.finish();
 						}
-						
-						Intent intent = new Intent();
-						intent.setClass(mContext, MainScreen.class);
-						mContext.startActivity(intent);
-						LogoScreen.this.finish();
 					}
 				});
 			} catch (InterruptedException e) {

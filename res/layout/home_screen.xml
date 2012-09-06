@@ -170,7 +170,7 @@
                     android:layout_weight="0" >
 
                     <RelativeLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="fill_parent"
                         android:layout_height="fill_parent" >
 
                         <ImageView
@@ -181,6 +181,16 @@
                             android:background="#ffff0000"
                             android:scaleType="fitXY"
                             android:src="@drawable/note_item_track" />
+                        
+                        <TextView 
+                            android:id="@+id/tv_no_note"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:visibility="gone"
+                            android:text="@string/no_note_curmonth"
+        					android:textSize="18dp"
+                            />
                     </RelativeLayout>
   
 		        <ListView
