@@ -23,9 +23,8 @@
             <ImageView
                 android:id="@+id/image"
                 android:layout_width="100dp"
-                android:layout_height="80dp"
+                android:layout_height="100dp"
                 android:layout_gravity="center"
-                android:padding="4dp"
                 android:scaleType="centerCrop" />
 
             <!-- ImageView
@@ -44,7 +43,6 @@
                 android:layout_height="80dp"
                 android:layout_gravity="center"
                 android:scaleType="fitCenter"
-                android:padding="4dp"
                 android:src="@drawable/screen_photo_selected"
                 android:visibility="gone" />
         </FrameLayout>
