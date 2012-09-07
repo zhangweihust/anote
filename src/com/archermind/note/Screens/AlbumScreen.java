@@ -31,17 +31,21 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
+import android.util.MonthDisplayHelper;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Gallery;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
@@ -66,6 +70,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	private AlbumScrollLayout mPhotoView;
 	private View mPhotoGalleryLayout;
 	private View mPhotoGridLayout;
+	private RelativeLayout mTitleLayout;
 	
 	private Button mBtnGalleryBack;
 	private Button mBtnGridBack;
@@ -97,6 +102,11 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	
 	private static final int UPLOAD_ALBUM = 5;
 	
+	private static final int TITLE_GONE_TIME = 2 * 1000; 	/* 2秒后标题栏消失 */
+	private static final int TITLE_GONE_MSG = 1;
+	private static final int TITLE_GONE_CANCEL = 2;
+	private static final int TITLE_GONE = 3;
+	
 	private int mPageIndex;
 	
 	private ContentResolver mContentResolver;
@@ -111,6 +121,8 @@ public class AlbumScreen extends Screen implements OnClickListener {
     
 	private MyHandler myHandler;
 	private UpDownloadHandler handler;
+	
+	private Handler GalleryStatushandler;
 	private DataLoading dataLoad;
 	
 	private PhotoAdapter mLastChildAdapter;
@@ -131,12 +143,46 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		}
 	};
     
+	private Runnable titleGoneRunnable = new Runnable()
+	{
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			GalleryStatushandler.sendEmptyMessage(TITLE_GONE);
+		}
+		
+	};
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.album_screen);
 		
 		mContext = AlbumScreen.this;
+		
+		GalleryStatushandler = new Handler()
+		{
+			public void handleMessage(Message msg) 
+			{
+				super.handleMessage(msg);
+				switch(msg.what)
+				{
+				case TITLE_GONE_MSG:
+					GalleryStatushandler.postDelayed(titleGoneRunnable, TITLE_GONE_TIME);
+					break;
+				case TITLE_GONE_CANCEL:
+					GalleryStatushandler.removeCallbacks(titleGoneRunnable);
+					break;
+				case TITLE_GONE:
+					mTitleLayout.setVisibility(View.GONE);
+					break;
+				default:
+					break;
+				}
+			};
+		};
+		
+		mTitleLayout = (RelativeLayout) findViewById(R.id.p_gallery_relativeLayout1);
 		
 		mPhotoGallery = (Gallery) findViewById(R.id.p_gallery_gallery);
 		mPhotoGalleryLayout = (View) findViewById(R.id.p_gallery_layout);
@@ -165,8 +211,26 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				mPageIndex = currentIndex;
 			}});
 
-
 		mPhotoGallery.setCallbackDuringFling(false);
+		mPhotoGallery.setOnTouchListener(new OnTouchListener() {
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				// TODO Auto-generated method stub
+				
+				if (event.getAction() == MotionEvent.ACTION_DOWN)
+				{
+					mTitleLayout.setVisibility(View.VISIBLE);
+					GalleryStatushandler.sendEmptyMessage(TITLE_GONE_CANCEL);
+				}
+				else if (event.getAction() == MotionEvent.ACTION_UP)
+				{
+//					mTitleLayout.setVisibility(View.GONE);
+					GalleryStatushandler.sendEmptyMessage(TITLE_GONE_MSG);
+				}
+				return false;
+			}
+		});
 		mPhotoGallery.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
@@ -206,6 +270,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 							}
 						}
 						mLastSelItem = mSelItem;
+						GalleryStatushandler.sendEmptyMessage(TITLE_GONE);
 					}
 				});
 			}
@@ -224,6 +289,9 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		
 		serverInterface = new ServerInterface();
 //		serverInterface.InitAmtCloud(mContext);
+		
+		mAlbumUrllist = Environment
+		.getExternalStorageDirectory().toString() + "/anote/image_cache/0_20120907_114625.jpg";
 		
 		loadAlbumData();
 	}

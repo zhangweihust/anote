@@ -165,7 +165,7 @@
 					      android:layout_height="fill_parent"
 					      android:gravity="center_vertical"
 					      android:layout_gravity="center_vertical"
-					      android:spacing="16dp"
+					      android:spacing="0dp"
 					  />
 				</LinearLayout>
 			</FrameLayout>
