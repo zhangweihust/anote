@@ -5,8 +5,9 @@ import java.util.Map;
 
 import android.util.Log;
 
-import com.amtcloud.mobile.android.business.AlbumObj;
-import com.amtcloud.mobile.android.business.AlbumObj.AlbumItem;
+
+import com.amtcloud.mobile.android.business.AmtAlbumObj;
+import com.amtcloud.mobile.android.business.AmtAlbumObj.AlbumItem;
 import com.amtcloud.mobile.android.exception.BaseException;
 import com.amtcloud.mobile.android.utils.Consts;
 
@@ -14,7 +15,7 @@ public class AlbumInfoUtil {
 	private static AlbumItem[] albumItems;
 
 	@SuppressWarnings("unchecked")
-	public static AlbumItem[] getAlbumInfos(AlbumObj albumObj, Object o) {
+	public static AlbumItem[] getAlbumInfos(AmtAlbumObj albumObj, Object o) {
 		try {
 			Map<String, ArrayList<Map<String, Object>>> rMap = (Map<String, ArrayList<Map<String, Object>>>) (o);
 			ArrayList<Map<String, Object>> list = null;

@@ -5,9 +5,9 @@ import java.util.ArrayList;
 
 import org.json.JSONObject;
 
-import com.amtcloud.mobile.android.business.AlbumObj;
+import com.amtcloud.mobile.android.business.AmtAlbumObj;
+import com.amtcloud.mobile.android.business.AmtAlbumObj.AlbumItem;
 import com.amtcloud.mobile.android.business.MessageTypes;
-import com.amtcloud.mobile.android.business.AlbumObj.AlbumItem;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Events.EventArgs;
@@ -48,10 +48,13 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,14 +64,16 @@ public class ShareScreen extends Screen implements OnClickListener {
 	private Button mBackButton;
 	private ImageView mImageView;
 	private EditText mEditText;
-	private LinearLayout mProgressLayout;
-	private TextView mUploadingView;
-	private TextView mReuploadView;
+	// private LinearLayout mProgressLayout;
+	private ProgressBar mProgressBar;
+	// private TextView mUploadingView;
+	private Button mReuploadButton;
+	private LinearLayout mOthersLayout;
 	private Button mSinaButton;
 	private Button mQQButton;
 	private Button mRenrenButton;
 	private ArrayList<String> mPicPathList;
-	private AlbumObj mAlbumObj;
+	private AmtAlbumObj mAlbumObj;
 	private static final String TAG = "ShareScreen";
 	private static final String ALBUMNAME_SHARE = "share";
 	private Handler mHandler = new Handler() {
@@ -80,7 +85,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 			switch (msg.what) {
 			case MessageTypes.ERROR_MESSAGE:
 				dismssProgressBar(R.string.share_failed, false);
-				mReuploadView.setVisibility(View.VISIBLE);
+				mReuploadButton.setVisibility(View.VISIBLE);
 				break;
 			case MessageTypes.MESSAGE_CREATEALBUM:
 				mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()
@@ -89,7 +94,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 			case MessageTypes.MESSAGE_GETALBUM:
 				AlbumItem[] albumItems = AlbumInfoUtil.getAlbumInfos(mAlbumObj,
 						msg.obj);
-				if(albumItems == null){
+				if (albumItems == null) {
 					mAlbumObj.createAlbum(NoteApplication.getInstance()
 							.getUserName(), ALBUMNAME_SHARE);
 					break;
@@ -104,9 +109,15 @@ public class ShareScreen extends Screen implements OnClickListener {
 					mAlbumObj.createAlbum(NoteApplication.getInstance()
 							.getUserName(), ALBUMNAME_SHARE);
 				} else {
-					
-					// mAlbumObj.uploadPicFiles(appId, userName, picPath,
-					// PicNameOrId, categoryid, url)
+					if(mPicPathList == null){
+						Log.e(TAG, "mPicPathList is null");
+						return;
+					}
+					ArrayList<String> picnameList = new ArrayList<String>();
+					for (String s : mPicPathList) {
+					picnameList.add(s.substring(s.lastIndexOf("/") + 1));
+					}
+					mAlbumObj.uploadPicFiles(mPicPathList, picnameList, albumid);
 				}
 				break;
 			case MessageTypes.MESSAGE_UPLOADPIC:
@@ -137,14 +148,20 @@ public class ShareScreen extends Screen implements OnClickListener {
 		mBackButton.setOnClickListener(this);
 
 		mImageView = (ImageView) findViewById(R.id.share_image);
+		mImageView.setMaxWidth(getWindowManager().getDefaultDisplay()
+				.getWidth() / 2);
 		mImageView
 				.setImageBitmap(BitmapFactory.decodeFile(mPicPathList.get(0)));
 
-		mProgressLayout = (LinearLayout) findViewById(R.id.share_progress_layout);
-		mUploadingView = (TextView) findViewById(R.id.share_text_uploading);
-		mReuploadView = (TextView) findViewById(R.id.share_text_reupload);
-		mReuploadView.setOnClickListener(this);
+		// mProgressLayout = (LinearLayout)
+		// findViewById(R.id.share_progress_layout);
+		mProgressBar = (ProgressBar) findViewById(R.id.share_progressBar);
+		// mUploadingView = (TextView) findViewById(R.id.share_text_uploading);
+		mReuploadButton = (Button) findViewById(R.id.share_btn_reupload);
+		mReuploadButton.setOnClickListener(this);
 		mEditText = (EditText) findViewById(R.id.share_edit);
+
+		mOthersLayout = (LinearLayout) findViewById(R.id.share_layout_others);
 
 		mSinaButton = (Button) findViewById(R.id.btn_share_sina);
 		mSinaButton.setOnClickListener(this);
@@ -156,6 +173,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 		mRenrenButton.setOnClickListener(this);
 
 		uploadNotePic();
+		showProgressBar(R.string.share_msg_square);
 	}
 
 	@Override
@@ -216,18 +234,14 @@ public class ShareScreen extends Screen implements OnClickListener {
 								Integer.parseInt(userIdStr));
 						ServiceManager.getDbManager().updateLocalNotes(
 								contentValues2, Integer.parseInt(params[0]));
-						Log.i(TAG, "===============分享到广场成功===============");
 						return "success";
 					} else {
-						Log.i(TAG, "===============分享到广场失败===============");
 						return "failed";
 					}
 				} else if ("M".equals(params[2])) {
 					if (serviceId == 0) {
-						Log.i(TAG, "===============分享到广场成功===============");
 						return "success";
 					} else {
-						Log.i(TAG, "===============分享到广场失败===============");
 						return "failed";
 					}
 				}
@@ -240,12 +254,17 @@ public class ShareScreen extends Screen implements OnClickListener {
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 			if (result.equals("success")) {
-				dismssProgressBar(R.string.share_success, true);
 				ServiceManager.getEventservice().onUpdateEvent(
 						new EventArgs(EventTypes.SHARE_NOTE_SUCCESSED));
+				dismssProgressBar(R.string.share_success, true);
+				mOthersLayout.setVisibility(View.VISIBLE);
+				mOthersLayout.startAnimation(AnimationUtils.loadAnimation(
+						ShareScreen.this, R.anim.up));
+				Log.i(TAG, "===============分享到广场成功===============");
 			} else if (result.equals("failed")) {
 				dismssProgressBar(R.string.share_failed, false);
-				mReuploadView.setVisibility(View.VISIBLE);
+				mReuploadButton.setVisibility(View.VISIBLE);
+				Log.i(TAG, "===============分享到广场失败===============");
 			} else if (result.equals("cookies_error")) {
 				dismssProgressBar(R.string.share_failed, false);
 			}
@@ -258,13 +277,13 @@ public class ShareScreen extends Screen implements OnClickListener {
 	 */
 	private void uploadNotePic() {
 		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
-			mAlbumObj = new AlbumObj();
+			mAlbumObj = new AmtAlbumObj();
 			mAlbumObj.setHandler(mHandler);
 			mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()
 					.getUserName());
 		} else {
 			dismssProgressBar(R.string.network_none, false);
-			mReuploadView.setVisibility(View.VISIBLE);
+			mReuploadButton.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -280,7 +299,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 				bundle.add("status", msg);
 				String url = Weibo.SERVER + "statuses/upload.json";
 				AsyncWeiboRunner weiboRunner = new AsyncWeiboRunner(weibo);
-				showProgressBar(R.string.share_dialog_msg_sina);// 显示进度
+				showProgressBar(R.string.share_msg_sina);// 显示进度
 				weiboRunner.request(this, url, bundle, Utility.HTTPMETHOD_POST,
 						new AsyncWeiboRunner.RequestListener() {
 
@@ -299,13 +318,13 @@ public class ShareScreen extends Screen implements OnClickListener {
 							@Override
 							public void onError(WeiboException e) {
 								final int statuscode = e.getStatusCode();
-								if (e.getStatusCode() == 21332) { // accessToken过期错误码
+								if (e.getStatusCode() == 21332
+										|| e.getStatusCode() == 21327) { // accessToken过期错误码
 									runOnUiThread(new Runnable() {
 										@Override
 										public void run() {
-											dismssProgressBar(
-													R.string.share_failed,
-													false);
+											mProgressBar
+													.setVisibility(View.GONE);
 											showLoginAlertDialog(R.string.share_sina_expired);
 										}
 									});
@@ -363,7 +382,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			showProgressBar(R.string.share_dialog_msg_qq);
+			showProgressBar(R.string.share_msg_qq);
 		}
 
 		@Override
@@ -402,7 +421,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 							R.string.share_err_equal_weibo, Toast.LENGTH_SHORT)
 							.show();
 				} else if (jsonObject.optInt("errcode") == 37) { // accessToken过期错误码
-					dismssProgressBar(R.string.share_failed, false);
+					mProgressBar.setVisibility(View.GONE);
 					showLoginAlertDialog(R.string.share_qq_expired);
 				} else {
 					dismssProgressBar(R.string.share_failed, false);
@@ -455,8 +474,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									dismssProgressBar(R.string.share_failed,
-											false);
+									mProgressBar.setVisibility(View.GONE);
 									showLoginAlertDialog(R.string.share_renren_expired);
 								}
 							});
@@ -492,7 +510,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 						});
 					}
 				};
-				showProgressBar(R.string.share_dialog_msg_renren);
+				showProgressBar(R.string.share_msg_renren);
 				asyncRenren.publishFeed(param, listener, true);
 
 			} else {
@@ -534,9 +552,8 @@ public class ShareScreen extends Screen implements OnClickListener {
 						.show();
 			}
 			break;
-		case R.id.share_text_reupload:
-			showProgressBar(R.string.share_dialog_msg_square);
-			mReuploadView.setVisibility(View.GONE);
+		case R.id.share_btn_reupload:
+			showProgressBar(R.string.share_msg_square);
 			uploadNotePic();
 			break;
 		default:
@@ -545,12 +562,13 @@ public class ShareScreen extends Screen implements OnClickListener {
 	}
 
 	private void showProgressBar(int id) {
-		mProgressLayout.setVisibility(View.VISIBLE);
-		mUploadingView.setText(id);
+		mProgressBar.setVisibility(View.VISIBLE);
+		mReuploadButton.setVisibility(View.GONE);
+		Toast.makeText(this, id, Toast.LENGTH_SHORT).show();
 	}
 
 	private void dismssProgressBar(int id, boolean isSuccessed) {
-		mProgressLayout.setVisibility(View.GONE);
+		mProgressBar.setVisibility(View.GONE);
 		Toast.makeText(this, id, Toast.LENGTH_SHORT).show();
 	}
 

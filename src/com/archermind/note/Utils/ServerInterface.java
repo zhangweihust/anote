@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-//import com.amtcloud.mobile.android.core.AmtApplication;
-//import com.amtcloud.mobile.android.file.AmtFileObject;
-import com.amtcloud.mobile.android.business.AlbumObj;
 import com.amtcloud.mobile.android.business.AmtApplication;
 import com.archermind.note.Screens.LoginScreen;
 
@@ -58,8 +55,8 @@ public class ServerInterface {
 	// public static final String URL_send_reports = URL_SERVER +
 	// "ci/index.php/anote/send_reports";
 	public static final String URL_send_reports = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/send_reports";
-	public static final String app_id = "0ba7932602af4a45bd866bad93be0e50";
-	public static final String app_secret = "2411edd1a2c44249a98e6451592062bc";
+	public static final String app_id = "462b39f3eb7c4fb9a8e027473a6cd322";
+	public static final String app_secret = "482a4afe2f0e4020832078a4b4eeeae4";
 	public static final String URL_DEVICEINFO = URL_SERVER
 			+ "ci/index.php/anote/setClientInfo";
 	public static final String URL_USERACTIVEINFO = URL_SERVER
@@ -322,9 +319,6 @@ public class ServerInterface {
 		return result;
 	}
 
-	/**
-	 * 获取用户信息 输入参数：用户id 返回值： json 成功 -1 url为空 -2：数据库操作失败
-	 */
 	public static int uploadNote(long id, String user_id, String nid,
 			String action, String title, String content, String page) {
 		Map<String, String> map = new HashMap<String, String>();

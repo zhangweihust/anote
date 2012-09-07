@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.amtcloud.mobile.android.business.AlbumObj;
+import com.amtcloud.mobile.android.business.AmtAlbumObj;
 import com.amtcloud.mobile.android.business.MessageTypes;
-import com.amtcloud.mobile.android.business.AlbumObj.AlbumItem;
+import com.amtcloud.mobile.android.business.AmtAlbumObj.AlbumItem;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Utils.AlbumInfoUtil;
@@ -64,7 +64,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	private String mCameraImageFilePath;
 	private ImageCapture mImgCapture;
 	private String mAvatarPath;
-	private AlbumObj mAlbumObj;
+	private AmtAlbumObj mAlbumObj;
 	private static final String ALBUMNAME_AVATAR = "avatar";
 	private static final String TAG = "RegisterScreen";
 	private Handler mHandler = new Handler() {
@@ -101,17 +101,20 @@ public class RegisterScreen extends Screen implements OnClickListener {
 					mAlbumObj.createAlbum(NoteApplication.getInstance()
 							.getUserName(), ALBUMNAME_AVATAR);
 				} else {
-					// mAlbumObj.uploadPicFiles(appId, userName, picPath,
-					// PicNameOrId, categoryid, url)
+					ArrayList<String> picPath = new ArrayList<String>();
+					picPath.add(mAvatarPath);
+					ArrayList<String> picNames = new ArrayList<String>();
+					picNames.add(mAvatarPath.substring(mAvatarPath
+							.lastIndexOf("/") + 1));
+					mAlbumObj.uploadPicFiles(picPath, picNames, albumid);
 				}
 				break;
 			case MessageTypes.MESSAGE_UPLOADPIC:
 				// 上传头像文件成功，开始执行插入数据库操作
-				String picName = mAvatarPath.substring(
-						mAvatarPath.lastIndexOf("/") + 1, mAvatarPath.length());
 				UploadAvatarTask uploadAvatarTask = new UploadAvatarTask();
 				uploadAvatarTask.execute(String.valueOf(NoteApplication
-						.getInstance().getUserId()), picName);
+						.getInstance().getUserId()), mAvatarPath
+						.substring(mAvatarPath.lastIndexOf("/") + 1));
 			default:
 				break;
 			}
@@ -426,7 +429,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 
 						// 文件操作：上传头像文件
 						if (mAvatarPath != null) {
-							mAlbumObj = new AlbumObj();
+							mAlbumObj = new AmtAlbumObj();
 							mAlbumObj.setHandler(mHandler);
 							mAlbumObj.createAlbum(NoteApplication.getInstance()
 									.getUserName(), ALBUMNAME_AVATAR);

@@ -65,9 +65,9 @@
     <string name="account_bound_progross">正在绑定...</string>
     <string name="account_bound_failed">账号绑定失败，请稍候再试！</string>
     <string name="account_bound_failed_exist">该账号已经被绑定过啦，换一个吧！</string>
-    <string name="account_bound_success_sina">现在你也可以使用新浪账号登录微笔记啦！</string>
-    <string name="account_bound_success_qq">现在你也可以使用QQ账号登录微笔记啦！</string>
-    <string name="account_bound_success_renren">现在你也可以使用人人账号登录微笔记啦！</string>
+    <string name="account_bound_success_sina">现在你也可以使用新浪账号登录"分享笔记"啦！</string>
+    <string name="account_bound_success_qq">现在你也可以使用QQ账号登录"分享笔记"啦！</string>
+    <string name="account_bound_success_renren">现在你也可以使用人人账号登录"分享笔记"啦！</string>
     <string name="account_bound_sina_none">您还没没有绑定新浪账号，请先进行绑定！</string>
     <string name="account_bound_qq_none">您还没没有绑定QQ账号，请先进行绑定！</string>
     <string name="account_bound_renren_none">您还没没有绑定人人账号，请先进行绑定！</string>
@@ -100,11 +100,11 @@
     <!-- personal_info_title -->
     <string name="personal_info_title">个人信息</string>
     <string name="personal_info_set_avatar">设置头像</string>
-    <string name="personal_info_name">名字</string>
-    <string name="personal_info_sex">性别</string>
+    <string name="personal_info_name">昵称：</string>
+    <string name="personal_info_sex">性别：</string>
     <string name="personal_info_sex_female">女</string>
     <string name="personal_info_sex_male">男</string>
-    <string name="personal_info_region">地区</string>
+    <string name="personal_info_region">地区：</string>
     <string name="personal_info_get_fail">个人信息获取失败</string>
     <string name="personal_info_set_fail">个人信息设置失败</string>
     <string name="personal_info_set_succ">个人信息设置成功</string>
@@ -155,7 +155,7 @@
     <string name="register_password_hint">6至16位字母数字组合</string>
     <string name="register_pswdconfirm">确认密码：</string>
     <string name="register_pswdconfirm_hint">请再次输入密码</string>
-    <string name="register_err_account_exist">该用户名已存在！</string>
+    <string name="register_err_account_exist">该邮箱账号已存在！</string>
     <string name="register_err_username_format">请输入正确格式的邮箱！</string>
     <string name="register_err_server_internal">呃，服务器可能出了点问题，请稍候再试！</string>
     <string name="register_err_password_format">密码为6至16位的数字和字母组合！</string>
@@ -185,19 +185,19 @@
     <!-- share -->
     <string name="share_title">分享</string>
     <string name="share_edittext_hint">在这写下你想说的话吧！</string>
-    <string name="share_edittext_text">分享笔记，分享幸福！\n查看请点击:\nwww.archermind.com\n@分享笔记 @诚迈科技</string>
+    <string name="share_edittext_text">分享笔记，分享快乐！@诚迈科技 查看请点击:www.archermind.com</string>
     <string name="share_text_others">您还可以分享到以下平台</string>
-    <string name="share_dialog_msg_sina">正在分享到新浪微博...</string>
-    <string name="share_dialog_msg_qq">正在分享到腾讯微博...</string>
-    <string name="share_dialog_msg_renren">正在分享到人人网...</string>
-    <string name="share_dialog_msg_square">正在分享到广场...</string>
+    <string name="share_msg_sina">正在分享到新浪微博...</string>
+    <string name="share_msg_qq">正在分享到腾讯微博...</string>
+    <string name="share_msg_renren">正在分享到人人网...</string>
+    <string name="share_msg_square">正在分享到广场...</string>
     <string name="share_sina_expired">新浪账号授权已过期，需要重新使用新浪账号登录！</string>
     <string name="share_qq_expired">QQ账号授权已过期，请重新使用QQ账号登录！</string>
     <string name="share_renren_expired">人人账号授权已过期，请重新使用人人账号登录！</string>
     <string name="share_err_equal_weibo">你已分享过相同的内容啦！</string>
     <string name="share_success">分享成功!</string>
     <string name="share_failed">呃！分享失败了，再试一次吧！</string>
-    <string name="share_click_to_reupload">点击重试！</string>
+    <string name="share_click_to_reupload">重试</string>
     <string name="share_dialog_bound">去绑定</string>
 
     <!-- dialog local_note_item_transact -->

@@ -17,13 +17,13 @@
 
         <Button
             android:id="@+id/back"
-            android:layout_width="42dp" 
+            android:layout_width="42dp"
             android:layout_height="32dp"
-			android:layout_centerVertical="true"
-			android:text="@string/back"
-            android:background="@drawable/button_selector" 
+            android:layout_centerVertical="true"
             android:layout_marginLeft="8dip"
-            android:textColor="@color/white"/>
+            android:background="@drawable/button_selector"
+            android:text="@string/back"
+            android:textColor="@color/white" />
 
         <TextView
             android:id="@+id/activityTitle"
@@ -73,22 +73,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="12dp"
-                    android:layout_weight="0.3"
-                    android:ellipsize="end"
                     android:singleLine="true"
                     android:text="@string/account_user_account"
-                    android:textColor="#555555"
-                    android:textSize="16dp" />
+                    android:textColor="@color/share_setting_title_color"
+                    android:textSize="@dimen/login_register_text_size" />
 
                 <TextView
                     android:id="@+id/user_account"
-                    android:layout_width="180dp"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="12dp"
-                    android:background="#00000000"
+                    android:gravity="right"
                     android:singleLine="true"
-                    android:textColor="#555555"
-                    android:textSize="16dp" />
+                    android:textColor="@color/register_text_content"
+                    android:textSize="@dimen/login_register_text_size" />
             </LinearLayout>
 
             <LinearLayout
@@ -236,17 +234,11 @@
 
                 <CheckBox
                     android:id="@+id/use_change_passwd"
-                    style="@style/CustomLeftCheckBoxBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:button="@drawable/checkbox_selector"
                     android:clickable="true"
-                    android:focusable="true" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="12dp"
-                    android:singleLine="true"
+                    android:focusable="true"
                     android:text="@string/account_change_passwd"
                     android:textColor="#555555"
                     android:textSize="16dp" />
@@ -281,10 +273,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginRight="12dp"
                         android:layout_weight="1"
-                        android:maxLength="16"
                         android:background="@color/transparent"
                         android:gravity="right"
                         android:hint="@string/register_password_hint"
+                        android:maxLength="16"
                         android:password="true"
                         android:textColor="@color/register_text_content"
                         android:textSize="16dp" />
@@ -316,10 +308,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginRight="12dp"
                         android:layout_weight="1"
-                        android:maxLength="16"
                         android:background="@color/transparent"
                         android:gravity="right"
                         android:hint="@string/register_pswdconfirm_hint"
+                        android:maxLength="16"
                         android:password="true"
                         android:textColor="@color/register_text_content"
                         android:textSize="16dp" />
