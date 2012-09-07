@@ -90,13 +90,21 @@ public class CalendarAdapter extends BaseAdapter {
 		this.context= context;
 		lc = new LunarCalendar();
 		this.res = rs;
-		System.out.println("year : " + year + ", month : " + month);
 		showYear = year;;  //得到跳转到的年份
 		showMonth = month;  //得到跳转到的月份		
 		flipperHeight = height;
 		constantFlag = flagType;
-		getCalendar(showYear, showMonth, flagType);
-		
+		getCalendar(showYear, showMonth, flagType);		
+	}
+	
+	
+	public void changeData(int year, int month, int height, int flagType){
+		showYear = year;;  //得到跳转到的年份
+		showMonth = month;  //得到跳转到的月份		
+		flipperHeight = height;
+		constantFlag = flagType;
+		getCalendar(showYear, showMonth, flagType);	
+		notifyDataSetChanged();
 	}
 	
 	@Override
@@ -190,30 +198,6 @@ public class CalendarAdapter extends BaseAdapter {
 					}
 			}
 			
-/*			final int fHasNote = hasNote;
-			Calendar time = Calendar.getInstance(Locale.CHINA); 
-			time.set(Calendar.YEAR, showYear);
-			time.set(Calendar.MONTH, showMonth);
-			time.set(Calendar.DATE, Integer.parseInt(day));
-			time.set(Calendar.HOUR, 10);
-			final long t = time.getTimeInMillis();
-			
-			item.tvDate.setOnClickListener(new OnClickListener() {
-				
-				@Override
-				public void onClick(View arg0) {
-					// TODO Auto-generated method stub
-					if(fHasNote == 1){
-						System.out.println("time is " + t);
-						HomeScreen.eventService.onUpdateEvent(new EventArgs(
-								EventTypes.SHOW_ONEDAY_NOTES).putExtra("time", t));
-					}else{
-						arg0.setBackgroundColor(res.getColor(R.color.calendar_selected));
-						lastClick = position;
-					}
-				}
-			});*/
-
 		}
 
 		
@@ -262,11 +246,23 @@ public class CalendarAdapter extends BaseAdapter {
 		
 		//得到当前月是否有笔记
 		Cursor mCursor = ServiceManager.getDbManager().queryMonthLocalNOTES(month, year);		
-		if(mCursor.getCount() > 0){
+		
+		if(noteFlag == null){
 			noteFlag = new int[42];
+		}else{
+			for(int i=0; i< noteFlag.length; i++){
+				noteFlag[i] = 0;
+			}
 		}
+	
 		mCursor.close();
-		dayNumber = new String[42];
+		if(dayNumber == null){
+			dayNumber = new String[42];
+		}else{
+			for(int i=0; i< dayNumber.length; i++){
+				dayNumber[i] = "";
+			}
+		}
 		
 		for (int i = 0; i < dayNumber.length; i++) {
 			int k = 1; //因程序计数从0开始，而日期计数从1开始，所以有个差值1			

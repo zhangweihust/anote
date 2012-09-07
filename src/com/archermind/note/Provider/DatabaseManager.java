@@ -58,10 +58,11 @@ public class DatabaseManager {
 	    database.update(DatabaseHelper.TAB_NOTE, values, DatabaseHelper.COLUMN_NOTE_ID + " =? ", new String[] { String.valueOf(id)});
 	}
 	
-	public void deleteLocalNOTEs(int id,long timeInMillis) {	
+	public void deleteLocalNOTEs(int id) {	
 		   Cursor dCursor = database.query(DatabaseHelper.TAB_NOTE, null, DatabaseHelper.COLUMN_NOTE_ID + " = ? ", new String[]{String.valueOf(id)}, null, null, null); 
 		   if(dCursor.moveToNext()){ 
 			   boolean lastFlag = dCursor.getInt(dCursor.getColumnIndex(databaseHelper.COLUMN_NOTE_LAST_FLAG)) == 1;
+			   long timeInMillis = dCursor.getInt(dCursor.getColumnIndex(databaseHelper.COLUMN_NOTE_CREATE_TIME));
 			   database.delete(DatabaseHelper.TAB_NOTE,
 						DatabaseHelper.COLUMN_NOTE_ID + " =? ",
 						new String[] { String.valueOf(id) });

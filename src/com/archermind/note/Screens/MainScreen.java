@@ -22,6 +22,7 @@ import android.os.Looper;
 import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -29,6 +30,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
@@ -154,14 +156,17 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 
 	private TabSpec buildTabSpec(String tag, int iconId, Intent intent) {
 		View tabSpecView;
+		WindowManager windowManager = getWindowManager();
+        Display display = windowManager.getDefaultDisplay();
+        int Width = display.getWidth(); 
 		tabSpecView = (LinearLayout) LayoutInflater.from(this).inflate(
 				R.layout.tab_item_view, null);
 		ImageView icon = (ImageView) tabSpecView.findViewById(R.id.imageview);
 		icon.setImageResource(iconId);
 		if (iconId == R.drawable.tabhost_home_selector) {
-			tabSpecView.setPadding(DensityUtil.dip2px(mContext, 20), 0, 0, 0);
+			tabSpecView.setPadding((int)(Width*0.06 + icon.getWidth()*0.5), 0, 0, 0);
 		} else {
-			tabSpecView.setPadding(DensityUtil.dip2px(mContext, 111), 0, 0, 0);
+			tabSpecView.setPadding((int)(Width*0.35 - icon.getWidth()*0.5), 0, 0, 0);
 		}
 		TabSpec tabSpec = this.mTabHost.newTabSpec(tag)
 				.setIndicator(tabSpecView).setContent(intent);
@@ -189,7 +194,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 						if (HomeScreen.isSubPage() == View.VISIBLE){
 							mbtnBack.setVisibility(View.VISIBLE);
 							mbtnBack.setText(getResources().getString(R.string.back));
-							mtvTitleBarTitle.setText(DateTimeUtils.time2String("yyyy.MM.dd", HomeScreen.mCurTime));
+							mtvTitleBarTitle.setText(DateTimeUtils.time2String("yyyy.MM.dd", HomeScreen.getCurtime()));
 						}else{
 							mbtnBack.setVisibility(View.GONE);
 							mbtnBack.setText(getResources().getString(R.string.back));
@@ -236,13 +241,8 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			Intent intent = new Intent();
 			intent.setClass(mContext, EditNoteScreen.class);
 			intent.putExtra("isNewNote", true);
-			if (HomeScreen.mCalendarAdapter != null
-					&& HomeScreen.mCalendarAdapter.lastClickTime != -1) {
-				intent.putExtra("time",
-						HomeScreen.mCalendarAdapter.lastClickTime);
-				System.out.println("clicktime is "
-						+ DateTimeUtils.time2String("yyyyMMdd",
-								HomeScreen.mCalendarAdapter.lastClickTime));
+			if (HomeScreen.getNewNoteTime() != -1) {
+				intent.putExtra("time", HomeScreen.getNewNoteTime());
 			}
 			mContext.startActivity(intent);
 			snoteCreateTime = System.currentTimeMillis();
