@@ -130,6 +130,7 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 			if (store == null) {
 			}
 		    
+			// 插入正文
 		    InputStreamReader inr = new InputStreamReader(in);
 	        BufferedReader reader = new BufferedReader(inr);
 	        String line = null;
@@ -226,7 +227,19 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 						break;
 					}
 				}
+				reader.close();
+				inr.close();
+				in.close();
 			} catch (IOException e) {
+				try {
+					reader.close();
+					inr.close();
+					in.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

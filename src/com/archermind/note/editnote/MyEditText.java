@@ -109,6 +109,8 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 	
 	private int mVelocityX = 0;
 	
+	private boolean isErasing = false;
+	
     
     // we need this constructor for LayoutInflater
     public MyEditText(Context context, AttributeSet attrs) {
@@ -136,7 +138,13 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
         
         mClearPaint = new Paint();
-        mClearPaint.setColor(0x00000000);
+        mClearPaint.setStyle(Paint.Style.STROKE);
+        mClearPaint.setStrokeJoin(Paint.Join.ROUND);
+        mClearPaint.setStrokeCap(Paint.Cap.ROUND);
+        mClearPaint.setStrokeWidth(30);
+        mClearPaint.setXfermode(new PorterDuffXfermode(
+                PorterDuff.Mode.CLEAR));
+        mClearPaint.setColor(0x0);
         
         mTempPaint = new Paint();
         mTempPaint.setColor(0xFFFF0000);
@@ -220,6 +228,9 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 		    mStrokeBuffer.clear();
 		    mStrokeBuffer = null;
 		}
+		
+		mEditNote = null;
+		mCurrentGesture = null;
 	}
 	
 	public boolean save() {
@@ -352,7 +363,7 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 						}
 					} else {
 						if (mEditNote != null) {
-						    mEditNote.moveNextPage();
+						    mEditNote.moveNextPage(false);
 						    imm.hideSoftInputFromWindow(getWindowToken(), 0);
 						}
 					}
@@ -427,7 +438,11 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
             mCurrentGesture = new AmGesture();
         }
     	if (mCanvas != null) {
-    	    mCanvas.drawPath(mPath, mFingerPen);
+    		if (!isErasing) {
+    	        mCanvas.drawPath(mPath, mFingerPen);
+    		} else {
+    			mCanvas.drawPath(mPath, mClearPaint);
+    		}
     	}
     	AmGestureStroke gestureStroke = new AmGestureStroke(mStrokeBuffer);
     	gestureStroke.setFingerColor(mFingerColor);
@@ -446,6 +461,10 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 	
 	public Paint getFingerPen() {
 		return mFingerPen;
+	}
+	
+	public void setErase(boolean flag) {
+		isErasing = flag;
 	}
 }
 

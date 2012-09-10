@@ -20,7 +20,6 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -39,7 +38,6 @@ import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Provider.DatabaseHelper;
-import com.archermind.note.Services.EventService;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DensityUtil;
 import com.archermind.note.Utils.GenerateName;
@@ -54,15 +52,14 @@ import com.archermind.note.gesture.AmGestureLibraries;
 import com.archermind.note.gesture.AmGestureLibrary;
 import com.archermind.note.gesture.AmGestureOverlayView;
 
-import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
@@ -76,7 +73,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.Selection;
-import android.text.SpanWatcher;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -90,9 +86,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -101,6 +95,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.ViewFlipper;
 import android.widget.AdapterView.OnItemClickListener;
@@ -117,15 +112,12 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	
     private ImageView mWeatherImg = null;
     
-//    private GridView faceGridview = null;
     private FaceAdapter faceAdapter = null;
     
     private SeekBar thickness_seekbar = null;
 	
-//	private int inType = 0;
 	private AmGesture mGesture;
 	private static final float LENGTH_THRESHOLD = 40.0f;
-//	private InputMethodManager  imm = null;
 	
 	private LinearLayout edit_type = null; // 输入方式
 	private LinearLayout pic_type = null; // 图片的类型：表情/图片
@@ -164,6 +156,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	private final int MIN_STROKEWIDTH = 12;
 	private final int MAX_STROKEWIDTH = 30;
 	private float mStrokeWidth = MIN_STROKEWIDTH;
+	private int mFingerColor = 0xffff0000;
 	
 	private LinearLayout mWeatherLayout = null;
 	
@@ -209,6 +202,8 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
     private boolean isNoteTobeShare = false;
     
     private boolean isNoteSaveOver = false;
+    
+    private boolean isRemoveEdit = false;
     
     private String mShareNoteId = "";
     private String mShareNoteTitle = "";
@@ -447,7 +442,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			    	    
 						int curLine = myEdit.getLayout().getLineForOffset(myEdit.getSelectionStart());
 						if (curLine >= i + 1) {
-							moveNextPage();
+							moveNextPage(false);
 						} else {
 						    myEdit.getText().delete(lineStart, textLength);
 						}
@@ -764,7 +759,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	}
 	
 	/**
-	 * 查找光标所在位置的下一个图片Span的起始位置
+	 * 查找光标所在位置的上一个图片Span的结束位置
 	 * @param start
 	 * @return
 	 */
@@ -906,7 +901,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	 * 滑动到下一页
 	 * @return
 	 */
-	public boolean moveNextPage() {
+	public boolean moveNextPage(boolean isSave) {
 		if (mCurPage < mTotalPage) {
 			int pageStart = findNextPage(mLastPageEnd);
 			if (pageStart == -1) {
@@ -945,16 +940,40 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	        		processWhenInBounds();
 	        	}
 	        }
-			FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
-			fl.removeView(myEdit);
+		
 			
-			flipper.removeAllViews();
-		    flipper.addView(myEdit,0);
-		    
-		    flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_in));
-	    	flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_out));
-	    	
-	    	flipper.setDisplayedChild(0);
+			if (isSave) {
+				flipper.removeAllViews();
+			    flipper.setVisibility(View.GONE);
+			    
+			    if (isRemoveEdit) {
+				    FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
+				    fl.addView(myEdit);
+			    }
+			} else {
+				FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
+				fl.removeView(myEdit);
+				isRemoveEdit = true;
+				
+				flipper.removeAllViews();
+			    flipper.addView(myEdit,0);
+			    
+			    flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_in));
+		    	flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_out));
+		    	
+		    	flipper.setDisplayedChild(0);
+			}
+			
+//			FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
+//			fl.removeView(myEdit);
+//			
+//			flipper.removeAllViews();
+//		    flipper.addView(myEdit,0);
+//		    
+//		    flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_in));
+//	    	flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_out));
+//	    	
+//	    	flipper.setDisplayedChild(0);
 			Selection.setSelection(myEdit.getEditableText(), myEdit.getText().length());
 			isNeedSaveChange = true;
 		    return true;
@@ -988,6 +1007,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			}
 			FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
 			fl.removeView(myEdit);
+			isRemoveEdit = true;
 			
 			flipper.removeAllViews();
 		    flipper.addView(myEdit,0);
@@ -1258,13 +1278,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		fontchoose_dialog = new Dialog(this);
 		fontchoose_dialog.setContentView(R.layout.font_dialog_window);
 		
-		final List<String> data = new ArrayList<String>();
-        data.add(getString(R.string.font_xdxwz));
-        data.add(getString(R.string.font_droidsans));
-        data.add(getString(R.string.font_droidserif_italic));
-        
         ListView lv = (ListView) fontchoose_dialog.findViewById(R.id.lv_font_setting);
-//        lv.setAdapter(new ArrayAdapter<String>(this, R.layout.font_dialog_window_item,data));
         lv.setAdapter(new FontAdapter(this));
         fontchoose_dialog.setTitle(getString(R.string.choose_font));
         lv.setOnItemClickListener(new OnItemClickListener() {
@@ -1395,7 +1409,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			}
 			break;
 		case R.id.edit_insert:
-//			faceGridview.setVisibility(View.GONE);
 			if (isPicTypeShow) {
 				pic_type.setVisibility(View.GONE);
 				isPicTypeShow = false;
@@ -1439,6 +1452,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		case R.id.edit_delete:
 			if (mState != GRAFFITINSERTSTATE) {
 				int delete_index = myEdit.getSelectionStart();
+				if (delete_index <= 0) {
+					return;
+				}
 				Spanned s_delete = myEdit.getText();
 				ImageSpan[] imageSpans_delete = s_delete.getSpans(0, delete_index, ImageSpan.class);
 				if (imageSpans_delete.length == 0) {
@@ -1475,11 +1491,14 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 					break;
 				}
 				mStrokeWidth = myEdit.getFingerPen().getStrokeWidth();
+				mFingerColor = myEdit.getFingerPen().getColor();
 				myEdit.setFingerStrokeWidth(MAX_STROKEWIDTH);
 				myEdit.getFingerPen().setStrokeWidth(MAX_STROKEWIDTH);
-				myEdit.getFingerPen().setXfermode(new PorterDuffXfermode(
-	                    PorterDuff.Mode.CLEAR));
+//				myEdit.getFingerPen().setXfermode(new PorterDuffXfermode(
+//	                    PorterDuff.Mode.CLEAR));
+				myEdit.getFingerPen().setColor(0xffffffff);
 				myEdit.setFingerColor(0x00000000);
+				myEdit.setErase(true);
 				isgraffit_erase = true;
 			}
 			break;
@@ -1500,9 +1519,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		case R.id.edit_type_graffit:
 			edit_type.setVisibility(View.GONE);
 			isInputTypeShow = false;
-			
+			myEdit.setErase(false);
 			if (isgraffit_erase) {
 				myEdit.setFingerStrokeWidth((int)mStrokeWidth);
+				myEdit.colorChanged(mFingerColor);
 				myEdit.getFingerPen().setXfermode(null);
 				isgraffit_erase = false;
 				break;
@@ -1526,11 +1546,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			mState = SOFTINPUTSTATE;
 			break;
 		case R.id.edit_insert_face:
-//		    pic_type.setVisibility(View.GONE);
-//			isPicTypeShow = false;
-//			faceGridview.setVisibility(View.VISIBLE);
-//			edit_delete.setImageDrawable(getResources().getDrawable(R.drawable.edit_delete_1_selector));
-//			myEdit.clearFocus(); 
 			pic_type.setVisibility(View.GONE);
 			isPicTypeShow = false;
 			if (facechoose_dialog == null) {
@@ -1538,7 +1553,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			}
 			
 			facechoose_dialog.show();
-//			mState = FACEINSERTSTATE;
 			break;
 		case R.id.edit_insert_pic:
 			if (picchoose_dialog == null) {
@@ -1559,12 +1573,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			pic_type.setVisibility(View.GONE);
 			isPicTypeShow = false;
 			
-//			if (mState == PICINSERTSTATE) {
-//				break;
-//			}
-//			
-//			edit_delete.setImageDrawable(getResources().getDrawable(R.drawable.edit_delete_1_selector));
-//			mState = PICINSERTSTATE;
 			break;
 		case R.id.edit_insert_space:
 			int index = myEdit.getSelectionStart();
@@ -1746,7 +1754,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		
 		if (!"".equals(mDiaryPath) && mDiaryPath != null) {
 			ArrayList<String> strList = getNotePictureFromZip(mDiaryPath);
-			Log.d("=VVV=","mDiaryPath = " + mDiaryPath + " size = " + strList.size());
 			deletefiles(strList);
 		}
 		
@@ -1756,7 +1763,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		myEdit.scrollTo(0, 0);
 		convertDiary2Pic();
 		
-		while(moveNextPage()) {
+		while(moveNextPage(true)) {
 			myEdit.scrollTo(0, 0);
 			convertDiary2Pic();
 		}
@@ -1834,8 +1841,15 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		}
 		if (gestureview != null) {
 		    gestureview.clear(false);
+		    gestureview = null;
+		}
+		
+		if (flipper != null) {
+			flipper.removeAllViews();
+			flipper = null;
 		}
 		mGesture = null;
+		myEdit = null;
 		System.gc();
 		super.finish();
 	}
@@ -1896,9 +1910,41 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		if (!"".equals(mDiaryPath)) {
 			noteFileName = mDiaryPath.substring(mDiaryPath.lastIndexOf("/") + 1);
 		}
-		final Bitmap viewBitmap=Bitmap.createBitmap(bitmap_rect_linearlayout.getWidth(),bitmap_rect_linearlayout.getHeight(),Bitmap.Config.ARGB_8888);
+		final Bitmap viewBitmap=Bitmap.createBitmap(bitmap_rect_linearlayout.getWidth(),bitmap_rect_linearlayout.getHeight() + 100,Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(viewBitmap);
 		bitmap_rect_linearlayout.draw(canvas);
+		
+		int editHeight = getEditHeight();
+		int viewHeight = myEdit.getHeight();
+		
+		if (editHeight > viewHeight) {
+			myEdit.scrollTo(0, editHeight - viewHeight);
+			myEdit.setDrawingCacheEnabled(true);
+			myEdit.buildDrawingCache(true);
+			Bitmap bm = myEdit.getDrawingCache();
+			Rect src = new Rect();
+			src.left = 0;
+			src.right = bitmap_rect_linearlayout.getWidth();
+			src.top = viewHeight - (editHeight - viewHeight);
+			src.bottom = myEdit.getHeight();
+			
+			Rect dst = new Rect();
+			dst.left = 0;
+			dst.right = bitmap_rect_linearlayout.getWidth();
+			dst.top = bitmap_rect_linearlayout.getHeight();
+			dst.bottom = dst.top + src.height();
+			Log.d("=CCCC=","editHeight = " + editHeight + " viewHeight = " + viewHeight + " srcTop = " + src.top + " scrBottom = " + src.bottom + " dstTop = " + dst.top + " dstBottom = " + dst.bottom + " bmpHeight = " + bm.getHeight());
+			
+			Paint pt = new Paint();
+			pt.setColor(0xFFE8E8E8);
+			canvas.drawRect(dst, pt);
+			canvas.drawBitmap(bm, src, dst, null);
+			
+//			if (bm != null && !bm.isRecycled()) {
+//				bm.recycle();
+//			}
+		}
+		
 		
 		final String fileName = NoteApplication.savePath + "notepicture/" + noteFileName + "_page" + String.valueOf(mCurPage) + ".png";
 		mPicPathList.add(fileName);
@@ -1948,7 +1994,23 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 //			e.printStackTrace();
 //		}
 	}
-	
+
+	/**
+	 * 获取编辑框的高度
+	 * @return
+	 */
+	private int getEditHeight() {
+		int totalLine = myEdit.getLineCount();
+		int height = 0;
+		
+		for(int i = 0; i < totalLine; i++) {
+			Rect rc = new Rect();
+			myEdit.getLineBounds(i, rc);
+            int curLineHeight = rc.height();
+            height += curLineHeight;
+		}
+		return height;
+	}
 	/**
 	 * 获取笔记的存储地址
 	 * @return
@@ -2545,16 +2607,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 					View tempView = parent.getChildAt(index);
 					//((FrameLayout) tempView).getChildAt(1).setVisibility(View.GONE);
 				}
-//				childView.setVisibility(View.VISIBLE);
 				
 				insertFace(viewId);
 				
-//				faceGridview.setVisibility(View.GONE);
 				facechoose_dialog.dismiss();
-				
-//				edit_input_type.setImageDrawable(getResources().getDrawable(R.drawable.edit_softinput_selector));
-//				edit_delete.setImageDrawable(getResources().getDrawable(R.drawable.edit_delete_1_selector));
-//				mState = SOFTINPUTSTATE;
 			}
 		});
 		faceGridview.setAdapter(faceAdapter);

@@ -179,11 +179,14 @@ public class NoteSaveDialog implements OnClickListener{
 					dismiss();
 				}
 			} else if (saveGroup.getCheckedRadioButtonId() == R.id.save_only) {
-				mEditNote.save();
 				String title = mEditText.getEditableText().toString();
 				if ("".equals(title) || title == null) {
 					Toast.makeText(mEditNote, "标题为空，请输入标题",  Toast.LENGTH_SHORT).show();
 					return;
+				}
+				
+				if (mEditNote.hasChanged()) {
+				    mEditNote.save();
 				}
 				long updateTime = System.currentTimeMillis();
 				String diaryPath = mEditNote.getDiaryPath();
