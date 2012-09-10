@@ -111,8 +111,8 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	private LocalNoteAdapter mLocalNoteAdapter = null;
 	
 	private Cursor mCursor;
-	private static CharSequence[] transactItemsSign = {"分享", "标记", "删除"};
-	private static CharSequence[] transactItemsUnsign = {"分享", "取消标记", "删除"};
+	private CharSequence[] transactItemsSign = {"分享", "标记", "删除"};
+	private CharSequence[] transactItemsUnsign = {"分享", "取消标记", "删除"};
 	private AlertDialog.Builder mbuilder;
 	private AlertDialog madTransact;
 	
@@ -120,7 +120,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	private static int calendarHeight = 0;
 	public static final EventService eventService = ServiceManager.getEventservice();
 	
-
+	private static boolean isClicked = false;
 	public HomeScreen(){
 		super();
 	}
@@ -423,6 +423,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		// TODO Auto-generated method stub
 		switch(e.getType()){
 			case HOMESCREEN_FLING:
+				System.out.println("==== fling =====");
 				final String tag = mListHeader.getTag().toString();
 				HomeScreen.this.runOnUiThread(new Runnable(){
 					@Override
@@ -785,9 +786,19 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		super.onDestroy();
 	}
 
+	public static void setIsClicked(){
+		isClicked = true;
+	}
+	
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 		// TODO Auto-generated method stub
+		
+		System.out.println("==== click =====");
+		if(!isClicked){
+			return;
+		}
+		
 		String path = null;
 		String title = null;
 		int id = 0; 
@@ -809,9 +820,12 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 			intent.setClass(MainScreen.mContext, EditNoteScreen.class);
 			MainScreen.mContext.startActivity(intent);
 		}
+		
+		isClicked = false;
 	}
 
-
+	
+	
 	
 	@Override
 	public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2,

@@ -312,7 +312,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	public boolean onFling(MotionEvent arg0, MotionEvent arg1, float arg2,
 			float arg3) {
 		// TODO Auto-generated method stub
-		System.out.println("mainscreen onfling " + (arg0.getX() - arg1.getX()));
+		System.out.println("==mainscreen onfling " + (arg0.getX() - arg1.getX()));
 		if (mTabHost.getCurrentTabTag().equalsIgnoreCase(TAB_HOME)) {
 			String direction = null;
 			if (arg0.getX() - arg1.getX() > 130) {
@@ -340,6 +340,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	@Override
 	public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2,
 			float arg3) {
+		System.out.println("==mainscreen onScroll ");
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -353,6 +354,8 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	@Override
 	public boolean onSingleTapUp(MotionEvent arg0) {
 		// TODO Auto-generated method stub
+		System.out.println("==mainscreen onSingleTapUp ");
+		HomeScreen.setIsClicked();
 		return false;
 	}
 
@@ -404,7 +407,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	@Override
 	public boolean onEvent(Object sender, final EventArgs e) {
 		// TODO Auto-generated method stub
-		// System.out.println("-----------main onEvent" + e.getType());
+		//System.out.println("-----------main onEvent" + e.getType());
 		switch (e.getType()) {
 		case SHOW_OR_HIDE_BUTTON_BACK:
 			MainScreen.this.runOnUiThread(new Runnable() {
