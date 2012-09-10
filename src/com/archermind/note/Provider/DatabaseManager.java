@@ -35,14 +35,22 @@ public class DatabaseManager {
 	}
 	
 	public long insertLocalNotes(ContentValues values) {
-		Cursor c = queryTodayLocalNOTEs(values.getAsLong(databaseHelper.COLUMN_NOTE_CREATE_TIME));
-		values.put(DatabaseHelper.COLUMN_NOTE_LAST_FLAG, true);
+		long now = values.getAsLong(databaseHelper.COLUMN_NOTE_CREATE_TIME);
+		Cursor c = queryTodayLocalNOTEs(now);
 		if(c.getCount()>0){
 			c.moveToFirst();
-			int _id = c.getInt(c.getColumnIndex(DatabaseHelper.COLUMN_NOTE_ID));
-			ContentValues v = new ContentValues();
-			v.put(DatabaseHelper.COLUMN_NOTE_LAST_FLAG, false);
-			updateLocalNotes(v, _id);
+			long time = c.getLong(c.getColumnIndex(databaseHelper.COLUMN_NOTE_CREATE_TIME));
+			if(time < now){
+				int _id = c.getInt(c.getColumnIndex(DatabaseHelper.COLUMN_NOTE_ID));
+				ContentValues v = new ContentValues();
+				v.put(DatabaseHelper.COLUMN_NOTE_LAST_FLAG, false);
+				updateLocalNotes(v, _id);
+				values.put(DatabaseHelper.COLUMN_NOTE_LAST_FLAG, true);
+			}else{
+				values.put(DatabaseHelper.COLUMN_NOTE_LAST_FLAG, false);
+			}
+		}else{
+			values.put(DatabaseHelper.COLUMN_NOTE_LAST_FLAG, true);
 		}
 		c.close();
 		return database.insert(DatabaseHelper.TAB_NOTE, null, values);

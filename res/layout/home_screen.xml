@@ -156,9 +156,11 @@
                 </LinearLayout>
                 
                <ImageView 
+                android:id="@+id/iv_papers"
 			    android:layout_width="fill_parent"
 			    android:layout_height="wrap_content"
 			    android:src="@drawable/calendar_top"
+			    android:scaleType="fitXY"
 			    android:layout_below="@id/ll_weekdays"
 			    />
         </RelativeLayout>

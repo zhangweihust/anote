@@ -159,14 +159,16 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		WindowManager windowManager = getWindowManager();
         Display display = windowManager.getDefaultDisplay();
         int Width = display.getWidth(); 
+        
 		tabSpecView = (LinearLayout) LayoutInflater.from(this).inflate(
 				R.layout.tab_item_view, null);
 		ImageView icon = (ImageView) tabSpecView.findViewById(R.id.imageview);
 		icon.setImageResource(iconId);
+		//System.out.println("====width : " + Width + ", iconWidth : " + icon.getWidth() + icon.getDrawable().getIntrinsicWidth());
 		if (iconId == R.drawable.tabhost_home_selector) {
-			tabSpecView.setPadding((int)(Width*0.06 + icon.getWidth()*0.5), 0, 0, 0);
+			tabSpecView.setPadding((int)(Width*0.22*0.5 - icon.getDrawable().getIntrinsicWidth()*0.5), 0, 0, 0);
 		} else {
-			tabSpecView.setPadding((int)(Width*0.35 - icon.getWidth()*0.5), 0, 0, 0);
+			tabSpecView.setPadding((int)(Width*0.78*0.5 - icon.getDrawable().getIntrinsicWidth()*0.5), 0, 0, 0);
 		}
 		TabSpec tabSpec = this.mTabHost.newTabSpec(tag)
 				.setIndicator(tabSpecView).setContent(intent);

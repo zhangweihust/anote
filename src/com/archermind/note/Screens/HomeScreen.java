@@ -166,16 +166,15 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 						mListHeader.setTag(tagTimeList);
 						mCursor = ServiceManager
 								.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear);
-						startManagingCursor(mCursor);
+						//startManagingCursor(mCursor);
+						mLocalNoteAdapter.changeCursor(mCursor);
+						mlvMonthNotes.setAdapter(mLocalNoteAdapter);
 						if(mCursor.getCount() == 0){
 							tvNoNoteCurMonth.setVisibility(View.VISIBLE);
 							ivTrack.setVisibility(View.GONE);
-							mlvMonthNotes.setAdapter(null);
 						}else{
 							ivTrack.setVisibility(View.VISIBLE);
-							tvNoNoteCurMonth.setVisibility(View.GONE);
-							mLocalNoteAdapter.changeCursor(mCursor);
-							mlvMonthNotes.setAdapter(mLocalNoteAdapter);	
+							tvNoNoteCurMonth.setVisibility(View.GONE);	
 						}
 					} else if(tag.equals(tagTimeList)) {
 						mllCalendarPage.snapToPage(0);
@@ -197,7 +196,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月", System.currentTimeMillis()));
 		mCursor = ServiceManager
 				.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear);
-		startManagingCursor(mCursor);
+		//startManagingCursor(mCursor);
 		if(mLocalNoteAdapter == null){
 			mLocalNoteAdapter = new LocalNoteAdapter(mContext, mCursor);
 		}else{
@@ -285,16 +284,15 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	    	if(mListHeader.getTag().equals(tagTimeList)){
 		    	mCursor = ServiceManager
 						.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear);
-		    	startManagingCursor(mCursor);
+		    	//startManagingCursor(mCursor);
+				mLocalNoteAdapter.changeCursor(mCursor);
+				mlvMonthNotes.setAdapter(mLocalNoteAdapter);
 				if(mCursor.getCount() == 0){
 					tvNoNoteCurMonth.setVisibility(View.VISIBLE);
 					ivTrack.setVisibility(View.GONE);
-					mlvMonthNotes.setAdapter(null);
 				}else{
 					ivTrack.setVisibility(View.VISIBLE);
 					tvNoNoteCurMonth.setVisibility(View.GONE);
-					mLocalNoteAdapter.changeCursor(mCursor);
-					mlvMonthNotes.setAdapter(mLocalNoteAdapter);
 				}
 	    	}else{
 	    		showCalendarMonth(NEXT_MONTH, false);
@@ -303,7 +301,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	    	System.out.println(" before " + DateTimeUtils.time2String("yyyyMMdd", mCurTime));
 	    	mCursor = ServiceManager
 					.getDbManager().queryTodayLocalNOTEs(mCurTime);
-	    	startManagingCursor(mCursor);
+	    	//startManagingCursor(mCursor);
 	    	mLocalNoteOnedayAdapter.changeCursor(mCursor);
 	    	mlvDayNotes.setAdapter(mLocalNoteOnedayAdapter);
 
@@ -449,17 +447,15 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 									System.out.println("====next taglistview====" + mCurMonth);
 									mCursor = ServiceManager
 											.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear);
-									startManagingCursor(mCursor);
+									//startManagingCursor(mCursor);
+									mLocalNoteAdapter.changeCursor(mCursor);
+									mlvMonthNotes.setAdapter(mLocalNoteAdapter);
 									if(mCursor.getCount() == 0){
 										tvNoNoteCurMonth.setVisibility(View.VISIBLE);
 										ivTrack.setVisibility(View.GONE);
-										mlvMonthNotes.setAdapter(null);
 									}else{
 										ivTrack.setVisibility(View.VISIBLE);
 										tvNoNoteCurMonth.setVisibility(View.GONE);
-										mLocalNoteAdapter.changeCursor(mCursor);
-										startManagingCursor(mCursor);
-										mlvMonthNotes.setAdapter(mLocalNoteAdapter);
 									}
 								}
 							}else if(mllHomePage.getVisibility() == View.VISIBLE){
@@ -468,7 +464,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 								while(time < mLastestTime){
 									//System.out.println("time-- " + DateTimeUtils.time2String("yyyyMMdd hh:mm:ss", time));
 									mCursor = ServiceManager.getDbManager().queryTodayLocalNOTEs(time);
-									startManagingCursor(mCursor);
+									//startManagingCursor(mCursor);
 									if(mCursor.getCount() == 0){
 										time = DateTimeUtils.getTomorrow(Calendar.AM, time) + 2000;
 									}else{
@@ -505,16 +501,15 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 									System.out.println("====pre monthlist====" + mCurMonth);
 									mCursor = ServiceManager
 											.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear);
-									startManagingCursor(mCursor);
+									////startManagingCursor(mCursor);
+									mLocalNoteAdapter.changeCursor(mCursor);
+								    mlvMonthNotes.setAdapter(mLocalNoteAdapter);
 									if(mCursor.getCount() == 0){
 										tvNoNoteCurMonth.setVisibility(View.VISIBLE);
 										ivTrack.setVisibility(View.GONE); 
-										mlvMonthNotes.setAdapter(null);
 									}else{
 										ivTrack.setVisibility(View.VISIBLE);
 										tvNoNoteCurMonth.setVisibility(View.GONE);
-										mLocalNoteAdapter.changeCursor(mCursor);
-									    mlvMonthNotes.setAdapter(mLocalNoteAdapter);
 									}
 								}
 							}else if(mllHomePage.getVisibility() == View.VISIBLE){
@@ -524,7 +519,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 								while(time > mEarlistTime){
 									System.out.println("time-- " + DateTimeUtils.time2String("yyyyMMdd hh:mm:ss", time));
 									mCursor = ServiceManager.getDbManager().queryTodayLocalNOTEs(time);
-									startManagingCursor(mCursor);
+									////startManagingCursor(mCursor);
 									if(mCursor.getCount() == 0){
 										time = DateTimeUtils.getYesterday(Calendar.PM, time) - 2000;
 										System.out.println("this day has no note");
@@ -579,7 +574,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 						mllCalendarPage.setVisibility(View.GONE);
 						mCursor = ServiceManager
 								.getDbManager().queryTodayLocalNOTEs(time);
-						startManagingCursor(mCursor);
+						////startManagingCursor(mCursor);
 						if(mLocalNoteOnedayAdapter == null){
 							mLocalNoteOnedayAdapter = new  LocalNoteOnedayAdapter(mContext, mCursor);
 						}else{
@@ -616,7 +611,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		case R.id.btn_back_recent:
 			mCursor = ServiceManager
 					.getDbManager().queryTodayLocalNOTEs(mRecentTime);
-			startManagingCursor(mCursor);
+			////startManagingCursor(mCursor);
 			mLocalNoteOnedayAdapter.changeCursor(mCursor);
 			mlvDayNotes.setAdapter(mLocalNoteOnedayAdapter);
 			mCurTime = mRecentTime;
@@ -642,16 +637,15 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 			}else{
 				mCursor = ServiceManager
 						.getDbManager().queryMonthLocalNOTES(mCurMonth, mCurYear);
-				startManagingCursor(mCursor);
+				//startManagingCursor(mCursor);
+				mLocalNoteAdapter.changeCursor(mCursor);
+			    mlvMonthNotes.setAdapter(mLocalNoteAdapter);
 				if(mCursor.getCount() == 0){
 					tvNoNoteCurMonth.setVisibility(View.VISIBLE);
 					ivTrack.setVisibility(View.GONE); 
-					mlvMonthNotes.setAdapter(null);
 				}else{
 					ivTrack.setVisibility(View.VISIBLE);
 					tvNoNoteCurMonth.setVisibility(View.GONE);
-					mLocalNoteAdapter.changeCursor(mCursor);
-				    mlvMonthNotes.setAdapter(mLocalNoteAdapter);
 				}
 			}
 			break;
@@ -780,8 +774,15 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
-		super.onDestroy();
+		
 		eventService.remove(this);
+		if (mLocalNoteAdapter != null && mLocalNoteAdapter.getCursor() != null) {    
+			mLocalNoteAdapter.getCursor().close();    
+		}
+		if (mLocalNoteOnedayAdapter != null && mLocalNoteOnedayAdapter.getCursor() != null) {    
+			mLocalNoteOnedayAdapter.getCursor().close();    
+		}
+		super.onDestroy();
 	}
 
 	@Override
