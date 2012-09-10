@@ -77,7 +77,7 @@ public class PhotoAdapter extends BaseAdapter {
 		final String title = appInfo.get("title").toString();
 		final String filepath = appInfo.get("filepath").toString();
 		final int isWebImage = Integer.parseInt(appInfo.get("isweb").toString());
-
+		
 		// final String allName = appInfo.get("allName").toString();
 		final ViewHolder viewHolder;
 		if (convertView == null) {

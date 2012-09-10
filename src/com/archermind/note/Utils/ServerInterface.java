@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.amtcloud.mobile.android.business.AmtApplication;
+import com.archermind.note.NoteApplication;
 import com.archermind.note.Screens.LoginScreen;
 
 import android.R.integer;
@@ -239,34 +240,34 @@ public class ServerInterface {
 	/**
 	 * 上传相册 输入参数：用户id，相册名，用户名，文件路径，文件名，文件扩展名 返回值： 0 成功 -1 url为空 -2：数据库操作失败
 	 */
-	// public static int uploadAlbum(Context context,String user_id, String
-	// albumname,
-	// String username, String filepath ,String filename,String expandname) {
-	// AmtFileObject fileObj = new AmtFileObject(context);
-	// fileObj.uploadFile(app_id, user_id, filepath);
-	// // String url =
-	// "http://yun.archermind.com/mobile/service/showMedia?appId="
-	// // + app_id
-	// // + "&userName="
-	// // + username
-	// // + "&mediaName="
-	// // + filename
-	// // + "&mediaType=" + expandname;
-	// String url =filename+ "." +expandname;
-	// Map<String, String> map = new HashMap<String, String>();
-	// map.put("user_id", user_id);
-	// map.put("albumname", albumname);
-	// map.put("albumurl", url);
-	// String res= HttpUtils.doPost(map, URL_uploadAlbum);
-	//
-	// int result =0;
-	// try{
-	// result =Integer.parseInt(res);
-	// }catch (Exception e){
-	// result =-3; //其他异常情况
-	// }
-	// return result;
-	// }
+	 public static int uploadAlbum(String user_id, String filename, String albumname) 
+	 {
+	 // String url =
+//	 "http://yun.archermind.com/mobile/service/showMedia?appId="
+	 // + app_id
+	 // + "&userName="
+	 // + username
+	 // + "&mediaName="
+	 // + filename
+	 // + "&mediaType=" + expandname;
+	 String url = "";
+	 url = NoteApplication.getInstance().getUserName()
+		+ "&filename=" + filename + "&album=" + albumname;
+		 
+		 
+	 Map<String, String> map = new HashMap<String, String>();
+	 map.put("user_id", user_id);
+	 map.put("albumurl", url);
+	 String res= HttpUtils.doPost(map, URL_uploadAlbum);
+	
+	 int result =0;
+	 try{
+	 result =Integer.parseInt(res);
+	 }catch (Exception e){
+	 result =-3; //其他异常情况
+	 }
+	 return result;
+	 }
 	/**
 	 * 获取相册里的照片 输入参数：用户id，相册名 返回值： json 成功 -1 url为空 -2：数据库操作失败
 	 */

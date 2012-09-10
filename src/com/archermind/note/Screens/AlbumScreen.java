@@ -51,12 +51,18 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 
+import com.amtcloud.mobile.android.business.AmtAlbumObj;
+import com.amtcloud.mobile.android.business.AmtApplication;
+import com.amtcloud.mobile.android.business.MessageTypes;
+import com.amtcloud.mobile.android.business.AmtAlbumObj.AlbumItem;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Adapter.PhotoAdapter;
 import com.archermind.note.Adapter.PhotoAdapter.ViewHolder;
 import com.archermind.note.Provider.DatabaseHelper;
+import com.archermind.note.Screens.RegisterScreen.UploadAvatarTask;
 import com.archermind.note.Services.ServiceManager;
+import com.archermind.note.Utils.AlbumInfoUtil;
 import com.archermind.note.Utils.ImageCapture;
 import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
@@ -129,6 +135,69 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	private PhotoAdapter mGalleryPhotoAdapter;
 	
 	private String mAlbumUrllist;
+	
+	private String mAvatarPath;
+	private AmtAlbumObj mAlbumObj;
+	private static final String ALBUMNAME = "myalbumname";
+	private Message uploadnewmsg = new Message();
+	
+	private Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			// 处理图片上传过程发送的消息
+			switch (msg.what) {
+			case MessageTypes.ERROR_MESSAGE:
+				dismissProgress();
+				uploadnewmsg.what = UPLOAD_ALBUM_ERROR;
+				handler.sendMessage(uploadnewmsg);
+				break;
+			case MessageTypes.MESSAGE_CREATEALBUM:
+				mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()
+						.getUserName());
+				break;
+			case MessageTypes.MESSAGE_GETALBUM:
+				AlbumItem[] albumItems = AlbumInfoUtil.getAlbumInfos(mAlbumObj,
+						msg.obj);
+				if (albumItems == null) {
+					mAlbumObj.createAlbum(NoteApplication.getInstance()
+							.getUserName(), ALBUMNAME);
+					break;
+				}
+				int albumid = -1;
+				for (int i = 0; i < albumItems.length; i++) {
+					if (albumItems[i].albumname.equals(ALBUMNAME)) {
+						albumid = albumItems[i].albumid;
+					}
+				}
+				if (albumid == -1) {
+					mAlbumObj.createAlbum(NoteApplication.getInstance()
+							.getUserName(), ALBUMNAME);
+				} else {
+					ArrayList<String> picPath = new ArrayList<String>();
+					picPath.add(mAvatarPath);
+					ArrayList<String> picNames = new ArrayList<String>();
+					picNames.add(mAvatarPath.substring(mAvatarPath
+							.lastIndexOf("/") + 1));
+					mAlbumObj.uploadPicFiles(picPath, picNames, albumid);
+				}
+				break;
+			case MessageTypes.MESSAGE_UPLOADPIC:
+				// 上传头像文件成功，开始执行插入数据库操作
+				int ret = ServerInterface.uploadAlbum(String.valueOf(NoteApplication
+						.getInstance().getUserId()), mAvatarPath
+						.substring(mAvatarPath.lastIndexOf("/") + 1), ALBUMNAME);
+				if (ret == ServerInterface.SUCCESS)
+				{
+					uploadnewmsg.what = UPLOAD_ALBUM_OK;
+					handler.sendMessage(uploadnewmsg);
+				}
+			default:
+				break;
+			}
+		}
+
+	};
     
     OnItemClickListener mItemClickListener = new OnItemClickListener() {
 		@Override
@@ -160,6 +229,14 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		
 		mContext = AlbumScreen.this;
 		
+		String user_name = NoteApplication
+		.getInstance().getUserName();
+		AmtApplication.setAmtUserName(user_name);
+		mAlbumObj = new AmtAlbumObj();
+		mAlbumObj.setHandler(mHandler);
+		mAlbumObj.createAlbum(NoteApplication.getInstance()
+				.getUserName(), ALBUMNAME);
+		
 		GalleryStatushandler = new Handler()
 		{
 			public void handleMessage(Message msg) 
@@ -174,7 +251,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					GalleryStatushandler.removeCallbacks(titleGoneRunnable);
 					break;
 				case TITLE_GONE:
-					mTitleLayout.setVisibility(View.GONE);
+					setTitleMiss();
 					break;
 				default:
 					break;
@@ -217,17 +294,20 @@ public class AlbumScreen extends Screen implements OnClickListener {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				// TODO Auto-generated method stub
-				
-				if (event.getAction() == MotionEvent.ACTION_DOWN)
+				switch(event.getAction())
 				{
-					mTitleLayout.setVisibility(View.VISIBLE);
+				case MotionEvent.ACTION_DOWN:
+				case MotionEvent.ACTION_MOVE:
+					setTitleAppear();
 					GalleryStatushandler.sendEmptyMessage(TITLE_GONE_CANCEL);
-				}
-				else if (event.getAction() == MotionEvent.ACTION_UP)
-				{
-//					mTitleLayout.setVisibility(View.GONE);
+					break;
+				case MotionEvent.ACTION_UP:
 					GalleryStatushandler.sendEmptyMessage(TITLE_GONE_MSG);
+					break;
+				default:
+					break;
 				}
+				
 				return false;
 			}
 		});
@@ -289,9 +369,6 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		
 		serverInterface = new ServerInterface();
 //		serverInterface.InitAmtCloud(mContext);
-		
-		mAlbumUrllist = Environment
-		.getExternalStorageDirectory().toString() + "/anote/image_cache/0_20120907_114625.jpg";
 		
 		loadAlbumData();
 	}
@@ -576,30 +653,27 @@ public class AlbumScreen extends Screen implements OnClickListener {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case UPLOAD_ALBUM: {
-//				String user_id = String.valueOf(NoteApplication.getInstance()
-//						.getUserId());
-//				String username = NoteApplication.getInstance().getUserName();
-//				String albumname = username;
-//				String aName = msg.getData().getString("name");
-//				String aExpandName = msg.getData().getString("expandname");
-//				String aFilePath = msg.getData().getString("filelocalpath");
-//				int aUploadCount = msg.getData().getInt("uploadcount");
-//
+				String user_id = String.valueOf(NoteApplication.getInstance()
+						.getUserId());
+				String username = NoteApplication.getInstance().getUserName();
+				String albumname = username;
+				String aName = msg.getData().getString("name");
+				String aExpandName = msg.getData().getString("expandname");
+				String aFilePath = msg.getData().getString("filelocalpath");
+				int aUploadCount = msg.getData().getInt("uploadcount");
+
+				mAvatarPath = aFilePath;
+				mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()
+						.getUserName());
 //				int result = serverInterface.uploadAlbum(mContext, user_id,
 //						albumname, username, aFilePath, aName, aExpandName);
-//
-//				Message newmsg = new Message();
-//				newmsg.getData().putString("name", aName);
-//				newmsg.getData().putString("expandname", aExpandName);
-//				newmsg.getData().putString("filelocalpath", aFilePath);
-//				newmsg.getData().putInt("uploadcount", aUploadCount);
-//
-//				if (result == 0) {
-//					newmsg.what = UPLOAD_ALBUM_OK;
-//				} else {
-//					newmsg.what = UPLOAD_ALBUM_ERROR;
-//				}
-//				handler.sendMessage(newmsg);
+
+				uploadnewmsg = new Message();
+				uploadnewmsg.getData().putString("name", aName);
+				uploadnewmsg.getData().putString("expandname", aExpandName);
+				uploadnewmsg.getData().putString("filelocalpath", aFilePath);
+				uploadnewmsg.getData().putInt("uploadcount", aUploadCount);
+
 			}
 				break;
 				
@@ -638,8 +712,11 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				if (uploadcount > 3 || uploadcount <= 0 || NoteApplication.networkIsOk == false)  {
 					System.out.println("UPLOAD_ALBUM_ERROR");
 					String aFilePath = msg.getData().getString("filelocalpath");
-					new File(aFilePath).delete();
-					Toast.makeText(AlbumScreen.this, getString(R.string.image_upload_failed), Toast.LENGTH_SHORT).show();
+					if (aFilePath != null && !aFilePath.equals(""))
+					{
+						new File(aFilePath).delete();
+						Toast.makeText(AlbumScreen.this, getString(R.string.image_upload_failed), Toast.LENGTH_SHORT).show();
+					}
 				} else {
 					System.out.println("UPLOAD_ALBUM_ERROR, try count : " + String.valueOf(uploadcount+1));
 					String aName = msg.getData().getString("name");
@@ -789,6 +866,21 @@ public class AlbumScreen extends Screen implements OnClickListener {
         }
         return true;
     }
+	
+	private void setTitleMiss()
+	{
+		mTitleLayout.setBackgroundResource(0);
+//		mTitleLayout.setBackgroundColor(android.R.color.black);
+		mBtnGalleryBack.setVisibility(View.INVISIBLE);
+		mGalleryTitle.setVisibility(View.INVISIBLE);
+	}
+	
+	private void setTitleAppear()
+	{
+		mTitleLayout.setBackgroundResource(R.drawable.title_bar_background);
+		mBtnGalleryBack.setVisibility(View.VISIBLE);
+		mGalleryTitle.setVisibility(View.VISIBLE);
+	}
 }
 
 

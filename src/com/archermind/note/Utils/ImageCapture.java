@@ -117,24 +117,33 @@ public class ImageCapture {
 		if (items.length == 0)
 			return null;
 		
-		String mediaName="";
-		String mediaType="jpg";
-		for (int i=0; i<items.length; i++) {
-			if (items[i].contains("mediaName=")) {
-				String []str=items[i].split("=");
-				mediaName = str[str.length-1];
-			}
-			
-			if (items[i].contains("mediaType=")) {
-				String []str=items[i].split("=");
-				mediaType = str[str.length-1].toLowerCase();
+//		String mediaName="";
+//		String mediaType="jpg";
+//		for (int i=0; i<items.length; i++) {
+//			if (items[i].contains("mediaName=")) {
+//				String []str=items[i].split("=");
+//				mediaName = str[str.length-1];
+//			}
+//			
+//			if (items[i].contains("mediaType=")) {
+//				String []str=items[i].split("=");
+//				mediaType = str[str.length-1].toLowerCase();
+//			}
+//		}
+		String filename = "";
+		for (int i=0; i<items.length; i++)
+		{
+			if (items[i].contains("filename="))
+			{
+				filename = items[i].replace("filename=", "");
+				break;
 			}
 		}
 		
-		if ("".equals(mediaName) || "".equals(mediaType))
+		if ("".equals(filename))
 			return null;
 		else
-			return ImageCapture.IMAGE_CACHE_PATH + "/" + mediaName + "." + mediaType;
+			return ImageCapture.IMAGE_CACHE_PATH + "/" + filename;
 	}
 	
 	/**
