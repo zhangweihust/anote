@@ -36,6 +36,8 @@ public class XListViewHeader extends LinearLayout {
 	public final static int STATE_NORMAL = 0;
 	public final static int STATE_READY = 1;
 	public final static int STATE_REFRESHING = 2;
+	
+	private int mHeight;
 
 	public XListViewHeader(Context context) {
 		super(context);
@@ -60,6 +62,7 @@ public class XListViewHeader extends LinearLayout {
 		addView(mContainer, lp);
 		setGravity(Gravity.BOTTOM);
 
+		mHeight = mContainer.getHeight();
 		mArrowImageView = (ImageView)findViewById(R.id.xlistview_header_arrow);
 		mHintTextView = (TextView)findViewById(R.id.xlistview_header_hint_textview);
 		mProgressBar = (ProgressBar)findViewById(R.id.xlistview_header_progressbar);
@@ -120,11 +123,12 @@ public class XListViewHeader extends LinearLayout {
 		LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mContainer
 				.getLayoutParams();
 		lp.height = height;
+		mHeight = height;
 		mContainer.setLayoutParams(lp);
 	}
 
 	public int getVisiableHeight() {
-		return mContainer.getHeight();
+		return mHeight;
 	}
 
 }

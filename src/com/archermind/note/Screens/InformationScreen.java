@@ -153,8 +153,8 @@ public class InformationScreen extends Screen implements IXListViewListener,OnXS
 					info.userid = jsonObject.getInt("user_id");
 					String tmp = jsonObject.getString("portrait");
 					System.out.println("url0 = " + tmp);
-					if(tmp != null && photoUrl.contains(",,,,") && photoUrl.contains("####") && tmp.contains(".")){
-						info.photo = photoUrl.replace("####", tmp.substring(0, tmp.indexOf("."))).replace(",,,,", info.userid + "") + tmp.substring(tmp.lastIndexOf(".")+1);
+					if(tmp != null && !tmp.trim().equals("")){
+						info.photo = photoUrl + tmp;
 						System.out.println("url = " + info.photo);
 					}
 					info.title = jsonObject.getString("title");
@@ -185,8 +185,8 @@ public class InformationScreen extends Screen implements IXListViewListener,OnXS
 				info.nickname = jsonObject.getString("nickname");
 				info.userid = jsonObject.getInt("user_id");
 				String tmp = jsonObject.getString("portrait");
-				if(tmp != null && photoUrl.contains(",,,,") && photoUrl.contains("####") && tmp.contains(".")){
-					info.photo = photoUrl.replace("####", tmp.substring(0, tmp.indexOf("."))).replace(",,,,", info.userid + "") + tmp.substring(tmp.lastIndexOf(".")+1);
+				if(tmp != null && !tmp.trim().equals("")){
+					info.photo = photoUrl + tmp;
 					System.out.println("url = " + info.photo);
 				}
 				info.title = jsonObject.getString("title");

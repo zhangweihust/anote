@@ -54,6 +54,7 @@ public class InformationAdapter extends BaseAdapter
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ListItemsView item = null;
+		//System.out.println("==================information adapter getView ==============");
 		if(convertView == null){
 			convertView = LayoutInflater.from(mCtx).inflate(R.layout.information_listview_item, null);
 			item = new ListItemsView();
