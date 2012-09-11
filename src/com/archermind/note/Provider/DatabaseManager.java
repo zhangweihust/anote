@@ -70,12 +70,13 @@ public class DatabaseManager {
 		   Cursor dCursor = database.query(DatabaseHelper.TAB_NOTE, null, DatabaseHelper.COLUMN_NOTE_ID + " = ? ", new String[]{String.valueOf(id)}, null, null, null); 
 		   if(dCursor.moveToNext()){ 
 			   boolean lastFlag = dCursor.getInt(dCursor.getColumnIndex(databaseHelper.COLUMN_NOTE_LAST_FLAG)) == 1;
-			   long timeInMillis = dCursor.getInt(dCursor.getColumnIndex(databaseHelper.COLUMN_NOTE_CREATE_TIME));
+			   long timeInMillis = dCursor.getLong(dCursor.getColumnIndex(databaseHelper.COLUMN_NOTE_CREATE_TIME));
 			   database.delete(DatabaseHelper.TAB_NOTE,
 						DatabaseHelper.COLUMN_NOTE_ID + " =? ",
 						new String[] { String.valueOf(id) });
-			   if(lastFlag){//如果该日程是一天的第一条日程，则修改该天的第二条日程的标志位
+			   if(lastFlag){
 					Cursor c = queryTodayLocalNOTEs(timeInMillis);
+					//System.out.println("==== lastFlag:" + lastFlag + "c.getCount" + c.getCount() + "  " + timeInMillis);
 					if(c.getCount() > 0){
 						c.moveToFirst();
 						int _id = c.getInt(c.getColumnIndex(DatabaseHelper.COLUMN_NOTE_ID));
