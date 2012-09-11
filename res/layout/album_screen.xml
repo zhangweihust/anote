@@ -161,12 +161,13 @@
 							android:orientation="vertical">
 						</LinearLayout>
 					</RelativeLayout>
-					<Gallery android:id="@+id/p_gallery_gallery"
+					<com.archermind.note.Views.PhotoGallery
+					      android:id="@+id/p_gallery_gallery"
 					      android:layout_width="match_parent"
 					      android:layout_height="fill_parent"
 					      android:gravity="center_vertical"
 					      android:layout_gravity="center_vertical"
-					      android:spacing="0dp"
+					      android:spacing="16dp"
 					  />
 				</LinearLayout>
 			</FrameLayout>

@@ -69,10 +69,11 @@ import com.archermind.note.Utils.ServerInterface;
 import com.archermind.note.Views.AlbumScrollLayout;
 import com.archermind.note.Views.AlbumScrollLayout.OnScreenChangeListener;
 import com.archermind.note.Views.AlbumScrollLayout.OnScreenChangeListenerDataLoad;
+import com.archermind.note.Views.PhotoGallery;
 
 public class AlbumScreen extends Screen implements OnClickListener {
 
-	private Gallery mPhotoGallery;
+	private PhotoGallery mPhotoGallery;
 	private AlbumScrollLayout mPhotoView;
 	private View mPhotoGalleryLayout;
 	private View mPhotoGridLayout;
@@ -261,7 +262,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		
 		mTitleLayout = (RelativeLayout) findViewById(R.id.p_gallery_relativeLayout1);
 		
-		mPhotoGallery = (Gallery) findViewById(R.id.p_gallery_gallery);
+		mPhotoGallery = (PhotoGallery) findViewById(R.id.p_gallery_gallery);
 		mPhotoGalleryLayout = (View) findViewById(R.id.p_gallery_layout);
 		
 		mPhotoView = (AlbumScrollLayout) findViewById(R.id.ScrollLayoutTest);
@@ -328,6 +329,9 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				String title = String.format(
 						getString(R.string.album_gallery_title), cur_num, sum);
 				mGalleryTitle.setText(title);
+				setTitleAppear();
+				GalleryStatushandler.sendEmptyMessage(TITLE_GONE_CANCEL);
+				GalleryStatushandler.sendEmptyMessage(TITLE_GONE_MSG);
 
 				AlbumScreen.this.runOnUiThread(new Runnable() {
 					@Override
@@ -350,7 +354,6 @@ public class AlbumScreen extends Screen implements OnClickListener {
 							}
 						}
 						mLastSelItem = mSelItem;
-						GalleryStatushandler.sendEmptyMessage(TITLE_GONE);
 					}
 				});
 			}
