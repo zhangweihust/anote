@@ -688,4 +688,6 @@
 	<string name="cancel">取消</string>
 	<string name="refresh">刷新</string>
 	<string name="no_note_curmonth">这个月没有写笔记哦</string>
+	
+	<string name="photo_upload_failed">上传失败</string>
 </resources>

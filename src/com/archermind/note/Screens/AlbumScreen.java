@@ -31,6 +31,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.MediaStore.Audio;
 import android.util.MonthDisplayHelper;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -185,13 +186,22 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				break;
 			case MessageTypes.MESSAGE_UPLOADPIC:
 				// 上传头像文件成功，开始执行插入数据库操作
+				String filepath = mAvatarPath.substring(mAvatarPath.lastIndexOf("/") + 1);
 				int ret = ServerInterface.uploadAlbum(String.valueOf(NoteApplication
-						.getInstance().getUserId()), mAvatarPath
-						.substring(mAvatarPath.lastIndexOf("/") + 1), ALBUMNAME);
+						.getInstance().getUserId()), filepath, ALBUMNAME);
 				if (ret == ServerInterface.SUCCESS)
 				{
 					uploadnewmsg.what = UPLOAD_ALBUM_OK;
 					handler.sendMessage(uploadnewmsg);
+				}
+				else if (ret == ServerInterface.COOKIES_ERROR)
+				{
+					NoteApplication.getInstance().setLogin(false);
+					Toast.makeText(AlbumScreen.this, R.string.cookies_error, Toast.LENGTH_SHORT).show();
+				}
+				else
+				{
+					Toast.makeText(AlbumScreen.this, filepath + " " + getResources().getString(R.string.photo_upload_failed), Toast.LENGTH_SHORT).show();
 				}
 			default:
 				break;
