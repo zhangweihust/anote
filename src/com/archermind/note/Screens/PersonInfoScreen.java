@@ -381,7 +381,9 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 						R.string.register_err_server_internal,
 						Toast.LENGTH_SHORT).show();
 			} else if (result.equals("" + ServerInterface.COOKIES_ERROR)) {
-				// 上层已处理，在此不做处理了
+				NoteApplication.getInstance().setLogin(false);
+				Toast.makeText(NoteApplication.getContext(),
+						R.string.cookies_error, Toast.LENGTH_SHORT).show();
 			} else if (result.equals("" + ServerInterface.SUCCESS)) {
 				Toast.makeText(PersonInfoScreen.this,
 						R.string.update_success,

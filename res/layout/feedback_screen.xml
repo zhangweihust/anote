@@ -44,7 +44,7 @@
                     android:layout_width="42dp" 
 		            android:layout_height="32dp"
 					android:layout_centerVertical="true"
-					android:text="@string/cancel"
+					android:text="@string/back"
 		            android:background="@drawable/button_selector" 
 		            android:layout_marginLeft="8dip"
 		            android:textColor="@color/white" />

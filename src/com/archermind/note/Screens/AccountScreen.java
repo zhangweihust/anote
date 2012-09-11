@@ -84,9 +84,6 @@ public class AccountScreen extends Screen implements OnClickListener {
 	private String mPswd;
 	private ProgressBar mProgressBar;
 	private SharedPreferences mPreferences;
-	private static final int BOUNDACCOUNT_OK = 1;
-	private static final int BOUNDACCOUNT_FAILED = -1;
-	private static final int BOUNDACCOUNT_FAILED_EXIST = -3;
 	private int mType; // 绑定账号的类型
 	private String mNickname; // 绑定账号的昵称
 	private NetThread mNetThread;
@@ -97,15 +94,19 @@ public class AccountScreen extends Screen implements OnClickListener {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
+			dismissProgress();
 			switch (msg.what) {
 			case ServerInterface.ERROR_SERVER_INTERNAL:
 				Toast.makeText(NoteApplication.getContext(),
 						R.string.register_err_server_internal,
 						Toast.LENGTH_SHORT).show();
-				AccountScreen.this.finish();
 				break;
-			case BOUNDACCOUNT_OK:
-				dismissProgress();
+			case ServerInterface.COOKIES_ERROR:
+				NoteApplication.getInstance().setLogin(false);
+				Toast.makeText(NoteApplication.getContext(),
+						R.string.cookies_error, Toast.LENGTH_SHORT).show();
+				break;
+			case ServerInterface.SUCCESS:
 				if (mType == ServerInterface.LOGIN_TYPE_SINA) {
 					NoteApplication.getInstance().setmSina_nickname(mNickname);
 					Toast.makeText(NoteApplication.getContext(),
@@ -125,14 +126,12 @@ public class AccountScreen extends Screen implements OnClickListener {
 				}
 				onResume();// 刷新界面
 				break;
-			case BOUNDACCOUNT_FAILED:
-				dismissProgress();
+			case ServerInterface.BOUNDACCOUNT_FAILED:
 				Toast.makeText(NoteApplication.getContext(),
 						R.string.account_bound_failed, Toast.LENGTH_SHORT)
 						.show();
 				break;
-			case BOUNDACCOUNT_FAILED_EXIST:
-				dismissProgress();
+			case ServerInterface.BOUNDACCOUNT_FAILED_EXIST:
 				Toast.makeText(NoteApplication.getContext(),
 						R.string.account_bound_failed_exist, Toast.LENGTH_SHORT)
 						.show();
@@ -649,12 +648,16 @@ public class AccountScreen extends Screen implements OnClickListener {
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
-			if (result.equals(""+ServerInterface.SUCCESS)) {
+			if (result.equals("" + ServerInterface.SUCCESS)) {
 				Editor editor = mPreferences.edit();
 				editor.putString(PreferencesHelper.XML_USER_PASSWD, mPswd);
 				editor.commit();
 				Toast.makeText(AccountScreen.this, R.string.update_success,
 						Toast.LENGTH_SHORT).show();
+			} else if (result.equals("" + ServerInterface.COOKIES_ERROR)) {
+				NoteApplication.getInstance().setLogin(false);
+				Toast.makeText(NoteApplication.getContext(),
+						R.string.cookies_error, Toast.LENGTH_SHORT).show();
 			} else {
 				Toast.makeText(AccountScreen.this, R.string.update_failed,
 						Toast.LENGTH_SHORT).show();
@@ -681,9 +684,13 @@ public class AccountScreen extends Screen implements OnClickListener {
 
 		@Override
 		public void run() {
-			int result = ServerInterface.boundAccount(userId, type, bin_uid,
+			String result = ServerInterface.boundAccount(userId, type, bin_uid,
 					bin_nickname);
-			mHandler.sendEmptyMessage(result);
+			try {
+				mHandler.sendEmptyMessage(Integer.parseInt(result));
+			} catch (Exception e) {
+				mHandler.sendEmptyMessage(ServerInterface.BOUNDACCOUNT_FAILED);
+			}
 		}
 
 	}

@@ -93,6 +93,9 @@ public class ServerInterface {
 	public static final int ERROR_USER_BINDED = -5;
 
 	public static final int COOKIES_ERROR = -600;
+	
+	public static final int BOUNDACCOUNT_FAILED = -1;
+	public static final int BOUNDACCOUNT_FAILED_EXIST = -3;
 
 	/**
 	 * 用户注册 输入参数：用户名，用户密码 返回值： SUCCESS 注册成功
@@ -140,26 +143,26 @@ public class ServerInterface {
 		return HttpUtils.doPost(map, URL_CHECK);
 	}
 
-	public static int boundAccount(int userId, int type, String bin_uid,
+	public static String boundAccount(int userId, int type, String bin_uid,
 			String bin_nickname) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user_id", String.valueOf(userId));
 		map.put("acc_type", String.valueOf(type));
 		map.put("bin_acc", bin_uid);
 		map.put("bin_nickname", bin_nickname);
-		String res = HttpUtils.doPost(map, URL_BOUNDACCOUNT);
-		try {
-			if (res.equals("0")) {
-				return 1;
-			} else if (res.equals("-3")) {
-				return -3;
-			} else if (Integer.parseInt(res) == COOKIES_ERROR) {
-				return COOKIES_ERROR;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return -1;
+		return HttpUtils.doPost(map, URL_BOUNDACCOUNT);
+//		try {
+//			if (res.equals("0")) {
+//				return 1;
+//			} else if (res.equals("-3")) {
+//				return -3;
+//			} else if (Integer.parseInt(res) == COOKIES_ERROR) {
+//				return COOKIES_ERROR;
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return -1;
 	}
 
 	/**

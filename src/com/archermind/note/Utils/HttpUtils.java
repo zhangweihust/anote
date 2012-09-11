@@ -68,7 +68,6 @@ public class HttpUtils {
 			String m_cookie = PreferencesHelper.getSharedPreferences(
 					NoteApplication.getContext(), 0).getString(
 					PreferencesHelper.XML_COOKIES, "");
-			System.out.println("testcookie:" + m_cookie);
 			if (m_cookie != null && !m_cookie.equals("")) {
 				m_cookie = m_cookie.replace("\r\n", "");
 			}
@@ -111,16 +110,12 @@ public class HttpUtils {
 					sp.edit()
 							.putString(PreferencesHelper.XML_COOKIES, httphead)
 							.commit();
+					Log.i("HttpUtils", "cookies:" + httphead);
 				}
 				String strResult = EntityUtils.toString(response.getEntity(),
 						HTTP.UTF_8);
 				// strResult = strResult.replace("\"", "");
-				Log.e("HttpUtils", "strResult:" + strResult);
-				if (strResult.equals("-600")) {
-					NoteApplication.getInstance().setLogin(false);
-					Toast.makeText(NoteApplication.getContext(),
-							R.string.cookies_error, Toast.LENGTH_SHORT).show();
-				}
+				Log.i("HttpUtils", "strResult:" + strResult);
 				return strResult;
 			} else {
 				for (int i = 0; i < 2; i++) {

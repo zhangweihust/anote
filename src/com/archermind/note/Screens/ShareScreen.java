@@ -233,7 +233,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 					Long.parseLong(params[0]), userIdStr, params[3], params[2],
 					params[1], context, String.valueOf(totalPage));
 			if (serviceId == ServerInterface.COOKIES_ERROR) {
-				return "cookis_error";
+				return "cookies_error";
 			} else {
 				if ("A".equals(params[2])) {
 					if (serviceId > 0) {
@@ -292,6 +292,9 @@ public class ShareScreen extends Screen implements OnClickListener {
 				Log.i(TAG, "分享到广场失败!");
 			} else if (result.equals("cookies_error")) {
 				dismssProgressBar(R.string.share_failed, false);
+				NoteApplication.getInstance().setLogin(false);
+				Toast.makeText(NoteApplication.getContext(),
+						R.string.cookies_error, Toast.LENGTH_SHORT).show();
 			}
 		}
 

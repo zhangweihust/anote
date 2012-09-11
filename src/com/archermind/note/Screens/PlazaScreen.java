@@ -41,6 +41,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.plaza_screen);
 	        mWebView = (WebView) findViewById(R.id.plaza_page);
+	        mWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
 	        mTextView = (TextView) findViewById(R.id.tv_no_web);	
 	        if(android.os.Build.VERSION.SDK_INT > 8){
 		        Typeface type = Typeface.createFromAsset(getAssets(),"xdxwzt.ttf");
