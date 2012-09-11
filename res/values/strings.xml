@@ -105,9 +105,10 @@
     <string name="personal_info_sex_female">女</string>
     <string name="personal_info_sex_male">男</string>
     <string name="personal_info_region">地区：</string>
-    <string name="personal_info_get_fail">个人信息获取失败</string>
-    <string name="personal_info_set_fail">个人信息设置失败</string>
-    <string name="personal_info_set_succ">个人信息设置成功</string>
+    <string name="personal_info_loadavatar_failed">头像下载失败！</string>
+    <string name="personal_info_progress">正在提交修改...</string>
+    <string name="personal_info_update_failed">修改失败！</string>
+    <string name="personal_info_update_success">修改成功！</string>
 
     <!-- login -->
     <string name="login_title">登录</string>
@@ -122,7 +123,7 @@
     <string name="login_btn">账号登录</string>
     <string name="logout_btn">退出登录</string>
     <string name="login_relogin">重新登录</string>
-    <string name="login_failed">呃，网络可能出了点问题！请稍候再试！</string>
+    <string name="login_failed">呃，登录失败了！再试一次吧！</string>
     <string name="login_err_username_format">请输入正确格式的邮箱！</string>
     <string name="login_err_password_format">密码为6至16位的数字和字母组合！</string>
     <string name="login_err_username_not_exist">用户名不存在！</string>
@@ -162,6 +163,7 @@
     <string name="register_err_pswdconfirm">两次输入密码不一致！</string>
     <string name="register_dialog_msg">请稍候...</string>
     <string name="register_success">注册成功！</string>
+    <string name="register_failed">呃，注册失败了！再试一次吧！</string>
     <string name="register_success_upload_photo_failed">注册成功！但头像上传失败！</string>
     
     <!-- about -->

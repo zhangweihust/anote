@@ -102,7 +102,7 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 			break;
 		case R.id.personal_info_layout:
 			if (isLogin()) {
-				intent.setClass(mContext, PersonalInfoScreen.class);
+				intent.setClass(mContext, PersonInfoScreen.class);
 				mContext.startActivity(intent);
 			}
 			break;

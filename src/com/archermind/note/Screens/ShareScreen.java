@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.json.JSONObject;
 
 import com.amtcloud.mobile.android.business.AmtAlbumObj;
+import com.amtcloud.mobile.android.business.AmtApplication;
 import com.amtcloud.mobile.android.business.AmtAlbumObj.AlbumItem;
 import com.amtcloud.mobile.android.business.MessageTypes;
 import com.archermind.note.NoteApplication;
@@ -81,6 +82,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
+			// 处理图片上传过程发送的消息
 			Log.i(TAG, "handler_message:" + msg.what);
 			switch (msg.what) {
 			case MessageTypes.ERROR_MESSAGE:
@@ -109,15 +111,19 @@ public class ShareScreen extends Screen implements OnClickListener {
 					mAlbumObj.createAlbum(NoteApplication.getInstance()
 							.getUserName(), ALBUMNAME_SHARE);
 				} else {
-					if(mPicPathList == null){
+					if (mPicPathList == null) {
 						Log.e(TAG, "mPicPathList is null");
 						return;
 					}
 					ArrayList<String> picnameList = new ArrayList<String>();
 					for (String s : mPicPathList) {
-					picnameList.add(s.substring(s.lastIndexOf("/") + 1));
+						picnameList.add(s.substring(s.lastIndexOf("/") + 1));
+						Log.i(TAG,
+								"图片名称：" + s.substring(s.lastIndexOf("/") + 1));
 					}
-					mAlbumObj.uploadPicFiles(mPicPathList, picnameList, albumid);
+					mAlbumObj
+							.uploadPicFiles(mPicPathList, picnameList, albumid);
+					Log.i(TAG, "albumid：" + albumid);
 				}
 				break;
 			case MessageTypes.MESSAGE_UPLOADPIC:
@@ -215,7 +221,11 @@ public class ShareScreen extends Screen implements OnClickListener {
 			String context = totalPage == 0 ? "" : mPicPathList.get(0);
 
 			if (!"".equals(context)) {
-				context = context.substring(context.lastIndexOf("/") + 1);
+				context = NoteApplication.getInstance().getUserName()
+						+ "&filename="
+						+ context.substring(context.lastIndexOf("/") + 1)
+						+ "&album=" + ALBUMNAME_SHARE;
+				Log.i(TAG, "分享的笔记图片url： " + context);
 			}
 
 			int serviceId = ServerInterface.uploadNote(
@@ -277,6 +287,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 	 */
 	private void uploadNotePic() {
 		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
+			AmtApplication.setAmtUserName(NoteApplication.getInstance().getUserName());
 			mAlbumObj = new AmtAlbumObj();
 			mAlbumObj.setHandler(mHandler);
 			mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()

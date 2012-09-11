@@ -29,6 +29,10 @@ public class NoteApplication extends Application {
 
 	private int mUserId;
 	private String mUserName;
+	private String mAvatarurl;
+	private String mNickname;
+	private String mSex;
+	private String mRegion;
 	private String mSina_nickname;
 	private String mQQ_nickname;
 	private String mRenren_nickname;
@@ -89,6 +93,15 @@ public class NoteApplication extends Application {
 		this.isLogin = isLogin;
 	}
 	
+	
+	public String getmAvatarurl() {
+		return mAvatarurl;
+	}
+
+	public void setmAvatarurl(String mAvatarurl) {
+		this.mAvatarurl = mAvatarurl;
+	}
+
 	public String getUserName() {
 		return this.mUserName;
 	}
@@ -98,6 +111,30 @@ public class NoteApplication extends Application {
 	}
 	
 	
+
+	public String getmNickname() {
+		return mNickname;
+	}
+
+	public void setmNickname(String mNickname) {
+		this.mNickname = mNickname;
+	}
+
+	public String getmSex() {
+		return mSex;
+	}
+
+	public void setmSex(String mSex) {
+		this.mSex = mSex;
+	}
+
+	public String getmRegion() {
+		return mRegion;
+	}
+
+	public void setmRegion(String mRegion) {
+		this.mRegion = mRegion;
+	}
 
 	public String getmSina_nickname() {
 		return mSina_nickname;

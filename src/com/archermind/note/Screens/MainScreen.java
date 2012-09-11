@@ -509,14 +509,22 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 											.optString("email"));
 									noteApplication.setUserId(jsonObject
 											.optInt("user_id"));
-									noteApplication.setmSina_nickname(jsonObject
-											.optString("flag_sina"));
-									String test = jsonObject
-											.optString("flag_qq");
+									noteApplication.setmAvatarurl(jsonObject
+											.optString("portrait"));
+									noteApplication.setmNickname(jsonObject
+											.optString("nickname"));
+									noteApplication.setmSex(jsonObject
+											.optString("gender"));
+									noteApplication.setmRegion(jsonObject
+											.optString("region"));
+									noteApplication
+											.setmSina_nickname(jsonObject
+													.optString("flag_sina"));
 									noteApplication.setmQQ_nickname(jsonObject
 											.optString("flag_qq"));
-									noteApplication.setmRenren_nickname(jsonObject
-											.optString("flag_renren"));
+									noteApplication
+											.setmRenren_nickname(jsonObject
+													.optString("flag_renren"));
 									noteApplication.setLogin(true);
 									Log.i("MainScreen", "autologin success");
 								}

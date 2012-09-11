@@ -861,7 +861,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 							ShareScreen.class);
 					intent.putStringArrayListExtra("picpathlist",
 							picPathList);
-					intent.putExtra("noteid", id + "");
+					intent.putExtra("noteid", String.valueOf(id));
 					intent.putExtra("title", title);
 					intent.putExtra("action", action);
 					intent.putExtra("sid", sid);

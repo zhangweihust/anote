@@ -2,12 +2,14 @@ package com.archermind.note.Screens;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.amtcloud.mobile.android.business.AmtAlbumObj;
+import com.amtcloud.mobile.android.business.AmtApplication;
 import com.amtcloud.mobile.android.business.MessageTypes;
 import com.amtcloud.mobile.android.business.AmtAlbumObj.AlbumItem;
 import com.archermind.note.NoteApplication;
@@ -45,6 +47,7 @@ import android.widget.Toast;
 
 public class RegisterScreen extends Screen implements OnClickListener {
 
+	public static final String ALBUMNAME_AVATAR = "avatar";
 	private LinearLayout mSetAvatar;
 	private ImageView mUserAvatar;
 	private EditText mUserName;
@@ -65,13 +68,13 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	private ImageCapture mImgCapture;
 	private String mAvatarPath;
 	private AmtAlbumObj mAlbumObj;
-	private static final String ALBUMNAME_AVATAR = "avatar";
 	private static final String TAG = "RegisterScreen";
 	private Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			// 处理图片上传过程发送的消息
+			Log.i(TAG, "handler_message:" + msg.what);
 			switch (msg.what) {
 			case MessageTypes.ERROR_MESSAGE:
 				Toast.makeText(RegisterScreen.this,
@@ -106,15 +109,24 @@ public class RegisterScreen extends Screen implements OnClickListener {
 					ArrayList<String> picNames = new ArrayList<String>();
 					picNames.add(mAvatarPath.substring(mAvatarPath
 							.lastIndexOf("/") + 1));
+					Log.i(TAG,
+							"图片名称："
+									+ mAvatarPath.substring(mAvatarPath
+											.lastIndexOf("/") + 1));
 					mAlbumObj.uploadPicFiles(picPath, picNames, albumid);
+					Log.i(TAG, "albumid：" + albumid);
 				}
 				break;
 			case MessageTypes.MESSAGE_UPLOADPIC:
 				// 上传头像文件成功，开始执行插入数据库操作
+				String url = NoteApplication.getInstance().getUserName()
+						+ "&filename="
+						+ mAvatarPath
+								.substring(mAvatarPath.lastIndexOf("/") + 1)
+						+ "&album=" + ALBUMNAME_AVATAR;
 				UploadAvatarTask uploadAvatarTask = new UploadAvatarTask();
 				uploadAvatarTask.execute(String.valueOf(NoteApplication
-						.getInstance().getUserId()), mAvatarPath
-						.substring(mAvatarPath.lastIndexOf("/") + 1));
+						.getInstance().getUserId()), url);
 			default:
 				break;
 			}
@@ -215,6 +227,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 				if (extras != null) {
 					ByteArrayOutputStream stream = new ByteArrayOutputStream();
 					Bitmap photo = extras.getParcelable("data");
+					photo = PreferencesHelper.toRoundCorner(photo, 15);
 					photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
 					byte[] b = stream.toByteArray();
 					this.mImgCapture.storeImage(b, null,
@@ -362,6 +375,10 @@ public class RegisterScreen extends Screen implements OnClickListener {
 						nickname,
 						mSex.getCheckedRadioButtonId() == R.id.register_ridiogroup_man ? "1"
 								: "2", mRegion.getText().toString());
+		Log.i(TAG,
+				"sex:"
+						+ (mSex.getCheckedRadioButtonId() == R.id.register_ridiogroup_man ? "1"
+								: "2"));
 	}
 
 	/*
@@ -419,6 +436,13 @@ public class RegisterScreen extends Screen implements OnClickListener {
 						noteApplication.setUserName(jsonObject
 								.optString("email"));
 						noteApplication.setUserId(jsonObject.optInt("user_id"));
+						noteApplication.setmAvatarurl(jsonObject
+								.optString("portrait"));
+						noteApplication.setmNickname(jsonObject
+								.optString("nickname"));
+						noteApplication.setmSex(jsonObject.optString("gender"));
+						noteApplication.setmRegion(jsonObject
+								.optString("region"));
 						noteApplication.setmSina_nickname(jsonObject
 								.optString("flag_sina"));
 						noteApplication.setmQQ_nickname(jsonObject
@@ -429,6 +453,8 @@ public class RegisterScreen extends Screen implements OnClickListener {
 
 						// 文件操作：上传头像文件
 						if (mAvatarPath != null) {
+							AmtApplication.setAmtUserName(NoteApplication
+									.getInstance().getUserName());
 							mAlbumObj = new AmtAlbumObj();
 							mAlbumObj.setHandler(mHandler);
 							mAlbumObj.createAlbum(NoteApplication.getInstance()
@@ -445,7 +471,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 					}
 				} catch (JSONException e) {
 					dismissProgress();
-					Toast.makeText(RegisterScreen.this, R.string.login_failed,
+					Toast.makeText(RegisterScreen.this, R.string.register_failed,
 							Toast.LENGTH_SHORT).show();
 					e.printStackTrace();
 				}

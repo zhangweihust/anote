@@ -36,7 +36,7 @@
             android:name=".Screens.AccountScreen"
             android:windowSoftInputMode="stateHidden" />
         <activity android:name=".Screens.AlbumScreen" />
-        <activity android:name=".Screens.PersonalInfoScreen" />
+        <activity android:name=".Screens.PersonInfoScreen" />
         <activity android:name=".Screens.PersonalInfoRegionScreen" />
         <activity android:name=".Screens.AboutScreen" />
         <activity android:name=".Screens.FeedbackScreen" />

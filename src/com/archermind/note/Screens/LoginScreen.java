@@ -124,6 +124,14 @@ public class LoginScreen extends Screen implements OnClickListener {
 									.optString("email"));
 							noteApplication.setUserId(jsonObject
 									.optInt("user_id"));
+							noteApplication.setmAvatarurl(jsonObject
+									.optString("portrait"));
+							noteApplication.setmNickname(jsonObject
+									.optString("nickname"));
+							noteApplication.setmSex(jsonObject
+									.optString("gender"));
+							noteApplication.setmRegion(jsonObject
+									.optString("region"));
 							noteApplication.setmSina_nickname(jsonObject
 									.optString("flag_sina"));
 							noteApplication.setmQQ_nickname(jsonObject

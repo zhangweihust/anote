@@ -19,8 +19,8 @@ public class ServerInterface {
 	public static final String URL_SERVER = "http://note.archermind.com/";
 	public static final String URL_LOGIN = URL_SERVER
 			+ "ci/index.php/anote/login";
-	 public static final String URL_REGISTER = URL_SERVER
-	 + "ci/index.php/anote/register";
+	public static final String URL_REGISTER = URL_SERVER
+			+ "ci/index.php/anote/register";
 	public static final String URL_CHECK = URL_SERVER
 			+ "ci/index.php/anote/check_bin_acc";
 	public static final String URL_BOUNDACCOUNT = URL_SERVER
@@ -56,8 +56,10 @@ public class ServerInterface {
 	// public static final String URL_send_reports = URL_SERVER +
 	// "ci/index.php/anote/send_reports";
 	public static final String URL_send_reports = "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/send_reports";
-	public static final String app_id = "462b39f3eb7c4fb9a8e027473a6cd322";
-	public static final String app_secret = "482a4afe2f0e4020832078a4b4eeeae4";
+	public static final String APP_ID = "462b39f3eb7c4fb9a8e027473a6cd322";
+	public static final String APP_SECRET = "482a4afe2f0e4020832078a4b4eeeae4";
+	public static final String IMG_DOWADING_HEAD = "http://api.amtbaas.com/0/services/showPictrue?appId="
+			+ APP_ID + "&appSecret=" + APP_SECRET + "&username=";
 	public static final String URL_DEVICEINFO = URL_SERVER
 			+ "ci/index.php/anote/setClientInfo";
 	public static final String URL_USERACTIVEINFO = URL_SERVER
@@ -112,7 +114,7 @@ public class ServerInterface {
 		map.put("acc_type", type);
 		map.put("bin_acc", bin_uid);
 		map.put("bin_nickname", bin_nickname);
-		map.put("sex", sex);
+		map.put("gender", sex);
 		map.put("region", region);
 		return HttpUtils.doPost(map, URL_REGISTER);
 	}
@@ -202,7 +204,7 @@ public class ServerInterface {
 	 * 初始化 在主界面启动的时候调用 参数 ：上下文参数(this) 返回值：void
 	 */
 	public static void initAmtCloud(Context context) {
-		AmtApplication.amtAppInitialize(context, app_id, app_secret);
+		AmtApplication.amtAppInitialize(context, APP_ID, APP_SECRET);
 	}
 
 	/*
@@ -220,21 +222,6 @@ public class ServerInterface {
 			result = -3; // 其他异常情况
 		}
 		return result;
-	}
-
-	/*
-	 * 获取文件的下载地址 参数 ：用户名，文件名（不带扩展名），扩展名 返回值：外链下载地址
-	 */
-	public String makeDownloadUrl(String username, String filename,
-			String expandname) {
-		String url = "http://yun.archermind.com/mobile/service/showMedia?appId="
-				+ app_id
-				+ "&userName="
-				+ username
-				+ "&mediaName="
-				+ filename
-				+ "&mediaType=" + expandname;
-		return url;
 	}
 
 	/**
@@ -279,45 +266,17 @@ public class ServerInterface {
 		return res;
 	}
 
-	/**
-	 * 获取头像 输入参数：用户id 返回值： json 成功 -1 url为空 -2：数据库操作失败
-	 */
-	public static String getPhoto(String user_id) {
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("user_id", user_id);
-		String res = HttpUtils.doPost(map, URL_getPhotoUrl);
-		return res;
-	}
-
-	/**
-	 * 获取用户信息 输入参数：用户id 返回值： json 成功 -1 url为空 -2：数据库操作失败
-	 */
-	public static String get_info(String user_id) {
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("user_id", user_id);
-		String res = HttpUtils.doPost(map, URL_get_info);
-		return res;
-	}
-
-	/**
-	 * 获取用户信息 输入参数：用户id 返回值： json 成功 -1 url为空 -2：数据库操作失败
-	 */
-	public static int set_info(String user_id, String nickname, String gender,
-			String region) {
+	public static String update_info(String user_id, String nickname,
+			String gender, String region, String avatar_url) {
 
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user_id", user_id);
 		map.put("nickname", nickname);
 		map.put("gender", gender);
 		map.put("region", region);
+		map.put("portrait", avatar_url);
 		String res = HttpUtils.doPost(map, URL_set_info);
-		int result = 0;
-		try {
-			result = Integer.parseInt(res);
-		} catch (Exception e) {
-			result = -3; // 其他异常情况
-		}
-		return result;
+		return res;
 	}
 
 	public static int uploadNote(long id, String user_id, String nid,
