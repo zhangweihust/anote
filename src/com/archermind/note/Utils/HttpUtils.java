@@ -77,7 +77,7 @@ public class HttpUtils {
 
 			if (response.getStatusLine().getStatusCode() == 200) {
 				if (url.indexOf("login") > 0
-						|| url.indexOf("check_bin_acc") > 0) {
+						|| url.indexOf("check_bin_acc") > 0 || url.indexOf("register") > 0) {
 					Header[] head = null;
 					head = response.getHeaders("Set-Cookie");
 					for (int i = 0; i < head.length; i++) {

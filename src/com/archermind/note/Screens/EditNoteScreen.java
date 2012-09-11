@@ -1825,10 +1825,29 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	@Override
 	public void finish() {
 		// TODO Auto-generated method stub
+		EditNoteScreen.this.runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				myEdit.getText().clear();
+				myEdit.recycleBitmap();
+				if (gestureview != null) {
+				    gestureview.clear(false);
+				    gestureview = null;
+				}
+				
+				if (flipper != null) {
+					flipper.removeAllViews();
+					flipper = null;
+				}
+				
+				myEdit = null;
+			}
+		});
 		EditNoteScreen.mState = EditNoteScreen.SOFTINPUTSTATE;
 		deleteDefaultFiles();
-		myEdit.getText().clear();
-		myEdit.recycleBitmap();
+
 		ServiceManager.getEventservice().remove(this);
 		if (mStrList != null) {
 		    mStrList.clear();
@@ -1839,17 +1858,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		if (mPicMap != null) {
 		    mPicMap.clear();
 		}
-		if (gestureview != null) {
-		    gestureview.clear(false);
-		    gestureview = null;
-		}
-		
-		if (flipper != null) {
-			flipper.removeAllViews();
-			flipper = null;
-		}
+
 		mGesture = null;
-		myEdit = null;
+
 		System.gc();
 		super.finish();
 	}
