@@ -58,7 +58,7 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 		int isSigned = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_CONTENT_SIGNED));
 		item.tvTitle.setText(title);
 		item.tvTime.setText(DateTimeUtils.time2String("HH:mm", time));
-		
+		//System.out.println("============local oneday adapter=============");
 		if(lastFlag){
 			item.tvDays.setVisibility(View.VISIBLE);
 			//item.tvDate.setVisibility(View.VISIBLE);

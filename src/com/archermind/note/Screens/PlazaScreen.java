@@ -58,24 +58,23 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		        	mWebView.setVisibility(View.GONE);
 		        	return;
 		        }
-		     /*   mWebView = new WebView(this);
-		        setContentView(mWebView);*/
 		        mWebView.setVisibility(View.VISIBLE);
 		        mTextView.setVisibility(View.GONE);
 		        mWebView.getSettings().setJavaScriptEnabled(true); 
 		        mWebView.getSettings().setBuiltInZoomControls(true);
 		        mWebView.requestFocus();
-		        
+
 		        if(NoteApplication.getInstance().isLogin()){
 		        CookieSyncManager.createInstance(this);
 		        CookieSyncManager.getInstance().startSync();
-		     //    CookieManager.getInstance().removeSessionCookie();
 		       // CookieManager.getInstance().removeAllCookie();
 		       // System.out.println(CookieManager.getInstance().getCookie(url) + "~~~~~~~~~~~~~~~~~~");
 		        CookieManager.getInstance().setCookie(url, "userid=" + NoteApplication.getInstance().getUserId() + ";");
 		        mWebView.clearCache(true);
 		        mWebView.clearHistory();
-		      // System.out.println(CookieManager.getInstance().getCookie(url) + "~~~~~~~~~~~~~~~~~~");
+		        // System.out.println(CookieManager.getInstance().getCookie(url) + "~~~~~~~~~~~~~~~~~~");
+		        }else{
+			        CookieManager.getInstance().removeSessionCookie();
 		        }
 
 		       
@@ -129,20 +128,20 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		}
 	 
 	 	public  void refresh(){
-	 		System.out.println("===refresh===" + mNetwork);
+	 		System.out.println("===refresh===" + mNetwork);/*
 	 	    if(NetworkUtils.getNetworkState(this) == NetworkUtils.NETWORN_NONE){
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT).show();
 	        	mTextView.setVisibility(View.VISIBLE);
 	        	mWebView.setVisibility(View.GONE);
 	        	mNetwork = NetworkUtils.getNetworkState(this);
 	        	return;
-	        }else if(NetworkUtils.getNetworkState(this) != mNetwork){
+	        }else if(NetworkUtils.getNetworkState(this) != mNetwork){*/
 	        	init();
-	        }else{
+	      /*  }else{
 	        	mNetwork = NetworkUtils.getNetworkState(this);
 		        mWebView.requestFocus();
 		 		mWebView.reload();
-	        }
+	        }*/
 	 	}
 	 	
 	 	@Override
