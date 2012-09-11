@@ -234,8 +234,8 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		AmtApplication.setAmtUserName(user_name);
 		mAlbumObj = new AmtAlbumObj();
 		mAlbumObj.setHandler(mHandler);
-		mAlbumObj.createAlbum(NoteApplication.getInstance()
-				.getUserName(), ALBUMNAME);
+//		mAlbumObj.createAlbum(NoteApplication.getInstance()
+//				.getUserName(), ALBUMNAME);
 		
 		GalleryStatushandler = new Handler()
 		{
