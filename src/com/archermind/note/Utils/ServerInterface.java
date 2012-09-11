@@ -165,12 +165,12 @@ public class ServerInterface {
 	/**
 	 * 修改密码 输入参数：用户名，原密码，新密码 返回值： SUCCESS 修改成功
 	 */
-	public static int modifyPassword(String username, String newpassword) {
+	public static String modifyPassword(String username, String newpassword) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user", username);
 		// map.put("password", oldpassword);
 		map.put("newpass", newpassword);
-		return Integer.valueOf(HttpUtils.doPost(map, URL_MODIFYPASSWORD));
+		return HttpUtils.doPost(map, URL_MODIFYPASSWORD);
 	}
 
 	public static boolean isEmail(String email) {

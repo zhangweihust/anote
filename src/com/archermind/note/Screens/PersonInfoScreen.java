@@ -79,7 +79,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 			case MessageTypes.ERROR_MESSAGE:
 				mProgressBar.setVisibility(View.GONE);
 				Toast.makeText(PersonInfoScreen.this,
-						R.string.personal_info_update_failed,
+						R.string.update_failed,
 						Toast.LENGTH_SHORT).show();
 				dismissProgress();
 				break;
@@ -335,7 +335,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 			startActivityForResult(intent, REGION_RESULT);
 			break;
 		case R.id.confirm_change:
-			Toast.makeText(this, R.string.personal_info_progress,
+			Toast.makeText(this, R.string.update_progress,
 					Toast.LENGTH_SHORT).show();
 			mProgressBar.setVisibility(View.VISIBLE);
 			if (ismodifyAvatar) {
@@ -384,11 +384,11 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 				// 上层已处理，在此不做处理了
 			} else if (result.equals("" + ServerInterface.SUCCESS)) {
 				Toast.makeText(PersonInfoScreen.this,
-						R.string.personal_info_update_success,
+						R.string.update_success,
 						Toast.LENGTH_SHORT).show();
 			} else {
 				Toast.makeText(PersonInfoScreen.this,
-						R.string.personal_info_update_failed,
+						R.string.update_failed,
 						Toast.LENGTH_SHORT).show();
 			}
 		}

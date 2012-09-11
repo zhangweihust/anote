@@ -29,6 +29,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -80,7 +81,8 @@ public class AccountScreen extends Screen implements OnClickListener {
 	private EditText mNewPasswd;
 	private EditText mConfirmPasswd;
 
-	private String mPasswd;
+	private String mPswd;
+	private ProgressBar mProgressBar;
 	private SharedPreferences mPreferences;
 	private static final int BOUNDACCOUNT_OK = 1;
 	private static final int BOUNDACCOUNT_FAILED = -1;
@@ -96,20 +98,6 @@ public class AccountScreen extends Screen implements OnClickListener {
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
-			case ServerInterface.SUCCESS:
-				Editor editor = mPreferences.edit();
-				editor.putString(PreferencesHelper.XML_USER_PASSWD, mPasswd);
-				editor.commit();
-				Toast.makeText(NoteApplication.getContext(),
-						R.string.confirm_success, Toast.LENGTH_SHORT).show();
-				AccountScreen.this.finish();
-				break;
-			case ServerInterface.ERROR_ACCOUNT_EXIST:
-				Toast.makeText(NoteApplication.getContext(),
-						R.string.register_err_account_exist, Toast.LENGTH_SHORT)
-						.show();
-				AccountScreen.this.finish();
-				break;
 			case ServerInterface.ERROR_SERVER_INTERNAL:
 				Toast.makeText(NoteApplication.getContext(),
 						R.string.register_err_server_internal,
@@ -135,7 +123,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 							R.string.account_bound_success_renren,
 							Toast.LENGTH_LONG).show();
 				}
-				onResume();//刷新界面
+				onResume();// 刷新界面
 				break;
 			case BOUNDACCOUNT_FAILED:
 				dismissProgress();
@@ -165,6 +153,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 
 		Button btnback = (Button) this.findViewById(R.id.back);
 		btnback.setOnClickListener(this);
+		mProgressBar = (ProgressBar) findViewById(R.id.account_progressBar);
 
 		mNewPasswdLabel = (TextView) this.findViewById(R.id.new_passwd_label);
 		mConfirmPasswdLabel = (TextView) this
@@ -260,9 +249,8 @@ public class AccountScreen extends Screen implements OnClickListener {
 			this.finish();
 			break;
 		case R.id.confirm_change:
-			final String password = mNewPasswd.getText().toString().trim();
-			final String pswdconfirm = mConfirmPasswd.getText().toString()
-					.trim();
+			String password = mNewPasswd.getText().toString().trim();
+			String pswdconfirm = mConfirmPasswd.getText().toString().trim();
 			if (!ServerInterface.isPswdValid(password)) {
 				Toast.makeText(this, R.string.register_err_password_format,
 						Toast.LENGTH_SHORT).show();
@@ -273,18 +261,9 @@ public class AccountScreen extends Screen implements OnClickListener {
 						Toast.LENGTH_SHORT).show();
 				return;
 			}
-			this.runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-					showProgress(null, getString(R.string.commiting_info));
-					int result = ServerInterface.modifyPassword(NoteApplication
-							.getInstance().getUserName(), password);
-					mPasswd = password;
-					mHandler.sendEmptyMessage(result);
-					dismissProgress();
-				}
-			});
+			mPswd = password;
+			ModifyPswdTask modifyPswdTask = new ModifyPswdTask();
+			modifyPswdTask.execute(password);
 			break;
 		case R.id.acount_sina_unbound:
 			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
@@ -417,15 +396,17 @@ public class AccountScreen extends Screen implements OnClickListener {
 
 			@Override
 			public void onWeiboException(WeiboException e) {
-				Toast.makeText(AccountScreen.this, R.string.account_bound_failed,
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(AccountScreen.this,
+						R.string.account_bound_failed, Toast.LENGTH_SHORT)
+						.show();
 				e.printStackTrace();
 			}
 
 			@Override
 			public void onError(DialogError e) {
-				Toast.makeText(AccountScreen.this, R.string.account_bound_failed,
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(AccountScreen.this,
+						R.string.account_bound_failed, Toast.LENGTH_SHORT)
+						.show();
 				e.printStackTrace();
 			}
 
@@ -463,8 +444,9 @@ public class AccountScreen extends Screen implements OnClickListener {
 
 			@Override
 			public void onRenrenAuthError(RenrenAuthError renrenAuthError) {
-				Toast.makeText(AccountScreen.this, R.string.account_bound_failed,
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(AccountScreen.this,
+						R.string.account_bound_failed, Toast.LENGTH_SHORT)
+						.show();
 			}
 
 			@Override
@@ -481,8 +463,9 @@ public class AccountScreen extends Screen implements OnClickListener {
 							String.valueOf(renren.getCurrentUid()));
 
 				} else {
-					Toast.makeText(AccountScreen.this, R.string.account_bound_failed,
-							Toast.LENGTH_SHORT).show();
+					Toast.makeText(AccountScreen.this,
+							R.string.account_bound_failed, Toast.LENGTH_SHORT)
+							.show();
 				}
 			}
 
@@ -645,6 +628,40 @@ public class AccountScreen extends Screen implements OnClickListener {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	class ModifyPswdTask extends AsyncTask<String, integer, String> {
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			mProgressBar.setVisibility(View.VISIBLE);
+			Toast.makeText(AccountScreen.this, R.string.update_progress,
+					Toast.LENGTH_SHORT).show();
+		}
+
+		@Override
+		protected String doInBackground(String... params) {
+			return ServerInterface.modifyPassword(NoteApplication.getInstance()
+					.getUserName(), params[0]);
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			if (result.equals(""+ServerInterface.SUCCESS)) {
+				Editor editor = mPreferences.edit();
+				editor.putString(PreferencesHelper.XML_USER_PASSWD, mPswd);
+				editor.commit();
+				Toast.makeText(AccountScreen.this, R.string.update_success,
+						Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(AccountScreen.this, R.string.update_failed,
+						Toast.LENGTH_SHORT).show();
+			}
+			mProgressBar.setVisibility(View.GONE);
+		}
+
 	}
 
 	private class NetThread extends Thread {

@@ -41,6 +41,7 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -266,15 +267,29 @@ public class ShareScreen extends Screen implements OnClickListener {
 			if (result.equals("success")) {
 				ServiceManager.getEventservice().onUpdateEvent(
 						new EventArgs(EventTypes.SHARE_NOTE_SUCCESSED));
-				dismssProgressBar(R.string.share_success, true);
+				Cursor cursor = ServiceManager.getDbManager()
+						.queryLocalNotesById(
+								Integer.parseInt(getIntent().getStringExtra(
+										"noteid")));
+				cursor.moveToFirst();
+				String sid = cursor
+						.getString((cursor
+								.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID)));
+				mEditText.append(ServerInterface.URL_SERVER
+						+ "web/note.php?id="
+						+ NoteApplication.getInstance().getUserId() + "&nid="
+						+ sid);
+				mEditText.setFocusable(true);
+				mEditText.setFocusableInTouchMode(true);
 				mOthersLayout.setVisibility(View.VISIBLE);
 				mOthersLayout.startAnimation(AnimationUtils.loadAnimation(
 						ShareScreen.this, R.anim.up));
-				Log.i(TAG, "===============分享到广场成功===============");
+				dismssProgressBar(R.string.share_success, true);
+				Log.i(TAG, "分享到广场成功!");
 			} else if (result.equals("failed")) {
 				dismssProgressBar(R.string.share_failed, false);
 				mReuploadButton.setVisibility(View.VISIBLE);
-				Log.i(TAG, "===============分享到广场失败===============");
+				Log.i(TAG, "分享到广场失败!");
 			} else if (result.equals("cookies_error")) {
 				dismssProgressBar(R.string.share_failed, false);
 			}
@@ -287,7 +302,8 @@ public class ShareScreen extends Screen implements OnClickListener {
 	 */
 	private void uploadNotePic() {
 		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
-			AmtApplication.setAmtUserName(NoteApplication.getInstance().getUserName());
+			AmtApplication.setAmtUserName(NoteApplication.getInstance()
+					.getUserName());
 			mAlbumObj = new AmtAlbumObj();
 			mAlbumObj.setHandler(mHandler);
 			mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()

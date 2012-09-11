@@ -83,9 +83,7 @@
     <string name="account_change_passwd">更改密码</string>
     <string name="account_new_passwd">新密码</string>
     <string name="account_confirm_passwd">确认密码</string>
-    <string name="commiting_info">正在提交修改...</string>
     <string name="confirm_change">确认修改</string>
-    <string name="confirm_success">修改成功</string>
 
     <!-- album -->
     <string name="album_title">我的相册</string>
@@ -106,9 +104,9 @@
     <string name="personal_info_sex_male">男</string>
     <string name="personal_info_region">地区：</string>
     <string name="personal_info_loadavatar_failed">头像下载失败！</string>
-    <string name="personal_info_progress">正在提交修改...</string>
-    <string name="personal_info_update_failed">修改失败！</string>
-    <string name="personal_info_update_success">修改成功！</string>
+    <string name="update_progress">正在提交修改...</string>
+    <string name="update_failed">修改失败！</string>
+    <string name="update_success">修改成功！</string>
 
     <!-- login -->
     <string name="login_title">登录</string>
@@ -187,7 +185,7 @@
     <!-- share -->
     <string name="share_title">分享</string>
     <string name="share_edittext_hint">在这写下你想说的话吧！</string>
-    <string name="share_edittext_text">分享笔记，分享快乐！@诚迈科技 查看请点击:www.archermind.com</string>
+    <string name="share_edittext_text">分享笔记，分享快乐！@诚迈科技 @分享笔记 查看请点击:</string>
     <string name="share_text_others">您还可以分享到以下平台</string>
     <string name="share_msg_sina">正在分享到新浪微博...</string>
     <string name="share_msg_qq">正在分享到腾讯微博...</string>
