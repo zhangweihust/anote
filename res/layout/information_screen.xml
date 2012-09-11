@@ -33,9 +33,10 @@
     </RelativeLayout>
     
     <com.archermind.note.Views.XListView
-         android:id="@+id/xlv_information"
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content"
+         android:id="@+id/xlv_information"        
+         android:fastScrollEnabled="true"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
          android:cacheColorHint="#00000000"
          android:listSelector="@drawable/listview_selector"
          android:divider="@drawable/listview_divider" />
