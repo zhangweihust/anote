@@ -42,7 +42,7 @@ public class DeviceInfoThread extends Thread {
 					SharedPreferences sp = context.getSharedPreferences(PREF, 0);
 					SharedPreferences.Editor editor = sp.edit();
 			    	editor.putInt(PREF_KEY_OK_TIME, 1);
-			    	editor.apply();
+			    	editor.commit();
 					break;
 				} 
 				sleep(UserInfoService.COUNT_DURATION);

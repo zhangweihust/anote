@@ -139,7 +139,7 @@ public class SendCrashReportsTask extends AsyncTask<Void, Void, Integer> {
 			if (httpResponse.getStatusLine().getStatusCode() == 200) {
 				String strResult = EntityUtils.toString(httpResponse
 						.getEntity(), HTTP.UTF_8);
-				// strResult = strResult.replace("\"", "");
+				System.out.println();
 				if ("0".equals(strResult)) {
 					System.out.println("=CCC= postReport OK "
 							+ file.getAbsolutePath());
