@@ -122,9 +122,9 @@ public class PlazaScreen extends Screen implements IEventHandler{
 								// TODO Auto-generated method stub
 								Toast.makeText(PlazaScreen.this, R.string.content_empty,
 										Toast.LENGTH_SHORT).show();
+								mWebView.requestFocus();
 							}
 						});
-						mWebView.requestFocus();
 						return true;
 					}
 					return super.onJsAlert(view, url, message, result);
