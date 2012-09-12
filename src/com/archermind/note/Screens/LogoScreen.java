@@ -22,7 +22,6 @@ public class LogoScreen extends Screen{
 	
 	private final long time = 2000;
 	private Context mContext;
-	
 	private Runnable logo = new Runnable() {
 
 		@Override

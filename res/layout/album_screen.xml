@@ -16,12 +16,12 @@
 				android:background="@drawable/handwrite_btn_bg" 
 				android:gravity="center_horizontal"
 				android:orientation="horizontal">
-				<ImageButton 
-					android:id="@+id/p_grid_insert_image"
+				<Button 
+					android:id="@+id/bt_insert_image"
 					android:layout_width="wrap_content" 
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal" 
-					android:background="@drawable/album_camera_selector" />
+					android:background="@drawable/button_album_camera_selector" />
 			</LinearLayout>
 			<FrameLayout 
 				android:layout_width="match_parent"

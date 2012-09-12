@@ -62,7 +62,7 @@ public class SendCrashReportsTask extends AsyncTask<Void, Void, Integer> {
 	 * @param ctx
 	 */
 	private void sendCrashReportsToServer() {
-		/*String[] crFiles = getCrashReportFiles();
+		String[] crFiles = getCrashReportFiles();
 		if (crFiles != null && crFiles.length > 0) {
 			TreeSet<String> sortedFiles = new TreeSet<String>();
 			sortedFiles.addAll(Arrays.asList(crFiles));
@@ -83,7 +83,7 @@ public class SendCrashReportsTask extends AsyncTask<Void, Void, Integer> {
 			NoteApplication.LogD(SendCrashReportsTask.class, "本地没有LOG文件");
 		}
 		if(mService != null)
-			mService.stopSelf();*/
+			mService.stopSelf();
 	}
 
 	private boolean postReport(File file) {
@@ -106,8 +106,6 @@ public class SendCrashReportsTask extends AsyncTask<Void, Void, Integer> {
 
 		int user_id = NoteApplication.getInstance().getUserId();
 		
-		if (user_id == 0)
-			user_id = 1;
 		
         params.add(new BasicNameValuePair("user_id", Integer.valueOf(user_id).toString()));
 		String versionSDK = Integer.valueOf(android.os.Build.VERSION.SDK)
@@ -115,15 +113,17 @@ public class SendCrashReportsTask extends AsyncTask<Void, Void, Integer> {
 		params.add(new BasicNameValuePair("version_sdk", versionSDK));
 
 		DisplayMetrics dm = new DisplayMetrics();
-		NoteApplication.getInstance().getWindowManager().getDefaultDisplay()
+		
+		if(NoteApplication.getInstance().getWindowManager() != null){	
+			NoteApplication.getInstance().getWindowManager().getDefaultDisplay()
 				.getMetrics(dm);
-		float width = dm.widthPixels;
-		float height = dm.heightPixels;
-		float density = dm.densityDpi;
-
-		params.add(new BasicNameValuePair("width", Float.toString(width)));
-		params.add(new BasicNameValuePair("height", Float.toString(height)));
-		params.add(new BasicNameValuePair("density", Float.toString(density)));
+			float width = dm.widthPixels;
+			float height = dm.heightPixels;
+			float density = dm.densityDpi;
+			params.add(new BasicNameValuePair("width", Float.toString(width)));
+			params.add(new BasicNameValuePair("height", Float.toString(height)));
+			params.add(new BasicNameValuePair("density", Float.toString(density)));
+		}
 		params.add(new BasicNameValuePair("version_code", Integer.valueOf(
 				VersionUtil.getVerCode(NoteApplication.getContext())).toString()));
 		params.add(new BasicNameValuePair("version_name", VersionUtil
@@ -135,12 +135,11 @@ public class SendCrashReportsTask extends AsyncTask<Void, Void, Integer> {
 		try {
 			httpRequest.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
 			HttpResponse httpResponse = new DefaultHttpClient().execute(httpRequest);
-			NoteApplication.LogD(SendCrashReportsTask.class, "StatusCode :" + httpResponse.getStatusLine().getStatusCode());
+			System.out.println("StatusCode :" + httpResponse.getStatusLine().getStatusCode());
 			if (httpResponse.getStatusLine().getStatusCode() == 200) {
 				String strResult = EntityUtils.toString(httpResponse
 						.getEntity(), HTTP.UTF_8);
 				// strResult = strResult.replace("\"", "");
-				//System.out.println("=CCC= strResult:" + strResult);
 				if ("0".equals(strResult)) {
 					System.out.println("=CCC= postReport OK "
 							+ file.getAbsolutePath());

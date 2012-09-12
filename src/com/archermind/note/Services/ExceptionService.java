@@ -58,7 +58,7 @@ public class ExceptionService implements IService {
 		}
 		
 		public void init() {
-			//Thread.setDefaultUncaughtExceptionHandler(this);
+			Thread.setDefaultUncaughtExceptionHandler(this);
 		}
 
 		public static AMTException getInstance() {

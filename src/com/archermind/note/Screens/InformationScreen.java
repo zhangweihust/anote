@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import android.R.integer;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -264,6 +265,9 @@ public class InformationScreen extends Screen implements IXListViewListener,
 			Toast.makeText(InformationScreen.this, R.string.no_login_info,
 					Toast.LENGTH_SHORT).show();
 			refreshCompleted();
+			Intent intent = new Intent();
+			intent.setClass(InformationScreen.this, LoginScreen.class);
+			InformationScreen.this.startActivity(intent);
 			return;
 		}
 		new Thread(new Runnable() {
@@ -286,6 +290,9 @@ public class InformationScreen extends Screen implements IXListViewListener,
 					NoteApplication.getInstance().setLogin(false);
 					Toast.makeText(InformationScreen.this,
 							R.string.cookies_error, Toast.LENGTH_SHORT).show();
+					Intent intent = new Intent();
+					intent.setClass(InformationScreen.this, LoginScreen.class);
+					InformationScreen.this.startActivity(intent);
 				} else if (result != null && result.contains("date")) {
 					parseJsonandUpdateDatabase(result);
 					Cursor c;
@@ -327,6 +334,9 @@ public class InformationScreen extends Screen implements IXListViewListener,
 			Toast.makeText(InformationScreen.this, R.string.no_login_info,
 					Toast.LENGTH_SHORT).show();
 			moreCompleted();
+			Intent intent = new Intent();
+			intent.setClass(InformationScreen.this, LoginScreen.class);
+			InformationScreen.this.startActivity(intent);
 			return;
 		}
 		new Thread(new Runnable() {
@@ -338,7 +348,15 @@ public class InformationScreen extends Screen implements IXListViewListener,
 				String result = ServerInterface.getReplyFromUser(userid,
 						mInformationAdapter.getEarlistTime(), -PER_FRESH_COUNT);
 				listdata = new ArrayList<InformationData>();
-				if (result != null && result.contains("date")) {
+				if (result != null
+						&& result == ServerInterface.COOKIES_ERROR + "") {
+					NoteApplication.getInstance().setLogin(false);
+					Toast.makeText(InformationScreen.this,
+							R.string.cookies_error, Toast.LENGTH_SHORT).show();
+					Intent intent = new Intent();
+					intent.setClass(InformationScreen.this, LoginScreen.class);
+					InformationScreen.this.startActivity(intent);
+				} else 	if (result != null && result.contains("date")) {
 					parseJsonandUpdateArraylist(result, listdata);
 					mHandler.sendEmptyMessage(ON_LoadMore);
 				} else {

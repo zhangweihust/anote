@@ -83,7 +83,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	private Button mBtnGalleryBack;
 	private Button mBtnGridBack;
 	private ImageButton mBtnGallerySetAvatar;
-	private ImageButton mBtnGridInsertImage;
+	private Button mBtnGridInsertImage;
 	
 	private TextView mGalleryTitle;
 	
@@ -281,7 +281,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		mBtnGalleryBack = (Button) findViewById(R.id.p_gallery_back);
 		mBtnGridBack = (Button) findViewById(R.id.p_grid_back);
 		mBtnGallerySetAvatar = (ImageButton) findViewById(R.id.p_gallery_set_avatar);
-		mBtnGridInsertImage = (ImageButton) findViewById(R.id.p_grid_insert_image);
+		mBtnGridInsertImage = (Button) findViewById(R.id.bt_insert_image);
 		
 		mBtnGalleryBack.setOnClickListener(this);
 		mBtnGridBack.setOnClickListener(this);
@@ -859,7 +859,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		case R.id.p_gallery_set_avatar:
 			startPhotoCROP(mSelItem.uri);
 			break;
-		case R.id.p_grid_insert_image:
+		case R.id.bt_insert_image:
 			showSelImageDialog();
 			break;
 		}

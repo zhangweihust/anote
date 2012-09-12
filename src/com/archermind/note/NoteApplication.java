@@ -170,8 +170,8 @@ public class NoteApplication extends Application {
 
 	@Override
 	public void onCreate() {
-		NoteApplication.instance = this;
 		super.onCreate();
+		NoteApplication.instance = this;
 		if (ServiceManager.isStarted()) {
 		} else {
 			if (!ServiceManager.start()) {

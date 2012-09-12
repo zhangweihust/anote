@@ -679,7 +679,7 @@
 	<string name="xlistview_footer_hint_normal">查看更多</string>
 	<string name="xlistview_footer_hint_ready">松开载入更多</string>
 	
-	<string name="information_title">通知</string>
+	<string name="information_title">消息</string>
     <string name="check_sd_title">温馨提示</string>
 	<string name="check_sd_ok">确定</string>
 	<string name="check_sd_msg">请插入sd卡，否则无法使用本产品，点击确定退出</string>
@@ -690,4 +690,6 @@
 	<string name="no_note_curmonth">这个月没有写笔记哦</string>
 	
 	<string name="photo_upload_failed">上传失败</string>
+	
+	<string name="content_empty">回复的内容不能为空哦</string>
 </resources>

@@ -5,13 +5,18 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.JsResult;
 import android.webkit.WebBackForwardList;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
@@ -30,10 +35,12 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	private WebView mWebView;
 	private TextView mTextView;
 	private static String url = "http://note.archermind.com/web/index.php";
+	//private static String url = "http://192.168.1.101";
 	public static boolean isFirstPage = true;
 	private int mNetwork;
 	public static final EventService eventService = ServiceManager
 			.getEventservice();
+	
 	
 		@SuppressLint("SetJavaScriptEnabled")
 		@Override
@@ -47,7 +54,9 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		        Typeface type = Typeface.createFromAsset(getAssets(),"xdxwzt.ttf");
 				mTextView.setTypeface(type);
 	        }
+	        CookieSyncManager.createInstance(this);
 			init();
+			eventService.add(this);
 		}
 	 
 		private void init(){
@@ -65,19 +74,15 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		        mWebView.requestFocus();
 
 		        if(NoteApplication.getInstance().isLogin()){
-		        CookieSyncManager.createInstance(this);
 		        CookieSyncManager.getInstance().startSync();
-		       // CookieManager.getInstance().removeAllCookie();
-		       // System.out.println(CookieManager.getInstance().getCookie(url) + "~~~~~~~~~~~~~~~~~~");
 		        CookieManager.getInstance().setCookie(url, "userid=" + NoteApplication.getInstance().getUserId() + ";");
 		        mWebView.clearCache(true);
 		        mWebView.clearHistory();
-		        // System.out.println(CookieManager.getInstance().getCookie(url) + "~~~~~~~~~~~~~~~~~~");
 		        }else{
 			        CookieManager.getInstance().removeSessionCookie();
 		        }
 
-		       
+		       System.out.println("=== cookie is " + CookieManager.getInstance().getCookie(url));
 		       mWebView.setWebViewClient(new WebViewClient(){
 
 	            @Override
@@ -86,11 +91,50 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	                    view.loadUrl(url);
 	                    view.getSettings().setJavaScriptEnabled(true);  
 	                    return true;
-	            }
-	         });    
+	            }	            
+	         }); 
+		       
+		       mWebView.setWebChromeClient(new WebChromeClient(){
+
+				@Override
+				public boolean onJsAlert(WebView view, String url,
+						String message, JsResult result) {
+					// TODO Auto-generated method stub
+					if(message.trim().equals("unlogin")){
+						PlazaScreen.this.runOnUiThread(new Runnable() {
+							
+							@Override
+							public void run() {
+								// TODO Auto-generated method stub
+								Toast.makeText(PlazaScreen.this, R.string.no_login_info,
+										Toast.LENGTH_SHORT).show();
+							}
+						});
+						Intent intent = new Intent();
+						intent.setClass(PlazaScreen.this, LoginScreen.class);
+						PlazaScreen.this.startActivity(intent);
+						return true;
+					}else if(message.trim().equals("content_empty")){
+						PlazaScreen.this.runOnUiThread(new Runnable() {
+							
+							@Override
+							public void run() {
+								// TODO Auto-generated method stub
+								Toast.makeText(PlazaScreen.this, R.string.content_empty,
+										Toast.LENGTH_SHORT).show();
+							}
+						});
+						mWebView.requestFocus();
+						return true;
+					}
+					return super.onJsAlert(view, url, message, result);
+				}
+		       });
+		    	           
 		        
 		        mWebView.loadUrl(url);
-		        eventService.add(this);
+		        
+		        
 		}
 		@Override
 		public void onBackPressed() {
@@ -150,6 +194,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	 	 if(NoteApplication.getInstance().isLogin()){
 	 	  CookieSyncManager.getInstance().stopSync();
 	 	 }
+	 	 mWebView.requestFocus();
 	 	}
 
 
