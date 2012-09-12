@@ -110,12 +110,12 @@ public class HttpUtils {
 					sp.edit()
 							.putString(PreferencesHelper.XML_COOKIES, httphead)
 							.commit();
-					Log.i("HttpUtils", "cookies:" + httphead);
+					Log.e("HttpUtils", "cookies:" + httphead);
 				}
 				String strResult = EntityUtils.toString(response.getEntity(),
 						HTTP.UTF_8);
 				// strResult = strResult.replace("\"", "");
-				Log.i("HttpUtils", "strResult:" + strResult);
+				Log.e("HttpUtils", "strResult:" + strResult);
 				return strResult;
 			} else {
 				for (int i = 0; i < 2; i++) {

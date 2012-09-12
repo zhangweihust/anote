@@ -184,8 +184,7 @@
     
     <!-- share -->
     <string name="share_title">分享</string>
-    <string name="share_edittext_hint">在这写下你想说的话吧！</string>
-    <string name="share_edittext_text">分享笔记，分享快乐！@诚迈科技 @分享笔记 查看请点击:</string>
+    <string name="share_default_text">分享笔记，分享快乐！@诚迈科技 @分享笔记\n查看请点击：http://note.archermind.com/web/note.php</string>
     <string name="share_text_others">您还可以分享到以下平台</string>
     <string name="share_msg_sina">正在分享到新浪微博...</string>
     <string name="share_msg_qq">正在分享到腾讯微博...</string>

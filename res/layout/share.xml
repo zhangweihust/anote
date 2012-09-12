@@ -65,23 +65,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
+            android:maxWidth="150dp"
             android:scaleType="fitXY"
             android:src="@drawable/share_test" />
 
-        <EditText
-            android:id="@+id/share_edit"
+        <TextView
+            android:id="@+id/share_text"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_marginLeft="10dp"
             android:background="@color/transparent"
-            android:gravity="top|left"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:hint="@string/share_edittext_hint"
-            android:isScrollContainer="true"
-            android:maxEms="280"
-            android:maxLines="15"
-            android:text="@string/share_edittext_text"
+            android:text="@string/share_default_text"
             android:textColor="@color/login_text_color"
             android:textSize="14sp" />
     </LinearLayout>

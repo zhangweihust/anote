@@ -78,6 +78,13 @@ public class NoteSaveDialog implements OnClickListener{
 		switch(v.getId()){
 		case R.id.note_save_ok:
 			if (saveGroup.getCheckedRadioButtonId() == R.id.save_and_share) {
+				if (!NoteApplication.getInstance().isLogin()) {
+					Toast.makeText(mEditNote, R.string.no_login_info, Toast.LENGTH_SHORT).show();
+					Intent intent = new Intent(mEditNote,LoginScreen.class);
+					mEditNote.startActivity(intent);
+					return;
+				}
+				
 				final String title = mEditText.getEditableText().toString();// 标题
 				if ("".equals(title) || title == null) {
 					Toast.makeText(mEditNote, "标题为空，请输入标题", Toast.LENGTH_SHORT).show();
@@ -108,13 +115,6 @@ public class NoteSaveDialog implements OnClickListener{
 					long id = ServiceManager.getDbManager().insertLocalNotes(contentValues);
 					mEditNote.getIntent().putExtra("isNewNote", false);
 					
-					if (!NoteApplication.getInstance().isLogin()) {
-						Toast.makeText(mEditNote, R.string.no_login_info, Toast.LENGTH_SHORT).show();
-						Intent intent = new Intent(mEditNote,LoginScreen.class);
-						mEditNote.startActivity(intent);
-						return;
-					}
-					
 					EventArgs args = new EventArgs();
 					args.setType(EventTypes.NOTE_TO_BE_SHARE);
 					args.putExtra("noteid", String.valueOf(id));
@@ -137,11 +137,6 @@ public class NoteSaveDialog implements OnClickListener{
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER, weather);
 					ServiceManager.getDbManager().updateLocalNotes(contentValues, noteId);
-					
-					if (!NoteApplication.getInstance().isLogin()) {
-						Toast.makeText(mEditNote, R.string.no_login_info, Toast.LENGTH_SHORT).show();
-						return;
-					}
 					
 					Cursor cursor = ServiceManager.getDbManager().queryLocalNotesById(noteId);
 					if (cursor == null || cursor.getCount() == 0) {

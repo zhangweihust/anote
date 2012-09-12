@@ -2,6 +2,7 @@ package com.archermind.note.Screens;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import org.json.JSONObject;
 
@@ -43,10 +44,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -65,7 +68,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 	private SharedPreferences mPreferences;
 	private Button mBackButton;
 	private ImageView mImageView;
-	private EditText mEditText;
+	private TextView mTextView;
 	// private LinearLayout mProgressLayout;
 	private ProgressBar mProgressBar;
 	// private TextView mUploadingView;
@@ -166,7 +169,11 @@ public class ShareScreen extends Screen implements OnClickListener {
 		// mUploadingView = (TextView) findViewById(R.id.share_text_uploading);
 		mReuploadButton = (Button) findViewById(R.id.share_btn_reupload);
 		mReuploadButton.setOnClickListener(this);
-		mEditText = (EditText) findViewById(R.id.share_edit);
+		mTextView = (TextView) findViewById(R.id.share_text);
+		if (android.os.Build.VERSION.SDK_INT > 8) {
+			Typeface type = Typeface.createFromAsset(getAssets(), "xdxwzt.ttf");
+			mTextView.setTypeface(type);
+		}
 
 		mOthersLayout = (LinearLayout) findViewById(R.id.share_layout_others);
 
@@ -271,19 +278,37 @@ public class ShareScreen extends Screen implements OnClickListener {
 						.queryLocalNotesById(
 								Integer.parseInt(getIntent().getStringExtra(
 										"noteid")));
-				cursor.moveToFirst();
-				String sid = cursor
-						.getString((cursor
-								.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID)));
-				mEditText.append(ServerInterface.URL_SERVER
-						+ "web/note.php?id="
-						+ NoteApplication.getInstance().getUserId() + "&nid="
-						+ sid);
-				mEditText.setFocusable(true);
-				mEditText.setFocusableInTouchMode(true);
+				if(cursor != null){
+					cursor.moveToFirst();
+					String sid = cursor
+							.getString((cursor
+									.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID)));
+					cursor.close();
+					mTextView.append("?id="
+							+ NoteApplication.getInstance().getUserId() + "&nid="
+							+ sid);
+				}
+				// 随机动画
 				mOthersLayout.setVisibility(View.VISIBLE);
-				mOthersLayout.startAnimation(AnimationUtils.loadAnimation(
-						ShareScreen.this, R.anim.up));
+				Random random = new Random();
+				int animationid = random.nextInt(3);
+				switch (animationid) {
+				case 0:
+					mOthersLayout.startAnimation(AnimationUtils.loadAnimation(
+							ShareScreen.this, R.anim.up));
+					break;
+				case 1:
+					mOthersLayout.startAnimation(AnimationUtils.loadAnimation(
+							ShareScreen.this, R.anim.alpha));
+					break;
+				case 2:
+					mOthersLayout.startAnimation(AnimationUtils.loadAnimation(
+							ShareScreen.this, R.anim.scale));
+					break;
+				default:
+					break;
+				}
+
 				dismssProgressBar(R.string.share_success, true);
 				Log.i(TAG, "分享到广场成功!");
 			} else if (result.equals("failed")) {
@@ -295,6 +320,8 @@ public class ShareScreen extends Screen implements OnClickListener {
 				NoteApplication.getInstance().setLogin(false);
 				Toast.makeText(NoteApplication.getContext(),
 						R.string.cookies_error, Toast.LENGTH_SHORT).show();
+				Intent intent = new Intent(ShareScreen.this,LoginScreen.class);
+				startActivity(intent);
 			}
 		}
 
@@ -559,7 +586,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 			break;
 		case R.id.btn_share_sina:
 			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
-				shareToSina(mPicPathList.get(0), mEditText.getText().toString());
+				shareToSina(mPicPathList.get(0), mTextView.getText().toString());
 			} else {
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
 						.show();
@@ -567,7 +594,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 			break;
 		case R.id.btn_share_qq:
 			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
-				shareToQQ(mPicPathList.get(0), mEditText.getText().toString());
+				shareToQQ(mPicPathList.get(0), mTextView.getText().toString());
 			} else {
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
 						.show();
@@ -575,7 +602,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 			break;
 		case R.id.btn_share_renren:
 			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
-				shareToRenren(mPicPathList.get(0), mEditText.getText()
+				shareToRenren(mPicPathList.get(0), mTextView.getText()
 						.toString());
 			} else {
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)

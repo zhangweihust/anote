@@ -198,6 +198,8 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				{
 					NoteApplication.getInstance().setLogin(false);
 					Toast.makeText(AlbumScreen.this, R.string.cookies_error, Toast.LENGTH_SHORT).show();
+					Intent intent = new Intent(AlbumScreen.this,LoginScreen.class);
+					startActivity(intent);
 				}
 				else
 				{

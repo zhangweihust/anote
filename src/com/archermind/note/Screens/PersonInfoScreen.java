@@ -384,6 +384,8 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 				NoteApplication.getInstance().setLogin(false);
 				Toast.makeText(NoteApplication.getContext(),
 						R.string.cookies_error, Toast.LENGTH_SHORT).show();
+				Intent intent = new Intent(PersonInfoScreen.this,LoginScreen.class);
+				startActivity(intent);
 			} else if (result.equals("" + ServerInterface.SUCCESS)) {
 				Toast.makeText(PersonInfoScreen.this,
 						R.string.update_success,

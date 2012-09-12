@@ -105,6 +105,8 @@ public class AccountScreen extends Screen implements OnClickListener {
 				NoteApplication.getInstance().setLogin(false);
 				Toast.makeText(NoteApplication.getContext(),
 						R.string.cookies_error, Toast.LENGTH_SHORT).show();
+				Intent intent = new Intent(AccountScreen.this,LoginScreen.class);
+				startActivity(intent);
 				break;
 			case ServerInterface.SUCCESS:
 				if (mType == ServerInterface.LOGIN_TYPE_SINA) {
@@ -658,6 +660,8 @@ public class AccountScreen extends Screen implements OnClickListener {
 				NoteApplication.getInstance().setLogin(false);
 				Toast.makeText(NoteApplication.getContext(),
 						R.string.cookies_error, Toast.LENGTH_SHORT).show();
+				Intent intent = new Intent(AccountScreen.this,LoginScreen.class);
+				startActivity(intent);
 			} else {
 				Toast.makeText(AccountScreen.this, R.string.update_failed,
 						Toast.LENGTH_SHORT).show();

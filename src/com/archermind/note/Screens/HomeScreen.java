@@ -850,6 +850,8 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				case 0:
 					if (!NoteApplication.getInstance().isLogin()) {
 						Toast.makeText(mContext, R.string.no_login_info, Toast.LENGTH_SHORT).show();
+						Intent intent = new Intent(HomeScreen.this, LoginScreen.class);
+						startActivity(intent);
 						return;
 					}
 					ArrayList<String> picPathList = EditNoteScreen.getNotePictureFromZip(mCursor.getString(mCursor
