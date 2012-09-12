@@ -38,6 +38,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	//private static String url = "http://192.168.1.101";
 	public static boolean isFirstPage = true;
 	private int mNetwork;
+	private boolean mIsLogin = false;
 	public static final EventService eventService = ServiceManager
 			.getEventservice();
 	
@@ -74,16 +75,18 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		        mWebView.requestFocus();
 
 		        if(NoteApplication.getInstance().isLogin()){
-		        CookieSyncManager.getInstance().startSync();
-		        CookieManager.getInstance().setCookie(url, "userid=" + NoteApplication.getInstance().getUserId() + ";");
-		        mWebView.clearCache(true);
-		        mWebView.clearHistory();
-		        }else{
-			        CookieManager.getInstance().removeSessionCookie();
-		        }
-
-		       System.out.println("=== cookie is " + CookieManager.getInstance().getCookie(url));
-		       mWebView.setWebViewClient(new WebViewClient(){
+	 		        CookieSyncManager.getInstance().startSync();
+	 		        CookieManager.getInstance().setCookie(url, "userid=" + NoteApplication.getInstance().getUserId() + ";");
+	 		        mWebView.clearCache(true);
+	 		        mWebView.clearHistory();
+	 		        mIsLogin = true;
+	 		    }else{
+	 		    	CookieSyncManager.getInstance().startSync();
+	 			    CookieManager.getInstance().removeSessionCookie();
+	 			    mIsLogin = false;
+	 		    }
+		        
+		        mWebView.setWebViewClient(new WebViewClient(){
 
 	            @Override
 	            public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -113,6 +116,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 						Intent intent = new Intent();
 						intent.setClass(PlazaScreen.this, LoginScreen.class);
 						PlazaScreen.this.startActivity(intent);
+						result.confirm();
 						return true;
 					}else if(message.trim().equals("content_empty")){
 						PlazaScreen.this.runOnUiThread(new Runnable() {
@@ -122,16 +126,16 @@ public class PlazaScreen extends Screen implements IEventHandler{
 								// TODO Auto-generated method stub
 								Toast.makeText(PlazaScreen.this, R.string.content_empty,
 										Toast.LENGTH_SHORT).show();
-								mWebView.requestFocus();
+								
 							}
 						});
+						result.confirm();
 						return true;
 					}
 					return super.onJsAlert(view, url, message, result);
 				}
 		       });
 		    	           
-		        
 		        mWebView.loadUrl(url);
 		        
 		        
@@ -172,38 +176,76 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		}
 	 
 	 	public  void refresh(){
-	 		System.out.println("===refresh===" + mNetwork);/*
+	 		System.out.println("===refresh===" + mNetwork);
 	 	    if(NetworkUtils.getNetworkState(this) == NetworkUtils.NETWORN_NONE){
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT).show();
 	        	mTextView.setVisibility(View.VISIBLE);
 	        	mWebView.setVisibility(View.GONE);
 	        	mNetwork = NetworkUtils.getNetworkState(this);
 	        	return;
-	        }else if(NetworkUtils.getNetworkState(this) != mNetwork){*/
+	        }else if(NetworkUtils.getNetworkState(this) != mNetwork){
 	        	init();
-	      /*  }else{
-	        	mNetwork = NetworkUtils.getNetworkState(this);
-		        mWebView.requestFocus();
-		 		mWebView.reload();
-	        }*/
+	        }else{
+	        	if(NoteApplication.getInstance().isLogin() != mIsLogin){
+	        		if(NoteApplication.getInstance().isLogin()){
+		 		        CookieSyncManager.getInstance().startSync();
+		 		        CookieManager.getInstance().setCookie(url, "userid=" + NoteApplication.getInstance().getUserId() + ";");
+		 		        mIsLogin = true;
+	 		        }else{
+	 		        	CookieSyncManager.getInstance().startSync();
+	 			        CookieManager.getInstance().removeSessionCookie();
+	 			        mIsLogin = false;
+	 		        }
+		        	mNetwork = NetworkUtils.getNetworkState(this);
+			        mWebView.requestFocus();		        
+			        try {
+						Thread.sleep(500);
+						mWebView.reload();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+	        	}
+		 		
+		 }
 	 	}
 	 	
 	 	@Override
 	 	protected void onResume() {
 	 	  super.onResume();
-	 	 if(NoteApplication.getInstance().isLogin()){
-	 	  CookieSyncManager.getInstance().stopSync();
-	 	 }
-	 	 mWebView.requestFocus();
+		 	 System.out.println("===== resume =====");
+		 	 if(NoteApplication.getInstance().isLogin() != mIsLogin){
+		 		 if(NoteApplication.getInstance().isLogin()){
+				 		System.out.println("===== logined =====");
+				        CookieSyncManager.getInstance().startSync();
+				        CookieManager.getInstance().setCookie(url, "userid=" + NoteApplication.getInstance().getUserId() + ";");
+				        mIsLogin = true;
+				    }else{
+				    	CookieSyncManager.getInstance().startSync();
+					    CookieManager.getInstance().removeSessionCookie();
+					    mIsLogin = false;
+				    }
+		 		 mWebView.requestFocus();
+		 		 try {
+					Thread.sleep(500);
+					mWebView.reload();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		 		 
+		 	 }
+		 	 
+		    CookieSyncManager.getInstance().stopSync();
+		 	 
+
 	 	}
 
 
 	 	@Override
 	 	protected void onPause() {
 	 	  super.onPause();
-	 	 if(NoteApplication.getInstance().isLogin()){
-	 	  CookieSyncManager.getInstance().sync();
-	 	 }
+	 	  CookieSyncManager.getInstance().sync();	 	 
 	 	}
 
 		@Override
