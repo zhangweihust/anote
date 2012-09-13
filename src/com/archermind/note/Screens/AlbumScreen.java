@@ -411,7 +411,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				{
 					mAlbumObj.cancleUpload(uploadTask);
 				}
-				dialog.cancel();   
+				dialog.dismiss();   
 			}                 
 		});
 		
@@ -755,21 +755,21 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				break;
 			case  UPLOAD_ALBUM_ERROR:
 				int uploadcount = msg.getData().getInt("uploadcount");
-				if (uploadcount > 3 || uploadcount <= 0 || NoteApplication.networkIsOk == false)  {
+//				if (uploadcount > 3 || uploadcount <= 0 || NoteApplication.networkIsOk == false)  {
 					System.out.println("UPLOAD_ALBUM_ERROR");
 					String aFilePath = msg.getData().getString("filelocalpath");
 					if (aFilePath != null && !aFilePath.equals(""))
 					{
 						new File(aFilePath).delete();
 						Toast.makeText(AlbumScreen.this, getString(R.string.image_upload_failed), Toast.LENGTH_SHORT).show();
-					}
-				} else {
+//					}
+				} /*else {
 					System.out.println("UPLOAD_ALBUM_ERROR, try count : " + String.valueOf(uploadcount+1));
 					String aName = msg.getData().getString("name");
 					String aExpandName = msg.getData().getString("expandname");
 					String aFilePath = msg.getData().getString("filelocalpath");
 					uploadImage(aName, aExpandName, aFilePath, uploadcount+1);
-				}
+				}*/
 				break;		
 			case  DOWNLOAD_THUMB_ALBUM_JSON_OK:
 				if (mGalleryPhotoAdapter == null) {

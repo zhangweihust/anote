@@ -88,7 +88,7 @@
     <!-- album -->
     <string name="album_title">我的相册</string>
     <string name="album_gallery_title">%1$d/%2$d</string>
-    <string name="image_upload_failed" translatable="false">上传图片失败，网络环境或服务器不可访问</string>
+    <string name="image_upload_failed" translatable="false">上传图片失败或者上传被取消了</string>
     <string name="image_download_failed" translatable="false">下载图片失败，网络环境或服务器不可访问</string>
     <string name="image_file_name_format" translatable="false">"_yyyyMMdd_HHmmss"</string>
     <string name="image_create_cache_file_failed_unknown" translatable="false">生成本地缓存文件失败，未知错误</string>

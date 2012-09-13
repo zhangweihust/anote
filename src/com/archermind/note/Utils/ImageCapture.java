@@ -179,6 +179,8 @@ public class ImageCapture {
             	ostream.write(buffer, 0, readSize);
             	//ostream.flush();
             }
+//            ostream.flush();
+            ostream.close();
 		} catch (MalformedURLException urlEx) {
 			urlEx.printStackTrace();
 			Log.e("ImageCapture", "Exception while read image.", urlEx);
