@@ -186,20 +186,46 @@ public class PhotoAdapter extends BaseAdapter {
 				return;
 			}
 
+			int count = 0;
 			file = new File(filelocalpath);
-			if (!file.exists()) {
-				ImageCapture.createLocalCacheImageFromUrl(item.filepath,
-						filelocalpath);
-			}
+			while(count < 3)
+			{
+				if (!file.exists()) {
+					ImageCapture.createLocalCacheImageFromUrl(item.filepath,
+							filelocalpath);
+				}
 
-			if (!new File(filelocalpath).exists()) {
-				System.out
-				.println("createLocalCacheImageFromUrl error, item.fileurl:"
-						+ item.filepath);
-				item.isLoading = false;
-				return;
+				if (!new File(filelocalpath).exists()) {
+					System.out
+					.println("createLocalCacheImageFromUrl error, item.fileurl:"
+							+ item.filepath);
+//					item.isLoading = false;
+//					return;
+				}
+				else
+				{
+					item.finalfilepath = filelocalpath;
+					break;
+				}
+				count++;
+				
+				
+				
 			}
-			item.finalfilepath = filelocalpath;
+//			file = new File(filelocalpath);
+//			if (!file.exists()) {
+//				ImageCapture.createLocalCacheImageFromUrl(item.filepath,
+//						filelocalpath);
+//			}
+//
+//			if (!new File(filelocalpath).exists()) {
+//				System.out
+//				.println("createLocalCacheImageFromUrl error, item.fileurl:"
+//						+ item.filepath);
+//				item.isLoading = false;
+//				return;
+//			}
+//			item.finalfilepath = filelocalpath;
 		}
 		System.out.println("=CCC=" + item.finalfilepath);
 		Bitmap image = null;
