@@ -49,7 +49,7 @@
 	    <TextView 
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="键盘"
+	        android:text="阅读"
 	        android:textColor="@color/toptextcolor"
 	        android:gravity="center"/>
     </LinearLayout>

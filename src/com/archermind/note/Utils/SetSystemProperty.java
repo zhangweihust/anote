@@ -24,7 +24,7 @@ import com.archermind.note.NoteApplication;
 */   
 public class SetSystemProperty {   
     //属性文件的路径   
-    static String profilepath= NoteApplication.savePath + "picmap";   
+    static String profilepath= NoteApplication.savePath + "diary/" + "picmap";   
     /**  
      * 采用静态方法  
      */   

@@ -371,10 +371,11 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 				}
 				break;
 			}
-		    if (EditNoteScreen.mState == EditNoteScreen.SOFTINPUTSTATE) {
+/*		    if (EditNoteScreen.mState == EditNoteScreen.SOFTINPUTSTATE) {
+		    	Log.d("=MMM=","***************if***********Action = " + event.getAction());
 		        return super.onTouchEvent(event);
 		    } else {
-		    	try {
+*/		    	try {
 		            Method method = TextView.class.getMethod("setSoftInputShownOnFocus", boolean.class);
 		            method.invoke(this, false);
 		            super.onTouchEvent(event);
@@ -383,7 +384,7 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 		            // Fallback to the second method
 		        	e.printStackTrace();
 		        }
-		    }
+//		    }
 		} else {
 			switch (event.getAction()) {
 			case  MotionEvent.ACTION_DOWN:
