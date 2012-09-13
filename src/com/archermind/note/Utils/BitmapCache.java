@@ -24,7 +24,7 @@ public class BitmapCache {
 	public void setBitmapRefs(Hashtable<String, BitmapRef> bitmapRefs) {
 		this.bitmapRefs = bitmapRefs;
 	}
-
+	
 	/**
 	 * 继承SoftReference，使得每一个实例都具有可识别的标识。
 	 */
@@ -123,6 +123,11 @@ public class BitmapCache {
 		bitmapRefs.clear();
 		System.gc();
 		System.runFinalization();
+	}
+	
+	public int size()
+	{
+		return bitmapRefs.size();
 	}
 
 }

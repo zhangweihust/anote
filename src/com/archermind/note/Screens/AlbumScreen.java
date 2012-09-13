@@ -14,9 +14,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -56,6 +58,7 @@ import com.amtcloud.mobile.android.business.AmtAlbumObj;
 import com.amtcloud.mobile.android.business.AmtApplication;
 import com.amtcloud.mobile.android.business.MessageTypes;
 import com.amtcloud.mobile.android.business.AmtAlbumObj.AlbumItem;
+import com.amtcloud.mobile.android.core.processobject.AmtDataObject;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Adapter.PhotoAdapter;
@@ -100,6 +103,9 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	private static final int CAMERA_RESULT = 2;
 	private static final int CROP_RESULT = 3;
 	
+	private static final int ALBUM_COOKIES_ERROR = -600;
+	private static final int ALBUM_NO_INTERNET = 101;
+	
 	private static final int DOWNLOAD_THUMB_ALBUM_JSON_OK = 0;
 	private static final int DOWNLOAD_THUMB_ALBUM_JSON_ERROR = -1;
 	private static final int DOWNLOAD_ALL_ALBUM_OK = 1;
@@ -142,6 +148,8 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	private AmtAlbumObj mAlbumObj;
 	private static final String ALBUMNAME = "myalbumname";
 	private Message uploadnewmsg = new Message();
+	private AmtDataObject uploadTask = null;
+	private ProgressDialog pDialog;
 	
 	private Handler mHandler = new Handler() {
 		@Override
@@ -181,10 +189,14 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					ArrayList<String> picNames = new ArrayList<String>();
 					picNames.add(mAvatarPath.substring(mAvatarPath
 							.lastIndexOf("/") + 1));
-					mAlbumObj.uploadPicFiles(picPath, picNames, albumid);
+					uploadTask = mAlbumObj.uploadPicFiles(picPath, picNames, albumid);
+					pDialog.show();
 				}
 				break;
 			case MessageTypes.MESSAGE_UPLOADPIC:
+				uploadTask = null;
+				pDialog.dismiss();
+				
 				// 上传头像文件成功，开始执行插入数据库操作
 				String filepath = mAvatarPath.substring(mAvatarPath.lastIndexOf("/") + 1);
 				int ret = ServerInterface.uploadAlbum(String.valueOf(NoteApplication
@@ -194,7 +206,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					uploadnewmsg.what = UPLOAD_ALBUM_OK;
 					handler.sendMessage(uploadnewmsg);
 				}
-				else if (ret == ServerInterface.COOKIES_ERROR)
+				else if (ret == ALBUM_COOKIES_ERROR)
 				{
 					NoteApplication.getInstance().setLogin(false);
 					Toast.makeText(AlbumScreen.this, R.string.cookies_error, Toast.LENGTH_SHORT).show();
@@ -384,6 +396,24 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		
 		serverInterface = new ServerInterface();
 //		serverInterface.InitAmtCloud(mContext);
+		
+		pDialog = new ProgressDialog(AlbumScreen.this);  
+		pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		pDialog.setTitle(getString(R.string.photo_upload_title));
+		pDialog.setMessage(getString(R.string.photo_uploading)); 
+		pDialog.setIndeterminate(false);
+		pDialog.setCancelable(false);
+		pDialog.setButton(getString(R.string.photo_upload_cancel), new DialogInterface.OnClickListener(){   
+			@Override  
+			public void onClick(DialogInterface dialog, int which) 
+			{   
+				if (uploadTask != null)
+				{
+					mAlbumObj.cancleUpload(uploadTask);
+				}
+				dialog.cancel();   
+			}                 
+		});
 		
 		loadAlbumData();
 	}
@@ -613,36 +643,37 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					handler.sendMessage(msg);
 					return;
 				}
-				
-				if ("1".equals(json)){
+				else if ("1".equals(json))
+				{
 					mAlbumUrllist = "";
 					Message msg = new Message();
 					msg.what = DOWNLOAD_THUMB_ALBUM_JSON_OK;
 					handler.sendMessage(msg);
 					return;
 				}
+				else if (json.equals(String.valueOf(ALBUM_COOKIES_ERROR)))
+				{
+					Message msg = new Message();
+					msg.what = ALBUM_COOKIES_ERROR;
+					handler.sendMessage(msg);
+					return;
+				}
+				else if (json.equals(String.valueOf(ALBUM_NO_INTERNET)))
+				{
+					Message msg = new Message();
+					msg.what = ALBUM_NO_INTERNET;
+					handler.sendMessage(msg);
+					return;
+				}
 
-//				try {
+				if (!json.matches("[0-9]+"))
+				{
 					mAlbumUrllist = json;
-//					JSONArray jsonArray = new JSONArray(json);
-//
-//					if (jsonArray.length() > 0) {
-//						JSONObject jsonObject = (JSONObject) jsonArray.opt(0);
-//						mAlbumUrllist = jsonObject.getString("album_url");
-//					}
-//
-//				} catch (JSONException e) {
-//					// TODO Auto-generated catch block
-//					Message msg = new Message();
-//					msg.what = DOWNLOAD_THUMB_ALBUM_JSON_ERROR;
-//					handler.sendMessage(msg);
-//					e.printStackTrace();
-//					return;
-//				}
-					
-				Message msg = new Message();
-				msg.what = DOWNLOAD_THUMB_ALBUM_JSON_OK;
-				handler.sendMessage(msg);
+					Message msg = new Message();
+					msg.what = DOWNLOAD_THUMB_ALBUM_JSON_OK;
+					handler.sendMessage(msg);
+				}
+				
 			}
         	
         }).start();
@@ -767,6 +798,16 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				break;
 			case  DOWNLOAD_ALL_ALBUM_ERROR:
 				System.out.println("DOWNLOAD_ALL_ALBUM_ERROR");
+				break;
+			case ALBUM_COOKIES_ERROR:
+				NoteApplication.getInstance().setLogin(false);
+				Toast.makeText(AlbumScreen.this, R.string.cookies_error, Toast.LENGTH_SHORT).show();
+				Intent intent = new Intent(AlbumScreen.this,LoginScreen.class);
+				startActivity(intent);
+				finish();
+				break;
+			case ALBUM_NO_INTERNET:
+				Toast.makeText(AlbumScreen.this, R.string.network_none, Toast.LENGTH_SHORT).show();
 				break;
 			}
     	}

@@ -203,6 +203,11 @@ public class PhotoAdapter extends BaseAdapter {
 		}
 		System.out.println("=CCC=" + item.finalfilepath);
 		Bitmap image = null;
+		if (BitmapCache.getInstance().size() != mList.size())
+		{
+			System.out.println("BitmapCache.size = " + BitmapCache.getInstance().size() + " mList.size = " + mList.size());
+			BitmapCache.getInstance().clearCache();
+		}
 		if (BitmapCache.getInstance().getBitmapRefs().containsKey(
 				item.finalfilepath)) {
 			image = BitmapCache.getInstance().getBitmap(item.finalfilepath);

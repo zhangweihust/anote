@@ -688,7 +688,10 @@
 	<string name="refresh">刷新</string>
 	<string name="no_note_curmonth">这个月没有写笔记哦</string>
 	
+	<string name="photo_upload_title">图片上传</string>
 	<string name="photo_upload_failed">上传失败</string>
+	<string name="photo_uploading">正在上传图片...</string>
+	<string name="photo_upload_cancel">取消上传</string>
 	
 	<string name="content_empty">回复的内容不能为空哦</string>
 </resources>
