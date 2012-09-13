@@ -30,6 +30,54 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import android.app.Dialog;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.text.Editable;
+import android.text.Selection;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextWatcher;
+import android.text.style.ImageSpan;
+import android.util.Log;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
+import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
+import android.widget.ViewFlipper;
+
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Adapter.FaceAdapter;
@@ -52,63 +100,15 @@ import com.archermind.note.gesture.AmGestureLibraries;
 import com.archermind.note.gesture.AmGestureLibrary;
 import com.archermind.note.gesture.AmGestureOverlayView;
 
-import android.app.Dialog;
-import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
-import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.text.Editable;
-import android.text.Selection;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextWatcher;
-import android.text.style.ImageSpan;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Display;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.Window;
-import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.GridView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
-import android.widget.SeekBar;
-import android.widget.ViewFlipper;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TextView;
-
 public class EditNoteScreen  extends Screen implements OnClickListener, IEventHandler{
 
 	private AmGestureOverlayView gestureview = null;
 	private MyEditText myEdit = null;
 	
+	private ImageButton edit_insert = null;
 	private ImageButton edit_delete = null;
 	private ImageButton edit_input_type = null;
+	private ImageButton edit_setting = null;
 	
     private ImageView mWeatherImg = null;
     
@@ -127,15 +127,15 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	
 	private boolean isgraffit_erase = false;
 	
-	private boolean isInputTypeShow = false;
-	private boolean isPicTypeShow = false;
-	private boolean isSettingTypeShow = false;
-	
 	private Dialog thickness_dialog = null;
 	private Dialog picchoose_dialog = null;
 	private Dialog fontchoose_dialog = null;
 	private Dialog facechoose_dialog = null;
-	private PopupWindow mWeatherPopupWindow;
+	private PopupWindow mWeatherPopupWindow = null;
+	private PopupWindow mEditTypePopupWindow = null;
+	private PopupWindow mInsertTypePopupWindow = null;
+	private PopupWindow mSetTypePopupWindow = null;
+	
 	private NoteSaveDialog save_dialog = null;
 	
 	public static final int PICINSERTSTATE = 1;
@@ -224,49 +224,15 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 //		inType = myEdit.getInputType(); 
 		
 		//最底下一排的四个按钮
-		ImageButton edit_insert = (ImageButton) findViewById(R.id.edit_insert);
+		edit_insert = (ImageButton) findViewById(R.id.edit_insert);
 		edit_delete = (ImageButton) findViewById(R.id.edit_delete);
 		edit_input_type = (ImageButton) findViewById(R.id.edit_inputtype);
-		ImageButton edit_setting = (ImageButton) findViewById(R.id.edit_setting);
+		edit_setting = (ImageButton) findViewById(R.id.edit_setting);
 		
 		edit_insert.setOnClickListener(this);
 		edit_delete.setOnClickListener(this);
 		edit_input_type.setOnClickListener(this);
 		edit_setting.setOnClickListener(this);
-		
-		edit_type = (LinearLayout) findViewById(R.id.edit_input_type);
-		edit_type.setVisibility(View.GONE);
-		
-		pic_type = (LinearLayout) findViewById(R.id.edit_pic_type);
-		pic_type.setVisibility(View.GONE);
-		
-		setting_type = (LinearLayout) findViewById(R.id.edit_setting_type);
-		setting_type.setVisibility(View.GONE);
-		
-		LinearLayout edit_type_graffit = (LinearLayout) findViewById(R.id.edit_type_graffit);// 插入涂鸦
-		LinearLayout edit_type_soft = (LinearLayout) findViewById(R.id.edit_type_soft); // 键盘输入
-		LinearLayout edit_type_handwrite = (LinearLayout) findViewById(R.id.edit_type_handwrite); // 手写输入
-		LinearLayout pic_type_face = (LinearLayout) findViewById(R.id.edit_insert_face); // 表情输入
-		LinearLayout pic_type_pic = (LinearLayout) findViewById(R.id.edit_insert_pic); // 图片输入
-		LinearLayout setting_color = (LinearLayout) findViewById(R.id.edit_setting_color); // 设置颜色
-		LinearLayout setting_thickness = (LinearLayout) findViewById(R.id.edit_setting_thickness); // 粗细设置
-		LinearLayout setting_font = (LinearLayout) findViewById(R.id.edit_setting_font); // 字体设置
-		LinearLayout edit_insert_space = (LinearLayout) findViewById(R.id.edit_insert_space); // 插入空格
-		LinearLayout edit_insert_newline = (LinearLayout) findViewById(R.id.edit_insert_newline); // 插入换行
-		
-		edit_type_graffit.setOnClickListener(this);
-		edit_type_soft.setOnClickListener(this);
-		edit_type_handwrite.setOnClickListener(this);
-		pic_type_face.setOnClickListener(this);
-		pic_type_pic.setOnClickListener(this);
-		setting_color.setOnClickListener(this);
-		setting_thickness.setOnClickListener(this);
-		setting_font.setOnClickListener(this);
-		edit_insert_space.setOnClickListener(this);
-		edit_insert_newline.setOnClickListener(this);
-		
-        
-//		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		
 		weather_tv = (TextView) findViewById(R.id.edit_weather_textview);
 		
@@ -276,7 +242,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		
 	    initPopupWindow();
 		
-//		mStrBuf = new StringBuffer();
 		mStrList = new ArrayList<String>();
 		mPicPathList = new ArrayList<String>();
 		
@@ -414,7 +379,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			    	}
 					
 					
-					mStrList.remove(picindex);
+					if (mStrList.size() > picindex && mStrList.size > 0) {
+					    mStrList.remove(picindex);
+					}
 					if (mStrList.size() > picindex && picindex > mLastPageEnd  && mStrList.get(picindex - 1).startsWith("str:") && mStrList.get(picindex).startsWith("str:")) {
 						String tempStr = mStrList.get(picindex);
 						tempStr = tempStr.substring(tempStr.indexOf(":") + 1);
@@ -1217,9 +1184,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 				||v.getId() == R.id.edit_delete
 				||v.getId() == R.id.edit_inputtype
 				||v.getId() == R.id.edit_setting)) {
-			isInputTypeShow = false;
-			isPicTypeShow = false;
-			isSettingTypeShow = false;
 			edit_type.setVisibility(View.GONE);
 			pic_type.setVisibility(View.GONE);
 			setting_type.setVisibility(View.GONE);
@@ -1396,37 +1360,44 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
-		resetState(v);
+//		resetState(v);
 		switch (v.getId()) {
 		case R.id.edit_inputtype:
-			if (isInputTypeShow) {
-				edit_type.setVisibility(View.GONE);
-				isInputTypeShow = false;
-			} else {
-			    edit_type.setVisibility(View.VISIBLE);
-			    edit_type.bringToFront();
-			    isInputTypeShow = true;
+			if (mEditTypePopupWindow == null) {
+				initEditTypePopupWindow();
 			}
+			
+			if (mEditTypePopupWindow.isShowing()) {
+				mEditTypePopupWindow.dismiss();
+			} else {
+				mEditTypePopupWindow.showAsDropDown(edit_input_type, DensityUtil.dip2px(this, -55), DensityUtil.dip2px(this, 4));
+			}
+			
 			break;
 		case R.id.edit_insert:
-			if (isPicTypeShow) {
-				pic_type.setVisibility(View.GONE);
-				isPicTypeShow = false;
+			if (mInsertTypePopupWindow == null) {
+				initInsertTypePopupWindow();
+			}
+			
+			if (mInsertTypePopupWindow.isShowing()) {
+				mInsertTypePopupWindow.dismiss();
 			} else {
-			    pic_type.setVisibility(View.VISIBLE);
-			    isPicTypeShow = true;
+				mInsertTypePopupWindow.showAsDropDown(edit_insert, 0, DensityUtil.dip2px(this, 4));
 			}
 			break;
 		case R.id.edit_setting:
-			if (isSettingTypeShow) {
-				setting_type.setVisibility(View.GONE);
-				isSettingTypeShow = false;
+			if (mSetTypePopupWindow == null) {
+				initSetTypePopupWindow();
+			}
+			
+			if (mSetTypePopupWindow.isShowing()) {
+				mSetTypePopupWindow.dismiss();
 			} else {
-				ImageView imgView = (ImageView) findViewById(R.id.thickness_imageview);
-				TextView tv = (TextView) findViewById(R.id.thickness_textview);
+				ImageView imgView = (ImageView) mSetTypePopupWindow.getContentView().findViewById(R.id.thickness_imageview);
+				TextView tv = (TextView) mSetTypePopupWindow.getContentView().findViewById(R.id.thickness_textview);
 				
-				ImageView fontimgView = (ImageView) findViewById(R.id.fontsetting_imageview);
-				TextView fonttv = (TextView) findViewById(R.id.fontsetting_textview);
+				ImageView fontimgView = (ImageView) mSetTypePopupWindow.getContentView().findViewById(R.id.fontsetting_imageview);
+				TextView fonttv = (TextView) mSetTypePopupWindow.getContentView().findViewById(R.id.fontsetting_textview);
 				
 				if (mState == SOFTINPUTSTATE) {
 					imgView.setImageDrawable(getResources().getDrawable(R.drawable.text_thickness_adjust));
@@ -1445,8 +1416,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 					fontimgView.setVisibility(View.GONE);
 					fonttv.setVisibility(View.GONE);
 				}
-				setting_type.setVisibility(View.VISIBLE);
-			    isSettingTypeShow = true;
+				mSetTypePopupWindow.showAsDropDown(edit_setting, 0, DensityUtil.dip2px(this, 4));
 			}
 			break;
 		case R.id.edit_delete:
@@ -1494,8 +1464,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 				mFingerColor = myEdit.getFingerPen().getColor();
 				myEdit.setFingerStrokeWidth(MAX_STROKEWIDTH);
 				myEdit.getFingerPen().setStrokeWidth(MAX_STROKEWIDTH);
-//				myEdit.getFingerPen().setXfermode(new PorterDuffXfermode(
-//	                    PorterDuff.Mode.CLEAR));
 				myEdit.getFingerPen().setColor(0xffffffff);
 				myEdit.setFingerColor(0x00000000);
 				myEdit.setErase(true);
@@ -1508,8 +1476,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			    gestureview.removeAllOnGestureListeners();
 				gestureview.addOnGestureListener(handWriteListener);
 			}
-			edit_type.setVisibility(View.GONE);
-			isInputTypeShow = false;
+			mEditTypePopupWindow.dismiss();
 			
 			gestureview.setVisibility(View.VISIBLE);
 			edit_input_type.setImageDrawable(getResources().getDrawable(R.drawable.edit_handwrite_selector));
@@ -1517,8 +1484,8 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			mState = HANDWRITINGSTATE;
 			break;
 		case R.id.edit_type_graffit:
-			edit_type.setVisibility(View.GONE);
-			isInputTypeShow = false;
+			mEditTypePopupWindow.dismiss();
+			gestureview.setVisibility(View.GONE);
 			myEdit.setErase(false);
 			if (isgraffit_erase) {
 				myEdit.setFingerStrokeWidth((int)mStrokeWidth);
@@ -1527,6 +1494,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 				isgraffit_erase = false;
 				break;
 			}
+			
 			if (mState == GRAFFITINSERTSTATE) {
 				break;
 			}
@@ -1536,8 +1504,8 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			mState = GRAFFITINSERTSTATE;
 			break;
 		case R.id.edit_type_soft:
-			edit_type.setVisibility(View.GONE);
-			isInputTypeShow = false;
+			mEditTypePopupWindow.dismiss();
+			gestureview.setVisibility(View.GONE);
 			if (mState == SOFTINPUTSTATE) {
 				break;
 			}
@@ -1546,8 +1514,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			mState = SOFTINPUTSTATE;
 			break;
 		case R.id.edit_insert_face:
-			pic_type.setVisibility(View.GONE);
-			isPicTypeShow = false;
+			mInsertTypePopupWindow.dismiss();
 			if (facechoose_dialog == null) {
 				initFaceDialog();
 			}
@@ -1569,24 +1536,20 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			}
 			
 			picchoose_dialog.show();
-			
-			pic_type.setVisibility(View.GONE);
-			isPicTypeShow = false;
+			mInsertTypePopupWindow.dismiss();
 			
 			break;
 		case R.id.edit_insert_space:
 			int index = myEdit.getSelectionStart();
 			index = index < 0 ? 0 : index;
 			myEdit.getText().insert(index, " ");
-			pic_type.setVisibility(View.GONE);
-			isPicTypeShow = false;
+			mInsertTypePopupWindow.dismiss();
 			break;
 		case R.id.edit_insert_newline:
 			int index1 = myEdit.getSelectionStart();
 			index1 = index1 < 0 ? 0 : index1;
 			myEdit.getText().insert(index1, "\n");
-			pic_type.setVisibility(View.GONE);
-			isPicTypeShow = false;
+			mInsertTypePopupWindow.dismiss();
 			break;
 		case R.id.edit_setting_color:
 			if (mState == HANDWRITINGSTATE) {
@@ -1606,8 +1569,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		    	};
 		    	new ColorPickerDialog(this, listener, myEdit.getCurrentTextColor()).show();
 			}
-			setting_type.setVisibility(View.GONE);
-			isSettingTypeShow = false;
+			mSetTypePopupWindow.dismiss();
 			break;
 		case R.id.edit_setting_thickness:
 			if (mState == HANDWRITINGSTATE || mState == GRAFFITINSERTSTATE) {
@@ -1624,16 +1586,14 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 					myEdit.invalidate();
 				}
 			}
-			setting_type.setVisibility(View.GONE);
-			isSettingTypeShow = false;
+			mSetTypePopupWindow.dismiss();
 			break;
 		case R.id.edit_setting_font:
 			if (fontchoose_dialog == null) {
 				initFontDialog();
 			}
 			fontchoose_dialog.show();
-			setting_type.setVisibility(View.GONE);
-			isSettingTypeShow = false;
+			mSetTypePopupWindow.dismiss();
 			break;
 		case R.id.picfroecamera:
 			String pName = picName.generateName();
@@ -1737,13 +1697,60 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		weather_rain.setOnClickListener(this);
 		weather_snow.setOnClickListener(this);
 		
-		DisplayMetrics dm = new DisplayMetrics();
-		dm = getApplicationContext().getResources().getDisplayMetrics();
 		mWeatherPopupWindow = new PopupWindow(view, DensityUtil.dip2px(this, 200),
 				DensityUtil.dip2px(this, 90), true);
 		mWeatherPopupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.edit_dropdown_dialog));
 		mWeatherPopupWindow.setOutsideTouchable(true);
 	}
+	
+	private void initEditTypePopupWindow() {
+		View view = getLayoutInflater().inflate(R.layout.popwindow_inputtype,null);
+		
+		LinearLayout graffit_input = (LinearLayout) view.findViewById(R.id.edit_type_graffit);
+		LinearLayout soft_input = (LinearLayout) view.findViewById(R.id.edit_type_soft);
+		LinearLayout handwrite_input = (LinearLayout) view.findViewById(R.id.edit_type_handwrite);
+		graffit_input.setOnClickListener(this);
+		soft_input.setOnClickListener(this);
+		handwrite_input.setOnClickListener(this);
+		
+		mEditTypePopupWindow = new PopupWindow(view, LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT, true);
+		mEditTypePopupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.pop_layout_bg));
+		mEditTypePopupWindow.setOutsideTouchable(true);
+	}
+	
+	private void initInsertTypePopupWindow() {
+		View view = getLayoutInflater().inflate(R.layout.popwindow_inserttype,null);
+		
+		LinearLayout pic_insert = (LinearLayout) view.findViewById(R.id.edit_insert_pic);
+		LinearLayout face_insert = (LinearLayout) view.findViewById(R.id.edit_insert_face);
+		LinearLayout space_insert = (LinearLayout) view.findViewById(R.id.edit_insert_space);
+		LinearLayout newline_insert = (LinearLayout) view.findViewById(R.id.edit_insert_newline);
+		pic_insert.setOnClickListener(this);
+		face_insert.setOnClickListener(this);
+		space_insert.setOnClickListener(this);
+		newline_insert.setOnClickListener(this);
+		
+		mInsertTypePopupWindow = new PopupWindow(view, LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT, true);
+		mInsertTypePopupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.pop_layout_bg_left));
+		mInsertTypePopupWindow.setOutsideTouchable(true);
+	}
+	
+	private void initSetTypePopupWindow() {
+        View view = getLayoutInflater().inflate(R.layout.popwindow_settype,null);
+		mSetTypePopupWindow = new PopupWindow(view,LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT, true);
+		mSetTypePopupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.pop_layout_bg_right));
+		mSetTypePopupWindow.setOutsideTouchable(true);
+		LinearLayout color_setting = (LinearLayout) view.findViewById(R.id.edit_setting_color);
+		LinearLayout thickness_setting = (LinearLayout) view.findViewById(R.id.edit_setting_thickness);
+		LinearLayout font_setting = (LinearLayout) view.findViewById(R.id.edit_setting_font);
+		color_setting.setOnClickListener(this);
+		thickness_setting.setOnClickListener(this);
+		font_setting.setOnClickListener(this);
+	}
+	
 	
 	/**
 	 * 退出前保存笔记
@@ -2311,23 +2318,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
                 return;
             }
 //        	int lineheight = DensityUtil.dip2px(EditNoteScreen.this, myEdit.getLineHeight() );
-//        	Bitmap bmp = mGesture.toBitmap(lineheight, lineheight, 0, mGesture.getGesturePaintColor());
-            Bitmap bmp = Bitmap.createBitmap(DensityUtil.dip2px(EditNoteScreen.this,50), DensityUtil.dip2px(EditNoteScreen.this,71), Bitmap.Config.ARGB_8888);;
-        	bmp.eraseColor(0x00000000);
-        	Canvas canvas = new Canvas(bmp);
-        	Bitmap gestrueBmp = mGesture.toBitmap(dip2px(44), dip2px(44), 0, mGesture.getGesturePaintColor());
+        	Bitmap gestrueBmp = mGesture.toBitmap(dip2px(48),dip2px(48), 0, mGesture.getGesturePaintColor());
         	if (gestrueBmp == null || gestrueBmp.isRecycled()) {
         		return;
         	}
-        	canvas.drawBitmap(gestrueBmp, dip2px(3), dip2px(20), null);
-        	gestrueBmp.recycle();
-//        	Bitmap bmp = Bitmap.createBitmap(DensityUtil.dip2px(EditNoteScreen.this,50), DensityUtil.dip2px(EditNoteScreen.this,71), Bitmap.Config.ARGB_8888);;
-//        	bmp.eraseColor(0xff000000);
-//        	Canvas canvas = new Canvas(bmp);
-//        	Paint pt = new Paint();
-//        	pt.setColor(0xFF000000);
-//        	canvas.drawRect(dip2px(3), dip2px(20), dip2px(47), dip2px(64), pt);
-        	Drawable drawable = new BitmapDrawable(bmp);
+        	Drawable drawable = new BitmapDrawable(gestrueBmp);
             drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
 		    ImageSpan span = new ImageSpan(drawable,ImageSpan.ALIGN_BOTTOM);
 		    String gName = gestureName.generateName();
@@ -2523,32 +2518,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
             }
             
             fis.close();
-
-//            int scale = 1;
-//            scale = (int)(o.outWidth / (float)200);
-//            if (scale <= 0) {
-//            	scale = 1;
-//            }
-//            
-//            int scale2 = (int) (o.outHeight / (float)250);
-//            if (scale2 <= 0) {
-//            	scale2 = 1;
-//            }
-//            
-//            if (scale2 >  scale) {
-//            	scale = scale2;
-//            }
-//
-//            //Decode with inSampleSize
-//            BitmapFactory.Options o2 = new BitmapFactory.Options();
-//            
-//            o2.inSampleSize = scale;
-//            
-//            fis = new FileInputStream(f);
-//            b = BitmapFactory.decodeStream(fis, null, o2);
-//            
-//            Log.d("=TTT=","scale = " + scale + " outWidth = " + o.outWidth + " outWidth2 = " + o2.outWidth);
-//            fis.close();
         } catch (Exception e) {
         }
         return retBmp;

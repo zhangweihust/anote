@@ -223,6 +223,14 @@ public class AmGesture implements Parcelable {
 
         path.offset(-bounds.left + (width - bounds.width() * scale) / 2.0f,
                 -bounds.top + (height - bounds.height() * scale) / 2.0f);
+        path.computeBounds(bounds, true);
+        if (sx < sy && bounds.width() > bounds.height()) {
+        	float top = (height / scale - bounds.height()) / 2.0f;
+        	path.offset(0, -bounds.top + top);
+        } else if (sx > sy && bounds.width() < bounds.hashCode()) {
+        	float left = (width / scale - bounds.width()) / 2.0f;
+        	path.offset(-bounds.left + left , 0);
+        }
 
         canvas.translate(inset, inset);
         canvas.scale(scale, scale);
