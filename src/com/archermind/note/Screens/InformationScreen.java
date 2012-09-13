@@ -108,6 +108,8 @@ public class InformationScreen extends Screen implements IXListViewListener,
 
 		mxlvInformation = (XListView) findViewById(R.id.xlv_information);
 		mxlvInformation.setXListViewListener(this);
+		mxlvInformation.setPullLoadEnable(true);
+		mxlvInformation.setPullRefreshEnable(true);
 
 		mbtnBack = (Button) findViewById(R.id.btn_back);
 		mbtnBack.setOnClickListener(this);

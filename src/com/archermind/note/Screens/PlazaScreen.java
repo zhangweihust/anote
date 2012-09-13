@@ -34,7 +34,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	
 	private WebView mWebView;
 	private TextView mTextView;
-	private static String url = "http://note.archermind.com/web/index.php";
+	private static String url = "http://anote.archermind.com/web/index.php";
 	//private static String url = "http://192.168.1.101";
 	public static boolean isFirstPage = true;
 	private int mNetwork;

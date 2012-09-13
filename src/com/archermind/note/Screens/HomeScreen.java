@@ -51,6 +51,7 @@ import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Provider.DatabaseManager;
 import com.archermind.note.Services.EventService;
+import com.archermind.note.Services.ExceptionService;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.Constant;
 import com.archermind.note.Utils.DateTimeUtils;
@@ -325,15 +326,15 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				cal.setTimeInMillis(time);
 				int lastDayIndex = cal.get(Calendar.DAY_OF_YEAR);
 				int noNoteDays = todayIndex - lastDayIndex;
-				mTvMyNoteInfo.setText(noNoteDays + "天没有写笔记了哦");
+				mTvMyNoteInfo.setText(noNoteDays + "天没有写笔迹了哦");
 			}else{
 				Cursor cursor = ServiceManager.getDbManager().queryTodayLocalNOTEs(System.currentTimeMillis());
 		        int count = cursor.getCount();
 		        cursor.close();
 		        if(count == 0){
-		        	mTvMyNoteInfo.setText("今天还没有写笔记哦");
+		        	mTvMyNoteInfo.setText("今天还没有写笔迹哦");
 		        }else{
-		        	mTvMyNoteInfo.setText("今天写了" + count + "篇笔记");
+		        	mTvMyNoteInfo.setText("今天写了" + count + "篇笔迹");
 		        }
 				
 			}
@@ -346,7 +347,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		}else{
 			mLastestTime = System.currentTimeMillis();
 			mEarlistTime = System.currentTimeMillis();
-			mTvMyNoteInfo.setText("今天还没有写笔记哦");
+			mTvMyNoteInfo.setText("今天还没有写笔迹哦");
 		}
 		
 		if(localNotes.getCount()!= 0 && localNotes.moveToFirst()){

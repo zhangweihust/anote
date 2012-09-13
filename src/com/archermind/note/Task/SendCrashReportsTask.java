@@ -39,15 +39,9 @@ import android.util.Log;
 public class SendCrashReportsTask extends AsyncTask<Void, Void, Integer> {
 	/** 错误报告文件的扩展名 */  
 	private static final String CRASH_REPORTER_EXTENSION = ".log";
-	TelephonyManager tm = (TelephonyManager) NoteApplication.getContext().getSystemService(Context.TELEPHONY_SERVICE);
-	private Service mService;
-	
+
 	public SendCrashReportsTask(){
 		
-	}
-	
-    public SendCrashReportsTask(Service service){
-    	mService = service;
 	}
 	
 	@Override
@@ -82,8 +76,6 @@ public class SendCrashReportsTask extends AsyncTask<Void, Void, Integer> {
 		} else {
 			NoteApplication.LogD(SendCrashReportsTask.class, "本地没有LOG文件");
 		}
-		if(mService != null)
-			mService.stopSelf();
 	}
 
 	private boolean postReport(File file) {

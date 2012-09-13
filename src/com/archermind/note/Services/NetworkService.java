@@ -145,6 +145,7 @@ public class NetworkService implements IService {
 					NoteApplication.LogD(NetworkService.class, "Net is connected");
 					String date = sDateFormat.format(new java.util.Date());
 					preferences.edit().putString(XML_KEY_TIME, date).commit();
+					System.out.println("======= NetstateReceiver ===========");
 					SendCrashReportsTask task = new SendCrashReportsTask();
 					task.execute();
 				}

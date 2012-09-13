@@ -3,8 +3,8 @@
 
     <!-- home_screen & main_screen -->
     <string name="hello">Hello World, MainActivity!</string>
-    <string name="app_name">分享笔记</string>
-    <string name="home_screen_title">笔记本</string>
+    <string name="app_name">分享笔迹</string>
+    <string name="home_screen_title">笔迹本</string>
     <string name="plaza_screen_title">广场</string>
     <string name="home_screen_calendar_page_title">日历</string>
     <string name="menu_right_count">账户</string>
@@ -44,7 +44,7 @@
     <string name="save_and_share">保存并分享</string>
     <string name="save_only">仅保存</string>
     <string name="not_save">不保存</string>
-    <string name="saving_note_now">正在保存笔记</string>
+    <string name="saving_note_now">正在保存笔迹</string>
     
     <string name="note_input_title">请输入标题！</string>
     
@@ -65,9 +65,9 @@
     <string name="account_bound_progross">正在绑定...</string>
     <string name="account_bound_failed">账号绑定失败，请稍候再试！</string>
     <string name="account_bound_failed_exist">该账号已经被绑定过啦，换一个吧！</string>
-    <string name="account_bound_success_sina">现在你也可以使用新浪账号登录"分享笔记"啦！</string>
-    <string name="account_bound_success_qq">现在你也可以使用QQ账号登录"分享笔记"啦！</string>
-    <string name="account_bound_success_renren">现在你也可以使用人人账号登录"分享笔记"啦！</string>
+    <string name="account_bound_success_sina">现在你也可以使用新浪账号登录"分享笔迹"啦！</string>
+    <string name="account_bound_success_qq">现在你也可以使用QQ账号登录"分享笔迹"啦！</string>
+    <string name="account_bound_success_renren">现在你也可以使用人人账号登录"分享笔迹"啦！</string>
     <string name="account_bound_sina_none">您还没没有绑定新浪账号，请先进行绑定！</string>
     <string name="account_bound_qq_none">您还没没有绑定QQ账号，请先进行绑定！</string>
     <string name="account_bound_renren_none">您还没没有绑定人人账号，请先进行绑定！</string>
@@ -79,7 +79,7 @@
 
     <!-- account -->
     <string name="account_title">我的帐号</string>
-    <string name="account_user_account">微笔记帐号</string>
+    <string name="account_user_account">分享笔迹帐号</string>
     <string name="account_change_passwd">更改密码</string>
     <string name="account_new_passwd">新密码</string>
     <string name="account_confirm_passwd">确认密码</string>
@@ -118,7 +118,7 @@
     <string name="login_qq">QQ账号</string>
     <string name="login_renren">人人账号</string>
     <string name="login_or">或者</string>
-    <string name="login_username">请输入分享笔记帐号</string>
+    <string name="login_username">请输入分享笔迹帐号</string>
     <string name="login_auto">下次自动登录</string>
     <string name="login_password">请输入密码</string>
     <string name="login_btn">账号登录</string>
@@ -148,9 +148,9 @@
     <string name="register_woman">女</string>
     <string name="register_man">男</string>
     <string name="register_location">地区：</string>
-    <string name="register_activate_account">激活分享笔记账号</string>
+    <string name="register_activate_account">激活分享笔迹账号</string>
     <string name="register_warning">（必填）</string>
-    <string name="register_tip">以后可用此账号直接登录分享笔记</string>
+    <string name="register_tip">以后可用此账号直接登录分享笔迹</string>
     <string name="register_username">邮箱账号：</string>
     <string name="register_username_hint">你的常用邮箱(密码找回)</string>
     <string name="register_password">输入密码：</string>
@@ -169,7 +169,7 @@
     
     <!-- about -->
     <string name="about_title">关于</string>
-    <string name="about_logo_title">分享笔记 分享快乐</string>
+    <string name="about_logo_title">分享笔迹 分享快乐</string>
     <string name="about_version_info">版本信息</string>
     <string name="about_web">官方网站</string>
     <string name="about_blog">官方微博</string>
@@ -187,7 +187,7 @@
     
     <!-- share -->
     <string name="share_title">分享</string>
-    <string name="share_default_text">分享笔记，分享快乐！@诚迈科技 @分享笔记\n查看请点击：http://note.archermind.com/web/note.php</string>
+    <string name="share_default_text">分享笔迹，分享快乐！@诚迈科技 @分享笔迹\n查看请点击：http://note.archermind.com/web/note.php</string>
     <string name="share_text_others">您还可以分享到以下平台</string>
     <string name="share_msg_sina">正在分享到新浪微博...</string>
     <string name="share_msg_qq">正在分享到腾讯微博...</string>
@@ -226,7 +226,7 @@
     <string name="screen_update_download_error">安装包下载出现错误</string>
     <string name="screen_update_click_to_install">下载完成，单击进行安装</string>
     <string name="screen_update_not_need_update">未发现新版本</string>
-    <string name="screen_update_have_update">分享笔记有新版本啦</string>
+    <string name="screen_update_have_update">分享笔迹有新版本啦</string>
     <string name="screen_update_select_to_install">新版本下载完成, 请进行安装</string>
     <string name="screen_update_install_now">立刻更新</string>
     <string name="screen_update_install_later">稍后更新</string>
@@ -243,7 +243,7 @@
     <string name="screen_version_download_update_background">Updates is downloading background...</string>
     -->
     <string name="screen_version_top_title">版本信息</string>
-    <string name="screen_version_title">分析笔记&#160;v</string>
+    <string name="screen_version_title">分享笔迹&#160;v</string>
     <string name="screen_version_check_update">检测更新</string>
     <string name="screen_version_download_update_background">安装包正在后台下载...</string>
     
@@ -673,7 +673,7 @@
     <string name="city_32_3">吴忠</string>
     <string name="city_32_4">固原</string>
     
-    <string name="exit">再次点击退出分享笔记</string>
+    <string name="exit">再次点击退出分享笔迹</string>
     <string name="xlistview_header_hint_normal">下拉刷新</string>
 	<string name="xlistview_header_hint_ready">松开刷新数据</string>
 	<string name="xlistview_header_hint_loading">正在加载...</string>
@@ -689,7 +689,7 @@
 	<string name="back">返回</string>
 	<string name="cancel">取消</string>
 	<string name="refresh">刷新</string>
-	<string name="no_note_curmonth">这个月没有写笔记哦</string>
+	<string name="no_note_curmonth">这个月没有写笔迹哦</string>
 	
 	<string name="photo_upload_title">图片上传</string>
 	<string name="photo_upload_failed">上传失败</string>

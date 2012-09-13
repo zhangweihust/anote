@@ -14,7 +14,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.http.message.BasicNameValuePair;
+
 import com.archermind.note.NoteApplication;
+import com.archermind.note.Task.SendCrashReportsTask;
+import com.archermind.note.Utils.DateTimeUtils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -28,9 +32,6 @@ import android.util.DisplayMetrics;
 
 
 public class ExceptionService implements IService {
-	private static DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss"); 
-	//用来存储设备信息和异常信息
-	private static  Map<String, String> infos = new HashMap<String, String>();
     /** 错误报告文件的扩展名 */  
 	private static final String CRASH_REPORTER_EXTENSION = ".log";
 	
@@ -45,15 +46,148 @@ public class ExceptionService implements IService {
 		return true;
 	}
 
+	
+	/**
+	 * 收集设备参数信息
+	 * @param ctx
+	 */
+	public static Map<String, String> collectDeviceInfo(Context ctx) {
+		try {
+			Map<String, String> infos = new HashMap<String, String>();
+			PackageManager pm = ctx.getPackageManager();
+			PackageInfo pi = pm.getPackageInfo(ctx.getPackageName(), PackageManager.GET_ACTIVITIES);
+			if (pi != null) {
+				String versionName = pi.versionName == null ? "null" : pi.versionName;
+				String versionCode = pi.versionCode + "";
+				infos.put("versionName", versionName);
+				infos.put("versionCode", versionCode);
+			}
+			String versionSDK = Integer.valueOf(android.os.Build.VERSION.SDK).toString();
+			String phoneModel = android.os.Build.MODEL;
+			infos.put("versionSDK", versionSDK);
+			infos.put("phoneModel", phoneModel);
+		 
+			DisplayMetrics dm=new DisplayMetrics();
+			if(NoteApplication.getInstance().getWindowManager() != null){	
+				NoteApplication.getInstance().getWindowManager().getDefaultDisplay()
+					.getMetrics(dm);
+				float width = dm.widthPixels;
+				float height = dm.heightPixels;
+				float density = dm.densityDpi;
+				infos.put("width", Float.toString(width));
+				infos.put("height", Float.toString(height));
+				infos.put("density", Float.toString(density));
+			}	
+			return infos;
+		} catch (NameNotFoundException e) {
+			
+		}
+		
+		return null;
+	}
+	
+
+	public static StringBuffer saveCrashInfo(Throwable ex, Map<String, String> infos){
+		try {
+			StringBuffer sb = new StringBuffer();
+          if(infos != null){
+			for (Map.Entry<String, String> entry : infos.entrySet()) {
+				String key = entry.getKey();
+				String value = entry.getValue();
+				sb.append(key + "=" + value + "\n");
+			}
+			}
+			Writer writer = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(writer);
+			ex.printStackTrace(printWriter);
+			Throwable cause = ex.getCause();
+			while (cause != null) {
+				cause.printStackTrace(printWriter);
+				cause = cause.getCause();
+			}
+			printWriter.close();
+			String result = writer.toString();
+			sb.append(result);
+			return sb;
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+		return null;
+	}
+	
+	public static StringBuffer saveCrashInfo(Exception e, Map<String, String> infos){
+		try {		
+			StringBuffer sb = new StringBuffer();
+			if(infos != null){
+				for (Map.Entry<String, String> entry : infos.entrySet()) {
+					String key = entry.getKey();
+					String value = entry.getValue();
+					sb.append(key + "=" + value + "\n");
+				}
+			}
+			if (e == null) {
+				sb.append("Exception:"
+						+ "e is null,probably null pointer exception" + "\n");
+			} else {
+				sb.append(e.getClass().getCanonicalName() + ":"
+						+ e.getMessage() + "\n");
+				StackTraceElement[] stes = e.getStackTrace();
+				for (StackTraceElement ste : stes) {
+					sb.append("at " + ste.getClassName() + "$"
+							+ ste.getMethodName() + "$" + ste.getFileName()
+							+ ":" + ste.getLineNumber() + "\n");
+				}
+			}
+			return sb;
+		} catch (Exception e2) {
+			// TODO: handle exception
+		}
+		return null;
+	}
+	
+	
+	
+	public static void saveCrashInfo2File(StringBuffer sb) {
+		if(sb == null || sb.equals("")){
+			return ;
+		}
+		try {
+			long timestamp = System.currentTimeMillis();
+			String time = DateTimeUtils.time2String("yyyy-MM-dd-HH-mm-ss", System.currentTimeMillis());
+			String fileName = "crash-" + time + "-" + timestamp + CRASH_REPORTER_EXTENSION;
+			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+				String path = NoteApplication.crashPath;
+				File dir = new File(path);
+				if (!dir.exists()) {
+					dir.mkdirs();
+				}
+				FileOutputStream fos = new FileOutputStream(path + fileName);
+				fos.write(sb.toString().getBytes());
+				fos.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void logException(Exception e) {
+		Map<String, String> infos = ExceptionService.collectDeviceInfo(NoteApplication.getContext());
+		StringBuffer sb = ExceptionService.saveCrashInfo(e, infos);
+		ExceptionService.saveCrashInfo2File(sb);
+		System.out.println("======= logException===========");
+		SendCrashReportsTask task = new SendCrashReportsTask();
+		task.execute();
+	}
+	
 	private static class AMTException implements UncaughtExceptionHandler {
 
 		private static AMTException instance;
 
 		@Override
 		public void uncaughtException(Thread thread, Throwable ex) {
-			collectDeviceInfo(NoteApplication.getContext());
-			saveCrashInfo2File(ex);
-			NoteApplication.getContext().startService(new Intent(NoteApplication.getContext(), CrashReportService.class));
+			Map<String, String> infos = ExceptionService.collectDeviceInfo(NoteApplication.getContext());
+			StringBuffer sb = ExceptionService.saveCrashInfo(ex, infos);
+			ExceptionService.saveCrashInfo2File(sb);
 			ServiceManager.exit();
 		}
 		
@@ -68,84 +202,5 @@ public class ExceptionService implements IService {
 			return instance;
 		}
 		
-		
-		/**
-		 * 收集设备参数信息
-		 * @param ctx
-		 */
-		public void collectDeviceInfo(Context ctx) {
-			try {
-				PackageManager pm = ctx.getPackageManager();
-				PackageInfo pi = pm.getPackageInfo(ctx.getPackageName(), PackageManager.GET_ACTIVITIES);
-				if (pi != null) {
-					String versionName = pi.versionName == null ? "null" : pi.versionName;
-					String versionCode = pi.versionCode + "";
-					infos.put("versionName", versionName);
-					infos.put("versionCode", versionCode);
-				}
-				String versionSDK = Integer.valueOf(android.os.Build.VERSION.SDK).toString();
-				String phoneModel = android.os.Build.MODEL;
-				infos.put("versionSDK", versionSDK);
-				infos.put("phoneModel", phoneModel);
-			} catch (NameNotFoundException e) {
-			}
-			 DisplayMetrics dm=new DisplayMetrics();
-			 NoteApplication.getInstance().getWindowManager().getDefaultDisplay().getMetrics(dm);
-			 float width = dm.widthPixels;
-			 float height = dm.heightPixels;
-			 float density = dm.densityDpi;
-			 infos.put("width", Float.toString(width));
-			 infos.put("height", Float.toString(height));
-			 infos.put("density", Float.toString(density));
-			 
-		}
-		
-
-		/**
-		 * 保存错误信息到文件中
-		 * 
-		 * @param ex
-		 * @return	返回文件名称,便于将文件传送到服务器
-		 */
-		private String saveCrashInfo2File(Throwable ex) {
-			StringBuffer sb = new StringBuffer();
-			for (Map.Entry<String, String> entry : infos.entrySet()) {
-				String key = entry.getKey();
-				String value = entry.getValue();
-				sb.append(key + "=" + value + "\n");
-			}
-			
-			Writer writer = new StringWriter();
-			PrintWriter printWriter = new PrintWriter(writer);
-			ex.printStackTrace(printWriter);
-			Throwable cause = ex.getCause();
-			while (cause != null) {
-				cause.printStackTrace(printWriter);
-				cause = cause.getCause();
-			}
-			printWriter.close();
-			String result = writer.toString();
-			sb.append(result);
-			try {
-				long timestamp = System.currentTimeMillis();
-				String time = formatter.format(new Date());
-				String fileName = "crash-" + time + "-" + timestamp + CRASH_REPORTER_EXTENSION;
-				if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-					String path = NoteApplication.crashPath;
-					File dir = new File(path);
-					if (!dir.exists()) {
-						dir.mkdirs();
-					}
-					FileOutputStream fos = new FileOutputStream(path + fileName);
-					fos.write(sb.toString().getBytes());
-					fos.close();
-				}
-				return fileName;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return null;
-		}
-
 	}
 }

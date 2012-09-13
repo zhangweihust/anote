@@ -57,7 +57,9 @@ import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Services.EventService;
+import com.archermind.note.Services.ExceptionService;
 import com.archermind.note.Services.ServiceManager;
+import com.archermind.note.Task.SendCrashReportsTask;
 import com.archermind.note.Utils.DateTimeUtils;
 import com.archermind.note.Utils.DensityUtil;
 import com.archermind.note.Utils.NetworkUtils;
@@ -152,6 +154,11 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		autoLogin();// 自动登录
 		ServerInterface.initAmtCloud(this);// 初始化云服务
 		mflTabhost = (FrameLayout) findViewById(R.id.fl_tabhost);
+		if(NetworkUtils.getNetworkState(NoteApplication.getContext()) != NetworkUtils.NETWORN_NONE){
+			System.out.println("======= MainScreen ===========");
+			SendCrashReportsTask task = new SendCrashReportsTask();
+			task.execute();
+		}     
 	}
 
 	private TabSpec buildTabSpec(String tag, int iconId, Intent intent) {
@@ -452,7 +459,8 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 					|| (mTabHost.getCurrentTabTag().equalsIgnoreCase(TAB_PLAZA) && !PlazaScreen.isFirstPage)) {
 				return super.dispatchKeyEvent(event);
 			} else if (mExit_Flag
-					&& (System.currentTimeMillis() - mExit_time < 3000)) {
+					&& (System.currentTimeMillis() - mExit_time < 3000)) {			
+				eventService.remove(this);
 				this.finish();
 				ServiceManager.exit();
 			} else {
