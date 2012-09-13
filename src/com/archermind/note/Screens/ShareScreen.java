@@ -49,14 +49,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.util.Linkify;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -79,6 +76,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 	private Button mRenrenButton;
 	private ArrayList<String> mPicPathList;
 	private AmtAlbumObj mAlbumObj;
+	private String imgurl_renren;// 用于分享到人人的图片url
 	private static final String TAG = "ShareScreen";
 	private static final String ALBUMNAME_SHARE = "share";
 	private Handler mHandler = new Handler() {
@@ -233,6 +231,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 						+ "&filename="
 						+ context.substring(context.lastIndexOf("/") + 1)
 						+ "&album=" + ALBUMNAME_SHARE;
+				imgurl_renren = ServerInterface.IMG_DOWADING_HEAD + context;
 				Log.i(TAG, "分享的笔记图片url： " + context);
 			}
 
@@ -278,15 +277,15 @@ public class ShareScreen extends Screen implements OnClickListener {
 						.queryLocalNotesById(
 								Integer.parseInt(getIntent().getStringExtra(
 										"noteid")));
-				if(cursor != null){
+				if (cursor != null) {
 					cursor.moveToFirst();
 					String sid = cursor
 							.getString((cursor
 									.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID)));
 					cursor.close();
 					mTextView.append("?id="
-							+ NoteApplication.getInstance().getUserId() + "&nid="
-							+ sid);
+							+ NoteApplication.getInstance().getUserId()
+							+ "&nid=" + sid);
 				}
 				// 随机动画
 				mOthersLayout.setVisibility(View.VISIBLE);
@@ -320,7 +319,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 				NoteApplication.getInstance().setLogin(false);
 				Toast.makeText(NoteApplication.getContext(),
 						R.string.cookies_error, Toast.LENGTH_SHORT).show();
-				Intent intent = new Intent(ShareScreen.this,LoginScreen.class);
+				Intent intent = new Intent(ShareScreen.this, LoginScreen.class);
 				startActivity(intent);
 			}
 		}
@@ -521,7 +520,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 				AsyncRenren asyncRenren = new AsyncRenren(renren);
 				FeedPublishRequestParam param = new FeedPublishRequestParam(
 						getString(R.string.app_name), msg,
-						"http://www.archermind.com", imgPath, null, null, null,
+						ServerInterface.URL_SERVER, imgPath, null, null, null,
 						null);
 				AbstractRequestListener<FeedPublishResponseBean> listener = new AbstractRequestListener<FeedPublishResponseBean>() {
 
@@ -602,8 +601,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 			break;
 		case R.id.btn_share_renren:
 			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
-				shareToRenren(mPicPathList.get(0), mTextView.getText()
-						.toString());
+				shareToRenren(imgurl_renren, mTextView.getText().toString());
 			} else {
 				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
 						.show();

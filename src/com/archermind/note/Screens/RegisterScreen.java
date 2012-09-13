@@ -2,7 +2,6 @@ package com.archermind.note.Screens;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 
 import org.json.JSONException;
@@ -20,8 +19,9 @@ import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
 
 import android.R.integer;
-import android.app.Dialog;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -62,7 +62,6 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	private static final int CROP_RESULT = 3;
 	private static final int REGION_RESULT = 4;
 	private SharedPreferences mPreferences;
-	private Dialog mPicChooseDialog;
 	private ContentResolver mContentResolver;
 	private String mCameraImageFilePath;
 	private ImageCapture mImgCapture;
@@ -302,40 +301,26 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	}
 
 	private void showSelImageDialog() {
-		if (mPicChooseDialog == null) {
-			mPicChooseDialog = new Dialog(this);
-			mPicChooseDialog.setContentView(R.layout.picture_choose_dialog);
-			mPicChooseDialog.setTitle("请选择从哪里获取图片");
-			mPicChooseDialog.setCanceledOnTouchOutside(true);
+		new AlertDialog.Builder(this)
+				.setTitle(R.string.msg_img_source)
+				.setNeutralButton(R.string.btn_img_source_camera,
+						new DialogInterface.OnClickListener() {
 
-			Button cameraButton = (Button) mPicChooseDialog
-					.findViewById(R.id.picfroecamera);
-			Button albumButton = (Button) mPicChooseDialog
-					.findViewById(R.id.picfromalbum);
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								getNewImageFromCamera();
+							}
+						})
+				.setNegativeButton(R.string.btn_img_source_local,
+						new DialogInterface.OnClickListener() {
 
-			albumButton.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View arg0) {
-					// TODO Auto-generated method stub
-					getNewImageFromLocal();
-					mPicChooseDialog.dismiss();
-				}
-
-			});
-
-			cameraButton.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View arg0) {
-					// TODO Auto-generated method stub
-					getNewImageFromCamera();
-					mPicChooseDialog.dismiss();
-				}
-
-			});
-		}
-		mPicChooseDialog.show();
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								getNewImageFromLocal();
+							}
+						}).show();
 	}
 
 	private void register() {

@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -18,20 +17,20 @@ import com.archermind.note.Utils.AlbumInfoUtil;
 import com.archermind.note.Utils.ImageCapture;
 import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
+import com.archermind.note.crop.CropImage;
 
 import android.R.integer;
-import android.app.Dialog;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -60,9 +59,8 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 	private static final int CROP_RESULT = 3;
 	private static final int REGION_RESULT = 4;
 	private SharedPreferences mPreferences;
-	private Dialog mPicChooseDialog;
 	private ContentResolver mContentResolver;
-	private String mCameraImageFilePath;
+	private String mImageFilePath;
 	private ImageCapture mImgCapture;
 	private String mAvatarPath;
 	private AmtAlbumObj mAlbumObj;
@@ -78,8 +76,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 			switch (msg.what) {
 			case MessageTypes.ERROR_MESSAGE:
 				mProgressBar.setVisibility(View.GONE);
-				Toast.makeText(PersonInfoScreen.this,
-						R.string.update_failed,
+				Toast.makeText(PersonInfoScreen.this, R.string.update_failed,
 						Toast.LENGTH_SHORT).show();
 				dismissProgress();
 				break;
@@ -153,8 +150,13 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		if (mPreferences.getString(PreferencesHelper.XML_USER_AVATAR, null) != null) {
-			mUserAvatar.setImageBitmap(PreferencesHelper.getAvatarBitmap(this));
+		Bitmap image = PreferencesHelper.getAvatarBitmap(this);
+		if (image != null) {
+			mUserAvatar.setImageBitmap(image);
+			if (mAvatarPath == null) {
+				mAvatarPath = mPreferences.getString(
+						PreferencesHelper.XML_USER_AVATAR, null);
+			}
 		} else {
 			String avatar_url = NoteApplication.getInstance().getmAvatarurl();
 			if (!avatar_url.equals("")) {
@@ -202,7 +204,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 
 		case CAMERA_RESULT:
 			if (resultCode == RESULT_OK) {
-				startPhotoCROP(Uri.fromFile(new File(mCameraImageFilePath)));
+				startPhotoCROP(Uri.fromFile(new File(mImageFilePath)));
 			}
 			break;
 
@@ -211,12 +213,12 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 				Bundle extras = data.getExtras();
 				if (extras != null) {
 					ByteArrayOutputStream stream = new ByteArrayOutputStream();
-					Bitmap photo = extras.getParcelable("data");
-					photo = PreferencesHelper.toRoundCorner(photo, 15);
+					Bitmap photo = data.getParcelableExtra("data");
+					photo = PreferencesHelper.toRoundCorner(photo, 10);
 					photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
+					photo.recycle();
 					byte[] b = stream.toByteArray();
-					mImgCapture.storeImage(b, null,
-							Bitmap.CompressFormat.PNG);
+					mImgCapture.storeImage(b, null, Bitmap.CompressFormat.PNG);
 					mAvatarPath = getFilepathFromUri(this.mImgCapture
 							.getLastCaptureUri());
 					PreferencesHelper.UpdateAvatar(this, "", mAvatarPath);
@@ -261,11 +263,8 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 	}
 
 	private void getNewImageFromCamera() {
-		long dateTaken = System.currentTimeMillis();
-		String title = mImgCapture.createName(dateTaken);
-		mCameraImageFilePath = Environment.getExternalStorageDirectory()
-				.getAbsolutePath() + "/" + title + ".jpg";
-		File imageFile = new File(mCameraImageFilePath);
+		mImageFilePath = ImageCapture.IMAGE_CACHE_PATH + "/temp.png";
+		File imageFile = new File(mImageFilePath);
 		Uri imageFileUri = Uri.fromFile(imageFile);
 		Intent intent = new Intent(
 				android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
@@ -274,54 +273,43 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 	}
 
 	private void startPhotoCROP(Uri uri) {
-		Intent intent = new Intent("com.android.camera.action.CROP");
+		Intent intent = new Intent(this,CropImage.class);
 		intent.setDataAndType(uri, "image/*");
-		intent.putExtra("crop", "true");
-
-		intent.putExtra("aspectX", 1);
-		intent.putExtra("aspectY", 1);
-
-		intent.putExtra("outputX", 150);
-		intent.putExtra("outputY", 150);
-		intent.putExtra("return-data", true);
+		Bundle extras =new Bundle();
+		extras.putString("circleCrop","true");
+		extras.putInt("aspectX",1);
+		extras.putInt("aspectY",1);
+		extras.putInt("outputX",150);
+		extras.putInt("outputY",150);
+		extras.putBoolean("scale", true);
+		intent.putExtras(extras);
+//		mImageFilePath = ImageCapture.IMAGE_CACHE_PATH + "/head.jpg";
+//		intent.putExtra("output", Uri.fromFile(new File(mImageFilePath)));// 保存到原文件
+//		intent.putExtra("outputFormat", "JPEG");// 返回格式 
 		startActivityForResult(intent, CROP_RESULT);
 	}
 
 	private void showSelImageDialog() {
-		if (mPicChooseDialog == null) {
-			mPicChooseDialog = new Dialog(this);
-			mPicChooseDialog.setContentView(R.layout.picture_choose_dialog);
-			mPicChooseDialog.setTitle("请选择从哪里获取图片");
-			mPicChooseDialog.setCanceledOnTouchOutside(true);
+		new AlertDialog.Builder(this)
+				.setTitle(R.string.msg_img_source)
+				.setNeutralButton(R.string.btn_img_source_camera,
+						new DialogInterface.OnClickListener() {
 
-			Button cameraButton = (Button) mPicChooseDialog
-					.findViewById(R.id.picfroecamera);
-			Button albumButton = (Button) mPicChooseDialog
-					.findViewById(R.id.picfromalbum);
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								getNewImageFromCamera();
+							}
+						})
+				.setNegativeButton(R.string.btn_img_source_local,
+						new DialogInterface.OnClickListener() {
 
-			albumButton.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View arg0) {
-					// TODO Auto-generated method stub
-					getNewImageFromLocal();
-					mPicChooseDialog.dismiss();
-				}
-
-			});
-
-			cameraButton.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View arg0) {
-					// TODO Auto-generated method stub
-					getNewImageFromCamera();
-					mPicChooseDialog.dismiss();
-				}
-
-			});
-		}
-		mPicChooseDialog.show();
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								getNewImageFromLocal();
+							}
+						}).show();
 	}
 
 	@Override
@@ -335,8 +323,8 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 			startActivityForResult(intent, REGION_RESULT);
 			break;
 		case R.id.confirm_change:
-			Toast.makeText(this, R.string.update_progress,
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, R.string.update_progress, Toast.LENGTH_SHORT)
+					.show();
 			mProgressBar.setVisibility(View.VISIBLE);
 			if (ismodifyAvatar) {
 				AmtApplication.setAmtUserName(NoteApplication.getInstance()
@@ -384,15 +372,14 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 				NoteApplication.getInstance().setLogin(false);
 				Toast.makeText(NoteApplication.getContext(),
 						R.string.cookies_error, Toast.LENGTH_SHORT).show();
-				Intent intent = new Intent(PersonInfoScreen.this,LoginScreen.class);
+				Intent intent = new Intent(PersonInfoScreen.this,
+						LoginScreen.class);
 				startActivity(intent);
 			} else if (result.equals("" + ServerInterface.SUCCESS)) {
-				Toast.makeText(PersonInfoScreen.this,
-						R.string.update_success,
+				Toast.makeText(PersonInfoScreen.this, R.string.update_success,
 						Toast.LENGTH_SHORT).show();
 			} else {
-				Toast.makeText(PersonInfoScreen.this,
-						R.string.update_failed,
+				Toast.makeText(PersonInfoScreen.this, R.string.update_failed,
 						Toast.LENGTH_SHORT).show();
 			}
 		}
@@ -428,15 +415,15 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 			super.onPostExecute(result);
 			if (result != null) {
 				mUserAvatar.setImageBitmap(result);
-				//储存下载下来的头像图片
+				// 储存下载下来的头像图片
 				ByteArrayOutputStream stream = new ByteArrayOutputStream();
 				result.compress(Bitmap.CompressFormat.PNG, 100, stream);
 				byte[] b = stream.toByteArray();
-				mImgCapture.storeImage(b, null,
-						Bitmap.CompressFormat.PNG);
+				mImgCapture.storeImage(b, null, Bitmap.CompressFormat.PNG);
 				mAvatarPath = getFilepathFromUri(mImgCapture
 						.getLastCaptureUri());
-				PreferencesHelper.UpdateAvatar(PersonInfoScreen.this, "", mAvatarPath);
+				PreferencesHelper.UpdateAvatar(PersonInfoScreen.this, "",
+						mAvatarPath);
 			} else {
 				Toast.makeText(PersonInfoScreen.this,
 						R.string.personal_info_loadavatar_failed,

@@ -38,11 +38,8 @@ public class PreferencesHelper {
 	public static final String XML_RENREN_ACCESS_TOKEN = "renren_access_token";
 	public static final String XML_COOKIES = "cookies";
 	
-	private static Bitmap mUserAvatarBitmap;
+	private static Bitmap mUserAvatarBitmap = null;
 	private static ArrayList<Map<String, Object>> mProvinceLists;
-	
-	private static boolean mIsLoadAvatar = false;
-	private static boolean mHasLocalAvatarBitmap = false;
 	
 	public static void UpdateAvatar(Context context, String oldAvatarPath, String newAvatarPath) {
 		if (oldAvatarPath != null && !"".equals(oldAvatarPath)) {
@@ -68,19 +65,13 @@ public class PreferencesHelper {
 		String filepath = sharedata.getString(XML_USER_AVATAR, null);
 		
 		if (filepath == null) {
-			mUserAvatarBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.default_photo);
+			return null;
 		}else{
 			File file = new File(filepath);
 			if (file.exists()) {
-				mHasLocalAvatarBitmap = true;
 				mUserAvatarBitmap = BitmapFactory.decodeFile(filepath);
-			} else {
-				mUserAvatarBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.default_photo);
 			}
-		}
-		//mUserAvatarBitmap = toRoundCorner(mUserAvatarBitmap, 15);
-		mIsLoadAvatar = true;
-		
+		}		
 		return mUserAvatarBitmap;
 	}
 	
