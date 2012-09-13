@@ -115,15 +115,17 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 		item.tvNoteContent.setText("");
 		if (contextStr != null) {
 			if (picStr != null && !"".equals(picStr)) {
-				Bitmap bmp = EditNoteScreen.decodeFile(new File(picStr),DensityUtil.dip2px(context,240),DensityUtil.dip2px(context,240));
-				Drawable drawable = new BitmapDrawable(bmp);
-			    drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
+				Bitmap bmp = EditNoteScreen.decodeFile(new File(picStr),0,0);
+//				Drawable drawable = new BitmapDrawable(bmp);
+			    /*drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
 	            
 	  		    ImageSpan span = new ImageSpan(drawable,ImageSpan.ALIGN_BOTTOM);
 				SpannableString spanStr = new SpannableString("pic");
 				spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
 				item.tvNoteContent.append(spanStr);
-				item.tvNoteContent.append("\n");
+				item.tvNoteContent.append("\n");*/
+				item.ivPic.setVisibility(View.VISIBLE);
+				item.ivPic.setImageBitmap(bmp);
 			}
 		    InputStream in = new ByteArrayInputStream(contextStr.getBytes());
 		    AmGestureLibrary store = EditNoteScreen.readGestureFromZip(notePath);
@@ -270,6 +272,8 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 		item.tvTime = (TextView) view.findViewById(R.id.tv_oneday_time);
 		item.tvNoteContent = (TextView) view.findViewById(R.id.tv_note_content);
 		item.tvLastEdit = (TextView) view.findViewById(R.id.tv_note_last_edit);
+		item.ivPic = (ImageView) view.findViewById(R.id.iv_oneday_pic);
+		item.ivPic.setVisibility(View.GONE);
 		view.setTag(R.layout.note_oneday_listview_item,item);
 		return view;
 	}
@@ -278,6 +282,7 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 		private TextView tvDays;
 		private TextView tvTitle;
 		private ImageView ivIsSigned;
+		private ImageView ivPic;
 		private TextView tvTime;
 		private TextView tvNoteContent;
 		private TextView tvLastEdit;

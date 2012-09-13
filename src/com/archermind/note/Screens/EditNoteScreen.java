@@ -1512,8 +1512,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			if (mState == READNOTESTATE) {
 				break;
 			}
-			edit_input_type.setImageDrawable(getResources().getDrawable(R.drawable.edit_softinput_selector));
-//			edit_delete.setImageDrawable(getResources().getDrawable(R.drawable.edit_delete_1_selector));
+			edit_input_type.setImageDrawable(getResources().getDrawable(R.drawable.edit_readnote_selector));
 			mState = READNOTESTATE;
 			break;
 		case R.id.edit_insert_face:
@@ -1627,9 +1626,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			picchoose_dialog.dismiss();
 			break;
 		case R.id.picfromalbum:
-			Intent intent = new Intent();
+			Intent intent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
+//          intent.setAction(Intent.ACTION_GET_CONTENT);
             startActivityForResult(Intent.createChooser(intent, "使用以下内容完成操作"),ALBUM_RESULT);
             picchoose_dialog.dismiss();
             break;

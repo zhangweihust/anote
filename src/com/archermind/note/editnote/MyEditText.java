@@ -294,7 +294,7 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 	
 	public void reloadGraffit(String name) {
 		if (graffitFile == null) {
-			graffitFile = new File(NoteApplication.savePath + "graffit");
+			graffitFile = new File(NoteApplication.savePath + "diary/" + "graffit");
     	}
     	
     	if (!graffitFile.exists()) {

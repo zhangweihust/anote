@@ -37,7 +37,7 @@ public class AmGestureOverlayView extends FrameLayout {
     private boolean mFadeEnabled = true;
 
     private int mCurrentColor;
-    private int mCertainGestureColor = 0xFF0000FF;
+    private int mCertainGestureColor = 0xFF000000;
     private int mUncertainGestureColor = 0x48FFFF00;
     private float mGestureStrokeWidth = 12.0f;
     private int mInvalidateExtraBorder = 10;

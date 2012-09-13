@@ -29,31 +29,8 @@
 	        android:gravity="center"/>
     </LinearLayout>
     
-    <LinearLayout 
-        android:id="@+id/edit_type_soft"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:background="@drawable/edit_click_effect_selector"
-        >
-
-	    <ImageView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:background="@color/transparent"
-	        android:scaleType="fitCenter" 
-	        android:gravity="center|center_vertical"
-	        android:src="@drawable/edit_soft_input"/>
-	    <TextView 
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="阅读"
-	        android:textColor="@color/toptextcolor"
-	        android:gravity="center"/>
-    </LinearLayout>
-
+    
+    
     <LinearLayout 
 	    android:id="@+id/edit_type_handwrite"
 	    android:layout_width="wrap_content"
@@ -74,6 +51,31 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="手写"
+	        android:textColor="@color/toptextcolor"
+	        android:gravity="center"/>
+    </LinearLayout>
+    
+    <LinearLayout 
+        android:id="@+id/edit_type_soft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:background="@drawable/edit_click_effect_selector"
+        >
+
+	    <ImageView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:background="@color/transparent"
+	        android:scaleType="fitCenter" 
+	        android:gravity="center|center_vertical"
+	        android:src="@drawable/edit_read_input"/>
+	    <TextView 
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="阅读"
 	        android:textColor="@color/toptextcolor"
 	        android:gravity="center"/>
     </LinearLayout>
