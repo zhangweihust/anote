@@ -4,6 +4,8 @@ import java.io.File;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Set;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -63,6 +65,14 @@ public class BitmapCache {
 		bitmapRefs.put(path, ref);
 	}
 
+	/**
+	 * 删除一个Bitmap对象的实例
+	 */
+	public void deleteCacheBitmap(String path) {
+		cleanCache();// 清除垃圾引用
+		bitmapRefs.remove(path);
+	}
+	
 	/**
 	 * 依据所指定的drawable下的图片资源ID号（可以根据自己的需要从网络或本地path下获取），重新获取相应Bitmap对象的实例
 	 */

@@ -203,17 +203,24 @@ public class PhotoAdapter extends BaseAdapter {
 		}
 		System.out.println("=CCC=" + item.finalfilepath);
 		Bitmap image = null;
-		if (BitmapCache.getInstance().size() != mList.size())
-		{
-			System.out.println("BitmapCache.size = " + BitmapCache.getInstance().size() + " mList.size = " + mList.size());
-			BitmapCache.getInstance().clearCache();
-		}
 		if (BitmapCache.getInstance().getBitmapRefs().containsKey(
 				item.finalfilepath)) {
 			image = BitmapCache.getInstance().getBitmap(item.finalfilepath);
 			if (image != null) {
 				item.imageBitmap = image;
 				item.uri = Uri.fromFile(file);
+			}
+			else
+			{
+				BitmapCache.getInstance().deleteCacheBitmap(item.finalfilepath);
+				System.out.println("BitmapCache.size = " + BitmapCache.getInstance().size() + " mList.size = " + mList.size());
+				image = BitmapCache.decodeBitmap(item.finalfilepath);
+				if (image != null) {
+					BitmapCache.getInstance().addCacheBitmap(image,
+							item.finalfilepath);
+					item.imageBitmap = image;
+					item.uri = Uri.fromFile(file);
+				}
 			}
 		} else {
 			System.out.println("=CCC= insert" + item.finalfilepath);
