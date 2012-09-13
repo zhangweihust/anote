@@ -379,7 +379,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			    	}
 					
 					
-					if (mStrList.size() > picindex && mStrList.size > 0) {
+					if (mStrList.size() > picindex && mStrList.size() > 0) {
 					    mStrList.remove(picindex);
 					}
 					if (mStrList.size() > picindex && picindex > mLastPageEnd  && mStrList.get(picindex - 1).startsWith("str:") && mStrList.get(picindex).startsWith("str:")) {
