@@ -145,6 +145,8 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	public static final int HANDWRITINGSTATE = 5;
 	public static final int READNOTESTATE = 6;
 	
+	private static final int BOTTOMOFFSET = 6;
+	
 	private final int CAMERA_RESULT = 8888;
 	private final int ALBUM_RESULT = 9999;
 	
@@ -1377,7 +1379,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			if (mEditTypePopupWindow.isShowing()) {
 				mEditTypePopupWindow.dismiss();
 			} else {
-				mEditTypePopupWindow.showAsDropDown(edit_input_type, DensityUtil.dip2px(this, -55), DensityUtil.dip2px(this, 4));
+				mEditTypePopupWindow.showAsDropDown(edit_input_type, DensityUtil.dip2px(this, -55), DensityUtil.dip2px(this, BOTTOMOFFSET));
 			}
 			
 			break;
@@ -1389,7 +1391,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			if (mInsertTypePopupWindow.isShowing()) {
 				mInsertTypePopupWindow.dismiss();
 			} else {
-				mInsertTypePopupWindow.showAsDropDown(edit_insert, 0, DensityUtil.dip2px(this, 4));
+				mInsertTypePopupWindow.showAsDropDown(edit_insert, 0, DensityUtil.dip2px(this, BOTTOMOFFSET));
 			}
 			break;
 		case R.id.edit_setting:
@@ -1423,7 +1425,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 					fontimgView.setVisibility(View.GONE);
 					fonttv.setVisibility(View.GONE);
 //				}
-				mSetTypePopupWindow.showAsDropDown(edit_setting, 0, DensityUtil.dip2px(this, 4));
+				mSetTypePopupWindow.showAsDropDown(edit_setting, 0, DensityUtil.dip2px(this, BOTTOMOFFSET));
 			}
 			break;
 		case R.id.edit_delete:
