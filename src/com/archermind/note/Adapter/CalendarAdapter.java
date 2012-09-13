@@ -1,6 +1,7 @@
 package com.archermind.note.Adapter;
 
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -9,11 +10,13 @@ import java.util.Locale;
 
 import com.archermind.note.R;
 import com.archermind.note.R.color;
+import com.archermind.note.R.string;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Provider.DatabaseManager;
 import com.archermind.note.Screens.HomeScreen;
 import com.archermind.note.Services.ServiceManager;
+import com.archermind.note.Utils.DateTimeUtils;
 import com.archermind.note.calendar.LunarCalendar;
 import com.archermind.note.calendar.SpecialCalendar;
 
@@ -74,8 +77,9 @@ public class CalendarAdapter extends BaseAdapter {
 	private int flipperHeight = 0;
 	private int constantFlag = 0;
 	
-	public int lastClick = -1 ; 
-	public long lastClickTime = -1;
+	private int lastClick = -1 ; 
+	private String lastClickPosition = "";
+	private String today = ""; 
 	
 	public CalendarAdapter(){
 		Calendar time = Calendar.getInstance(Locale.CHINA); 
@@ -201,11 +205,15 @@ public class CalendarAdapter extends BaseAdapter {
 		}
 
 		
-		if(currentFlag == position){ 
+		if(sys_year == showYear && sys_month == showMonth && currentFlag == position){ 
 			//设置当天的背景
 			//item.tvDate.setBackgroundResource(R.drawable.calendar_pressed);
+			 DecimalFormat df = new DecimalFormat();
+             String style = "00";//定义要显示的数字的格式
+             df.applyPattern(style);//
+			lastClickPosition = "" + showYear + df.format(showMonth) + df.format(position);
+			today =  "" + showYear + df.format(showMonth) + df.format(position);
 			lastClick = position;
-			lastClickTime = System.currentTimeMillis();
 			convertView.setBackgroundColor(res.getColor(R.color.calendar_today));
 		}
 		
@@ -309,6 +317,15 @@ public class CalendarAdapter extends BaseAdapter {
 	}
 	
 	
+	
+	@Override
+	public void notifyDataSetChanged() {
+		// TODO Auto-generated method stub
+		lastClick = -1;
+		lastClickPosition = "";
+		super.notifyDataSetChanged();
+	}
+
 	/**
 	 * 点击每一个item时返回item中的时间
 	 * @param position
@@ -372,6 +389,27 @@ public class CalendarAdapter extends BaseAdapter {
 		this.cyclical = cyclical;
 	}
 	
+	
+	public String getToday(){
+		return today;
+	}
+	
+	public int getLastClick(){
+		return lastClick;
+	}
+	
+	public void setLastClick(int p){
+		lastClick = p;
+	}
+	
+	public String getLastClickPosition(){
+		return lastClickPosition;
+	}
+	
+	public void setLastClickPosition(String lastP){
+		lastClickPosition = lastP;
+	}
+
 	private class ViewItem{
 		private TextView tvDate;
 		private ImageView ivHasNote;

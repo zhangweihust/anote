@@ -2,6 +2,7 @@ package com.archermind.note.Screens;
 
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
@@ -204,7 +205,6 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		}
 		mlvMonthNotes.setAdapter(mLocalNoteAdapter);
 
-
         eventService.add(this);
         
         flipper = (ViewFlipper) findViewById(R.id.flipper);
@@ -363,6 +363,8 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 			}		
 		}
 		localNotes.close();
+		
+		mNewNoteTime = System.currentTimeMillis();
     }
     
 	private GridView addGridView() {
@@ -388,28 +390,33 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 				  //点击任何一个item，得到这个item的日期（排除点击的是周日到周六（点击不响应））
 				  int startPosition = mCalendarAdapter.getStartPositon();
 				  int endPosition = mCalendarAdapter.getEndPosition();
+				  System.out.println(mCalendarAdapter.getToday());	
+				  DecimalFormat df = new DecimalFormat();
+		          String style = "00";//定义要显示的数字的格式
+		          df.applyPattern(style);//
+		          String clicking = "" + mCurYear + df.format(mCurMonth) + df.format(position);
 				  if(startPosition <= position  && position <= endPosition){
-					  //System.out.println(mCalendarAdapter.getTimeByClickItem(position));
-					  boolean lastIsToday = (mCalendarAdapter.lastClickTime > DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis()) && mCalendarAdapter.lastClickTime < DateTimeUtils.getToday(Calendar.PM, System.currentTimeMillis()));
-					  if(mCalendarAdapter.lastClick != -1 && !lastIsToday){
-						  RelativeLayout layout = (RelativeLayout) arg0.getChildAt(mCalendarAdapter.lastClick);
+					  boolean lastIsToday = mCalendarAdapter.getToday().equals(mCalendarAdapter.getLastClickPosition());
+					  if(!lastIsToday){
+						  RelativeLayout layout = (RelativeLayout) arg0.getChildAt(mCalendarAdapter.getLastClick());
 	                	  if(layout != null){
 	                		  layout.setBackgroundResource(R.drawable.calendar_background);  
 	                	  }
 					  }else if(lastIsToday){
-						  RelativeLayout layout = (RelativeLayout) arg0.getChildAt(mCalendarAdapter.lastClick);
+						  RelativeLayout layout = (RelativeLayout) arg0.getChildAt(mCalendarAdapter.getLastClick());
 	                	  if(layout != null){
 	                		  layout.setBackgroundResource(R.color.calendar_today);  
 	                	  }
 					  }
+					  
 					  ((RelativeLayout)arg1).setBackgroundColor(getResources().getColor(R.color.calendar_selected));
-					  if(mCalendarAdapter.lastClick == position && mCalendarAdapter.getNoteInfo(position)!= DatabaseManager.NO_NOTE){
+					  if(mCalendarAdapter.getLastClickPosition().equals(clicking) && mCalendarAdapter.getNoteInfo(position)!= DatabaseManager.NO_NOTE){
 						  HomeScreen.eventService.onUpdateEvent(new EventArgs(
 									EventTypes.SHOW_ONEDAY_NOTES).putExtra("time", mCalendarAdapter.getTimeByClickItem(position)));
 					  }
-					  mCalendarAdapter.lastClick = position;
-					  mCalendarAdapter.lastClickTime = mCalendarAdapter.getTimeByClickItem(position);
-					  mNewNoteTime = mCalendarAdapter.lastClickTime;
+					  mCalendarAdapter.setLastClick(position);
+					  mCalendarAdapter.setLastClickPosition(clicking);
+					  mNewNoteTime = mCalendarAdapter.getTimeByClickItem(position);
 				  }
 			}
 		});

@@ -69,9 +69,12 @@ public class UserActiveInfoThread extends Thread {
 			int times = spActive.getInt(PREF_KEY_TIMES, 0);
 			long duration = spActive.getLong(PREF_KEY_DURATION, 0);
 			try {
-				HttpEntityEnclosingRequestBase httpRequest = new HttpPost(ServerInterface.URL_getReplyFromUser);
+				
+				HttpEntityEnclosingRequestBase httpRequest = new HttpPost(ServerInterface.URL_USERACTIVEINFO);
 				List<NameValuePair> params = new ArrayList<NameValuePair>();
 				String value = "{"+DeviceInfo.getInformation(InfoName.IMEI)+","+times+","+duration+"}";
+				
+				System.out.println("=====" + value);
 				params.add(new BasicNameValuePair("dbstr", value));
 				httpRequest.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
 				HttpResponse httpResponse = new DefaultHttpClient().execute(httpRequest);

@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class ServerInterface {
 
-	public static final String URL_SERVER = "http://note.archermind.com/";
+	public static final String URL_SERVER = "http://anote.archermind.com/";
 	public static final String URL_LOGIN = URL_SERVER
 			+ "ci/index.php/anote/login";
 	public static final String URL_REGISTER = URL_SERVER
@@ -45,16 +45,10 @@ public class ServerInterface {
 			+ "ci/index.php/anote/pswModify";
 	public static final String URL_FINDPASSWORD = URL_SERVER
 			+ "ci/index.php/anote/findPassWord";
-	// public static final String URL_get_version_info = URL_SERVER +
-	// "ci/index.php/anote/get_version_info";
-	// public static final String URL_get_version_info =
-	// "http://10.52.31.90/CodeIgniter_2.1.2/index.php/anote/get_version_info";
 	public static final String URL_get_version_info = URL_SERVER
 			+ "ci/index.php/anote/get_version_info";
 	public static final String URL_feedback = URL_SERVER
 			+ "ci/index.php/anote/suggestionfeedback";
-	// public static final String URL_send_reports = URL_SERVER +
-	// "ci/index.php/anote/send_reports";
 	public static final String URL_send_reports = URL_SERVER + "ci/index.php/anote/send_reports";
 	public static final String APP_ID = "462b39f3eb7c4fb9a8e027473a6cd322";
 	public static final String APP_SECRET = "482a4afe2f0e4020832078a4b4eeeae4";
