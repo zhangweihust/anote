@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.archermind.note"
-    android:versionCode="208"
-    android:versionName="0.9.206" >
+    android:versionCode="338"
+    android:versionName="0.9.338" >
 
     <uses-sdk android:minSdkVersion="7" />
 
@@ -22,6 +22,7 @@
         <activity android:name=".Screens.EditNoteScreen" />
         <activity android:name=".Screens.LoginScreen" />
         <activity android:name=".Screens.InformationScreen" />
+        <activity android:name=".Screens.NoteReplyScreen" />
         <activity
             android:name=".Screens.RegisterScreen"
             android:launchMode="singleTop"

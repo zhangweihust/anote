@@ -2559,29 +2559,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	 * 初始化GridView
 	 */
 	public void makeAdapters() {
-		ArrayList<Integer> faces = new ArrayList<Integer>();
-		faces.add(R.drawable.face_0);
-		faces.add(R.drawable.face_1);
-		faces.add(R.drawable.face_2);
-		faces.add(R.drawable.face_3);
-		faces.add(R.drawable.face_4);
-		faces.add(R.drawable.face_5);
-		faces.add(R.drawable.face_6);
-		faces.add(R.drawable.face_7);
-		faces.add(R.drawable.face_8);
-		faces.add(R.drawable.face_9);
-		faces.add(R.drawable.face_10);
-		faces.add(R.drawable.face_11);
-		faces.add(R.drawable.face_12);
-		faces.add(R.drawable.face_13);
-		faces.add(R.drawable.face_14);
-		faces.add(R.drawable.face_15);
-		faces.add(R.drawable.face_16);
-		faces.add(R.drawable.face_17);
-		faces.add(R.drawable.face_18);
-		faces.add(R.drawable.face_19);
-		
-		faceAdapter = new FaceAdapter(this, faces);
+		faceAdapter = new FaceAdapter(this);
 	}
 	
 	private void initFaceAdapter() {
@@ -2596,10 +2574,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 				int viewId = (Integer) ((FrameLayout) view).getChildAt(0)
 				.getTag();
 //				View childView = ((FrameLayout) view).getChildAt(1);
-				for(int index = 0; index < faceAdapter.getCount(); index++){
+				/*for(int index = 0; index < faceAdapter.getCount(); index++){
 					View tempView = parent.getChildAt(index);
 					//((FrameLayout) tempView).getChildAt(1).setVisibility(View.GONE);
-				}
+				}*/
 				
 				insertFace(viewId);
 				

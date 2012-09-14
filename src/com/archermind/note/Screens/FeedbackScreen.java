@@ -2,6 +2,7 @@ package com.archermind.note.Screens;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.ServerInterface;
 
 import android.content.Context;
@@ -65,49 +66,6 @@ public class FeedbackScreen extends Screen implements OnClickListener {
 		mFeedbackContent.requestFocus();
 	}
 	
-	private String mapErrorCode(int errCode) {
-		String errStr = "";
-		if (-1 == errCode) {
-			errStr = mContext.getString(R.string.feedback_err_input_is_null);
-		}
-		return errStr;
-	}
-	
-	private int check(String str) {
-		if (str == null || "".equals(str)) {
-			return -1;
-		}
-		return 0;
-	}
-	
-	private Handler mHandler = new Handler() {
-
-		@Override
-		public void handleMessage(Message msg) {
-			super.handleMessage(msg);
-			switch (msg.what) {
-			case ServerInterface.SUCCESS:
-				Toast.makeText(NoteApplication.getContext(),
-						R.string.feedback_commit_success, Toast.LENGTH_SHORT)
-						.show();
-				FeedbackScreen.this.finish();
-				break;
-			default:
-				if (NoteApplication.networkIsOk == false) {
-					Toast.makeText(NoteApplication.getContext(),
-							R.string.network_none, Toast.LENGTH_SHORT).show();
-				} else {
-					Toast.makeText(NoteApplication.getContext(),
-							R.string.feedback_commit_failure,
-							Toast.LENGTH_SHORT).show();
-				}
-				FeedbackScreen.this.finish();
-				break;
-			}
-		}
-
-	};
-	
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
@@ -115,30 +73,39 @@ public class FeedbackScreen extends Screen implements OnClickListener {
 		case R.id.back:
 			this.finish();
 			break;
-		case R.id.feedback_commit: {
-			final String strFeedbackContent = mFeedbackContent.getText().toString().trim();
-			int errCode = check(strFeedbackContent);
-			if (errCode != 0) {
-				Toast.makeText(NoteApplication.getContext(),
-						mapErrorCode(errCode),
-						Toast.LENGTH_SHORT).show();
-			} else {
-				this.runOnUiThread(new Runnable() {
-
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						showProgress(null, getString(R.string.feedback_commiting_info));
-						int result = ServerInterface.suggestionfeedback(String
-								.valueOf(NoteApplication.getInstance()
-										.getUserId()), "", strFeedbackContent);
-						mHandler.sendEmptyMessage(result);
-						dismissProgress();
-					}});
-			}
-		}
-			break;
-		}
+		case R.id.feedback_commit: 
+			FeedbackScreen.this.runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					String strFeedbackContent = mFeedbackContent.getText().toString().trim();
+					if (strFeedbackContent == null || strFeedbackContent.equals("")) {
+						Toast.makeText(NoteApplication.getContext(),
+								getResources().getString(R.string.feedback_err_input_is_null),
+								Toast.LENGTH_SHORT).show();
+					} else if(NetworkUtils.getNetworkState(FeedbackScreen.this) == NetworkUtils.NETWORN_NONE) {
+							Toast.makeText(NoteApplication.getContext(),
+									R.string.network_none, Toast.LENGTH_SHORT).show();
+					} else{
+						String result = ServerInterface.suggestionfeedback(NoteApplication.getInstance()
+										.getUserId()+"", "", strFeedbackContent);
+						if(result.equals("" + ServerInterface.SUCCESS)){
+							Toast.makeText(NoteApplication.getContext(),
+									R.string.feedback_commit_success, Toast.LENGTH_SHORT)
+									.show();
+							FeedbackScreen.this.finish();
+						} else{
+								Toast.makeText(NoteApplication.getContext(),
+										R.string.feedback_commit_failure,
+										Toast.LENGTH_SHORT).show();
+					    }
+					}
+				}
+			});
+		  break;
+		
+	}
 	}
 
 }

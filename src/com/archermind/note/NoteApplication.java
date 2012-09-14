@@ -22,8 +22,6 @@ public class NoteApplication extends Application {
 	public static boolean IS_AUTO_UPDATE = true;
 	private static NoteApplication instance;
 
-	public static boolean networkIsOk;
-
 	private boolean downloadApkFlag = false;
 	private boolean isLogin = false;
 

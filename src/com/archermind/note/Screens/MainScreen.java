@@ -120,11 +120,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		setContentView(R.layout.main_screen);
 		NoteApplication.getInstance().setTopWindowContext(this);
 		NoteApplication.getInstance().setHandler(handler);
-		NoteApplication.networkIsOk = false;
-		if (ServiceManager.getNetworkService().acquire(false)) {
-			NoteApplication.networkIsOk = true;
-		}
-
+		
 		mTabHost = this.getTabHost();
 		mTabHost.addTab(buildTabSpec(TAB_HOME,
 				R.drawable.tabhost_home_selector, new Intent(this,

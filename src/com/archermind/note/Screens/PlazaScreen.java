@@ -35,7 +35,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	private WebView mWebView;
 	private TextView mTextView;
 	private static String url = "http://anote.archermind.com/web/index.php";
-	//private static String url = "http://192.168.1.101";
+	//private static String url = "http://192.168.1.100";
 	public static boolean isFirstPage = true;
 	private int mNetwork;
 	private boolean mIsLogin = false;
@@ -131,6 +131,26 @@ public class PlazaScreen extends Screen implements IEventHandler{
 						});
 						result.confirm();
 						return true;
+					}else if(message.trim().startsWith("reply")){
+					
+						if(!NoteApplication.getInstance().isLogin()){																	
+								PlazaScreen.this.runOnUiThread(new Runnable() {									
+									@Override
+									public void run() {
+										// TODO Auto-generated method stub
+								    Toast.makeText(PlazaScreen.this, R.string.no_login_info,
+												Toast.LENGTH_SHORT).show();
+									}
+								});
+						}else{
+							String nid = message.trim().substring(message.trim().indexOf(":")+1);
+							Intent intent = new Intent();
+							intent.setClass(PlazaScreen.this, NoteReplyScreen.class);
+							intent.putExtra("nid", nid);
+							PlazaScreen.this.startActivity(intent);
+						}						
+						result.confirm();
+						return true;
 					}
 					return super.onJsAlert(view, url, message, result);
 				}
@@ -186,26 +206,25 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	        }else if(NetworkUtils.getNetworkState(this) != mNetwork){
 	        	init();
 	        }else{
-	        	if(NoteApplication.getInstance().isLogin() != mIsLogin){
-	        		if(NoteApplication.getInstance().isLogin()){
-		 		        CookieSyncManager.getInstance().startSync();
-		 		        CookieManager.getInstance().setCookie(url, "userid=" + NoteApplication.getInstance().getUserId() + ";");
-		 		        mIsLogin = true;
-	 		        }else{
-	 		        	CookieSyncManager.getInstance().startSync();
-	 			        CookieManager.getInstance().removeSessionCookie();
-	 			        mIsLogin = false;
-	 		        }
-		        	mNetwork = NetworkUtils.getNetworkState(this);
-			        mWebView.requestFocus();		        
-			        try {
-						Thread.sleep(500);
-						mWebView.reload();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-	        	}
+        		if(NoteApplication.getInstance().isLogin()){
+	 		        CookieSyncManager.getInstance().startSync();
+	 		        CookieManager.getInstance().setCookie(url, "userid=" + NoteApplication.getInstance().getUserId() + ";");
+	 		        mIsLogin = true;
+ 		        }else{
+ 		        	CookieSyncManager.getInstance().startSync();
+ 			        CookieManager.getInstance().removeSessionCookie();
+ 			        mIsLogin = false;
+ 		        }
+	        	mNetwork = NetworkUtils.getNetworkState(this);
+		        mWebView.requestFocus();		        
+		        try {
+					Thread.sleep(500);
+					mWebView.reload();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        	
 		 		
 		 }
 	 	}

@@ -697,4 +697,9 @@
 	<string name="photo_upload_cancel">取消上传</string>
 	
 	<string name="content_empty">回复的内容不能为空哦</string>
+	<string name="note_reply">回复</string>
+	<string name="expression">表情</string>
+	<string name="reply_hint">请输入您的回复内容</string>
+	<string name="reply_success">回复成功</string>
+	<string name="reply_failure">回复失败，请重试</string>
 </resources>

@@ -57,6 +57,7 @@ import com.archermind.note.Utils.Constant;
 import com.archermind.note.Utils.DateTimeUtils;
 import com.archermind.note.Utils.DensityUtil;
 import com.archermind.note.Utils.DownloadApkHelper;
+import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Views.VerticalScrollView;
 
 public class HomeScreen extends Screen  implements IEventHandler, OnClickListener, OnItemClickListener, OnItemLongClickListener{
@@ -264,7 +265,7 @@ public class HomeScreen extends Screen  implements IEventHandler, OnClickListene
 		}
 	
         if(isFirst){
-		 if(NoteApplication.networkIsOk && NoteApplication.IS_AUTO_UPDATE) {
+		 if(NetworkUtils.getNetworkState(HomeScreen.this) != NetworkUtils.NETWORN_NONE && NoteApplication.IS_AUTO_UPDATE) {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {

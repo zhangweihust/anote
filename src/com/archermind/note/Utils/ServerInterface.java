@@ -58,6 +58,7 @@ public class ServerInterface {
 			+ "ci/index.php/anote/setClientInfo";
 	public static final String URL_USERACTIVEINFO = URL_SERVER
 			+ "ci/index.php/anote/setUserActionInfo";
+	public static final String URL_NOTEREPLY= URL_SERVER + "ci/index.php/anote/setReply";
 	// "http://219.138.163.58/"
 
 	public static final int SUCCESS = 0;
@@ -337,20 +338,14 @@ public class ServerInterface {
 		return res;
 	}
 
-	public static int suggestionfeedback(String user_id, String tel,
+	public static String suggestionfeedback(String user_id, String tel,
 			String suggestion) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user_id", user_id);
 		map.put("tel", tel);
 		map.put("suggestion", suggestion);
-		String ret = HttpUtils.doPost(map, URL_feedback);
-		int result = 0;
-		try {
-			result = Integer.parseInt(ret);
-		} catch (Exception e) {
-			result = -3;
-		}
-		return result;
+		return HttpUtils.doPost(map, URL_feedback);
+		
 	}
 
 	/**
@@ -360,5 +355,16 @@ public class ServerInterface {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("email", username);
 		return HttpUtils.doPost(map, URL_FINDPASSWORD);
+	}
+	
+	/**
+	 * 回复
+	 */
+	public static String setReply(int userid, String nid, String content){
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("uid", userid+"");
+		map.put("nid", nid);
+		map.put("content", content);
+		return HttpUtils.doPost(map, URL_NOTEREPLY);
 	}
 }

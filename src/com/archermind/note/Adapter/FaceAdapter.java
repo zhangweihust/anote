@@ -13,25 +13,46 @@ import com.archermind.note.R;
 public class FaceAdapter extends BaseAdapter {
 
 	private Context context;
-	private ArrayList<Integer> lyricFontColor = new ArrayList<Integer>();
-	public FaceAdapter(Context context,ArrayList<Integer> lyricFontColor){
+	private ArrayList<Integer> faces;
+	
+	public FaceAdapter(Context context){
 		this.context = context;
-		this.lyricFontColor = lyricFontColor;
+		this.faces = new ArrayList<Integer>();
+		faces.add(R.drawable.face_0);
+		faces.add(R.drawable.face_1);
+		faces.add(R.drawable.face_2);
+		faces.add(R.drawable.face_3);
+		faces.add(R.drawable.face_4);
+		faces.add(R.drawable.face_5);
+		faces.add(R.drawable.face_6);
+		faces.add(R.drawable.face_7);
+		faces.add(R.drawable.face_8);
+		faces.add(R.drawable.face_9);
+		faces.add(R.drawable.face_10);
+		faces.add(R.drawable.face_11);
+		faces.add(R.drawable.face_12);
+		faces.add(R.drawable.face_13);
+		faces.add(R.drawable.face_14);
+		faces.add(R.drawable.face_15);
+		faces.add(R.drawable.face_16);
+		faces.add(R.drawable.face_17);
+		faces.add(R.drawable.face_18);
+		faces.add(R.drawable.face_19);
 	}
 	
 	public ArrayList<Integer> getMenuData(){
-		return this.lyricFontColor;
+		return this.faces;
 	}
 	@Override
 	public int getCount() {
 		// TODO Auto-generated method stub
-		return lyricFontColor.size();
+		return faces.size();
 	}
 
 	@Override
 	public Object getItem(int position) {
 		// TODO Auto-generated method stub
-		return lyricFontColor.get(position);
+		return faces.get(position);
 	}
 
 	@Override
@@ -53,8 +74,8 @@ public class FaceAdapter extends BaseAdapter {
 		}else{
 			holder = (HolderView) convertView.getTag();
 		}
-		holder.fongColorIcon.setImageResource(lyricFontColor.get(position));
-		holder.fongColorIcon.setTag(lyricFontColor.get(position));
+		holder.fongColorIcon.setImageResource(faces.get(position));
+		holder.fongColorIcon.setTag(faces.get(position));
 		return convertView;
 	}
 	
