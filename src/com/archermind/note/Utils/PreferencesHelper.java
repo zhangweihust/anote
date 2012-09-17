@@ -94,7 +94,8 @@ public class PreferencesHelper {
         canvas.drawRoundRect(rectF, roundPx, roundPx, paint);  
 
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));  
-        canvas.drawBitmap(bitmap, rect, rect, paint);  
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+        bitmap.recycle();
   
         return output;  
     }

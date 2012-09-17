@@ -15,6 +15,7 @@ import com.archermind.note.R;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Provider.DatabaseHelper;
+import com.archermind.note.Services.ExceptionService;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.AlbumInfoUtil;
 import com.archermind.note.Utils.NetworkUtils;
@@ -75,6 +76,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 	private Button mQQButton;
 	private Button mRenrenButton;
 	private ArrayList<String> mPicPathList;
+	private ArrayList<String> mPicnameList;
 	private AmtAlbumObj mAlbumObj;
 	private String imgurl_renren;// 用于分享到人人的图片url
 	private static final String TAG = "ShareScreen";
@@ -114,17 +116,13 @@ public class ShareScreen extends Screen implements OnClickListener {
 							.getUserName(), ALBUMNAME_SHARE);
 				} else {
 					if (mPicPathList == null) {
+						dismssProgressBar(R.string.share_failed, false);
+						mReuploadButton.setVisibility(View.VISIBLE);
 						Log.e(TAG, "mPicPathList is null");
 						return;
 					}
-					ArrayList<String> picnameList = new ArrayList<String>();
-					for (String s : mPicPathList) {
-						picnameList.add(s.substring(s.lastIndexOf("/") + 1));
-						Log.i(TAG,
-								"图片名称：" + s.substring(s.lastIndexOf("/") + 1));
-					}
-					mAlbumObj
-							.uploadPicFiles(mPicPathList, picnameList, albumid);
+					mAlbumObj.uploadPicFiles(mPicPathList, mPicnameList,
+							albumid);
 					Log.i(TAG, "albumid：" + albumid);
 				}
 				break;
@@ -151,6 +149,16 @@ public class ShareScreen extends Screen implements OnClickListener {
 		setContentView(R.layout.share);
 		mPreferences = PreferencesHelper.getSharedPreferences(this, 0);
 		mPicPathList = getIntent().getStringArrayListExtra("picpathlist");
+		if (mPicPathList != null) {
+			mPicnameList = new ArrayList<String>();
+			for (String s : mPicPathList) {
+				Log.i(TAG, "图片本地路径：" + s);
+				mPicnameList.add(s.substring(s.lastIndexOf("/") + 1));
+			}
+		}
+		// test
+		mPicPathList.add("/mnt/sdcard/aNote/diary/diary_1347526872085");
+		mPicnameList.add("diary_1347526872085.dat");
 
 		mBackButton = (Button) findViewById(R.id.screen_top_play_control_back);
 		mBackButton.setOnClickListener(this);
@@ -158,13 +166,15 @@ public class ShareScreen extends Screen implements OnClickListener {
 		mImageView = (ImageView) findViewById(R.id.share_image);
 		mImageView.setMaxWidth(getWindowManager().getDefaultDisplay()
 				.getWidth() / 2);
-		mImageView
-				.setImageBitmap(BitmapFactory.decodeFile(mPicPathList.get(0)));
+		try {
+			mImageView.setImageBitmap(BitmapFactory.decodeFile(mPicPathList
+					.get(0)));
+		} catch (Exception e) {
+			Log.e(TAG, "未找到该笔记图片");
+			ExceptionService.logException(e);
+		}
 
-		// mProgressLayout = (LinearLayout)
-		// findViewById(R.id.share_progress_layout);
 		mProgressBar = (ProgressBar) findViewById(R.id.share_progressBar);
-		// mUploadingView = (TextView) findViewById(R.id.share_text_uploading);
 		mReuploadButton = (Button) findViewById(R.id.share_btn_reupload);
 		mReuploadButton.setOnClickListener(this);
 		mTextView = (TextView) findViewById(R.id.share_text);
@@ -185,7 +195,6 @@ public class ShareScreen extends Screen implements OnClickListener {
 		mRenrenButton.setOnClickListener(this);
 
 		uploadNotePic();
-		showProgressBar(R.string.share_msg_square);
 	}
 
 	@Override
@@ -217,27 +226,26 @@ public class ShareScreen extends Screen implements OnClickListener {
 
 		@Override
 		protected String doInBackground(String... params) {
-			String userIdStr = String.valueOf(ServiceManager
-					.getUserId());
-			int totalPage = 0;
-			if (mPicPathList != null) {
-				totalPage = mPicPathList.size();
+			if (mPicPathList.size() < 2) {
+				return "failed"; // 至少应该包含一个图片路径和压缩包路径，所以size >=2
 			}
+			String fristPicUrl = ServiceManager.getUserName()
+					+ "&filename=" + mPicnameList.get(0) + "&album="
+					+ ALBUMNAME_SHARE;
+			imgurl_renren = ServerInterface.IMG_DOWADING_HEAD + fristPicUrl;
+			Log.i(TAG, "分享的笔记第一张图片url： " + fristPicUrl);
 
-			String context = totalPage == 0 ? "" : mPicPathList.get(0);
-
-			if (!"".equals(context)) {
-				context = ServiceManager.getUserName()
-						+ "&filename="
-						+ context.substring(context.lastIndexOf("/") + 1)
-						+ "&album=" + ALBUMNAME_SHARE;
-				imgurl_renren = ServerInterface.IMG_DOWADING_HEAD + context;
-				Log.i(TAG, "分享的笔记图片url： " + context);
-			}
+			String contentUrl = ServiceManager.getUserName()
+					+ "&filename=" + mPicnameList.get(mPicnameList.size() - 1)
+					+ "&album=" + ALBUMNAME_SHARE;
+			Log.i(TAG, "分享的笔记压缩包url： " + contentUrl);
 
 			int serviceId = ServerInterface.uploadNote(
-					Long.parseLong(params[0]), userIdStr, params[3], params[2],
-					params[1], context, String.valueOf(totalPage));
+					Long.parseLong(params[0]),
+					String.valueOf(ServiceManager.getUserId()),
+					params[3], params[2], params[1], fristPicUrl + ","
+							+ contentUrl + ",",
+					String.valueOf(mPicnameList.size() - 1));
 			if (serviceId == ServerInterface.COOKIES_ERROR) {
 				return "cookies_error";
 			} else {
@@ -248,7 +256,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 								DatabaseHelper.COLUMN_NOTE_SERVICE_ID,
 								String.valueOf(serviceId));
 						contentValues2.put(DatabaseHelper.COLUMN_NOTE_USER_ID,
-								Integer.parseInt(userIdStr));
+								ServiceManager.getUserId());
 						ServiceManager.getDbManager().updateLocalNotes(
 								contentValues2, Integer.parseInt(params[0]));
 						return "success";
@@ -315,10 +323,9 @@ public class ShareScreen extends Screen implements OnClickListener {
 				mReuploadButton.setVisibility(View.VISIBLE);
 				Log.i(TAG, "分享到广场失败!");
 			} else if (result.equals("cookies_error")) {
-				dismssProgressBar(R.string.share_failed, false);
+				dismssProgressBar(R.string.cookies_error, false);
+				mReuploadButton.setVisibility(View.VISIBLE);
 				ServiceManager.setLogin(false);
-				Toast.makeText(NoteApplication.getContext(),
-						R.string.cookies_error, Toast.LENGTH_SHORT).show();
 				Intent intent = new Intent(ShareScreen.this, LoginScreen.class);
 				startActivity(intent);
 			}
@@ -331,6 +338,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 	 */
 	private void uploadNotePic() {
 		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
+			showProgressBar(R.string.share_msg_square);
 			AmtApplication.setAmtUserName(ServiceManager
 					.getUserName());
 			mAlbumObj = new AmtAlbumObj();

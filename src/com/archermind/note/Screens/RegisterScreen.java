@@ -18,6 +18,7 @@ import com.archermind.note.Utils.AlbumInfoUtil;
 import com.archermind.note.Utils.ImageCapture;
 import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
+import com.archermind.note.crop.CropImage;
 
 import android.R.integer;
 import android.app.AlertDialog;
@@ -28,6 +29,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -64,9 +66,10 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	private static final int REGION_RESULT = 4;
 	private SharedPreferences mPreferences;
 	private ContentResolver mContentResolver;
-	private String mCameraImageFilePath;
+	private String mImageFilePath;
 	private ImageCapture mImgCapture;
 	private String mAvatarPath;
+	private Bitmap mAvatarBitmap;
 	private AmtAlbumObj mAlbumObj;
 	private static final String TAG = "RegisterScreen";
 	private Handler mHandler = new Handler() {
@@ -83,15 +86,14 @@ public class RegisterScreen extends Screen implements OnClickListener {
 				dismissProgress();
 				break;
 			case MessageTypes.MESSAGE_CREATEALBUM:
-				mAlbumObj.requestAlbumidInfo(ServiceManager
-						.getUserName());
+				mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
 				break;
 			case MessageTypes.MESSAGE_GETALBUM:
 				AlbumItem[] albumItems = AlbumInfoUtil.getAlbumInfos(mAlbumObj,
 						msg.obj);
 				if (albumItems == null) {
-					mAlbumObj.createAlbum(ServiceManager
-							.getUserName(), ALBUMNAME_AVATAR);
+					mAlbumObj.createAlbum(ServiceManager.getUserName(),
+							ALBUMNAME_AVATAR);
 					break;
 				}
 				int albumid = -1;
@@ -101,9 +103,20 @@ public class RegisterScreen extends Screen implements OnClickListener {
 					}
 				}
 				if (albumid == -1) {
-					mAlbumObj.createAlbum(ServiceManager
-							.getUserName(), ALBUMNAME_AVATAR);
+					mAlbumObj.createAlbum(ServiceManager.getUserName(),
+							ALBUMNAME_AVATAR);
 				} else {
+					// 先保存本地头像，然后上传文件
+					ByteArrayOutputStream stream = new ByteArrayOutputStream();
+					mAvatarBitmap.compress(Bitmap.CompressFormat.PNG, 100,
+							stream);
+					byte[] b = stream.toByteArray();
+					mImgCapture.storeImage(b, null, Bitmap.CompressFormat.PNG);
+					mAvatarPath = getFilepathFromUri(mImgCapture
+							.getLastCaptureUri());
+					PreferencesHelper.UpdateAvatar(RegisterScreen.this, "",
+							mAvatarPath);
+
 					ArrayList<String> picPath = new ArrayList<String>();
 					picPath.add(mAvatarPath);
 					ArrayList<String> picNames = new ArrayList<String>();
@@ -125,7 +138,8 @@ public class RegisterScreen extends Screen implements OnClickListener {
 								.substring(mAvatarPath.lastIndexOf("/") + 1)
 						+ "&album=" + ALBUMNAME_AVATAR;
 				UploadAvatarTask uploadAvatarTask = new UploadAvatarTask();
-				uploadAvatarTask.execute(String.valueOf(ServiceManager.getUserId()), url);
+				uploadAvatarTask.execute(
+						String.valueOf(ServiceManager.getUserId()), url);
 			default:
 				break;
 			}
@@ -154,6 +168,15 @@ public class RegisterScreen extends Screen implements OnClickListener {
 				mAvatarPath = mPreferences.getString(
 						PreferencesHelper.XML_USER_AVATAR, null);
 			}
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		if (mAvatarBitmap != null) {
+			mAvatarBitmap.recycle();
 		}
 	}
 
@@ -189,6 +212,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.register_set_avatar_layout:
+			mImageFilePath = ImageCapture.IMAGE_CACHE_PATH + "/temp.jpg";
 			showSelImageDialog();
 			break;
 		case R.id.register_tv_region:
@@ -216,26 +240,14 @@ public class RegisterScreen extends Screen implements OnClickListener {
 
 		case CAMERA_RESULT:
 			if (resultCode == RESULT_OK) {
-				startPhotoCROP(Uri.fromFile(new File(mCameraImageFilePath)));
+				startPhotoCROP(Uri.fromFile(new File(mImageFilePath)));
 			}
 			break;
 
 		case CROP_RESULT:
-			if (data != null) {
-				Bundle extras = data.getExtras();
-				if (extras != null) {
-					ByteArrayOutputStream stream = new ByteArrayOutputStream();
-					Bitmap photo = extras.getParcelable("data");
-					photo = PreferencesHelper.toRoundCorner(photo, 15);
-					photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
-					byte[] b = stream.toByteArray();
-					this.mImgCapture.storeImage(b, null,
-							Bitmap.CompressFormat.PNG);
-					mAvatarPath = getFilepathFromUri(this.mImgCapture
-							.getLastCaptureUri());
-					PreferencesHelper.UpdateAvatar(this, "", mAvatarPath);
-				}
-			}
+			mAvatarBitmap = PreferencesHelper.toRoundCorner(
+					BitmapFactory.decodeFile(mImageFilePath), 10);
+			mUserAvatar.setImageBitmap(mAvatarBitmap);
 			break;
 		case REGION_RESULT:
 			if (data != null) {
@@ -274,11 +286,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	}
 
 	private void getNewImageFromCamera() {
-		long dateTaken = System.currentTimeMillis();
-		String title = mImgCapture.createName(dateTaken);
-		mCameraImageFilePath = Environment.getExternalStorageDirectory()
-				.getAbsolutePath() + "/" + title + ".jpg";
-		File imageFile = new File(mCameraImageFilePath);
+		File imageFile = new File(mImageFilePath);
 		Uri imageFileUri = Uri.fromFile(imageFile);
 		Intent intent = new Intent(
 				android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
@@ -287,16 +295,17 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	}
 
 	private void startPhotoCROP(Uri uri) {
-		Intent intent = new Intent("com.android.camera.action.CROP");
+		Intent intent = new Intent(this, CropImage.class);
 		intent.setDataAndType(uri, "image/*");
-		intent.putExtra("crop", "true");
-
-		intent.putExtra("aspectX", 1);
-		intent.putExtra("aspectY", 1);
-
-		intent.putExtra("outputX", 150);
-		intent.putExtra("outputY", 150);
-		intent.putExtra("return-data", true);
+		Bundle extras = new Bundle();
+		extras.putString("circleCrop", "true");
+		extras.putInt("aspectX", 1);
+		extras.putInt("aspectY", 1);
+		extras.putInt("outputX", 105);
+		extras.putInt("outputY", 105);
+		extras.putString("output", mImageFilePath);
+		extras.putBoolean("scale", true);
+		intent.putExtras(extras);
 		startActivityForResult(intent, CROP_RESULT);
 	}
 
@@ -437,12 +446,13 @@ public class RegisterScreen extends Screen implements OnClickListener {
 						ServiceManager.setLogin(true);
 
 						// 文件操作：上传头像文件
-						if (mAvatarPath != null) {
-							AmtApplication.setAmtUserName(ServiceManager.getUserName());
+						if (mAvatarBitmap != null) {
+							AmtApplication.setAmtUserName(ServiceManager
+									.getUserName());
 							mAlbumObj = new AmtAlbumObj();
 							mAlbumObj.setHandler(mHandler);
-							mAlbumObj.createAlbum(ServiceManager
-									.getUserName(), ALBUMNAME_AVATAR);
+							mAlbumObj.createAlbum(ServiceManager.getUserName(),
+									ALBUMNAME_AVATAR);
 							Log.i(TAG, "register sucess,start upload avatar");
 						} else {
 							Toast.makeText(RegisterScreen.this,
@@ -455,8 +465,9 @@ public class RegisterScreen extends Screen implements OnClickListener {
 					}
 				} catch (JSONException e) {
 					dismissProgress();
-					Toast.makeText(RegisterScreen.this, R.string.register_failed,
-							Toast.LENGTH_SHORT).show();
+					Toast.makeText(RegisterScreen.this,
+							R.string.register_failed, Toast.LENGTH_SHORT)
+							.show();
 					e.printStackTrace();
 				}
 			}

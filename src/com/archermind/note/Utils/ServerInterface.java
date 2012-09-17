@@ -339,14 +339,20 @@ public class ServerInterface {
 		return res;
 	}
 
-	public static String suggestionfeedback(String user_id, String tel,
+	public static int suggestionfeedback(String user_id, String tel,
 			String suggestion) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("user_id", user_id);
 		map.put("tel", tel);
 		map.put("suggestion", suggestion);
-		return HttpUtils.doPost(map, URL_feedback);
-		
+		String ret = HttpUtils.doPost(map, URL_feedback);
+		int result = 0;
+		try {
+			result = Integer.parseInt(ret);
+		} catch (Exception e) {
+			result = -3;
+		}
+		return result;
 	}
 
 	/**

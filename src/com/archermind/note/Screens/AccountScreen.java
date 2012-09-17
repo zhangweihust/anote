@@ -37,6 +37,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Screens.LoginScreen.QQAsyncTask;
+import com.archermind.note.Utils.CookieCrypt;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;
@@ -263,9 +264,14 @@ public class AccountScreen extends Screen implements OnClickListener {
 						Toast.LENGTH_SHORT).show();
 				return;
 			}
-			mPswd = password;
-			ModifyPswdTask modifyPswdTask = new ModifyPswdTask();
-			modifyPswdTask.execute(password);
+			// 将密码加密后存储到服务器
+			try {
+				mPswd = CookieCrypt.encrypt(LoginScreen.USERINFO_KEY, password);
+				ModifyPswdTask modifyPswdTask = new ModifyPswdTask();
+				modifyPswdTask.execute(mPswd);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}	
 			break;
 		case R.id.acount_sina_unbound:
 			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {

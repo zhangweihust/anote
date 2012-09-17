@@ -18,6 +18,7 @@
 // data to caller. Removed saving to file, MediaManager, unneeded options, etc.
 package com.archermind.note.crop;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ public class CropImage extends MonitoredActivity {
     private boolean mScale;
     private boolean mScaleUp = true;
     private boolean mCircleCrop = false;
+    private String mOutputPath;
 
     boolean mSaving; // Whether the "save" button is already clicked.
 
@@ -93,6 +95,7 @@ public class CropImage extends MonitoredActivity {
             mOutputY = extras.getInt("outputY");
             mScale = extras.getBoolean("scale", true);
             mScaleUp = extras.getBoolean("scaleUpIfNeeded", true);
+            mOutputPath = extras.getString("output");
         }
 
         if (mBitmap == null) {
@@ -103,7 +106,7 @@ public class CropImage extends MonitoredActivity {
                 is = cr.openInputStream(target);
                 mBitmap = BitmapFactory.decodeStream(is);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             } finally {
                 if (is != null) {
                     try {
@@ -356,10 +359,18 @@ public class CropImage extends MonitoredActivity {
         mImageView.center(true, true);
         mImageView.HighlightViews.clear();
 
-        Bundle extras = new Bundle();
-        extras.putParcelable("data", croppedImage);
-        setResult(RESULT_OK, (new Intent()).setAction("inline-data").putExtras(
-                extras));
+//        Bundle extras = new Bundle();
+//        extras.putParcelable("data", croppedImage);
+//        setResult(RESULT_OK, (new Intent()).setAction("inline-data").putExtras(
+//                extras));
+        
+        try {
+            FileOutputStream out = new FileOutputStream(mOutputPath);
+            croppedImage.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            setResult(RESULT_OK);
+     } catch (Exception e) {
+            e.printStackTrace();
+     }
         finish();
     }
 

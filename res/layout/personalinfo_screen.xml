@@ -10,8 +10,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/title_bar_background"
-        android:paddingLeft="5dip"
-        android:paddingRight="5dip" >
+        android:paddingLeft="8dip"
+        android:paddingRight="8dip" >
 
         <TextView
             android:layout_width="wrap_content"
@@ -31,6 +31,7 @@
             android:background="@drawable/button_selector"
             android:text="@string/back"
             android:textColor="@color/white" />
+
         <ProgressBar
             android:id="@+id/perosoninfo_progressBar"
             style="?android:attr/progressBarStyleSmall"
@@ -84,6 +85,8 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:gravity="center_vertical"
             android:padding="10dp" >
 
@@ -201,8 +204,9 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/btn_change_passwd_selector"
+            android:enabled="false"
             android:text="@string/confirm_change"
-            android:textColor="#ffffffff"
+            android:textColor="@color/white"
             android:textSize="16dp" />
     </LinearLayout>
 

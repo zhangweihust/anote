@@ -34,6 +34,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -43,6 +45,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,6 +67,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 	private String mImageFilePath;
 	private ImageCapture mImgCapture;
 	private String mAvatarPath;
+	private Bitmap mAvatarBitmap;
 	private AmtAlbumObj mAlbumObj;
 	private ProgressBar mProgressBar;
 	private boolean ismodifyAvatar = false;
@@ -104,21 +108,25 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 					mAlbumObj.createAlbum(ServiceManager
 							.getUserName(), RegisterScreen.ALBUMNAME_AVATAR);
 				} else {
+					// 先保存本地头像，然后上传文件
+					ByteArrayOutputStream stream = new ByteArrayOutputStream();
+					mAvatarBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+					byte[] b = stream.toByteArray();
+					mImgCapture.storeImage(b, null, Bitmap.CompressFormat.PNG);
+					mAvatarPath = getFilepathFromUri(mImgCapture
+							.getLastCaptureUri());
+					
 					ArrayList<String> picPath = new ArrayList<String>();
 					picPath.add(mAvatarPath);
 					ArrayList<String> picNames = new ArrayList<String>();
 					picNames.add(mAvatarPath.substring(mAvatarPath
 							.lastIndexOf("/") + 1));
-					Log.i(TAG,
-							"图片名称："
-									+ mAvatarPath.substring(mAvatarPath
-											.lastIndexOf("/") + 1));
 					mAlbumObj.uploadPicFiles(picPath, picNames, albumid);
 					Log.i(TAG, "albumid：" + albumid);
 				}
 				break;
-			case MessageTypes.MESSAGE_UPLOADPIC:
-				// 上传头像文件成功，开始执行插入数据库操作
+			case MessageTypes.MESSAGE_UPLOADPIC:// 上传头像文件成功		
+				//开始执行插入数据库操作
 				String url = ServiceManager.getUserName()
 						+ "&filename="
 						+ mAvatarPath
@@ -148,23 +156,18 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 	}
 
 	@Override
-	protected void onResume() {
+	protected void onPause() {
 		// TODO Auto-generated method stub
-		super.onResume();
-		Bitmap image = PreferencesHelper.getAvatarBitmap(this);
-		if (image != null) {
-			mUserAvatar.setImageBitmap(image);
-			if (mAvatarPath == null) {
-				mAvatarPath = mPreferences.getString(
-						PreferencesHelper.XML_USER_AVATAR, null);
-			}
-		} else {
-			String avatar_url = ServiceManager.getmAvatarurl();
-			if (!avatar_url.equals("")) {
-				LoadImgTask loadImgTask = new LoadImgTask();
-				loadImgTask.execute(ServerInterface.IMG_DOWADING_HEAD
-						+ avatar_url);
-			}
+		super.onPause();
+
+	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		if (mAvatarBitmap != null) {
+			mAvatarBitmap.recycle();
 		}
 	}
 
@@ -176,17 +179,37 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 		mSetAvatar = (LinearLayout) findViewById(R.id.set_avatar_layout);
 		mSetAvatar.setOnClickListener(this);
 		mUserAvatar = (ImageView) findViewById(R.id.user_avatar);
+		Bitmap image = PreferencesHelper.getAvatarBitmap(this);
+		if (image != null) {
+			mUserAvatar.setImageBitmap(image);
+		} else {
+			String avatar_url = ServiceManager.getmAvatarurl();
+			if (!avatar_url.equals("")) {
+				LoadImgTask loadImgTask = new LoadImgTask();
+				loadImgTask.execute(ServerInterface.IMG_DOWADING_HEAD
+						+ avatar_url);
+			}
+		}
 
 		mNickname = (EditText) findViewById(R.id.user_nickname);
 		mNickname.setText(ServiceManager.getmNickname());
+		mNickname.addTextChangedListener(new myTextWatcher());
 
 		mSex = (RadioGroup) findViewById(R.id.radioGroup);
 		mSex.check(ServiceManager.getmSex().equals("1") ? R.id.radioMale
 				: R.id.radioFemale);
+		mSex.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+				mConfirmButton.setEnabled(true);
+			}
+		});
 
 		mRegion = (TextView) findViewById(R.id.user_region);
 		mRegion.setText(ServiceManager.getmRegion());
 		mRegion.setOnClickListener(this);
+		mRegion.addTextChangedListener(new myTextWatcher());
 
 		mConfirmButton = (Button) findViewById(R.id.confirm_change);
 		mConfirmButton.setOnClickListener(this);
@@ -194,55 +217,53 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch (requestCode) {
-
-		case ALBUM_RESULT:
-			if (data != null) {
-				Uri uri = data.getData();
-				startPhotoCROP(uri);
-			}
-			break;
-
-		case CAMERA_RESULT:
-			if (resultCode == RESULT_OK) {
-				startPhotoCROP(Uri.fromFile(new File(mImageFilePath)));
-			}
-			break;
-
-		case CROP_RESULT:
-			if (data != null) {
-				Bundle extras = data.getExtras();
-				if (extras != null) {
-					ByteArrayOutputStream stream = new ByteArrayOutputStream();
-					Bitmap photo = data.getParcelableExtra("data");
-					photo = PreferencesHelper.toRoundCorner(photo, 10);
-					photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
-					photo.recycle();
-					byte[] b = stream.toByteArray();
-					mImgCapture.storeImage(b, null, Bitmap.CompressFormat.PNG);
-					mAvatarPath = getFilepathFromUri(this.mImgCapture
-							.getLastCaptureUri());
-					PreferencesHelper.UpdateAvatar(this, "", mAvatarPath);
-					ismodifyAvatar = true;
-				}
-			}
-			break;
-		case REGION_RESULT:
-			if (data != null) {
-				int ProvinceId = data.getIntExtra("province", 0);
-				int CityId = data.getIntExtra("city", 0);
-				String province = PreferencesHelper.getProvinceName(this,
-						ProvinceId);
-				String city = PreferencesHelper.getCityName(this, ProvinceId,
-						CityId);
-				mRegion.setText(province + " " + city);
-			}
-			break;
-		default:
-			break;
-
-		}
 		super.onActivityResult(requestCode, resultCode, data);
+		if (resultCode == RESULT_OK) {
+			switch (requestCode) {
+			case ALBUM_RESULT:
+				if (data != null) {
+					Uri uri = data.getData();
+					startPhotoCROP(uri);
+				}
+				break;
+
+			case CAMERA_RESULT:
+				startPhotoCROP(Uri.fromFile(new File(mImageFilePath)));
+				break;
+
+			case CROP_RESULT:
+				// if (data != null) {
+				// Bundle extras = data.getExtras();
+				// if(extras != null){
+				// mAvatarBitmap = extras.getParcelable("data");
+				// mAvatarBitmap = PreferencesHelper.toRoundCorner(
+				// mAvatarBitmap, 15);
+				// mUserAvatar.setImageBitmap(mAvatarBitmap);
+				// ismodifyAvatar = true;
+				// }
+				// }
+				mAvatarBitmap = PreferencesHelper.toRoundCorner(
+						BitmapFactory.decodeFile(mImageFilePath), 10);
+				mUserAvatar.setImageBitmap(mAvatarBitmap);
+				ismodifyAvatar = true;
+				mConfirmButton.setEnabled(true);
+				break;
+			case REGION_RESULT:
+				if (data != null) {
+					int ProvinceId = data.getIntExtra("province", 0);
+					int CityId = data.getIntExtra("city", 0);
+					String province = PreferencesHelper.getProvinceName(this,
+							ProvinceId);
+					String city = PreferencesHelper.getCityName(this,
+							ProvinceId, CityId);
+					mRegion.setText(province + " " + city);
+				}
+				break;
+			default:
+				break;
+
+			}
+		}
 	}
 
 	private String getFilepathFromUri(Uri uri) {
@@ -264,7 +285,6 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 	}
 
 	private void getNewImageFromCamera() {
-		mImageFilePath = ImageCapture.IMAGE_CACHE_PATH + "/temp.png";
 		File imageFile = new File(mImageFilePath);
 		Uri imageFileUri = Uri.fromFile(imageFile);
 		Intent intent = new Intent(
@@ -274,19 +294,29 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 	}
 
 	private void startPhotoCROP(Uri uri) {
-		Intent intent = new Intent(this,CropImage.class);
+		// Intent intent = new Intent("com.android.camera.action.CROP");
+		// intent.setDataAndType(uri, "image/*");
+		// intent.putExtra("crop", "true");
+		// // aspectX aspectY 是宽高的比例
+		// intent.putExtra("aspectX", 1);
+		// intent.putExtra("aspectY", 1);
+		// // outputX outputY 是裁剪图片宽高
+		// intent.putExtra("outputX", 105);
+		// intent.putExtra("outputY", 105);
+		// intent.putExtra("noFaceDetection", true);
+		// intent.putExtra("output", Uri.fromFile(new File(mImageFilePath)));
+		// intent.putExtra("outputFormat", "JPEG");//返回格式
+		Intent intent = new Intent(this, CropImage.class);
 		intent.setDataAndType(uri, "image/*");
-		Bundle extras =new Bundle();
-		extras.putString("circleCrop","true");
-		extras.putInt("aspectX",1);
-		extras.putInt("aspectY",1);
-		extras.putInt("outputX",150);
-		extras.putInt("outputY",150);
+		Bundle extras = new Bundle();
+		extras.putString("circleCrop", "true");
+		extras.putInt("aspectX", 1);
+		extras.putInt("aspectY", 1);
+		extras.putInt("outputX", 105);
+		extras.putInt("outputY", 105);
+		extras.putString("output", mImageFilePath);
 		extras.putBoolean("scale", true);
 		intent.putExtras(extras);
-//		mImageFilePath = ImageCapture.IMAGE_CACHE_PATH + "/head.jpg";
-//		intent.putExtra("output", Uri.fromFile(new File(mImageFilePath)));// 保存到原文件
-//		intent.putExtra("outputFormat", "JPEG");// 返回格式 
 		startActivityForResult(intent, CROP_RESULT);
 	}
 
@@ -317,6 +347,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.set_avatar_layout:
+			mImageFilePath = ImageCapture.IMAGE_CACHE_PATH + "/temp.jpg";
 			showSelImageDialog();
 			break;
 		case R.id.user_region:
@@ -349,6 +380,29 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 			break;
 		}
 	}
+	
+	class myTextWatcher implements TextWatcher{
+
+		@Override
+		public void afterTextChanged(Editable s) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void beforeTextChanged(CharSequence s, int start, int count,
+				int after) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onTextChanged(CharSequence s, int start, int before,
+				int count) {
+			mConfirmButton.setEnabled(true);
+		}
+		
+	}
 
 	/*
 	 * 修改个人信息（数据库操作）
@@ -379,6 +433,10 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 			} else if (result.equals("" + ServerInterface.SUCCESS)) {
 				Toast.makeText(PersonInfoScreen.this, R.string.update_success,
 						Toast.LENGTH_SHORT).show();
+				if (ismodifyAvatar) {
+					PreferencesHelper.UpdateAvatar(PersonInfoScreen.this, "",
+							mAvatarPath);
+				}
 			} else {
 				Toast.makeText(PersonInfoScreen.this, R.string.update_failed,
 						Toast.LENGTH_SHORT).show();

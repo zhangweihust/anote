@@ -124,10 +124,8 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 			mContext.startActivity(intent);
 			break;
 		case R.id.feedback_layout:
-			if (isLogin()) {
 				intent.setClass(mContext, FeedbackScreen.class);
 				mContext.startActivity(intent);
-			}
 			break;
 		case R.id.btn_login:
 			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {

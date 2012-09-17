@@ -174,7 +174,7 @@
     <string name="about_web">官方网站</string>
     <string name="about_blog">官方微博</string>
     <string name="about_check_update">检查更新</string>
-    <string name="about_rights">"@2012诚迈科技 版权所有"</string>
+    <string name="about_rights">"Copyright@2012 诚迈科技 版权所有"</string>
     
     <!-- feedback -->
     <string name="feedback_title">反馈</string>
@@ -187,7 +187,7 @@
     
     <!-- share -->
     <string name="share_title">分享</string>
-    <string name="share_default_text">分享笔迹，分享快乐！@诚迈科技 @分享笔迹\n查看请点击：http://note.archermind.com/web/note.php</string>
+    <string name="share_default_text">分享笔迹，分享快乐！@诚迈科技 @分享笔迹\n查看请点击：http://anote.archermind.com/web/note.php</string>
     <string name="share_text_others">您还可以分享到以下平台</string>
     <string name="share_msg_sina">正在分享到新浪微博...</string>
     <string name="share_msg_qq">正在分享到腾讯微博...</string>

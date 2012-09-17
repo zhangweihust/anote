@@ -18,7 +18,6 @@
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
              android:layout_gravity="bottom|center_horizontal"
-             android:layout_weight="1"
              android:ellipsize="end"
              android:gravity="center_horizontal"
              android:singleLine="true"
@@ -211,9 +210,9 @@
 
             <Button
                 android:id="@+id/about_check_update"
-                android:layout_width="300dp"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_margin="10dp"
                 android:background="@drawable/button_selector"
                 android:text="@string/about_check_update"
                 android:textColor="@color/white"

@@ -30,15 +30,15 @@ public class FeedbackScreen extends Screen implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.feedback_screen);
-		
+
 		mContext = FeedbackScreen.this;
-		
+
 		mBtnBack = (Button) findViewById(R.id.back);
 		mBtnBack.setOnClickListener(this);
-		
+
 		mBtnCommit = (Button) findViewById(R.id.feedback_commit);
 		mBtnCommit.setOnClickListener(this);
-		
+
 		mFeedbackContent = (EditText) findViewById(R.id.feedback_content);
 		mFeedbackContent.setFocusable(true);
 		mFeedbackContent.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -56,8 +56,8 @@ public class FeedbackScreen extends Screen implements OnClickListener {
 							imm.toggleSoftInput(0,
 									InputMethodManager.HIDE_NOT_ALWAYS);
 						} else {
-							imm.hideSoftInputFromWindow(mFeedbackContent
-									.getWindowToken(), 0);
+							imm.hideSoftInputFromWindow(
+									mFeedbackContent.getWindowToken(), 0);
 						}
 					}
 				}, 100);
@@ -66,7 +66,45 @@ public class FeedbackScreen extends Screen implements OnClickListener {
 		});
 		mFeedbackContent.requestFocus();
 	}
-	
+
+	private String mapErrorCode(int errCode) {
+		String errStr = "";
+		if (-1 == errCode) {
+			errStr = mContext.getString(R.string.feedback_err_input_is_null);
+		}
+		return errStr;
+	}
+
+	private int check(String str) {
+		if (str == null || "".equals(str)) {
+			return -1;
+		}
+		return 0;
+	}
+
+	private Handler mHandler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			dismissProgress();
+			switch (msg.what) {
+			case ServerInterface.SUCCESS:
+				Toast.makeText(NoteApplication.getContext(),
+						R.string.feedback_commit_success, Toast.LENGTH_SHORT)
+						.show();
+				FeedbackScreen.this.finish();
+				break;
+			default:
+				Toast.makeText(NoteApplication.getContext(),
+						R.string.feedback_commit_failure, Toast.LENGTH_SHORT)
+						.show();
+				break;
+			}
+		}
+
+	};
+
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
@@ -74,39 +112,35 @@ public class FeedbackScreen extends Screen implements OnClickListener {
 		case R.id.back:
 			this.finish();
 			break;
-		case R.id.feedback_commit: 
-			FeedbackScreen.this.runOnUiThread(new Runnable() {
-				
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					String strFeedbackContent = mFeedbackContent.getText().toString().trim();
-					if (strFeedbackContent == null || strFeedbackContent.equals("")) {
-						Toast.makeText(NoteApplication.getContext(),
-								getResources().getString(R.string.feedback_err_input_is_null),
-								Toast.LENGTH_SHORT).show();
-					} else if(NetworkUtils.getNetworkState(FeedbackScreen.this) == NetworkUtils.NETWORN_NONE) {
-							Toast.makeText(NoteApplication.getContext(),
-									R.string.network_none, Toast.LENGTH_SHORT).show();
-					} else{
-						String result = ServerInterface.suggestionfeedback(ServiceManager
-										.getUserId()+"", "", strFeedbackContent);
-						if(result.equals("" + ServerInterface.SUCCESS)){
-							Toast.makeText(NoteApplication.getContext(),
-									R.string.feedback_commit_success, Toast.LENGTH_SHORT)
-									.show();
-							FeedbackScreen.this.finish();
-						} else{
-								Toast.makeText(NoteApplication.getContext(),
-										R.string.feedback_commit_failure,
-										Toast.LENGTH_SHORT).show();
-					    }
-					}
+		case R.id.feedback_commit: {
+			final String strFeedbackContent = mFeedbackContent.getText()
+					.toString().trim();
+			int errCode = check(strFeedbackContent);
+			if (errCode != 0) {
+				Toast.makeText(NoteApplication.getContext(),
+						mapErrorCode(errCode), Toast.LENGTH_SHORT).show();
+			} else {
+				if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
+					showProgress(null,
+							getString(R.string.feedback_commiting_info));
+					new Thread() {
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							int result = ServerInterface.suggestionfeedback(
+									String.valueOf(ServiceManager.getUserId()),
+									"", strFeedbackContent);
+							mHandler.sendEmptyMessage(result);
+						}
+					}.start();
+				} else {
+					Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT)
+					.show();
 				}
-			});
-		  break;
-		
-	}
+			}
+		}
+			break;
+		}
 	}
 
 }

@@ -52,98 +52,109 @@
             android:visibility="gone" />
     </RelativeLayout>
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:background="@drawable/login_edit_background"
-        android:orientation="horizontal"
-        android:padding="10dp" >
-
-        <ImageView
-            android:id="@+id/share_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:maxWidth="150dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/share_test" />
-
-        <TextView
-            android:id="@+id/share_text"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_marginLeft="10dp"
-            android:background="@color/transparent"
-            android:text="@string/share_default_text"
-            android:textColor="@color/login_text_color"
-            android:textSize="14sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/share_layout_others"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone" >
+        android:layout_height="fill_parent" >
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="10dp" >
+            android:orientation="vertical" >
 
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="2dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:background="@drawable/listview_divider" />
-
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:text="@string/share_text_others"
-                android:textColor="@color/login_text_color" />
+                android:layout_margin="10dp"
+                android:background="@drawable/login_edit_background"
+                android:orientation="horizontal"
+                android:padding="10dp" >
 
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="2dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:background="@drawable/listview_divider" />
+                <ImageView
+                    android:id="@+id/share_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:maxWidth="150dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/share_test" />
+
+                <TextView
+                    android:id="@+id/share_text"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_marginLeft="10dp"
+                    android:background="@color/transparent"
+                    android:text="@string/share_default_text"
+                    android:textColor="@color/login_text_color"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/share_layout_others"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone" >
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="10dp" >
+
+                    <View
+                        android:layout_width="wrap_content"
+                        android:layout_height="2dp"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:background="@drawable/listview_divider" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:text="@string/share_text_others"
+                        android:textColor="@color/login_text_color" />
+
+                    <View
+                        android:layout_width="wrap_content"
+                        android:layout_height="2dp"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:background="@drawable/listview_divider" />
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp" >
+
+                    <Button
+                        android:id="@+id/btn_share_sina"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="20dp"
+                        android:background="@drawable/btn_sina_selector" />
+
+                    <Button
+                        android:id="@+id/btn_share_qq"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:background="@drawable/btn_qq_selector" />
+
+                    <Button
+                        android:id="@+id/btn_share_renren"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="20dp"
+                        android:background="@drawable/btn_renren_selector" />
+                </RelativeLayout>
+            </LinearLayout>
         </LinearLayout>
-
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp" >
-
-            <Button
-                android:id="@+id/btn_share_sina"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_marginLeft="20dp"
-                android:background="@drawable/btn_sina_selector" />
-
-            <Button
-                android:id="@+id/btn_share_qq"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:background="@drawable/btn_qq_selector" />
-
-            <Button
-                android:id="@+id/btn_share_renren"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="20dp"
-                android:background="@drawable/btn_renren_selector" />
-        </RelativeLayout>
-    </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>
