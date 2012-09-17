@@ -103,9 +103,38 @@ public class PlazaScreen extends Screen implements IEventHandler{
 				public boolean onJsAlert(WebView view, String url,
 						String message, JsResult result) {
 					// TODO Auto-generated method stub
+					
+					if(NetworkUtils.getNetworkState(PlazaScreen.this) == NetworkUtils.NETWORN_NONE){
+						PlazaScreen.this.runOnUiThread(new Runnable() {									
+							@Override
+							public void run() {
+								// TODO Auto-generated method stub
+						    Toast.makeText(PlazaScreen.this, R.string.network_none,
+										Toast.LENGTH_SHORT).show();
+						    mTextView.setVisibility(View.VISIBLE);
+				        	mWebView.setVisibility(View.GONE);
+				        	mNetwork = NetworkUtils.getNetworkState(PlazaScreen.this);
+							}
+						});
+						result.confirm();
+						return true;
+					}
+					
+					if(!ServiceManager.isLogin()){																	
+						PlazaScreen.this.runOnUiThread(new Runnable() {									
+							@Override
+							public void run() {
+								// TODO Auto-generated method stub
+						    Toast.makeText(PlazaScreen.this, R.string.no_login_info,
+										Toast.LENGTH_SHORT).show();
+							}
+						});
+						result.confirm();
+						return true;
+					}
+					
 					if(message.trim().equals("unlogin")){
-						PlazaScreen.this.runOnUiThread(new Runnable() {
-							
+						PlazaScreen.this.runOnUiThread(new Runnable() {							
 							@Override
 							public void run() {
 								// TODO Auto-generated method stub
@@ -132,23 +161,17 @@ public class PlazaScreen extends Screen implements IEventHandler{
 						result.confirm();
 						return true;
 					}else if(message.trim().startsWith("reply")){
-					
-						if(!ServiceManager.isLogin()){																	
-								PlazaScreen.this.runOnUiThread(new Runnable() {									
-									@Override
-									public void run() {
-										// TODO Auto-generated method stub
-								    Toast.makeText(PlazaScreen.this, R.string.no_login_info,
-												Toast.LENGTH_SHORT).show();
-									}
-								});
-						}else{
-							String nid = message.trim().substring(message.trim().indexOf(":")+1);
-							Intent intent = new Intent();
-							intent.setClass(PlazaScreen.this, NoteReplyScreen.class);
-							intent.putExtra("nid", nid);
-							PlazaScreen.this.startActivity(intent);
-						}						
+						String nid = message.trim().substring(message.trim().indexOf(":")+1);
+						Intent intent = new Intent();
+						intent.setClass(PlazaScreen.this, NoteReplyScreen.class);
+						intent.putExtra("nid", nid);
+						PlazaScreen.this.startActivity(intent);						
+						result.confirm();
+						return true;
+					}else if(message.trim().equals("album")){				
+						Intent intent = new Intent();
+						intent.setClass(PlazaScreen.this, AlbumScreen.class);
+						PlazaScreen.this.startActivity(intent);						
 						result.confirm();
 						return true;
 					}
@@ -218,7 +241,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	        	mNetwork = NetworkUtils.getNetworkState(this);
 		        mWebView.requestFocus();		        
 		        try {
-					Thread.sleep(500);
+					Thread.sleep(200);
 					mWebView.reload();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -233,6 +256,14 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	 	protected void onResume() {
 	 	  super.onResume();
 		 	 System.out.println("===== resume =====");
+		 	 if(NetworkUtils.getNetworkState(this) == NetworkUtils.NETWORN_NONE){
+					Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT).show();
+		        	mTextView.setVisibility(View.VISIBLE);
+		        	mWebView.setVisibility(View.GONE);
+		        	mNetwork = NetworkUtils.getNetworkState(this);
+		        	return;
+		     }
+		 	 
 		 	 if(ServiceManager.isLogin() != mIsLogin){
 		 		 if(ServiceManager.isLogin()){
 				 		System.out.println("===== logined =====");
@@ -246,7 +277,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 				    }
 		 		 mWebView.requestFocus();
 		 		 try {
-					Thread.sleep(500);
+					Thread.sleep(200);
 					mWebView.reload();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block

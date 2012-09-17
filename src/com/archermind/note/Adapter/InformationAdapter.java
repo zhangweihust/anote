@@ -2,11 +2,14 @@ package com.archermind.note.Adapter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.archermind.note.R;
 import com.archermind.note.Events.EventArgs;
@@ -17,6 +20,10 @@ import com.archermind.note.Utils.InformationData;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,7 +91,41 @@ public class InformationAdapter extends BaseAdapter
 	    	item.tvTitle.setVisibility(View.INVISIBLE);
 	    }
 	    
-	    item.tvContent.setText(data.content);
+	    
+	   if(data.content.contains(":face")){
+		    item.tvContent.setText("");
+	    	Pattern p = Pattern.compile(":face_[0-9]{1,2}:");
+	        Matcher m = p.matcher(data.content);
+	        System.out.println("content lenght : " + data.content.length() + ", " + data.content);
+	        Class drawable  =  R.drawable.class;
+	        int lastIndex = 0;
+	    	while(m.find()){		 
+	         Field field = null;	         
+	         try {
+	        	 System.out.println(m.group() + ", " + m.start() + ", " + m.end());
+	             field = drawable.getField(m.group().replaceAll(":", ""));
+	             int r_id = field.getInt(field.getName());
+	             Drawable d =  mCtx.getResources().getDrawable(r_id); 
+	     		 d.setBounds(0, 0, 48, 48);
+	     		 ImageSpan span = new ImageSpan(d);
+	     		 SpannableString spanStr = new SpannableString(m.group());
+	     		spanStr.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+	     		int startIndex = m.start();
+	     		startIndex = startIndex < 0 ? 0 : startIndex;
+	     		item.tvContent.append(data.content, lastIndex, startIndex);
+	     		lastIndex = m.end();
+	     		item.tvContent.append(spanStr);
+	         }catch(Exception e){
+	        	 
+	         }
+	           
+	    	}
+    	    if(lastIndex != data.content.length()){
+	    		item.tvContent.append(data.content, lastIndex, data.content.length()-1);
+	    	}
+	    }else{
+	    	item.tvContent.setText(data.content);
+	    }
 	    if(data.time < DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())){
 	    	item.tvTime.setText(DateTimeUtils.time2String("yyyy年MM月dd日 HH:mm", data.time*1000));
 	    }else{
@@ -97,6 +138,16 @@ public class InformationAdapter extends BaseAdapter
 		return convertView;
 	}
 
+	/**
+	 * 插入表情
+	 * @param id 表情id
+	 */
+	private void insertFace(String face) {
+	
+		
+	}
+	
+	
 	public void setNoInformationPrompt(long time)
 	{
 		InformationData data = new InformationData();
