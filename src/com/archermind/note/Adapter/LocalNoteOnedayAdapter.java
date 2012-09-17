@@ -126,6 +126,8 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 				item.tvNoteContent.append("\n");*/
 				item.ivPic.setVisibility(View.VISIBLE);
 				item.ivPic.setImageBitmap(bmp);
+			} else {
+				item.ivPic.setVisibility(View.GONE);
 			}
 		    InputStream in = new ByteArrayInputStream(contextStr.getBytes());
 		    AmGestureLibrary store = EditNoteScreen.readGestureFromZip(notePath);

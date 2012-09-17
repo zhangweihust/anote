@@ -56,7 +56,7 @@
             android:gravity="center"/>
     </LinearLayout>
         
-    <LinearLayout 
+    <!--<LinearLayout 
         android:id="@+id/edit_setting_font"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -81,5 +81,5 @@
             android:text="字体"
             android:textColor="@color/toptextcolor"
             android:gravity="center"/>
+    </LinearLayout>-->
     </LinearLayout>
-</LinearLayout>

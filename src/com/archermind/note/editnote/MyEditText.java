@@ -43,7 +43,7 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
     /**
      * 字体大小
      */
-    public static int fontSize = 32;
+    public static int fontSize = 6;
     /**
      * 字体颜色
      */

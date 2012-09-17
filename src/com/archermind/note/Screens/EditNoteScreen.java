@@ -1402,11 +1402,11 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			if (mSetTypePopupWindow.isShowing()) {
 				mSetTypePopupWindow.dismiss();
 			} else {
-				ImageView imgView = (ImageView) mSetTypePopupWindow.getContentView().findViewById(R.id.thickness_imageview);
-				TextView tv = (TextView) mSetTypePopupWindow.getContentView().findViewById(R.id.thickness_textview);
+//				ImageView imgView = (ImageView) mSetTypePopupWindow.getContentView().findViewById(R.id.thickness_imageview);
+//				TextView tv = (TextView) mSetTypePopupWindow.getContentView().findViewById(R.id.thickness_textview);
 				
-				ImageView fontimgView = (ImageView) mSetTypePopupWindow.getContentView().findViewById(R.id.fontsetting_imageview);
-				TextView fonttv = (TextView) mSetTypePopupWindow.getContentView().findViewById(R.id.fontsetting_textview);
+//				ImageView fontimgView = (ImageView) mSetTypePopupWindow.getContentView().findViewById(R.id.fontsetting_imageview);
+//				TextView fonttv = (TextView) mSetTypePopupWindow.getContentView().findViewById(R.id.fontsetting_textview);
 				
 				/*if (mState == SOFTINPUTSTATE) {
 					imgView.setImageDrawable(getResources().getDrawable(R.drawable.text_thickness_adjust));
@@ -1420,10 +1420,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 						fonttv.setVisibility(View.GONE);
 					}
 				} else {*/
-					imgView.setImageDrawable(getResources().getDrawable(R.drawable.edit_setting_thickness));
-					tv.setText("粗细");
-					fontimgView.setVisibility(View.GONE);
-					fonttv.setVisibility(View.GONE);
+//					imgView.setImageDrawable(getResources().getDrawable(R.drawable.edit_setting_thickness));
+//					tv.setText("粗细");
+//					fontimgView.setVisibility(View.GONE);
+//					fonttv.setVisibility(View.GONE);
 //				}
 				mSetTypePopupWindow.showAsDropDown(edit_setting, 0, DensityUtil.dip2px(this, BOTTOMOFFSET));
 			}
@@ -1592,13 +1592,13 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			}*/
 			mSetTypePopupWindow.dismiss();
 			break;
-		case R.id.edit_setting_font:
+		/*case R.id.edit_setting_font:
 			if (fontchoose_dialog == null) {
 				initFontDialog();
 			}
 			fontchoose_dialog.show();
 			mSetTypePopupWindow.dismiss();
-			break;
+			break;*/
 		case R.id.picfroecamera:
 			String pName = picName.generateName();
 			if ("".equals(mDiaryPath)) {
@@ -1749,10 +1749,10 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		mSetTypePopupWindow.setOutsideTouchable(true);
 		LinearLayout color_setting = (LinearLayout) view.findViewById(R.id.edit_setting_color);
 		LinearLayout thickness_setting = (LinearLayout) view.findViewById(R.id.edit_setting_thickness);
-		LinearLayout font_setting = (LinearLayout) view.findViewById(R.id.edit_setting_font);
+//		LinearLayout font_setting = (LinearLayout) view.findViewById(R.id.edit_setting_font);
 		color_setting.setOnClickListener(this);
 		thickness_setting.setOnClickListener(this);
-		font_setting.setOnClickListener(this);
+//		font_setting.setOnClickListener(this);
 	}
 	
 	
@@ -1794,7 +1794,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		saveList2File(preffix + "notepicindex", mPicPathList);
 	    
 	    //压缩成一个文件
-		String [] fileNames = {preffix + "gesture",preffix + "picmap",preffix + "graffit",preffix + "text",preffix + "notepicindex"};
+		String [] fileNames = {preffix + "gesture",preffix + "picmap",preffix + "graffit",preffix + "text",preffix + "notepicindex",preffix + "pic/"};
 		if ("".equals(mDiaryPath)) {
 		    mDiaryPath = preffix + "diary_" + MainScreen.snoteCreateTime;
 		}
@@ -1979,6 +1979,17 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		
 		final String fileName = NoteApplication.savePath + "notepicture/" + noteFileName + "_page" + String.valueOf(mCurPage) + ".png";
 		mPicPathList.add(fileName);
+		ImageSpan [] imgspans = myEdit.getText().getSpans(0, myEdit.getText().length(), ImageSpan.class);
+		for (ImageSpan span : imgspans) {
+			int start_index = myEdit.getText().getSpanStart(span);
+			int end_index = myEdit.getText().getSpanEnd(span);
+			String spanStr = myEdit.getText().subSequence(start_index, end_index).toString();
+			if (spanStr.startsWith("pic_")) {
+				BitmapDrawable bd = (BitmapDrawable) span.getDrawable();
+				Bitmap bmp = bd.getBitmap();
+				comPressBmp(bmp, spanStr);
+			}
+		}
 		
 		new Thread(new Runnable() {
 			@Override
@@ -1992,7 +2003,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 				try {
 			        BufferedOutputStream bos = new BufferedOutputStream(
 			                                                 new FileOutputStream(myCaptureFile));
-			        viewBitmap.compress(Bitmap.CompressFormat.PNG, 80, bos);
+			        viewBitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos);
 			        bos.flush();
 			        bos.close();
 			        viewBitmap.recycle();
@@ -2007,23 +2018,6 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 				}
 			}
 		}).start();
-//		mPicPathList.add(fileName);
-//		
-//		File myCaptureFile = new File(fileName);
-//		if (!myCaptureFile.getParentFile().exists()) {
-//		    myCaptureFile.getParentFile().mkdir();
-//		}
-//		
-//		try {
-//	        BufferedOutputStream bos = new BufferedOutputStream(
-//	                                                 new FileOutputStream(myCaptureFile));
-//	        viewBitmap.compress(Bitmap.CompressFormat.PNG, 80, bos);
-//	        viewBitmap.recycle();
-//	        bos.flush();
-//	        bos.close();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
 	}
 
 	/**
@@ -2064,17 +2058,34 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	        	if (!file.exists()) {
 	        		continue;
 	        	}
-	            FileInputStream in = new FileInputStream(fileFrom);  
 	            
-	            ZipEntry entry = new ZipEntry(fileFrom);  
-	            zipOut.putNextEntry(entry);  
-	            int nNumber;  
-	            byte[] buffer = new byte[512];  
-	            while ((nNumber = in.read(buffer)) != -1){  
-	                zipOut.write(buffer, 0, nNumber);  
-	            }
-	            in.close();
-	            file.delete();
+	        	if (file.isDirectory()) {
+	        		File[] fl = file.listFiles();
+	                for (File f : fl) {
+	                	FileInputStream in = new FileInputStream(f);  
+	                	ZipEntry entry = new ZipEntry(fileFrom + f.getName());  
+	                	zipOut.putNextEntry(entry);  
+			            int nNumber;  
+			            byte[] buffer = new byte[512];  
+			            while ((nNumber = in.read(buffer)) != -1){  
+			                zipOut.write(buffer, 0, nNumber);  
+			            }
+			            in.close();
+			            f.delete();
+	                }
+	                file.delete();
+	        	} else {
+	        		FileInputStream in = new FileInputStream(fileFrom);  
+	        		ZipEntry entry = new ZipEntry(fileFrom);  
+		            zipOut.putNextEntry(entry);  
+		            int nNumber;  
+		            byte[] buffer = new byte[512];  
+		            while ((nNumber = in.read(buffer)) != -1){  
+		                zipOut.write(buffer, 0, nNumber);  
+		            }
+		            in.close();
+		            file.delete();
+	        	}
         	}
             zipOut.close();  
   
@@ -2211,6 +2222,15 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		for (String filename : fileName) {
 			File file = new File(filename);
 			if (file.exists()) {
+				if (file.isDirectory()) {
+					File[] files = file.listFiles();  
+				    for (int i = 0; i < files.length; i++) {  
+				        //删除子文件  
+				        if (files[i].isFile()) { 
+				        	files[i].delete();
+				        } 
+				    }
+				}
 				file.delete();
 			}
 		}
@@ -2225,9 +2245,17 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			return;
 		}
 		for (String filename : fileName) {
-//			Log.d("=VVV=","fileName = " + fileName);
 			File file = new File(filename);
 			if (file.exists()) {
+				if (file.isDirectory()) {
+					File[] files = file.listFiles();  
+				    for (int i = 0; i < files.length; i++) {  
+				        //删除子文件  
+				        if (files[i].isFile()) { 
+				        	files[i].delete();
+				        } 
+				    }
+				}
 				file.delete();
 			}
 		}
@@ -2237,7 +2265,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	 * 删除一些本地的中间文件，本程序生成的。
 	 */
 	public void deleteDefaultFiles() {
-		String [] deletefileNames = {preffix + "picmap",preffix + "text",preffix + "gesture",preffix + "graffit"};
+		String [] deletefileNames = {preffix + "picmap",preffix + "text",preffix + "gesture",preffix + "graffit",preffix + "pic/"};
 		deletefiles(deletefileNames);
 	}
 	
@@ -2472,6 +2500,23 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		}
 	}
 	
+	private void comPressBmp(Bitmap bmp,String fileName) {
+		File file = new File(preffix + "pic/" + fileName);
+		if (!file.getParentFile().exists()) {
+			file.getParentFile().mkdir();
+		}
+		
+		BufferedOutputStream bos;
+		try {
+			bos = new BufferedOutputStream(
+			        new FileOutputStream(file));
+			bmp.compress(Bitmap.CompressFormat.JPEG, 80, bos);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * 在图片的map中添加元素
 	 * @param name
@@ -2543,7 +2588,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 		// TODO Auto-generated method stub
 //		super.onBackPressed();
 		if (!hasChanged) {
-			String [] fileNames = {preffix + "picmap",preffix + "text",preffix + "gesture",preffix + "graffit"};
+			String [] fileNames = {preffix + "picmap",preffix + "text",preffix + "gesture",preffix + "graffit",preffix + "pic/"};
 			deletefiles(fileNames);
 			finish();
 			return;
