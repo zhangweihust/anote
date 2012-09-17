@@ -78,7 +78,7 @@ public class NoteSaveDialog implements OnClickListener{
 		switch(v.getId()){
 		case R.id.note_save_ok:
 			if (saveGroup.getCheckedRadioButtonId() == R.id.save_and_share) {
-				if (!NoteApplication.getInstance().isLogin()) {
+				if (!ServiceManager.isLogin()) {
 					Toast.makeText(mEditNote, R.string.no_login_info, Toast.LENGTH_SHORT).show();
 					Intent intent = new Intent(mEditNote,LoginScreen.class);
 					mEditNote.startActivity(intent);

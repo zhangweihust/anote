@@ -26,6 +26,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
 import com.archermind.note.NoteApplication;
+import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.ServerInterface;
 import com.archermind.note.Utils.VersionUtil;
 
@@ -96,7 +97,7 @@ public class SendCrashReportsTask extends AsyncTask<Void, Void, Integer> {
 			return false;
 		}
 
-		int user_id = NoteApplication.getInstance().getUserId();
+		int user_id = ServiceManager.getUserId();
 		
 		
         params.add(new BasicNameValuePair("user_id", Integer.valueOf(user_id).toString()));
@@ -106,8 +107,8 @@ public class SendCrashReportsTask extends AsyncTask<Void, Void, Integer> {
 
 		DisplayMetrics dm = new DisplayMetrics();
 		
-		if(NoteApplication.getInstance().getWindowManager() != null){	
-			NoteApplication.getInstance().getWindowManager().getDefaultDisplay()
+		if(ServiceManager.getWindowManager() != null){	
+			ServiceManager.getWindowManager().getDefaultDisplay()
 				.getMetrics(dm);
 			float width = dm.widthPixels;
 			float height = dm.heightPixels;

@@ -1,8 +1,12 @@
 package com.archermind.note.Services;
 
+import android.app.Activity;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
+import android.view.WindowManager;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.Provider.DatabaseManager;
@@ -16,6 +20,25 @@ public class ServiceManager extends Service {
 	private static final UserInfoService userinfoService = new UserInfoService();
 	private static boolean started;
 	private static DatabaseManager dbManager = new DatabaseManager(NoteApplication.getContext());
+	
+	
+	private static boolean _downloadApkFlag = false;
+	private static boolean _isLogin = false;
+
+	private static int _mUserId;
+	private static String _mUserName;
+	private static String _mAvatarurl;
+	private static String _mNickname;
+	private static String _mSex;
+	private static String _mRegion;
+	private static String _mSina_nickname;
+	private static String _mQQ_nickname;
+	private static String _mRenren_nickname;
+	private static Context _mTopWindowContext;
+
+	private static Handler _mHandler;
+
+	private static WindowManager _mWindowManager;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -106,5 +129,118 @@ public class ServiceManager extends Service {
 		//mainActivity.finish();
 		System.exit(0);
 	}
+	
+	
+	public static Context getTopWindowContext() {
+		return _mTopWindowContext;
+	}
+	
+	public static void setTopWindowContext(Activity context) {
+		_mTopWindowContext = context;
+		_mWindowManager = context.getWindowManager();
+	}
+	
+	public static WindowManager getWindowManager() {
+		return _mWindowManager;
+	}
+	
+	public static Handler getHandler() {
+		return _mHandler;
+	}
+	
+	public static void setHandler(Handler handler) {
+		_mHandler = handler;
+	}
+	
+	public static boolean isDownloadApkFlag() {
+		return _downloadApkFlag;
+	}
+	
+	public static void setDownloadApkFlag(boolean downloadApkFlag) {
+		_downloadApkFlag = downloadApkFlag;
+	}
+	
+	public static boolean isLogin() {
+		return _isLogin;
+	}
 
+	public static void setLogin(boolean isLogin) {
+		_isLogin = isLogin;
+	}
+	
+	
+	public static String getmAvatarurl() {
+		return _mAvatarurl;
+	}
+
+	public static void setmAvatarurl(String mAvatarurl) {
+		_mAvatarurl = mAvatarurl;
+	}
+
+	public static String getUserName() {
+		return _mUserName;
+	}
+
+	public static void setUserName(String userName) {
+		_mUserName = userName;
+	}
+	
+	
+
+	public static String getmNickname() {
+		return _mNickname;
+	}
+
+	public static void setmNickname(String mNickname) {
+		_mNickname = mNickname;
+	}
+
+	public static String getmSex() {
+		return _mSex;
+	}
+
+	public static void setmSex(String mSex) {
+		_mSex = mSex;
+	}
+
+	public static String getmRegion() {
+		return _mRegion;
+	}
+
+	public static void setmRegion(String mRegion) {
+		_mRegion = mRegion;
+	}
+
+	public static String getmSina_nickname() {
+		return _mSina_nickname;
+	}
+
+	public static void setmSina_nickname(String mSina_nickname) {
+		_mSina_nickname = mSina_nickname;
+	}
+
+	public static String getmQQ_nickname() {
+		return _mQQ_nickname;
+	}
+
+	public static void setmQQ_nickname(String mQQ_nickname) {
+		_mQQ_nickname = mQQ_nickname;
+	}
+
+	public static String getmRenren_nickname() {
+		return _mRenren_nickname;
+	}
+
+	public static void setmRenren_nickname(String mRenren_nickname) {
+		_mRenren_nickname = mRenren_nickname;
+	}
+
+	public static int getUserId() {
+		return _mUserId;
+	}
+
+	public static void setUserId(int userId) {
+		_mUserId = userId;
+	}
+	
 }

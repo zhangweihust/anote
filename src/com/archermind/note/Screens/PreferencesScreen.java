@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;
 
@@ -73,7 +74,7 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 //		}
 		
 		//判断是否登录
-		if(NoteApplication.getInstance().isLogin()){
+		if(ServiceManager.isLogin()){
 			mLoginButton.setVisibility(View.GONE);
 			mLogoutButton.setVisibility(View.VISIBLE);
 		}else {
@@ -83,7 +84,7 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 	}
 	
 	private boolean isLogin() {
-		if(NoteApplication.getInstance().isLogin()){
+		if(ServiceManager.isLogin()){
 			return true;
 		}else {
 			Toast.makeText(PreferencesScreen.this, getString(R.string.no_login_info), Toast.LENGTH_SHORT).show();
@@ -149,7 +150,7 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				NoteApplication.getInstance().setLogin(false);
+				ServiceManager.setLogin(false);
 				mLoginButton.setVisibility(View.VISIBLE);
 				mLogoutButton.setVisibility(View.GONE);
 			}

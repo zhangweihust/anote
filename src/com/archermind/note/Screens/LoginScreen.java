@@ -9,6 +9,7 @@ import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.IEventHandler;
+import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.CookieCrypt;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;
@@ -120,25 +121,25 @@ public class LoginScreen extends Screen implements OnClickListener {
 							// 保存至Application
 							NoteApplication noteApplication = NoteApplication
 									.getInstance();
-							noteApplication.setUserName(jsonObject
+							ServiceManager.setUserName(jsonObject
 									.optString("email"));
-							noteApplication.setUserId(jsonObject
+							ServiceManager.setUserId(jsonObject
 									.optInt("user_id"));
-							noteApplication.setmAvatarurl(jsonObject
+							ServiceManager.setmAvatarurl(jsonObject
 									.optString("portrait"));
-							noteApplication.setmNickname(jsonObject
+							ServiceManager.setmNickname(jsonObject
 									.optString("nickname"));
-							noteApplication.setmSex(jsonObject
+							ServiceManager.setmSex(jsonObject
 									.optString("gender"));
-							noteApplication.setmRegion(jsonObject
+							ServiceManager.setmRegion(jsonObject
 									.optString("region"));
-							noteApplication.setmSina_nickname(jsonObject
+							ServiceManager.setmSina_nickname(jsonObject
 									.optString("flag_sina"));
-							noteApplication.setmQQ_nickname(jsonObject
+							ServiceManager.setmQQ_nickname(jsonObject
 									.optString("flag_qq"));
-							noteApplication.setmRenren_nickname(jsonObject
+							ServiceManager.setmRenren_nickname(jsonObject
 									.optString("flag_renren"));
-							noteApplication.setLogin(true);
+							ServiceManager.setLogin(true);
 							Log.i(TAG, "login success");
 							finish();
 						}

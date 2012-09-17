@@ -42,6 +42,7 @@ import android.widget.Toast;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Screens.HomeScreen;
+import com.archermind.note.Services.ServiceManager;
 //import com.archermind.note.Views.CustomDialog;
 import com.archermind.note.dialog.DialogCheckSignature;
 import com.archermind.note.download.DownloadJob;
@@ -108,7 +109,7 @@ public class DownloadApkHelper {
 	}
 
 	public void updateApk(final int type, final Handler screenVersionHandler) {
-		if (NoteApplication.getInstance().isDownloadApkFlag()) {// 后台有在线升级正在运行
+		if (ServiceManager.isDownloadApkFlag()) {// 后台有在线升级正在运行
 			toastShow(TOAST_DOWNLOAD_BACKGROUND);
 			if (screenVersionHandler != null) {
 				Message msg = screenVersionHandler.obtainMessage(1, "flash");
@@ -805,7 +806,7 @@ public class DownloadApkHelper {
 				switch (newState) {
 				case DownloadTask.STATE_BEGIN:
 					msg.what = DownloadTask.MESSAGE_WHAT_DOWNLOADING;
-					NoteApplication.getInstance().setDownloadApkFlag(true);
+					ServiceManager.setDownloadApkFlag(true);
 					preferences = NoteApplication.getContext()
 							.getSharedPreferences(XML_NAME,
 									Context.MODE_WORLD_WRITEABLE);
@@ -816,7 +817,7 @@ public class DownloadApkHelper {
 					break;
 
 				case DownloadTask.STATE_FINISHED:
-					NoteApplication.getInstance().setDownloadApkFlag(false);
+					ServiceManager.setDownloadApkFlag(false);
 					msg.what = DownloadTask.MESSAGE_WHAT_DOWNLOADED;
 					Bundle data = new Bundle();
 					data.putLong("totalBytes", job.getDownloadTotalSize());

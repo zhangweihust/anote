@@ -163,14 +163,14 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				handler.sendMessage(uploadnewmsg);
 				break;
 			case MessageTypes.MESSAGE_CREATEALBUM:
-				mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()
+				mAlbumObj.requestAlbumidInfo(ServiceManager
 						.getUserName());
 				break;
 			case MessageTypes.MESSAGE_GETALBUM:
 				AlbumItem[] albumItems = AlbumInfoUtil.getAlbumInfos(mAlbumObj,
 						msg.obj);
 				if (albumItems == null) {
-					mAlbumObj.createAlbum(NoteApplication.getInstance()
+					mAlbumObj.createAlbum(ServiceManager
 							.getUserName(), ALBUMNAME);
 					break;
 				}
@@ -181,7 +181,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					}
 				}
 				if (albumid == -1) {
-					mAlbumObj.createAlbum(NoteApplication.getInstance()
+					mAlbumObj.createAlbum(ServiceManager
 							.getUserName(), ALBUMNAME);
 				} else {
 					ArrayList<String> picPath = new ArrayList<String>();
@@ -199,8 +199,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				
 				// 上传头像文件成功，开始执行插入数据库操作
 				String filepath = mAvatarPath.substring(mAvatarPath.lastIndexOf("/") + 1);
-				int ret = ServerInterface.uploadAlbum(String.valueOf(NoteApplication
-						.getInstance().getUserId()), filepath, ALBUMNAME);
+				int ret = ServerInterface.uploadAlbum(String.valueOf(ServiceManager.getUserId()), filepath, ALBUMNAME);
 				if (ret == ServerInterface.SUCCESS)
 				{
 					uploadnewmsg.what = UPLOAD_ALBUM_OK;
@@ -208,7 +207,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				}
 				else if (ret == ALBUM_COOKIES_ERROR)
 				{
-					NoteApplication.getInstance().setLogin(false);
+					ServiceManager.setLogin(false);
 					Toast.makeText(AlbumScreen.this, R.string.cookies_error, Toast.LENGTH_SHORT).show();
 					Intent intent = new Intent(AlbumScreen.this,LoginScreen.class);
 					startActivity(intent);
@@ -252,14 +251,18 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.album_screen);
 		
+		if (savedInstanceState != null)
+		{
+			mCacheImageFilePath = savedInstanceState.getString("mCacheImageFilePath");
+		}
+		
 		mContext = AlbumScreen.this;
 		
-		String user_name = NoteApplication
-		.getInstance().getUserName();
+		String user_name = ServiceManager.getUserName();
 		AmtApplication.setAmtUserName(user_name);
 		mAlbumObj = new AmtAlbumObj();
 		mAlbumObj.setHandler(mHandler);
-//		mAlbumObj.createAlbum(NoteApplication.getInstance()
+//		mAlbumObj.createAlbum(ServiceManager
 //				.getUserName(), ALBUMNAME);
 		
 		GalleryStatushandler = new Handler()
@@ -433,7 +436,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				        String title = mImgCapture.createName(dateTaken);
 				        mCacheImageFilePath = mImgCapture.IMAGE_CACHE_PATH 
 								+ "/"+ title +".jpg";
-				        mImgCapture.copyFile(file.getAbsolutePath(), mCacheImageFilePath);
+				        mImgCapture.CompressionImage(file.getAbsolutePath(), mCacheImageFilePath,false);
 				        File cachefile = new File(mCacheImageFilePath);
 				        if (cachefile.exists()) {
 							filepath = cachefile.getAbsolutePath();
@@ -455,11 +458,15 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				String filepath = mCacheImageFilePath;
 				File file = new File(filepath);
 				if (file.exists()) {
-					filepath = file.getAbsolutePath();
-					String name = filepath.substring(filepath.lastIndexOf("/") + 1, filepath.length());
-					String expandname = filepath.substring(filepath.lastIndexOf(".") + 1, filepath.length());
-					name = name.substring(0, name.lastIndexOf("."));
-					uploadImage(name, expandname, filepath, 1);
+					mImgCapture.CompressionImage(mCacheImageFilePath, mCacheImageFilePath,true);	/*生成新文件了，原本件被删掉*/
+					if (file.exists())
+					{
+						filepath = file.getAbsolutePath();
+						String name = filepath.substring(filepath.lastIndexOf("/") + 1, filepath.length());
+						String expandname = filepath.substring(filepath.lastIndexOf(".") + 1, filepath.length());
+						name = name.substring(0, name.lastIndexOf("."));
+						uploadImage(name, expandname, filepath, 1);
+					}
 				}
 			} else {
 				if (resultCode != RESULT_CANCELED) {
@@ -478,6 +485,14 @@ public class AlbumScreen extends Screen implements OnClickListener {
 
 		}
 		super.onActivityResult(requestCode, resultCode, data);
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		// TODO Auto-generated method stub
+		outState.putString("mCacheImageFilePath", mCacheImageFilePath);
+		
+		super.onSaveInstanceState(outState);
 	}
 	
 	private String getFilepathFromUri(Uri uri) {
@@ -630,11 +645,13 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		new Thread (new Runnable(){
 			@Override
 			public void run() {
-				String user_id = String.valueOf(NoteApplication.getInstance().getUserId());
-				String username = NoteApplication.getInstance().getUserName();
+				String user_id = String.valueOf(ServiceManager.getUserId());
+				String username = ServiceManager.getUserName();
+				
 				//System.out.println("=CCC=" + user_id + "=CCC=" + username);
 				String albumname = username;
 				Looper.prepare();
+				
 				String json = serverInterface.getAlbumDownloadUrl(user_id, albumname);
 				NoteApplication.LogD(AlbumScreen.class, json);
 				if (json == null ||  "".equals(json) || "-1".equals(json) || "-2".equals(json)){
@@ -699,9 +716,9 @@ public class AlbumScreen extends Screen implements OnClickListener {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case UPLOAD_ALBUM: {
-				String user_id = String.valueOf(NoteApplication.getInstance()
+				String user_id = String.valueOf(ServiceManager
 						.getUserId());
-				String username = NoteApplication.getInstance().getUserName();
+				String username = ServiceManager.getUserName();
 				String albumname = username;
 				String aName = msg.getData().getString("name");
 				String aExpandName = msg.getData().getString("expandname");
@@ -709,7 +726,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				int aUploadCount = msg.getData().getInt("uploadcount");
 
 				mAvatarPath = aFilePath;
-				mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()
+				mAlbumObj.requestAlbumidInfo(ServiceManager
 						.getUserName());
 //				int result = serverInterface.uploadAlbum(mContext, user_id,
 //						albumname, username, aFilePath, aName, aExpandName);
@@ -800,7 +817,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				System.out.println("DOWNLOAD_ALL_ALBUM_ERROR");
 				break;
 			case ALBUM_COOKIES_ERROR:
-				NoteApplication.getInstance().setLogin(false);
+				ServiceManager.setLogin(false);
 				Toast.makeText(AlbumScreen.this, R.string.cookies_error, Toast.LENGTH_SHORT).show();
 				Intent intent = new Intent(AlbumScreen.this,LoginScreen.class);
 				startActivity(intent);

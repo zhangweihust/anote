@@ -33,6 +33,7 @@ import android.util.Log;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Services.ServiceManager;
 
 public class ImageCapture {
 
@@ -41,6 +42,8 @@ public class ImageCapture {
 	
     private static final int CONNECT_TIMEOUT = 5000;
     private static final int READ_TIMEOUT = 10000;
+    
+    private static final int IMAGE_MAX_SIDELENGHTH = 200;
 	
 	private Context mContext;
 	private ContentResolver mContentResolver;
@@ -74,7 +77,7 @@ public class ImageCapture {
 
 	public String createName(long dateTaken) {
 		Date date = new Date(dateTaken);
-		String userid = String.valueOf(NoteApplication.getInstance().getUserId());
+		String userid = String.valueOf(ServiceManager.getUserId());
 		if (userid == null) {
 			userid = "0";
 		}
@@ -284,6 +287,7 @@ public class ImageCapture {
 					fs.write(buffer, 0, byteread);
 				}
 				inStream.close();
+				fs.close();
 			}
 		} catch (Exception e) {
 			System.out.println("copyFile error");
@@ -291,4 +295,45 @@ public class ImageCapture {
 
 		}
 	} 
+	
+	public void CompressionImage(String srcPath,String desPath,boolean delSrc)
+    {
+		File srcfile = new File(srcPath); 
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		Bitmap bitmap = BitmapFactory.decodeFile(srcPath, options); //此时返回bm为空
+		int lenValue = (options.outWidth > options.outHeight) ? options.outWidth : options.outHeight;
+	  
+	 	options.inJustDecodeBounds = false;
+	 	//缩放比
+	 	int be = lenValue / IMAGE_MAX_SIDELENGHTH;
+	 	if (be <= 1)
+	 		be = 1;
+	 	options.inSampleSize = be;
+	 	//重新读入图片，注意这次要把options.inJustDecodeBounds 设为 false哦
+	 	bitmap=BitmapFactory.decodeFile(srcPath,options);
+	 	int w = bitmap.getWidth();
+	 	int h = bitmap.getHeight();
+	 	System.out.println("width = " + w + " height = " + h); 
+	  
+	 	if (delSrc)
+	 	{
+	 		srcfile.delete();
+	 	}
+	  
+	 	File file=new File(desPath);
+	 	try {
+	 		FileOutputStream out=new FileOutputStream(file);
+	 		if(bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)){
+	 			out.flush();
+	 			out.close();
+	 		}
+	 	} catch (FileNotFoundException e) {
+	 		// TODO Auto-generated catch block
+	 		e.printStackTrace();
+	 	} catch (IOException e) {
+	 		// TODO Auto-generated catch block
+	 		e.printStackTrace();
+	 	} 
+    }
 }

@@ -3,6 +3,7 @@ package com.archermind.note.Screens;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Adapter.FaceAdapter;
+import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.ServerInterface;
 
@@ -149,7 +150,7 @@ public class NoteReplyScreen extends Screen implements OnClickListener {
 					} else{				
 						// TODO Auto-generated method stub
 						System.out.println("==content==" + strReplyContent);
-						String result = ServerInterface.setReply(NoteApplication.getInstance()
+						String result = ServerInterface.setReply(ServiceManager
 										.getUserId(), nid, strReplyContent);
 						System.out.println(result);
 						if(result.equals("" + ServerInterface.SUCCESS)){
@@ -158,7 +159,7 @@ public class NoteReplyScreen extends Screen implements OnClickListener {
 									.show();	
 							NoteReplyScreen.this.finish();
 						}else if(result.equals("" + ServerInterface.COOKIES_ERROR)){
-							NoteApplication.getInstance().setLogin(false);
+							ServiceManager.setLogin(false);
 							Toast.makeText(NoteReplyScreen.this,
 									R.string.cookies_error, Toast.LENGTH_SHORT).show();
 							Intent intent = new Intent();

@@ -118,8 +118,8 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_screen);
-		NoteApplication.getInstance().setTopWindowContext(this);
-		NoteApplication.getInstance().setHandler(handler);
+		ServiceManager.setTopWindowContext(this);
+		ServiceManager.setHandler(handler);
 		
 		mTabHost = this.getTabHost();
 		mTabHost.addTab(buildTabSpec(TAB_HOME,
@@ -509,27 +509,27 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 									// 保存至Application
 									NoteApplication noteApplication = NoteApplication
 											.getInstance();
-									noteApplication.setUserName(jsonObject
+									ServiceManager.setUserName(jsonObject
 											.optString("email"));
-									noteApplication.setUserId(jsonObject
+									ServiceManager.setUserId(jsonObject
 											.optInt("user_id"));
-									noteApplication.setmAvatarurl(jsonObject
+									ServiceManager.setmAvatarurl(jsonObject
 											.optString("portrait"));
-									noteApplication.setmNickname(jsonObject
+									ServiceManager.setmNickname(jsonObject
 											.optString("nickname"));
-									noteApplication.setmSex(jsonObject
+									ServiceManager.setmSex(jsonObject
 											.optString("gender"));
-									noteApplication.setmRegion(jsonObject
+									ServiceManager.setmRegion(jsonObject
 											.optString("region"));
-									noteApplication
+									ServiceManager
 											.setmSina_nickname(jsonObject
 													.optString("flag_sina"));
-									noteApplication.setmQQ_nickname(jsonObject
+									ServiceManager.setmQQ_nickname(jsonObject
 											.optString("flag_qq"));
-									noteApplication
+									ServiceManager
 											.setmRenren_nickname(jsonObject
 													.optString("flag_renren"));
-									noteApplication.setLogin(true);
+									ServiceManager.setLogin(true);
 									Log.i("MainScreen", "autologin success");
 								}
 							} catch (JSONException e) {

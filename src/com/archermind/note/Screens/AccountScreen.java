@@ -37,6 +37,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Screens.LoginScreen.QQAsyncTask;
+import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
@@ -102,7 +103,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 						Toast.LENGTH_SHORT).show();
 				break;
 			case ServerInterface.COOKIES_ERROR:
-				NoteApplication.getInstance().setLogin(false);
+				ServiceManager.setLogin(false);
 				Toast.makeText(NoteApplication.getContext(),
 						R.string.cookies_error, Toast.LENGTH_SHORT).show();
 				Intent intent = new Intent(AccountScreen.this,LoginScreen.class);
@@ -110,17 +111,17 @@ public class AccountScreen extends Screen implements OnClickListener {
 				break;
 			case ServerInterface.SUCCESS:
 				if (mType == ServerInterface.LOGIN_TYPE_SINA) {
-					NoteApplication.getInstance().setmSina_nickname(mNickname);
+					ServiceManager.setmSina_nickname(mNickname);
 					Toast.makeText(NoteApplication.getContext(),
 							R.string.account_bound_success_sina,
 							Toast.LENGTH_LONG).show();
 				} else if (mType == ServerInterface.LOGIN_TYPE_QQ) {
-					NoteApplication.getInstance().setmQQ_nickname(mNickname);
+					ServiceManager.setmQQ_nickname(mNickname);
 					Toast.makeText(NoteApplication.getContext(),
 							R.string.account_bound_success_qq,
 							Toast.LENGTH_LONG).show();
 				} else if (mType == ServerInterface.LOGIN_TYPE_RENREN) {
-					NoteApplication.getInstance()
+					ServiceManager
 							.setmRenren_nickname(mNickname);
 					Toast.makeText(NoteApplication.getContext(),
 							R.string.account_bound_success_renren,
@@ -168,7 +169,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 				.findViewById(R.id.confirm_change);
 
 		TextView user_account = (TextView) this.findViewById(R.id.user_account);
-		user_account.setText(NoteApplication.getInstance().getUserName());
+		user_account.setText(ServiceManager.getUserName());
 
 		mNewPasswdLabel.setTextColor(Color.GRAY);
 		mConfirmPasswdLabel.setTextColor(Color.GRAY);
@@ -310,22 +311,22 @@ public class AccountScreen extends Screen implements OnClickListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (!NoteApplication.getInstance().getmSina_nickname().equals("")) {
+		if (!ServiceManager.getmSina_nickname().equals("")) {
 			mSina_unbound.setVisibility(View.GONE);
 			mSina_bounded.setVisibility(View.VISIBLE);
-			mSina_bounded.setText(NoteApplication.getInstance()
+			mSina_bounded.setText(ServiceManager
 					.getmSina_nickname());
 		}
-		if (!NoteApplication.getInstance().getmQQ_nickname().equals("")) {
+		if (!ServiceManager.getmQQ_nickname().equals("")) {
 			mQQ_unbound.setVisibility(View.GONE);
 			mQQ_bounded.setVisibility(View.VISIBLE);
 			mQQ_bounded
-					.setText(NoteApplication.getInstance().getmQQ_nickname());
+					.setText(ServiceManager.getmQQ_nickname());
 		}
-		if (!NoteApplication.getInstance().getmRenren_nickname().equals("")) {
+		if (!ServiceManager.getmRenren_nickname().equals("")) {
 			mRenren_unbound.setVisibility(View.GONE);
 			mRenren_bounded.setVisibility(View.VISIBLE);
-			mRenren_bounded.setText(NoteApplication.getInstance()
+			mRenren_bounded.setText(ServiceManager
 					.getmRenren_nickname());
 		}
 	}
@@ -521,7 +522,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 								Log.i(TAG, "获取的sina用户信息json:" + response);
 								JSONObject jsonObject = new JSONObject(response);
 								mNickname = jsonObject.optString("screen_name");
-								boundAccount(NoteApplication.getInstance()
+								boundAccount(ServiceManager
 										.getUserId(),
 										ServerInterface.LOGIN_TYPE_SINA, uid,
 										mNickname);
@@ -572,7 +573,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 							try {
 								mNickname = bean.getUsersInfo().get(0)
 										.getName();
-								boundAccount(NoteApplication.getInstance()
+								boundAccount(ServiceManager
 										.getUserId(),
 										ServerInterface.LOGIN_TYPE_RENREN, uid,
 										mNickname);
@@ -619,7 +620,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 				jsonObject = new JSONObject(data);
 				String uid = jsonObject.optString("openid");
 				mNickname = jsonObject.optString("nick");
-				boundAccount(NoteApplication.getInstance().getUserId(),
+				boundAccount(ServiceManager.getUserId(),
 						ServerInterface.LOGIN_TYPE_QQ, uid, mNickname);
 			} catch (JSONException e) {
 				Toast.makeText(NoteApplication.getContext(),
@@ -643,7 +644,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 
 		@Override
 		protected String doInBackground(String... params) {
-			return ServerInterface.modifyPassword(NoteApplication.getInstance()
+			return ServerInterface.modifyPassword(ServiceManager
 					.getUserName(), params[0]);
 		}
 
@@ -657,7 +658,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 				Toast.makeText(AccountScreen.this, R.string.update_success,
 						Toast.LENGTH_SHORT).show();
 			} else if (result.equals("" + ServerInterface.COOKIES_ERROR)) {
-				NoteApplication.getInstance().setLogin(false);
+				ServiceManager.setLogin(false);
 				Toast.makeText(NoteApplication.getContext(),
 						R.string.cookies_error, Toast.LENGTH_SHORT).show();
 				Intent intent = new Intent(AccountScreen.this,LoginScreen.class);

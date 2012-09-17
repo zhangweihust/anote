@@ -13,6 +13,7 @@ import com.amtcloud.mobile.android.business.MessageTypes;
 import com.amtcloud.mobile.android.business.AmtAlbumObj.AlbumItem;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.AlbumInfoUtil;
 import com.archermind.note.Utils.ImageCapture;
 import com.archermind.note.Utils.PreferencesHelper;
@@ -82,14 +83,14 @@ public class RegisterScreen extends Screen implements OnClickListener {
 				dismissProgress();
 				break;
 			case MessageTypes.MESSAGE_CREATEALBUM:
-				mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()
+				mAlbumObj.requestAlbumidInfo(ServiceManager
 						.getUserName());
 				break;
 			case MessageTypes.MESSAGE_GETALBUM:
 				AlbumItem[] albumItems = AlbumInfoUtil.getAlbumInfos(mAlbumObj,
 						msg.obj);
 				if (albumItems == null) {
-					mAlbumObj.createAlbum(NoteApplication.getInstance()
+					mAlbumObj.createAlbum(ServiceManager
 							.getUserName(), ALBUMNAME_AVATAR);
 					break;
 				}
@@ -100,7 +101,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 					}
 				}
 				if (albumid == -1) {
-					mAlbumObj.createAlbum(NoteApplication.getInstance()
+					mAlbumObj.createAlbum(ServiceManager
 							.getUserName(), ALBUMNAME_AVATAR);
 				} else {
 					ArrayList<String> picPath = new ArrayList<String>();
@@ -118,14 +119,13 @@ public class RegisterScreen extends Screen implements OnClickListener {
 				break;
 			case MessageTypes.MESSAGE_UPLOADPIC:
 				// 上传头像文件成功，开始执行插入数据库操作
-				String url = NoteApplication.getInstance().getUserName()
+				String url = ServiceManager.getUserName()
 						+ "&filename="
 						+ mAvatarPath
 								.substring(mAvatarPath.lastIndexOf("/") + 1)
 						+ "&album=" + ALBUMNAME_AVATAR;
 				UploadAvatarTask uploadAvatarTask = new UploadAvatarTask();
-				uploadAvatarTask.execute(String.valueOf(NoteApplication
-						.getInstance().getUserId()), url);
+				uploadAvatarTask.execute(String.valueOf(ServiceManager.getUserId()), url);
 			default:
 				break;
 			}
@@ -418,31 +418,30 @@ public class RegisterScreen extends Screen implements OnClickListener {
 						// 保存至Application
 						NoteApplication noteApplication = NoteApplication
 								.getInstance();
-						noteApplication.setUserName(jsonObject
+						ServiceManager.setUserName(jsonObject
 								.optString("email"));
-						noteApplication.setUserId(jsonObject.optInt("user_id"));
-						noteApplication.setmAvatarurl(jsonObject
+						ServiceManager.setUserId(jsonObject.optInt("user_id"));
+						ServiceManager.setmAvatarurl(jsonObject
 								.optString("portrait"));
-						noteApplication.setmNickname(jsonObject
+						ServiceManager.setmNickname(jsonObject
 								.optString("nickname"));
-						noteApplication.setmSex(jsonObject.optString("gender"));
-						noteApplication.setmRegion(jsonObject
+						ServiceManager.setmSex(jsonObject.optString("gender"));
+						ServiceManager.setmRegion(jsonObject
 								.optString("region"));
-						noteApplication.setmSina_nickname(jsonObject
+						ServiceManager.setmSina_nickname(jsonObject
 								.optString("flag_sina"));
-						noteApplication.setmQQ_nickname(jsonObject
+						ServiceManager.setmQQ_nickname(jsonObject
 								.optString("flag_qq"));
-						noteApplication.setmRenren_nickname(jsonObject
+						ServiceManager.setmRenren_nickname(jsonObject
 								.optString("flag_renren"));
-						noteApplication.setLogin(true);
+						ServiceManager.setLogin(true);
 
 						// 文件操作：上传头像文件
 						if (mAvatarPath != null) {
-							AmtApplication.setAmtUserName(NoteApplication
-									.getInstance().getUserName());
+							AmtApplication.setAmtUserName(ServiceManager.getUserName());
 							mAlbumObj = new AmtAlbumObj();
 							mAlbumObj.setHandler(mHandler);
-							mAlbumObj.createAlbum(NoteApplication.getInstance()
+							mAlbumObj.createAlbum(ServiceManager
 									.getUserName(), ALBUMNAME_AVATAR);
 							Log.i(TAG, "register sucess,start upload avatar");
 						} else {

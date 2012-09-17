@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import com.amtcloud.mobile.android.business.AmtApplication;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.Screens.LoginScreen;
+import com.archermind.note.Services.ServiceManager;
 
 import android.R.integer;
 import android.content.Context;
@@ -236,7 +237,7 @@ public class ServerInterface {
 	 // + filename
 	 // + "&mediaType=" + expandname;
 	 String url = "";
-	 url = NoteApplication.getInstance().getUserName()
+	 url = ServiceManager.getUserName()
 		+ "&filename=" + filename + "&album=" + albumname;
 		 
 		 

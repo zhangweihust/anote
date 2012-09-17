@@ -13,6 +13,7 @@ import com.amtcloud.mobile.android.business.MessageTypes;
 import com.amtcloud.mobile.android.business.AmtAlbumObj.AlbumItem;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.AlbumInfoUtil;
 import com.archermind.note.Utils.ImageCapture;
 import com.archermind.note.Utils.PreferencesHelper;
@@ -81,14 +82,14 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 				dismissProgress();
 				break;
 			case MessageTypes.MESSAGE_CREATEALBUM:
-				mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()
+				mAlbumObj.requestAlbumidInfo(ServiceManager
 						.getUserName());
 				break;
 			case MessageTypes.MESSAGE_GETALBUM:
 				AlbumItem[] albumItems = AlbumInfoUtil.getAlbumInfos(mAlbumObj,
 						msg.obj);
 				if (albumItems == null) {
-					mAlbumObj.createAlbum(NoteApplication.getInstance()
+					mAlbumObj.createAlbum(ServiceManager
 							.getUserName(), RegisterScreen.ALBUMNAME_AVATAR);
 					break;
 				}
@@ -100,7 +101,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 					}
 				}
 				if (albumid == -1) {
-					mAlbumObj.createAlbum(NoteApplication.getInstance()
+					mAlbumObj.createAlbum(ServiceManager
 							.getUserName(), RegisterScreen.ALBUMNAME_AVATAR);
 				} else {
 					ArrayList<String> picPath = new ArrayList<String>();
@@ -118,13 +119,13 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 				break;
 			case MessageTypes.MESSAGE_UPLOADPIC:
 				// 上传头像文件成功，开始执行插入数据库操作
-				String url = NoteApplication.getInstance().getUserName()
+				String url = ServiceManager.getUserName()
 						+ "&filename="
 						+ mAvatarPath
 								.substring(mAvatarPath.lastIndexOf("/") + 1)
 						+ "&album=" + RegisterScreen.ALBUMNAME_AVATAR;
 				UpdateTask updateTask = new UpdateTask();
-				updateTask.execute(String.valueOf(NoteApplication.getInstance()
+				updateTask.execute(String.valueOf(ServiceManager
 						.getUserId()), mNickname.getText().toString(), mSex
 						.getCheckedRadioButtonId() == R.id.radioMale ? "1"
 						: "2", mRegion.getText().toString(), url);
@@ -158,7 +159,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 						PreferencesHelper.XML_USER_AVATAR, null);
 			}
 		} else {
-			String avatar_url = NoteApplication.getInstance().getmAvatarurl();
+			String avatar_url = ServiceManager.getmAvatarurl();
 			if (!avatar_url.equals("")) {
 				LoadImgTask loadImgTask = new LoadImgTask();
 				loadImgTask.execute(ServerInterface.IMG_DOWADING_HEAD
@@ -177,14 +178,14 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 		mUserAvatar = (ImageView) findViewById(R.id.user_avatar);
 
 		mNickname = (EditText) findViewById(R.id.user_nickname);
-		mNickname.setText(NoteApplication.getInstance().getmNickname());
+		mNickname.setText(ServiceManager.getmNickname());
 
 		mSex = (RadioGroup) findViewById(R.id.radioGroup);
-		mSex.check(NoteApplication.getInstance().getmSex().equals("1") ? R.id.radioMale
+		mSex.check(ServiceManager.getmSex().equals("1") ? R.id.radioMale
 				: R.id.radioFemale);
 
 		mRegion = (TextView) findViewById(R.id.user_region);
-		mRegion.setText(NoteApplication.getInstance().getmRegion());
+		mRegion.setText(ServiceManager.getmRegion());
 		mRegion.setOnClickListener(this);
 
 		mConfirmButton = (Button) findViewById(R.id.confirm_change);
@@ -327,15 +328,15 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 					.show();
 			mProgressBar.setVisibility(View.VISIBLE);
 			if (ismodifyAvatar) {
-				AmtApplication.setAmtUserName(NoteApplication.getInstance()
+				AmtApplication.setAmtUserName(ServiceManager
 						.getUserName());
 				mAlbumObj = new AmtAlbumObj();
 				mAlbumObj.setHandler(mHandler);
-				mAlbumObj.requestAlbumidInfo(NoteApplication.getInstance()
+				mAlbumObj.requestAlbumidInfo(ServiceManager
 						.getUserName());
 			} else {
 				UpdateTask updateTask = new UpdateTask();
-				updateTask.execute(String.valueOf(NoteApplication.getInstance()
+				updateTask.execute(String.valueOf(ServiceManager
 						.getUserId()), mNickname.getText().toString(), mSex
 						.getCheckedRadioButtonId() == R.id.radioMale ? "1"
 						: "2", mRegion.getText().toString(), "");
@@ -369,7 +370,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 						R.string.register_err_server_internal,
 						Toast.LENGTH_SHORT).show();
 			} else if (result.equals("" + ServerInterface.COOKIES_ERROR)) {
-				NoteApplication.getInstance().setLogin(false);
+				ServiceManager.setLogin(false);
 				Toast.makeText(NoteApplication.getContext(),
 						R.string.cookies_error, Toast.LENGTH_SHORT).show();
 				Intent intent = new Intent(PersonInfoScreen.this,

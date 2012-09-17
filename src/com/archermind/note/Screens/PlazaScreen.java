@@ -74,9 +74,9 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		        mWebView.getSettings().setBuiltInZoomControls(true);
 		        mWebView.requestFocus();
 
-		        if(NoteApplication.getInstance().isLogin()){
+		        if(ServiceManager.isLogin()){
 	 		        CookieSyncManager.getInstance().startSync();
-	 		        CookieManager.getInstance().setCookie(url, "userid=" + NoteApplication.getInstance().getUserId() + ";");
+	 		        CookieManager.getInstance().setCookie(url, "userid=" + ServiceManager.getUserId() + ";");
 	 		        mWebView.clearCache(true);
 	 		        mWebView.clearHistory();
 	 		        mIsLogin = true;
@@ -133,7 +133,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 						return true;
 					}else if(message.trim().startsWith("reply")){
 					
-						if(!NoteApplication.getInstance().isLogin()){																	
+						if(!ServiceManager.isLogin()){																	
 								PlazaScreen.this.runOnUiThread(new Runnable() {									
 									@Override
 									public void run() {
@@ -206,9 +206,9 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	        }else if(NetworkUtils.getNetworkState(this) != mNetwork){
 	        	init();
 	        }else{
-        		if(NoteApplication.getInstance().isLogin()){
+        		if(ServiceManager.isLogin()){
 	 		        CookieSyncManager.getInstance().startSync();
-	 		        CookieManager.getInstance().setCookie(url, "userid=" + NoteApplication.getInstance().getUserId() + ";");
+	 		        CookieManager.getInstance().setCookie(url, "userid=" + ServiceManager.getUserId() + ";");
 	 		        mIsLogin = true;
  		        }else{
  		        	CookieSyncManager.getInstance().startSync();
@@ -233,11 +233,11 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	 	protected void onResume() {
 	 	  super.onResume();
 		 	 System.out.println("===== resume =====");
-		 	 if(NoteApplication.getInstance().isLogin() != mIsLogin){
-		 		 if(NoteApplication.getInstance().isLogin()){
+		 	 if(ServiceManager.isLogin() != mIsLogin){
+		 		 if(ServiceManager.isLogin()){
 				 		System.out.println("===== logined =====");
 				        CookieSyncManager.getInstance().startSync();
-				        CookieManager.getInstance().setCookie(url, "userid=" + NoteApplication.getInstance().getUserId() + ";");
+				        CookieManager.getInstance().setCookie(url, "userid=" + ServiceManager.getUserId() + ";");
 				        mIsLogin = true;
 				    }else{
 				    	CookieSyncManager.getInstance().startSync();

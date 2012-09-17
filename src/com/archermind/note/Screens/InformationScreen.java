@@ -263,7 +263,7 @@ public class InformationScreen extends Screen implements IXListViewListener,
 			refreshCompleted();
 			return;
 		}
-		if (!NoteApplication.getInstance().isLogin()) {
+		if (!ServiceManager.isLogin()) {
 			Toast.makeText(InformationScreen.this, R.string.no_login_info,
 					Toast.LENGTH_SHORT).show();
 			refreshCompleted();
@@ -275,7 +275,7 @@ public class InformationScreen extends Screen implements IXListViewListener,
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				int userid = NoteApplication.getInstance().getUserId();
+				int userid = ServiceManager.getUserId();
 				String result = null;
 				if (mInformationAdapter.getLatestTime() == 0) {
 					result = ServerInterface.getReplyFromUser(userid,
@@ -289,7 +289,7 @@ public class InformationScreen extends Screen implements IXListViewListener,
 				}
 				if (result != null
 						&& result == ServerInterface.COOKIES_ERROR + "") {
-					NoteApplication.getInstance().setLogin(false);
+					ServiceManager.setLogin(false);
 					Toast.makeText(InformationScreen.this,
 							R.string.cookies_error, Toast.LENGTH_SHORT).show();
 					Intent intent = new Intent();
@@ -332,7 +332,7 @@ public class InformationScreen extends Screen implements IXListViewListener,
 			moreCompleted();
 			return;
 		}
-		if (!NoteApplication.getInstance().isLogin()) {
+		if (!ServiceManager.isLogin()) {
 			Toast.makeText(InformationScreen.this, R.string.no_login_info,
 					Toast.LENGTH_SHORT).show();
 			moreCompleted();
@@ -346,13 +346,13 @@ public class InformationScreen extends Screen implements IXListViewListener,
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				int userid = NoteApplication.getInstance().getUserId();
+				int userid = ServiceManager.getUserId();
 				String result = ServerInterface.getReplyFromUser(userid,
 						mInformationAdapter.getEarlistTime(), -PER_FRESH_COUNT);
 				listdata = new ArrayList<InformationData>();
 				if (result != null
 						&& result == ServerInterface.COOKIES_ERROR + "") {
-					NoteApplication.getInstance().setLogin(false);
+					ServiceManager.setLogin(false);
 					Toast.makeText(InformationScreen.this,
 							R.string.cookies_error, Toast.LENGTH_SHORT).show();
 					Intent intent = new Intent();

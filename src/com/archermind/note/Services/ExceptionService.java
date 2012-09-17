@@ -68,8 +68,8 @@ public class ExceptionService implements IService {
 			infos.put("phoneModel", phoneModel);
 		 
 			DisplayMetrics dm=new DisplayMetrics();
-			if(NoteApplication.getInstance().getWindowManager() != null){	
-				NoteApplication.getInstance().getWindowManager().getDefaultDisplay()
+			if(ServiceManager.getWindowManager() != null){	
+				ServiceManager.getWindowManager().getDefaultDisplay()
 					.getMetrics(dm);
 				float width = dm.widthPixels;
 				float height = dm.heightPixels;

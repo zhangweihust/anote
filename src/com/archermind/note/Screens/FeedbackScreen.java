@@ -2,6 +2,7 @@ package com.archermind.note.Screens;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.ServerInterface;
 
@@ -88,7 +89,7 @@ public class FeedbackScreen extends Screen implements OnClickListener {
 							Toast.makeText(NoteApplication.getContext(),
 									R.string.network_none, Toast.LENGTH_SHORT).show();
 					} else{
-						String result = ServerInterface.suggestionfeedback(NoteApplication.getInstance()
+						String result = ServerInterface.suggestionfeedback(ServiceManager
 										.getUserId()+"", "", strFeedbackContent);
 						if(result.equals("" + ServerInterface.SUCCESS)){
 							Toast.makeText(NoteApplication.getContext(),
