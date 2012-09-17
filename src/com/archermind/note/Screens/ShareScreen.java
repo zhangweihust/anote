@@ -152,13 +152,10 @@ public class ShareScreen extends Screen implements OnClickListener {
 		if (mPicPathList != null) {
 			mPicnameList = new ArrayList<String>();
 			for (String s : mPicPathList) {
-				Log.i(TAG, "图片本地路径：" + s);
+				Log.i(TAG, "上传文件路径：" + s);
 				mPicnameList.add(s.substring(s.lastIndexOf("/") + 1));
 			}
 		}
-		// test
-		mPicPathList.add("/mnt/sdcard/aNote/diary/diary_1347526872085");
-		mPicnameList.add("diary_1347526872085.dat");
 
 		mBackButton = (Button) findViewById(R.id.screen_top_play_control_back);
 		mBackButton.setOnClickListener(this);
