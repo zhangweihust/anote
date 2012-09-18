@@ -1,16 +1,11 @@
 package com.archermind.note.Screens;
 
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -47,6 +42,24 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	public static final EventService eventService = ServiceManager
 			.getEventservice();
 	private JsResult mResult = null;
+	
+	private Handler mHandler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			dismissLoadingProgress();
+			String filePath = msg.getData().getString("filepath");
+			if(filePath != null && !filePath.equals("")){
+				System.out.println("filePath: " + filePath);				
+				Intent intent = new Intent();
+				intent.setClass(PlazaScreen.this, EditNoteScreen.class);
+				intent.putExtra("filePath", filePath);
+				PlazaScreen.this.startActivity(intent);
+		}
+	}
+	};
+
 	
 	
 		@SuppressLint("SetJavaScriptEnabled")
@@ -167,7 +180,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 					}else if(message.trim().startsWith("note")){
 						final String nid = message.trim().substring(message.trim().indexOf(":")+1);
 						System.out.println("====nid===" + nid + ", " + message);
-						String r = ServerInterface.getDiary("44");
+						final String r = ServerInterface.getDiary(nid);
 						if(r != null){
 							if(r.equals(ServerInterface.COOKIES_ERROR+"")){
 								showToast(R.string.cookies_error);
@@ -176,23 +189,35 @@ public class PlazaScreen extends Screen implements IEventHandler{
 								showToast(R.string.notfound);
 							}else {
 								if(r.contains("filename")){
-									try{
-									String filename = r.substring(0, r.lastIndexOf("&"));
-									filename = filename.substring(filename.lastIndexOf("=")+1); 
-									System.out.println(filename);
-									String filePath = NoteApplication.downloadPath + filename;
-									if(filename!=null && !filename.equals("") && HttpUtils.DownloadFile(r, filePath) == 0 ){
-										Intent intent = new Intent();
-										intent.setClass(PlazaScreen.this, EditNoteScreen.class);
-										intent.putExtra("filepath", filePath);
-										PlazaScreen.this.startActivity(intent);
-									}
-									}catch (Exception e) {
-										// TODO: handle exception
-									}
+									   showLoadingProgress();
+										new Thread(new Runnable() {
+											public void run() {
+												try{
+												String filename = r.substring(0, r.lastIndexOf("&"));
+												filename = filename.substring(filename.lastIndexOf("=")+1); 
+												System.out.println(filename);
+												String filePath = NoteApplication.downloadPath + filename;
+												if(filename!=null && !filename.equals("") && HttpUtils.DownloadFile(r, filePath) == 0 ){
+													Message msg = new Message();
+													 Bundle b = new Bundle();// 存放数据
+											         b.putString("filepath", filePath);
+											         msg.setData(b);
+													 mHandler.sendMessage(msg);
+												}else{
+													mHandler.sendEmptyMessage(0);
+												}
+												}catch (Exception e) {
+													// TODO: handle exception
+													mHandler.sendEmptyMessage(0);
+												}
+											}
+										}).start();
+									
+									
 								}
 							}
-					    }				
+					    }		
+						//dismissLoadingProgress();
 						result.confirm();
 						return true;
 					}else if(message.trim().equals("startload")){
@@ -399,28 +424,6 @@ public class PlazaScreen extends Screen implements IEventHandler{
 				}
 			});
 		}
-		
-
-		
-		public static boolean saveUrlAs(String path, String fileName) {
-			//此方法只能用户HTTP协议
-			    try {
-			      URL url = new URL(path);
-			      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			      DataInputStream in = new DataInputStream(connection.getInputStream());
-			      DataOutputStream out = new DataOutputStream(new FileOutputStream(fileName));
-			      byte[] buffer = new byte[4096];
-			      int count = 0;
-			      while ((count = in.read(buffer)) > 0) {
-			    	  out.write(buffer, 0, count);
-			      	}
-			      out.close();
-			      in.close();
-			      return true;
-			    }catch (Exception e) {
-			    	return false;
-				}
-			}
 
 		@Override
 		protected void onActivityResult(int requestCode, int resultCode,
