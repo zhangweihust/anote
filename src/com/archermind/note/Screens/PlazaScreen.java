@@ -95,7 +95,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		        if(ServiceManager.isLogin()){
 	 		        CookieSyncManager.getInstance().startSync();
 	 		        CookieManager.getInstance().setCookie(url, "userid=" + ServiceManager.getUserId() + ";");
-	 		        mWebView.clearCache(true);
+	 		        //mWebView.clearCache(true);
 	 		        mWebView.clearHistory();
 	 		        mIsLogin = true;
 	 		    }else{
@@ -164,6 +164,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 							result.confirm();
 							return true;
 						}
+						System.out.println("===== after =====");
 						String nid = message.trim().substring(message.trim().indexOf(":")+1);
 						Intent intent = new Intent();
 						intent.setClass(PlazaScreen.this, NoteReplyScreen.class);
@@ -234,20 +235,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		       });
 		    	           
 		        mWebView.loadUrl(url);
-		        
-		        mWebView.setOnTouchListener(new OnTouchListener() {
-					
-					@Override
-					public boolean onTouch(View arg0, MotionEvent arg1) {
-						// TODO Auto-generated method stub
-						
-						if(arg1.equals(MotionEvent.ACTION_MOVE)){
-						System.out.println("montion Event" + arg1);
-						}
-						return false;
-					}
-				});
-		        
+		         
 		        
 		}
 		@Override
@@ -287,6 +275,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	 
 	 	public  void refresh(){
 	 		System.out.println("===refresh===" + mNetwork);
+	 		showToast(R.string.refreshing);
 	 	    if(NetworkUtils.getNetworkState(this) == NetworkUtils.NETWORN_NONE){
 	 	    	showToast(R.string.network_none);
 	        	mTextView.setVisibility(View.VISIBLE);
@@ -332,6 +321,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		     }
 		 	 
 		 	 if(ServiceManager.isLogin() != mIsLogin){
+		 		showToast(R.string.refreshing);
 		 		 if(ServiceManager.isLogin()){
 				 		System.out.println("===== logined =====");
 				        CookieSyncManager.getInstance().startSync();
