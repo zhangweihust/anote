@@ -128,11 +128,6 @@ public class HttpUtils {
 						String strResult = EntityUtils.toString(
 								response.getEntity(), HTTP.UTF_8);
 						Log.e("HttpUtils", "strResult:" + strResult);
-						if (strResult.equals("-600")) {
-							ServiceManager.setLogin(false);
-							Toast.makeText(NoteApplication.getContext(),
-									R.string.cookies_error, Toast.LENGTH_SHORT).show();
-						}
 						return strResult;
 					}
 				}

@@ -690,6 +690,8 @@
 	<string name="cancel">取消</string>
 	<string name="refresh">刷新</string>
 	<string name="no_note_curmonth">这个月没有写笔迹哦</string>
+	<string name="refreshing">加载中...</string>
+	<string name="notfound">抱歉，未找到此笔记</string>
 	
 	<string name="photo_upload_title">图片上传</string>
 	<string name="photo_upload_failed">上传失败</string>

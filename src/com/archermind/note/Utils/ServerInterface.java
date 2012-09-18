@@ -59,7 +59,8 @@ public class ServerInterface {
 			+ "ci/index.php/anote/setClientInfo";
 	public static final String URL_USERACTIVEINFO = URL_SERVER
 			+ "ci/index.php/anote/setUserActionInfo";
-	public static final String URL_NOTEREPLY= URL_SERVER + "ci/index.php/anote/setReply";
+	public static final String URL_NOTEREPLY = URL_SERVER + "ci/index.php/anote/setReply";
+	public static final String URL_GET_DIARY = URL_SERVER + "ci/index.php/anote/getDiary";
 	// "http://219.138.163.58/"
 
 	public static final int SUCCESS = 0;
@@ -349,10 +350,11 @@ public class ServerInterface {
 		int result = 0;
 		try {
 			result = Integer.parseInt(ret);
-		} catch (Exception e) {
-			result = -3;
-		}
+			} catch (Exception e) {
+			 result = -3;
+			}
 		return result;
+		
 	}
 
 	/**
@@ -373,5 +375,14 @@ public class ServerInterface {
 		map.put("nid", nid);
 		map.put("content", content);
 		return HttpUtils.doPost(map, URL_NOTEREPLY);
+	}
+	
+	/**
+	 * 获取笔记源文件zip包
+	 */
+	public static String getDiary(String nid){
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("nid", nid);
+		return HttpUtils.doPost(map, URL_GET_DIARY);
 	}
 }

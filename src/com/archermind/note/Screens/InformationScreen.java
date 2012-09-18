@@ -86,6 +86,7 @@ public class InformationScreen extends Screen implements IXListViewListener,
 				break;
 			case ON_LoadData:
 				mInformationAdapter.addPreData(malInformations);
+				mxlvInformation.setSelection(1);
 				if (mInformationAdapter.isEmpty()) {
 					mInformationAdapter.setNoInformationPrompt(System
 							.currentTimeMillis());
@@ -278,6 +279,7 @@ public class InformationScreen extends Screen implements IXListViewListener,
 				int userid = ServiceManager.getUserId();
 				String result = null;
 				if (mInformationAdapter.getLatestTime() == 0) {
+					System.out.println("");
 					result = ServerInterface.getReplyFromUser(userid,
 							mInformationAdapter.getLatestTime(),
 							PER_FRESH_COUNT);
@@ -288,10 +290,18 @@ public class InformationScreen extends Screen implements IXListViewListener,
 							mInformationAdapter.getLatestTime(), 1000);
 				}
 				if (result != null
-						&& result == ServerInterface.COOKIES_ERROR + "") {
+						&& result.equals(ServerInterface.COOKIES_ERROR + "")) {
 					ServiceManager.setLogin(false);
-					Toast.makeText(InformationScreen.this,
-							R.string.cookies_error, Toast.LENGTH_SHORT).show();
+					InformationScreen.this.runOnUiThread(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							Toast.makeText(InformationScreen.this,
+									R.string.cookies_error, Toast.LENGTH_SHORT).show();
+						}
+					});
+					
 					Intent intent = new Intent();
 					intent.setClass(InformationScreen.this, LoginScreen.class);
 					InformationScreen.this.startActivity(intent);
@@ -351,7 +361,7 @@ public class InformationScreen extends Screen implements IXListViewListener,
 						mInformationAdapter.getEarlistTime(), -PER_FRESH_COUNT);
 				listdata = new ArrayList<InformationData>();
 				if (result != null
-						&& result == ServerInterface.COOKIES_ERROR + "") {
+						&& result.equals(ServerInterface.COOKIES_ERROR + "")) {
 					ServiceManager.setLogin(false);
 					Toast.makeText(InformationScreen.this,
 							R.string.cookies_error, Toast.LENGTH_SHORT).show();

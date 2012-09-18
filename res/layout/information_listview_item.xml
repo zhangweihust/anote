@@ -9,8 +9,8 @@
         android:layout_width="72dip"
 		android:layout_height="72dip"
 		android:src="@drawable/default_photo"
+		android:layout_margin="8dip"
 		android:scaleType="fitCenter"
-		android:padding="8dip"
         />
     <LinearLayout 
         android:layout_width="fill_parent"
@@ -31,7 +31,6 @@
         android:layout_height="wrap_content"
         android:textColor="@color/note_title_color"
         android:textSize="@dimen/home_screen_note_title_text_size"
-        android:text="回复：slslslsllsls"
         android:singleLine="true"
         android:ellipsize="end"
         />
@@ -41,7 +40,6 @@
         android:layout_height="wrap_content"
         android:textColor="@color/information_content_text_color"
         android:textSize="@dimen/home_screen_note_title_text_size"
-        android:text="slslslsllsls"
         />
     <TextView 
         android:id="@+id/tv_time"
@@ -50,7 +48,6 @@
         android:layout_gravity="right"
         android:textColor="@color/note_time_color"
         android:textSize="@dimen/home_screen_note_time_info_text_size"
-        android:text="10:00 am"
         />
 	</LinearLayout>
 </LinearLayout>
