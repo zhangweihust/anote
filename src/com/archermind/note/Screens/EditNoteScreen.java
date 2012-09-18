@@ -929,6 +929,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			    if (isRemoveEdit) {
 				    FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
 				    fl.addView(myEdit);
+				    isRemoveEdit = false;
 			    }
 			} else {
 				FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
@@ -2517,6 +2518,9 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	}
 	
 	private void comPressBmp(Bitmap bmp,String fileName) {
+		if (bmp == null || bmp.isRecycled()) {
+			return;
+		}
 		File file = new File(preffix + "pic/" + fileName);
 		if (!file.getParentFile().exists()) {
 			file.getParentFile().mkdir();
@@ -2529,6 +2533,8 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 			bmp.compress(Bitmap.CompressFormat.JPEG, 80, bos);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
