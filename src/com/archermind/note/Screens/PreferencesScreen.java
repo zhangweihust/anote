@@ -1,6 +1,7 @@
 package com.archermind.note.Screens;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,12 +9,14 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.archermind.note.NoteApplication;
@@ -21,6 +24,7 @@ import com.archermind.note.R;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;
+import com.archermind.note.Views.CustomDialog;
 
 public class PreferencesScreen extends Screen implements OnClickListener {
 
@@ -142,23 +146,47 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 	}
 	
 	private void showLogoutDialog(){
-		new AlertDialog.Builder(this)
-		.setTitle(R.string.logout_title)
-		.setPositiveButton(R.string.setting_ok, new DialogInterface.OnClickListener() {
-
+//		new AlertDialog.Builder(this)
+//		.setTitle(R.string.logout_title)
+//		.setPositiveButton(R.string.setting_ok, new DialogInterface.OnClickListener() {
+//
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				ServiceManager.setLogin(false);
+//				mLoginButton.setVisibility(View.VISIBLE);
+//				mLogoutButton.setVisibility(View.GONE);
+//			}
+//		})
+//		.setNegativeButton(R.string.setting_cancel, new DialogInterface.OnClickListener() {
+//
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//
+//			}
+//		}).create().show();
+		final Dialog dialog = new Dialog(this, R.style.CornerDialog);
+		dialog.setContentView(R.layout.dialog_ok_cancel);
+		TextView titleView = (TextView) dialog.findViewById(R.id.dialog_title);
+		titleView.setText(R.string.dialog_title_logout);
+		Button btn_ok = (Button) dialog.findViewById(R.id.dialog_btn_ok);
+		btn_ok.setOnClickListener(new OnClickListener() {
+			
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
+			public void onClick(View v) {
 				ServiceManager.setLogin(false);
 				mLoginButton.setVisibility(View.VISIBLE);
 				mLogoutButton.setVisibility(View.GONE);
+				dialog.dismiss();
 			}
-		})
-		.setNegativeButton(R.string.setting_cancel, new DialogInterface.OnClickListener() {
-
+		});
+		Button btn_cancel = (Button) dialog.findViewById(R.id.dialog_btn_cancel);
+		btn_cancel.setOnClickListener(new OnClickListener() {
+			
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
-
+			public void onClick(View v) {
+				dialog.dismiss();
 			}
-		}).create().show();
+		});
+		dialog.show();
 	}
 }

@@ -88,5 +88,10 @@
 	<dimen name="kmedia_dialog_line_layout_marginTop">18dp</dimen> 
 	<dimen name="kmedia_dialog_line_layout_marginBottom">11dp</dimen> 
 	<dimen name="kmedia_dialog_button_textSize">18dp</dimen> 
+	
+	<!-- dialog -->
+	<dimen name="dialog_title">18sp</dimen>
+	<dimen name="dialog_btn">16sp</dimen>
+	<dimen name="dialog_items">16sp</dimen>
 </resources>
 

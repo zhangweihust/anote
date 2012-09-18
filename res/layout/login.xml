@@ -118,7 +118,7 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="32dp"
+        android:layout_margin="28dp"
         android:background="@drawable/login_edit_background"
         android:orientation="vertical" >
 
@@ -153,8 +153,8 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="32dp"
-        android:layout_marginRight="32dp"
+        android:layout_marginLeft="28dp"
+        android:layout_marginRight="28dp"
         android:layout_marginTop="-12dp"
         android:orientation="vertical" >
 
@@ -171,6 +171,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:orientation="horizontal" >
 
             <CheckBox

@@ -68,11 +68,10 @@
     <string name="account_bound_success_sina">现在你也可以使用新浪账号登录"分享笔迹"啦！</string>
     <string name="account_bound_success_qq">现在你也可以使用QQ账号登录"分享笔迹"啦！</string>
     <string name="account_bound_success_renren">现在你也可以使用人人账号登录"分享笔迹"啦！</string>
-    <string name="account_bound_sina_none">您还没没有绑定新浪账号，请先进行绑定！</string>
-    <string name="account_bound_qq_none">您还没没有绑定QQ账号，请先进行绑定！</string>
-    <string name="account_bound_renren_none">您还没没有绑定人人账号，请先进行绑定！</string>
-    <string name="setting_ok">确定</string>
-    <string name="setting_cancel">取消</string>
+    <string name="account_bound_sina_none">您还没有绑定新浪账号哦！</string>
+    <string name="account_bound_qq_none">您还没有绑定QQ账号哦！</string>
+    <string name="account_bound_renren_none">您还没有绑定人人账号哦！</string>
+
     <string name="setting_tips">提示</string>
     <string name="no_login_info">请先登录</string>
     <string name="network_none">无法连接到网络，请检查网络设置！</string>
@@ -166,6 +165,17 @@
     <string name="register_success">注册成功！</string>
     <string name="register_failed">呃，注册失败了！再试一次吧！</string>
     <string name="register_success_upload_photo_failed">注册成功！但头像上传失败！</string>
+    
+    <!-- dialog -->
+    <string name="dialog_ok">确定</string>
+    <string name="dialog_cancel">取消</string>
+    <string name="dialog_title_logout">确定退出登录？</string>
+    <string name="dialog_title_select">请选择</string>
+    <string name="dialog_item_txt_share">分享</string>
+    <string name="dialog_item_txt_sign">添加标记</string>
+    <string name="dialog_item_txt_unsign">取消标记</string>
+    <string name="dialog_item_txt_delete">删除</string>
+    <string name="dialog_title_delete">确定删除该笔迹？</string>
     
     <!-- about -->
     <string name="about_title">关于</string>

@@ -32,6 +32,20 @@
 		<item name="android:windowBackground">@null</item>
     </style>
     
+    <style name="CornerDialog" parent="@android:Theme.Dialog">
+		<item name="android:windowFrame">@null</item>
+		<!--边框-->
+		<item name="android:windowIsFloating">true</item>
+		<!--是否浮现在activity之上-->
+		<item name="android:windowIsTranslucent">true</item>
+		<!--半透明-->
+		<item name="android:windowNoTitle">true</item>
+		<!--无标题-->
+		<item name="android:backgroundDimEnabled">true</item>
+		<!--模糊-->
+		<item name="android:windowBackground">@drawable/dialog_shape</item>
+    </style>
+    
     <style name="noTitleDialog" parent="@android:Theme.Dialog">
         <item name="android:windowNoTitle">true</item>
     </style>

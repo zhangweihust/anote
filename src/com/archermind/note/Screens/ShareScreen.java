@@ -39,6 +39,7 @@ import com.weibo.net.WeiboParameters;
 
 import android.R.integer;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -94,15 +95,14 @@ public class ShareScreen extends Screen implements OnClickListener {
 				mReuploadButton.setVisibility(View.VISIBLE);
 				break;
 			case MessageTypes.MESSAGE_CREATEALBUM:
-				mAlbumObj.requestAlbumidInfo(ServiceManager
-						.getUserName());
+				mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
 				break;
 			case MessageTypes.MESSAGE_GETALBUM:
 				AlbumItem[] albumItems = AlbumInfoUtil.getAlbumInfos(mAlbumObj,
 						msg.obj);
 				if (albumItems == null) {
-					mAlbumObj.createAlbum(ServiceManager
-							.getUserName(), ALBUMNAME_SHARE);
+					mAlbumObj.createAlbum(ServiceManager.getUserName(),
+							ALBUMNAME_SHARE);
 					break;
 				}
 				int albumid = -1;
@@ -112,8 +112,8 @@ public class ShareScreen extends Screen implements OnClickListener {
 					}
 				}
 				if (albumid == -1) {
-					mAlbumObj.createAlbum(ServiceManager
-							.getUserName(), ALBUMNAME_SHARE);
+					mAlbumObj.createAlbum(ServiceManager.getUserName(),
+							ALBUMNAME_SHARE);
 				} else {
 					if (mPicPathList == null) {
 						dismssProgressBar(R.string.share_failed, false);
@@ -226,22 +226,20 @@ public class ShareScreen extends Screen implements OnClickListener {
 			if (mPicPathList.size() < 2) {
 				return "failed"; // 至少应该包含一个图片路径和压缩包路径，所以size >=2
 			}
-			String fristPicUrl = ServiceManager.getUserName()
-					+ "&filename=" + mPicnameList.get(0) + "&album="
-					+ ALBUMNAME_SHARE;
+			String fristPicUrl = ServiceManager.getUserName() + "&filename="
+					+ mPicnameList.get(0) + "&album=" + ALBUMNAME_SHARE;
 			imgurl_renren = ServerInterface.IMG_DOWADING_HEAD + fristPicUrl;
 			Log.i(TAG, "分享的笔记第一张图片url： " + fristPicUrl);
 
-			String contentUrl = ServiceManager.getUserName()
-					+ "&filename=" + mPicnameList.get(mPicnameList.size() - 1)
-					+ "&album=" + ALBUMNAME_SHARE;
+			String contentUrl = ServiceManager.getUserName() + "&filename="
+					+ mPicnameList.get(mPicnameList.size() - 1) + "&album="
+					+ ALBUMNAME_SHARE;
 			Log.i(TAG, "分享的笔记压缩包url： " + contentUrl);
 
 			int serviceId = ServerInterface.uploadNote(
 					Long.parseLong(params[0]),
-					String.valueOf(ServiceManager.getUserId()),
-					params[3], params[2], params[1], fristPicUrl + ","
-							+ contentUrl + ",",
+					String.valueOf(ServiceManager.getUserId()), params[3],
+					params[2], params[1], fristPicUrl + "," + contentUrl + ",",
 					String.valueOf(mPicnameList.size() - 1));
 			if (serviceId == ServerInterface.COOKIES_ERROR) {
 				return "cookies_error";
@@ -288,8 +286,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 							.getString((cursor
 									.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID)));
 					cursor.close();
-					mTextView.append("?id="
-							+ ServiceManager.getUserId()
+					mTextView.append("?id=" + ServiceManager.getUserId()
 							+ "&nid=" + sid);
 				}
 				// 随机动画
@@ -336,12 +333,10 @@ public class ShareScreen extends Screen implements OnClickListener {
 	private void uploadNotePic() {
 		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
 			showProgressBar(R.string.share_msg_square);
-			AmtApplication.setAmtUserName(ServiceManager
-					.getUserName());
+			AmtApplication.setAmtUserName(ServiceManager.getUserName());
 			mAlbumObj = new AmtAlbumObj();
 			mAlbumObj.setHandler(mHandler);
-			mAlbumObj.requestAlbumidInfo(ServiceManager
-					.getUserName());
+			mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
 		} else {
 			dismssProgressBar(R.string.network_none, false);
 			mReuploadButton.setVisibility(View.VISIBLE);
@@ -633,38 +628,89 @@ public class ShareScreen extends Screen implements OnClickListener {
 	}
 
 	private void showLoginAlertDialog(int id) {
-		new AlertDialog.Builder(ShareScreen.this)
-				.setTitle(R.string.setting_tips)
-				.setMessage(id)
-				.setPositiveButton(R.string.login_relogin,
-						new DialogInterface.OnClickListener() {
+		// new AlertDialog.Builder(ShareScreen.this)
+		// .setTitle(R.string.setting_tips)
+		// .setMessage(id)
+		// .setPositiveButton(R.string.login_relogin,
+		// new DialogInterface.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(DialogInterface dialog,
+		// int which) {
+		// Intent intent = new Intent(ShareScreen.this,
+		// LoginScreen.class);
+		// startActivity(intent);
+		// }
+		// }).setNegativeButton(R.string.setting_cancel, null)
+		// .create().show();
+		final Dialog dialog = new Dialog(this, R.style.CornerDialog);
+		dialog.setContentView(R.layout.dialog_ok_cancel);
+		TextView titleView = (TextView) dialog.findViewById(R.id.dialog_title);
+		titleView.setText(id);
+		Button btn_ok = (Button) dialog.findViewById(R.id.dialog_btn_ok);
+		btn_ok.setText(R.string.login_relogin);
+		btn_ok.setOnClickListener(new OnClickListener() {
 
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								Intent intent = new Intent(ShareScreen.this,
-										LoginScreen.class);
-								startActivity(intent);
-							}
-						}).setNegativeButton(R.string.setting_cancel, null)
-				.create().show();
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(ShareScreen.this, LoginScreen.class);
+				startActivity(intent);
+				dialog.dismiss();
+			}
+		});
+		Button btn_cancel = (Button) dialog
+				.findViewById(R.id.dialog_btn_cancel);
+		btn_cancel.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				dialog.dismiss();
+			}
+		});
+		dialog.show();
 	}
 
 	private void showBoundAlertDialog(int id) {
-		new AlertDialog.Builder(ShareScreen.this)
-				.setTitle(R.string.setting_tips)
-				.setMessage(id)
-				.setPositiveButton(R.string.share_dialog_bound,
-						new DialogInterface.OnClickListener() {
+		// new AlertDialog.Builder(ShareScreen.this)
+		// .setTitle(R.string.setting_tips)
+		// .setMessage(id)
+		// .setPositiveButton(R.string.share_dialog_bound,
+		// new DialogInterface.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(DialogInterface dialog,
+		// int which) {
+		// Intent intent = new Intent(ShareScreen.this,
+		// AccountScreen.class);
+		// startActivity(intent);
+		// }
+		// }).setNegativeButton(R.string.setting_cancel, null)
+		// .create().show();
+		final Dialog dialog = new Dialog(this, R.style.CornerDialog);
+		dialog.setContentView(R.layout.dialog_ok_cancel);
+		TextView titleView = (TextView) dialog.findViewById(R.id.dialog_title);
+		titleView.setText(id);
+		Button btn_ok = (Button) dialog.findViewById(R.id.dialog_btn_ok);
+		btn_ok.setText(R.string.share_dialog_bound);
+		btn_ok.setOnClickListener(new OnClickListener() {
 
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								Intent intent = new Intent(ShareScreen.this,
-										AccountScreen.class);
-								startActivity(intent);
-							}
-						}).setNegativeButton(R.string.setting_cancel, null)
-				.create().show();
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(ShareScreen.this,
+						AccountScreen.class);
+				startActivity(intent);
+				dialog.dismiss();
+			}
+		});
+		Button btn_cancel = (Button) dialog
+				.findViewById(R.id.dialog_btn_cancel);
+		btn_cancel.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				dialog.dismiss();
+			}
+		});
+		dialog.show();
 	}
 }

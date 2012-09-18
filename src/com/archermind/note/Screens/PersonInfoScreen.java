@@ -22,6 +22,7 @@ import com.archermind.note.crop.CropImage;
 
 import android.R.integer;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -39,6 +40,8 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -86,15 +89,14 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 				dismissProgress();
 				break;
 			case MessageTypes.MESSAGE_CREATEALBUM:
-				mAlbumObj.requestAlbumidInfo(ServiceManager
-						.getUserName());
+				mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
 				break;
 			case MessageTypes.MESSAGE_GETALBUM:
 				AlbumItem[] albumItems = AlbumInfoUtil.getAlbumInfos(mAlbumObj,
 						msg.obj);
 				if (albumItems == null) {
-					mAlbumObj.createAlbum(ServiceManager
-							.getUserName(), RegisterScreen.ALBUMNAME_AVATAR);
+					mAlbumObj.createAlbum(ServiceManager.getUserName(),
+							RegisterScreen.ALBUMNAME_AVATAR);
 					break;
 				}
 				int albumid = -1;
@@ -105,17 +107,18 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 					}
 				}
 				if (albumid == -1) {
-					mAlbumObj.createAlbum(ServiceManager
-							.getUserName(), RegisterScreen.ALBUMNAME_AVATAR);
+					mAlbumObj.createAlbum(ServiceManager.getUserName(),
+							RegisterScreen.ALBUMNAME_AVATAR);
 				} else {
 					// 先保存本地头像，然后上传文件
 					ByteArrayOutputStream stream = new ByteArrayOutputStream();
-					mAvatarBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+					mAvatarBitmap.compress(Bitmap.CompressFormat.PNG, 100,
+							stream);
 					byte[] b = stream.toByteArray();
 					mImgCapture.storeImage(b, null, Bitmap.CompressFormat.PNG);
 					mAvatarPath = getFilepathFromUri(mImgCapture
 							.getLastCaptureUri());
-					
+
 					ArrayList<String> picPath = new ArrayList<String>();
 					picPath.add(mAvatarPath);
 					ArrayList<String> picNames = new ArrayList<String>();
@@ -125,18 +128,18 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 					Log.i(TAG, "albumid：" + albumid);
 				}
 				break;
-			case MessageTypes.MESSAGE_UPLOADPIC:// 上传头像文件成功		
-				//开始执行插入数据库操作
+			case MessageTypes.MESSAGE_UPLOADPIC:// 上传头像文件成功
+				// 开始执行插入数据库操作
 				String url = ServiceManager.getUserName()
 						+ "&filename="
 						+ mAvatarPath
 								.substring(mAvatarPath.lastIndexOf("/") + 1)
 						+ "&album=" + RegisterScreen.ALBUMNAME_AVATAR;
 				UpdateTask updateTask = new UpdateTask();
-				updateTask.execute(String.valueOf(ServiceManager
-						.getUserId()), mNickname.getText().toString(), mSex
-						.getCheckedRadioButtonId() == R.id.radioMale ? "1"
-						: "2", mRegion.getText().toString(), url);
+				updateTask.execute(String.valueOf(ServiceManager.getUserId()),
+						mNickname.getText().toString(),
+						mSex.getCheckedRadioButtonId() == R.id.radioMale ? "1"
+								: "2", mRegion.getText().toString(), url);
 			default:
 				break;
 			}
@@ -199,7 +202,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 		mSex.check(ServiceManager.getmSex().equals("1") ? R.id.radioMale
 				: R.id.radioFemale);
 		mSex.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
+
 			@Override
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
 				mConfirmButton.setEnabled(true);
@@ -321,26 +324,47 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 	}
 
 	private void showSelImageDialog() {
-		new AlertDialog.Builder(this)
-				.setTitle(R.string.msg_img_source)
-				.setNeutralButton(R.string.btn_img_source_camera,
-						new DialogInterface.OnClickListener() {
+		// new AlertDialog.Builder(this)
+		// .setTitle(R.string.msg_img_source)
+		// .setNeutralButton(R.string.btn_img_source_camera,
+		// new DialogInterface.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(DialogInterface dialog,
+		// int which) {
+		// getNewImageFromCamera();
+		// }
+		// })
+		// .setNegativeButton(R.string.btn_img_source_local,
+		// new DialogInterface.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(DialogInterface dialog,
+		// int which) {
+		// getNewImageFromLocal();
+		// }
+		// }).show();
+		final Dialog dialog = new Dialog(this, R.style.CornerDialog);
+		dialog.setContentView(R.layout.dialog_pic_source);
+		TextView cameraView = (TextView) dialog
+				.findViewById(R.id.dialog_item_camera);
+		cameraView.setOnClickListener(new OnClickListener() {
 
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								getNewImageFromCamera();
-							}
-						})
-				.setNegativeButton(R.string.btn_img_source_local,
-						new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				getNewImageFromCamera();
+			}
+		});
+		TextView localView = (TextView) dialog
+				.findViewById(R.id.dialog_item_local);
+		localView.setOnClickListener(new OnClickListener() {
 
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								getNewImageFromLocal();
-							}
-						}).show();
+			@Override
+			public void onClick(View v) {
+				getNewImageFromLocal();
+			}
+		});
+		dialog.show();
 	}
 
 	@Override
@@ -359,18 +383,16 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 					.show();
 			mProgressBar.setVisibility(View.VISIBLE);
 			if (ismodifyAvatar) {
-				AmtApplication.setAmtUserName(ServiceManager
-						.getUserName());
+				AmtApplication.setAmtUserName(ServiceManager.getUserName());
 				mAlbumObj = new AmtAlbumObj();
 				mAlbumObj.setHandler(mHandler);
-				mAlbumObj.requestAlbumidInfo(ServiceManager
-						.getUserName());
+				mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
 			} else {
 				UpdateTask updateTask = new UpdateTask();
-				updateTask.execute(String.valueOf(ServiceManager
-						.getUserId()), mNickname.getText().toString(), mSex
-						.getCheckedRadioButtonId() == R.id.radioMale ? "1"
-						: "2", mRegion.getText().toString(), "");
+				updateTask.execute(String.valueOf(ServiceManager.getUserId()),
+						mNickname.getText().toString(),
+						mSex.getCheckedRadioButtonId() == R.id.radioMale ? "1"
+								: "2", mRegion.getText().toString(), "");
 			}
 			break;
 		case R.id.screen_top_play_control_back:
@@ -380,20 +402,20 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 			break;
 		}
 	}
-	
-	class myTextWatcher implements TextWatcher{
+
+	class myTextWatcher implements TextWatcher {
 
 		@Override
 		public void afterTextChanged(Editable s) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void beforeTextChanged(CharSequence s, int start, int count,
 				int after) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -401,7 +423,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 				int count) {
 			mConfirmButton.setEnabled(true);
 		}
-		
+
 	}
 
 	/*
@@ -436,6 +458,11 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 				if (ismodifyAvatar) {
 					PreferencesHelper.UpdateAvatar(PersonInfoScreen.this, "",
 							mAvatarPath);
+					ServiceManager.setmNickname(mNickname.getText().toString());
+					ServiceManager
+							.setmSex(mSex.getCheckedRadioButtonId() == R.id.radioMale ? "1"
+									: "2");
+					ServiceManager.setmRegion(mRegion.getText().toString());
 				}
 			} else {
 				Toast.makeText(PersonInfoScreen.this, R.string.update_failed,
@@ -474,6 +501,8 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 			super.onPostExecute(result);
 			if (result != null) {
 				mUserAvatar.setImageBitmap(result);
+				mUserAvatar.startAnimation(AnimationUtils.loadAnimation(
+						PersonInfoScreen.this, R.anim.alpha));
 				// 储存下载下来的头像图片
 				ByteArrayOutputStream stream = new ByteArrayOutputStream();
 				result.compress(Bitmap.CompressFormat.PNG, 100, stream);
