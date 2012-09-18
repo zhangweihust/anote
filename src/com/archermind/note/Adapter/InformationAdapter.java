@@ -76,6 +76,7 @@ public class InformationAdapter extends BaseAdapter
 		}
 	    InformationData data = mDatas.get(position);
 	    if(data != null){
+	    
 	    if(data.photo != null){
 	    	item.ivPhoto.setImageUrl(data.photo, R.drawable.default_photo, R.drawable.default_photo);
 	    }

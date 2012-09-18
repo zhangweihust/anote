@@ -18,6 +18,7 @@ public class NoteApplication extends Application {
 	public static String savePath = sdcard + "/aNote/";
 	public static String packagePath = savePath + "package/";
 	public static String crashPath = savePath + "crash/";
+	public static String downloadPath = savePath + "downloads/";
 	public static boolean IS_AUTO_UPDATE = true;
 	private static NoteApplication instance;
 

@@ -1,17 +1,20 @@
 package com.archermind.note.Screens;
 
 
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.DefaultHttpClient;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.JsResult;
@@ -28,7 +31,9 @@ import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Services.EventService;
 import com.archermind.note.Services.ServiceManager;
+import com.archermind.note.Utils.HttpUtils;
 import com.archermind.note.Utils.NetworkUtils;
+import com.archermind.note.Utils.ServerInterface;
 
 public class PlazaScreen extends Screen implements IEventHandler{
 	
@@ -41,6 +46,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	private boolean mIsLogin = false;
 	public static final EventService eventService = ServiceManager
 			.getEventservice();
+	private JsResult mResult = null;
 	
 	
 		@SuppressLint("SetJavaScriptEnabled")
@@ -63,7 +69,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		private void init(){
 			mNetwork = NetworkUtils.getNetworkState(this);
 			  if(mNetwork == NetworkUtils.NETWORN_NONE){
-					Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT).show();
+					showToast(R.string.network_none);
 		        	mTextView.setVisibility(View.VISIBLE);
 		        	mWebView.setVisibility(View.GONE);
 		        	return;
@@ -73,7 +79,6 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		        mWebView.getSettings().setJavaScriptEnabled(true); 
 		        mWebView.getSettings().setBuiltInZoomControls(true);
 		        mWebView.requestFocus();
-
 		        if(ServiceManager.isLogin()){
 	 		        CookieSyncManager.getInstance().startSync();
 	 		        CookieManager.getInstance().setCookie(url, "userid=" + ServiceManager.getUserId() + ";");
@@ -94,7 +99,16 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	                    view.loadUrl(url);
 	                    view.getSettings().setJavaScriptEnabled(true);  
 	                    return true;
-	            }	            
+	            }
+
+			/*	@Override
+				public void onPageFinished(WebView view, String url) {
+					// TODO Auto-generated method stub
+					super.onPageFinished(view, url);
+					dismissLoadingProgress();
+				}	*/ 
+	            
+	            
 	         }); 
 		       
 		       mWebView.setWebChromeClient(new WebChromeClient(){
@@ -119,59 +133,74 @@ public class PlazaScreen extends Screen implements IEventHandler{
 						result.confirm();
 						return true;
 					}
-					
-					if(!ServiceManager.isLogin()){																	
-						PlazaScreen.this.runOnUiThread(new Runnable() {									
-							@Override
-							public void run() {
-								// TODO Auto-generated method stub
-						    Toast.makeText(PlazaScreen.this, R.string.no_login_info,
-										Toast.LENGTH_SHORT).show();
-							}
-						});
-						result.confirm();
-						return true;
-					}
-					
+										
 					if(message.trim().equals("unlogin")){
-						PlazaScreen.this.runOnUiThread(new Runnable() {							
-							@Override
-							public void run() {
-								// TODO Auto-generated method stub
-								Toast.makeText(PlazaScreen.this, R.string.no_login_info,
-										Toast.LENGTH_SHORT).show();
-							}
-						});
+						showToast(R.string.no_login_info);
 						Intent intent = new Intent();
 						intent.setClass(PlazaScreen.this, LoginScreen.class);
 						PlazaScreen.this.startActivity(intent);
 						result.confirm();
 						return true;
 					}else if(message.trim().equals("content_empty")){
-						PlazaScreen.this.runOnUiThread(new Runnable() {
-							
-							@Override
-							public void run() {
-								// TODO Auto-generated method stub
-								Toast.makeText(PlazaScreen.this, R.string.content_empty,
-										Toast.LENGTH_SHORT).show();
-								
-							}
-						});
+						showToast(R.string.content_empty);
 						result.confirm();
 						return true;
 					}else if(message.trim().startsWith("reply")){
+						if(!ServiceManager.isLogin()){																	
+							showToast(R.string.no_login_info);
+							result.confirm();
+							return true;
+						}
 						String nid = message.trim().substring(message.trim().indexOf(":")+1);
 						Intent intent = new Intent();
 						intent.setClass(PlazaScreen.this, NoteReplyScreen.class);
 						intent.putExtra("nid", nid);
-						PlazaScreen.this.startActivity(intent);						
-						result.confirm();
+						PlazaScreen.this.startActivityForResult(intent, 0);				       
+						mResult = result;
 						return true;
 					}else if(message.trim().equals("album")){				
 						Intent intent = new Intent();
 						intent.setClass(PlazaScreen.this, AlbumScreen.class);
 						PlazaScreen.this.startActivity(intent);						
+						result.confirm();
+						return true;
+					}else if(message.trim().startsWith("note")){
+						final String nid = message.trim().substring(message.trim().indexOf(":")+1);
+						System.out.println("====nid===" + nid + ", " + message);
+						String r = ServerInterface.getDiary("44");
+						if(r != null){
+							if(r.equals(ServerInterface.COOKIES_ERROR+"")){
+								showToast(R.string.cookies_error);
+								ServiceManager.setLogin(false);
+							}else if(r.equals("-1")){
+								showToast(R.string.notfound);
+							}else {
+								if(r.contains("filename")){
+									try{
+									String filename = r.substring(0, r.lastIndexOf("&"));
+									filename = filename.substring(filename.lastIndexOf("=")+1); 
+									System.out.println(filename);
+									String filePath = NoteApplication.downloadPath + filename;
+									if(filename!=null && !filename.equals("") && HttpUtils.DownloadFile(r, filePath) == 0 ){
+										Intent intent = new Intent();
+										intent.setClass(PlazaScreen.this, EditNoteScreen.class);
+										intent.putExtra("filepath", filePath);
+										PlazaScreen.this.startActivity(intent);
+									}
+									}catch (Exception e) {
+										// TODO: handle exception
+									}
+								}
+							}
+					    }				
+						result.confirm();
+						return true;
+					}else if(message.trim().equals("startload")){
+						showLoadingProgress();
+						result.confirm();
+						return true;
+					}else if(message.trim().equals("finishload")){
+						dismissLoadingProgress();
 						result.confirm();
 						return true;
 					}
@@ -180,6 +209,19 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		       });
 		    	           
 		        mWebView.loadUrl(url);
+		        
+		        mWebView.setOnTouchListener(new OnTouchListener() {
+					
+					@Override
+					public boolean onTouch(View arg0, MotionEvent arg1) {
+						// TODO Auto-generated method stub
+						
+						if(arg1.equals(MotionEvent.ACTION_MOVE)){
+						System.out.println("montion Event" + arg1);
+						}
+						return false;
+					}
+				});
 		        
 		        
 		}
@@ -221,7 +263,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	 	public  void refresh(){
 	 		System.out.println("===refresh===" + mNetwork);
 	 	    if(NetworkUtils.getNetworkState(this) == NetworkUtils.NETWORN_NONE){
-				Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT).show();
+	 	    	showToast(R.string.network_none);
 	        	mTextView.setVisibility(View.VISIBLE);
 	        	mWebView.setVisibility(View.GONE);
 	        	mNetwork = NetworkUtils.getNetworkState(this);
@@ -241,7 +283,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	        	mNetwork = NetworkUtils.getNetworkState(this);
 		        mWebView.requestFocus();		        
 		        try {
-					Thread.sleep(200);
+					Thread.sleep(50);
 					mWebView.reload();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -257,7 +299,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	 	  super.onResume();
 		 	 System.out.println("===== resume =====");
 		 	 if(NetworkUtils.getNetworkState(this) == NetworkUtils.NETWORN_NONE){
-					Toast.makeText(this, R.string.network_none, Toast.LENGTH_SHORT).show();
+		 		showToast(R.string.network_none);
 		        	mTextView.setVisibility(View.VISIBLE);
 		        	mWebView.setVisibility(View.GONE);
 		        	mNetwork = NetworkUtils.getNetworkState(this);
@@ -277,7 +319,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 				    }
 		 		 mWebView.requestFocus();
 		 		 try {
-					Thread.sleep(200);
+					Thread.sleep(50);
 					mWebView.reload();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -322,4 +364,73 @@ public class PlazaScreen extends Screen implements IEventHandler{
 			super.onDestroy();
 			eventService.remove(this);
 		}
+		
+		
+		private void showToast(final int rid){
+			PlazaScreen.this.runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					Toast.makeText(PlazaScreen.this, rid,
+							Toast.LENGTH_SHORT).show();
+					
+				}
+			});
+		}
+		
+		private void showLoadingProgress(){
+			PlazaScreen.this.runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					showProgress(null, getResources().getString(R.string.refreshing));								
+				}
+			});
+		}
+		
+		private void dismissLoadingProgress(){
+			PlazaScreen.this.runOnUiThread(new Runnable() {							
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					dismissProgress();								
+				}
+			});
+		}
+		
+
+		
+		public static boolean saveUrlAs(String path, String fileName) {
+			//此方法只能用户HTTP协议
+			    try {
+			      URL url = new URL(path);
+			      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			      DataInputStream in = new DataInputStream(connection.getInputStream());
+			      DataOutputStream out = new DataOutputStream(new FileOutputStream(fileName));
+			      byte[] buffer = new byte[4096];
+			      int count = 0;
+			      while ((count = in.read(buffer)) > 0) {
+			    	  out.write(buffer, 0, count);
+			      	}
+			      out.close();
+			      in.close();
+			      return true;
+			    }catch (Exception e) {
+			    	return false;
+				}
+			}
+
+		@Override
+		protected void onActivityResult(int requestCode, int resultCode,
+				Intent data) {
+			// TODO Auto-generated method stub
+			if(mResult!=null && resultCode ==RESULT_OK){ 
+				mResult.confirm();
+			}
+			super.onActivityResult(requestCode, resultCode, data);
+		}
+		
+		
 }

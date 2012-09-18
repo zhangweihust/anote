@@ -20,7 +20,7 @@ import android.os.Environment;
 
 
 public class WebImageCache {
-    private static final String DISK_CACHE_PATH = "/" + NoteApplication.getContext().getPackageName() + "/image/";
+    private static final String DISK_CACHE_PATH = "/" + NoteApplication.savePath + "/image/";
     private static final String DATA_CACHE_PATH = "/webimage_cache/";
     private ConcurrentHashMap<String, SoftReference<Bitmap>> memoryCache;
     private String diskCachePath;
@@ -115,7 +115,7 @@ public class WebImageCache {
                     BufferedOutputStream ostream = null;
                     try {
                         ostream = new BufferedOutputStream(new FileOutputStream(new File(diskCachePath, getCacheKey(url))), 2*1024);
-                        bitmap.compress(CompressFormat.JPEG, 90, ostream);
+                        bitmap.compress(CompressFormat.PNG, 90, ostream);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } finally {

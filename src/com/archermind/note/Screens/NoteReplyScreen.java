@@ -156,7 +156,8 @@ public class NoteReplyScreen extends Screen implements OnClickListener {
 						if(result.equals("" + ServerInterface.SUCCESS)){
 							Toast.makeText(NoteApplication.getContext(),
 									R.string.reply_success, Toast.LENGTH_SHORT)
-									.show();	
+									.show();				
+					    	NoteReplyScreen.this.setResult(RESULT_OK);
 							NoteReplyScreen.this.finish();
 						}else if(result.equals("" + ServerInterface.COOKIES_ERROR)){
 							ServiceManager.setLogin(false);
