@@ -127,10 +127,10 @@ public class InformationAdapter extends BaseAdapter
 	    }else{
 	    	item.tvContent.setText(data.content);
 	    }
-	    if(data.time < DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())){
-	    	item.tvTime.setText(DateTimeUtils.time2String("yyyy年MM月dd日 HH:mm", data.time*1000));
+	    if(data.time*1000 < DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())){
+	    	item.tvTime.setText(DateTimeUtils.time2String("yyyy年MM月dd日 HH:mm  ", data.time*1000));
 	    }else{
-	    	item.tvTime.setText(DateTimeUtils.time2String("HH:mm", data.time));
+	    	item.tvTime.setText(DateTimeUtils.time2String("今天 HH:mm  ", data.time*1000));
 	    }
 	    EventArgs args = new EventArgs();
         args.putExtra("time", data.time);
