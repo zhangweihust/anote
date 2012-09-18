@@ -248,6 +248,15 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 				
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} catch (Exception e) {
+				try {
+					reader.close();
+					inr.close();
+					in.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		}
 	}
