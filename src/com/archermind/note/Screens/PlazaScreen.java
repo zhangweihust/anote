@@ -34,14 +34,13 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	
 	private WebView mWebView;
 	private TextView mTextView;
-	private static String url = "http://anote.archermind.com/web/index.php";
-	//private static String url = "http://192.168.1.100";
 	public static boolean isFirstPage = true;
 	private int mNetwork;
 	private boolean mIsLogin = false;
 	public static final EventService eventService = ServiceManager
 			.getEventservice();
 	private JsResult mResult = null;
+	public static String USER_AGENT = "archermind-anote";
 	
 	private Handler mHandler = new Handler() {
 
@@ -91,10 +90,11 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		        mTextView.setVisibility(View.GONE);
 		        mWebView.getSettings().setJavaScriptEnabled(true); 
 		        mWebView.getSettings().setBuiltInZoomControls(true);
+		        mWebView.getSettings().setUserAgentString(USER_AGENT);
 		        mWebView.requestFocus();
 		        if(ServiceManager.isLogin()){
 	 		        CookieSyncManager.getInstance().startSync();
-	 		        CookieManager.getInstance().setCookie(url, "userid=" + ServiceManager.getUserId() + ";");
+	 		        CookieManager.getInstance().setCookie(ServerInterface.URL_WEBSITE, "userid=" + ServiceManager.getUserId() + ";");
 	 		        //mWebView.clearCache(true);
 	 		        mWebView.clearHistory();
 	 		        mIsLogin = true;
@@ -234,7 +234,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 				}
 		       });
 		    	           
-		        mWebView.loadUrl(url);
+		        mWebView.loadUrl(ServerInterface.URL_WEBSITE);
 		         
 		        
 		}
@@ -275,6 +275,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	 
 	 	public  void refresh(){
 	 		System.out.println("===refresh===" + mNetwork);
+	 		System.out.println("CurrentUA : " + mWebView.getSettings().getUserAgentString());
 	 		showToast(R.string.refreshing);
 	 	    if(NetworkUtils.getNetworkState(this) == NetworkUtils.NETWORN_NONE){
 	 	    	showToast(R.string.network_none);
@@ -287,7 +288,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	        }else{
         		if(ServiceManager.isLogin()){
 	 		        CookieSyncManager.getInstance().startSync();
-	 		        CookieManager.getInstance().setCookie(url, "userid=" + ServiceManager.getUserId() + ";");
+	 		        CookieManager.getInstance().setCookie(ServerInterface.URL_WEBSITE, "userid=" + ServiceManager.getUserId() + ";");
 	 		        mIsLogin = true;
  		        }else{
  		        	CookieSyncManager.getInstance().startSync();
@@ -325,7 +326,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		 		 if(ServiceManager.isLogin()){
 				 		System.out.println("===== logined =====");
 				        CookieSyncManager.getInstance().startSync();
-				        CookieManager.getInstance().setCookie(url, "userid=" + ServiceManager.getUserId() + ";");
+				        CookieManager.getInstance().setCookie(ServerInterface.URL_WEBSITE, "userid=" + ServiceManager.getUserId() + ";");
 				        mIsLogin = true;
 				    }else{
 				    	CookieSyncManager.getInstance().startSync();

@@ -71,7 +71,6 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -81,7 +80,6 @@ import android.widget.ViewFlipper;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Adapter.FaceAdapter;
-import com.archermind.note.Adapter.FontAdapter;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Events.IEventHandler;
@@ -135,7 +133,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
 	
 	private NoteSaveDialog save_dialog = null;// 保存对话框
 	
-	// 六种状态，不过目前用到的只有GRAFFITINSERTSTATE,HANDWRITINGSTATE,READNOTESTATE三种
+	//六种状态，不过目前用到的只有GRAFFITINSERTSTATE,HANDWRITINGSTATE,READNOTESTATE三种
 	public static final int PICINSERTSTATE = 1;
 	public static final int FACEINSERTSTATE = 2;
 	public static final int SOFTINPUTSTATE = 3;
@@ -2376,6 +2374,7 @@ public class EditNoteScreen  extends Screen implements OnClickListener, IEventHa
                 return;
             }
 //        	int lineheight = DensityUtil.dip2px(EditNoteScreen.this, myEdit.getLineHeight() );
+        	System.out.println("===create bitmap");
         	Bitmap gestrueBmp = mGesture.toBitmap(dip2px(48),dip2px(48), 0, mGesture.getGesturePaintColor());
         	if (gestrueBmp == null || gestrueBmp.isRecycled()) {
         		return;
