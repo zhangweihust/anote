@@ -22,6 +22,7 @@ import com.archermind.note.crop.CropImage;
 
 import android.R.integer;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -70,6 +71,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	private ImageCapture mImgCapture;
 	private String mAvatarPath;
 	private Bitmap mAvatarBitmap;
+	private Dialog mPicChooseDialog;
 	private AmtAlbumObj mAlbumObj;
 	private static final String TAG = "RegisterScreen";
 	private Handler mHandler = new Handler() {
@@ -310,26 +312,31 @@ public class RegisterScreen extends Screen implements OnClickListener {
 	}
 
 	private void showSelImageDialog() {
-		new AlertDialog.Builder(this)
-				.setTitle(R.string.msg_img_source)
-				.setNeutralButton(R.string.btn_img_source_camera,
-						new DialogInterface.OnClickListener() {
+		if (mPicChooseDialog == null) {
+			mPicChooseDialog = new Dialog(this, R.style.CornerDialog);
+			mPicChooseDialog.setContentView(R.layout.dialog_pic_source);
+			TextView cameraView = (TextView) mPicChooseDialog
+					.findViewById(R.id.dialog_item_camera);
+			cameraView.setOnClickListener(new OnClickListener() {
 
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								getNewImageFromCamera();
-							}
-						})
-				.setNegativeButton(R.string.btn_img_source_local,
-						new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					mPicChooseDialog.dismiss();
+					getNewImageFromCamera();
+				}
+			});
+			TextView localView = (TextView) mPicChooseDialog
+					.findViewById(R.id.dialog_item_local);
+			localView.setOnClickListener(new OnClickListener() {
 
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								getNewImageFromLocal();
-							}
-						}).show();
+				@Override
+				public void onClick(View v) {
+					mPicChooseDialog.dismiss();
+					getNewImageFromLocal();
+				}
+			});
+		}
+		mPicChooseDialog.show();
 	}
 
 	private void register() {

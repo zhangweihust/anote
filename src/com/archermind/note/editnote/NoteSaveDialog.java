@@ -42,8 +42,8 @@ public class NoteSaveDialog implements OnClickListener{
 	private EditText mEditText;
 	
 	public NoteSaveDialog(Context context) {
-		noteSaveDialog = new Dialog(context);
-		noteSaveDialog.setContentView(R.layout.note_save_dialog);
+		noteSaveDialog = new Dialog(context,R.style.CornerDialog);
+		noteSaveDialog.setContentView(R.layout.dialog_note_save);
 		noteSaveDialog.setCanceledOnTouchOutside(true);
 		mEditNote = (EditNoteScreen)context;
 		init();
@@ -51,13 +51,12 @@ public class NoteSaveDialog implements OnClickListener{
 	
 	private void init() {
 		saveGroup = (RadioGroup) noteSaveDialog.findViewById(R.id.note_save_group);
-		note_save_ok = (Button) noteSaveDialog.findViewById(R.id.note_save_ok);
-		note_save_cancel = (Button) noteSaveDialog.findViewById(R.id.note_save_cancel);
+		note_save_ok = (Button) noteSaveDialog.findViewById(R.id.dialog_btn_ok);
+		note_save_cancel = (Button) noteSaveDialog.findViewById(R.id.dialog_btn_cancel);
 		note_save_ok.setOnClickListener(this);
 		note_save_cancel.setOnClickListener(this);
 		
-		noteSaveDialog.setTitle(mEditNote.getString(R.string.note_input_title));
-		mEditText = (EditText) noteSaveDialog.findViewById(R.id.editText1);
+		mEditText = (EditText) noteSaveDialog.findViewById(R.id.dialog_note_title);
 	}
 	
 	public void show() {
@@ -76,7 +75,7 @@ public class NoteSaveDialog implements OnClickListener{
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		switch(v.getId()){
-		case R.id.note_save_ok:
+		case R.id.dialog_btn_ok:
 			if (saveGroup.getCheckedRadioButtonId() == R.id.save_and_share) {
 				if (!ServiceManager.isLogin()) {
 					Toast.makeText(mEditNote, R.string.no_login_info, Toast.LENGTH_SHORT).show();
@@ -220,7 +219,7 @@ public class NoteSaveDialog implements OnClickListener{
 				mEditNote.finish();
 			}
 			break;
-		case R.id.note_save_cancel:
+		case R.id.dialog_btn_cancel:
 			dismiss();
 			mEditNote.finish();
 			break;

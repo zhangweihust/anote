@@ -870,36 +870,27 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	
 	private void showSelImageDialog() {
 		if (mPicChooseDialog == null) {
-			mPicChooseDialog = new Dialog(this);
-			mPicChooseDialog.setContentView(R.layout.picture_choose_dialog);
-			mPicChooseDialog.setTitle("请选择从哪里获取图片");
-			mPicChooseDialog.setCanceledOnTouchOutside(true);
-
-			Button cameraButton = (Button) mPicChooseDialog
-					.findViewById(R.id.picfroecamera);
-			Button albumButton = (Button) mPicChooseDialog
-					.findViewById(R.id.picfromalbum);
-
-			albumButton.setOnClickListener(new OnClickListener() {
+			mPicChooseDialog = new Dialog(this, R.style.CornerDialog);
+			mPicChooseDialog.setContentView(R.layout.dialog_pic_source);
+			TextView cameraView = (TextView) mPicChooseDialog
+					.findViewById(R.id.dialog_item_camera);
+			cameraView.setOnClickListener(new OnClickListener() {
 
 				@Override
-				public void onClick(View arg0) {
-					// TODO Auto-generated method stub
-					getNewImageFromLocal();
+				public void onClick(View v) {
 					mPicChooseDialog.dismiss();
-				}
-
-			});
-
-			cameraButton.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View arg0) {
-					// TODO Auto-generated method stub
 					getNewImageFromCamera();
-					mPicChooseDialog.dismiss();
 				}
+			});
+			TextView localView = (TextView) mPicChooseDialog
+					.findViewById(R.id.dialog_item_local);
+			localView.setOnClickListener(new OnClickListener() {
 
+				@Override
+				public void onClick(View v) {
+					mPicChooseDialog.dismiss();
+					getNewImageFromLocal();
+				}
 			});
 		}
 		mPicChooseDialog.show();

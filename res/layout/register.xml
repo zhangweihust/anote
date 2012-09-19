@@ -109,7 +109,7 @@
 
                 <View
                     android:layout_width="wrap_content"
-                    android:layout_height="1dp"
+                    android:layout_height="2dp"
                     android:layout_gravity="center"
                     android:background="@drawable/listview_divider" />
 
@@ -149,7 +149,7 @@
 
                 <View
                     android:layout_width="wrap_content"
-                    android:layout_height="1dp"
+                    android:layout_height="2dp"
                     android:layout_gravity="center"
                     android:background="@drawable/listview_divider" />
 
@@ -250,7 +250,7 @@
 
                 <View
                     android:layout_width="wrap_content"
-                    android:layout_height="1dp"
+                    android:layout_height="2dp"
                     android:layout_gravity="center"
                     android:background="@drawable/listview_divider" />
 
@@ -282,7 +282,7 @@
 
                 <View
                     android:layout_width="wrap_content"
-                    android:layout_height="1dp"
+                    android:layout_height="2dp"
                     android:layout_gravity="center"
                     android:background="@drawable/listview_divider" />
 

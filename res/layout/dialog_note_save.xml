@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="240dp"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/dialog_title_bg"
+        android:gravity="center"
+        android:text="@string/dialog_title_select"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dialog_title" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="5dp" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dip"
+            android:text="@string/dialog_note_save_title"
+            android:textColor="@color/dialog_items_color"
+            android:textSize="@dimen/dialog_items" />
+
+        <EditText
+            android:id="@+id/dialog_note_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/setting_background"
+            android:hint="@string/dialog_note_save_hint"
+            android:maxEms="20"
+            android:padding="8dp"
+            android:singleLine="true"
+            android:textColor="@color/dialog_items_color"
+            android:textSize="@dimen/dialog_items" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_gravity="center"
+        android:background="@drawable/listview_divider" />
+
+    <RadioGroup
+        android:id="@+id/note_save_group"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <RadioButton
+            android:id="@+id/save_and_share"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:button="@drawable/radiobutton_save_share"
+            android:checked="true"
+            android:text="@string/save_and_share"
+            android:textColor="@color/dialog_items_color"
+            android:textSize="@dimen/dialog_items" />
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="2dp"
+            android:layout_gravity="center"
+            android:background="@drawable/listview_divider" />
+
+        <RadioButton
+            android:id="@+id/save_only"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:button="@drawable/radiobutton_save_share"
+            android:text="@string/save_only"
+            android:textColor="@color/dialog_items_color"
+            android:textSize="@dimen/dialog_items" />
+    </RadioGroup>
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_gravity="center"
+        android:background="@drawable/listview_divider" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="5dp" >
+
+        <Button
+            android:id="@+id/dialog_btn_ok"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_selector"
+            android:text="@string/dialog_ok"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dialog_btn" />
+
+        <Button
+            android:id="@+id/dialog_btn_cancel"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:background="@drawable/button_selector"
+            android:text="@string/dialog_cancel"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dialog_btn" />
+    </LinearLayout>
+
+</LinearLayout>

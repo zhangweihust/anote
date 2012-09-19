@@ -1101,7 +1101,9 @@ public class HomeScreen extends Screen implements IEventHandler,
 				dialog.dismiss();
 				dialog.setContentView(R.layout.dialog_ok_cancel);
 				TextView titleView = (TextView) dialog.findViewById(R.id.dialog_title);
-				titleView.setText(R.string.dialog_title_delete);
+				titleView.setText(R.string.dialog_title_tips);
+				TextView msgView = (TextView) dialog.findViewById(R.id.dialog_message);
+				msgView.setText(R.string.dialog_title_delete);
 				Button btn_ok = (Button) dialog.findViewById(R.id.dialog_btn_ok);
 				btn_ok.setOnClickListener(new OnClickListener() {
 					

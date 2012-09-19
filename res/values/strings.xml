@@ -68,9 +68,9 @@
     <string name="account_bound_success_sina">现在你也可以使用新浪账号登录"分享笔迹"啦！</string>
     <string name="account_bound_success_qq">现在你也可以使用QQ账号登录"分享笔迹"啦！</string>
     <string name="account_bound_success_renren">现在你也可以使用人人账号登录"分享笔迹"啦！</string>
-    <string name="account_bound_sina_none">您还没有绑定新浪账号哦！</string>
-    <string name="account_bound_qq_none">您还没有绑定QQ账号哦！</string>
-    <string name="account_bound_renren_none">您还没有绑定人人账号哦！</string>
+    <string name="account_bound_sina_none">您还未绑定新浪账号！</string>
+    <string name="account_bound_qq_none">您还未绑定QQ账号！</string>
+    <string name="account_bound_renren_none">您还未绑定人人账号！</string>
 
     <string name="setting_tips">提示</string>
     <string name="no_login_info">请先登录</string>
@@ -171,11 +171,14 @@
     <string name="dialog_cancel">取消</string>
     <string name="dialog_title_logout">确定退出登录？</string>
     <string name="dialog_title_select">请选择</string>
+    <string name="dialog_title_tips">提示</string>
     <string name="dialog_item_txt_share">分享</string>
     <string name="dialog_item_txt_sign">添加标记</string>
     <string name="dialog_item_txt_unsign">取消标记</string>
     <string name="dialog_item_txt_delete">删除</string>
     <string name="dialog_title_delete">确定删除该笔迹？</string>
+    <string name="dialog_note_save_hint">请输入标题</string>
+    <string name="dialog_note_save_title">标题：</string>
     
     <!-- about -->
     <string name="about_title">关于</string>
@@ -212,11 +215,6 @@
     <string name="share_click_to_reupload">重试</string>
     <string name="share_dialog_bound">去绑定</string>
 
-    <!-- dialog local_note_item_transact -->
-    <string name="share">分享</string>
-    <string name="sign">标记</string>
-    <string name="delete">删除</string>
-
     <!-- screen_update
     <string name="screen_update_download_finished">Download finished</string>
     <string name="screen_update_download_error">Update package download error</string>
@@ -236,10 +234,12 @@
     <string name="screen_update_download_error">安装包下载出现错误</string>
     <string name="screen_update_click_to_install">下载完成，单击进行安装</string>
     <string name="screen_update_not_need_update">未发现新版本</string>
-    <string name="screen_update_have_update">分享笔迹有新版本啦</string>
-    <string name="screen_update_select_to_install">新版本下载完成, 请进行安装</string>
+    <string name="screen_update_have_update">有新版本啦!</string>
+    <string name="screen_update_get_new_version">正在获取更新...</string>
+    <string name="screen_update_select_to_install">已下载完成,请进行安装！</string>
     <string name="screen_update_install_now">立刻更新</string>
     <string name="screen_update_install_later">稍后更新</string>
+    <string name="screen_update_install">安装</string>
     <string name="screen_update_version">新版本:</string>
     <string name="screen_update_version_size">大小:</string>
     <string name="screen_update_version_info">更新说明:</string>
@@ -270,9 +270,8 @@
     <string name="get_network_failed">Please check if your network is available</string>
     -->
     <string name="dialog_check_signature_title">检测新apk</string>
-    <string name="dialog_check_signature_checking">正在检测，请稍候...</string>
-    <string name="dialog_check_sinature_not_match">数字签名不匹配，请先卸载旧版本，再进行新版本安装，安装包保存在 sdcard/aNote/package</string>
-    <string name="dialog_check_sinature_not_match_title">数字签名不匹配，请先卸载旧版本，再进行新版本安装。</string>
+    <string name="dialog_check_signature_checking">正在检测安装包...</string>
+    <string name="dialog_check_sinature_not_match">数字签名不匹配，请先卸载旧版本再进行安装！</string>
     <string name="dialog_check_sinature_not_match_info">安装包保存在 sdcard/aNote/package</string>
     <string name="dialog_check_signature_ok">确定</string>
     <string name="dialog_check_signature_cancel">取消</string>

@@ -1,5 +1,6 @@
 package com.archermind.note.Screens;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Utils.DownloadApkHelper;
+import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.ServerInterface;
 import com.archermind.note.Utils.VersionUtil;
 
@@ -52,6 +54,7 @@ public class AboutScreen extends Screen implements OnClickListener {
 					// mLoadingLayout.setVisibility(View.GONE);
 					// mMainLayout.setVisibility(View.VISIBLE);
 					// btn_check_update.setVisibility(View.VISIBLE);
+					dismissProgress();
 				}
 			}
 
@@ -99,22 +102,11 @@ public class AboutScreen extends Screen implements OnClickListener {
 			startActivity(intent);
 			break;
 		case R.id.about_check_update: {
-
-			boolean networkIsOk = false;
-			try {
-				ConnectivityManager cm = (ConnectivityManager) this
-						.getSystemService(Context.CONNECTIVITY_SERVICE);
-				NetworkInfo ni = cm.getActiveNetworkInfo();
-				networkIsOk = (ni != null ? ni.isConnectedOrConnecting()
-						: false);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			if (networkIsOk) {
-				new Thread(new Runnable() {
+			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
+				showProgress(null, getString(R.string.screen_update_get_new_version));			
+				new Thread() {
 					@Override
 					public void run() {
-						System.out.println("=CCC= MANUAL_UPDATE");
 						Looper.prepare();
 						DownloadApkHelper downloadApk = new DownloadApkHelper(
 								mContext, Looper.myLooper());
@@ -122,7 +114,8 @@ public class AboutScreen extends Screen implements OnClickListener {
 								handler);
 						Looper.loop();
 					}
-				}).start();
+				}.start();
+				
 			} else {
 				Toast.makeText(NoteApplication.getContext(),
 						R.string.network_none, Toast.LENGTH_SHORT).show();

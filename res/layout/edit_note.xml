@@ -71,7 +71,7 @@
             android:layout_weight="1"
             android:background="@drawable/tab_btn_selector"
             android:scaleType="fitCenter" 
-            android:src="@drawable/edit_softinput_selector"/>
+            android:src="@drawable/edit_handwrite_selector"/>
 
         <ImageButton
             android:id="@+id/edit_setting"

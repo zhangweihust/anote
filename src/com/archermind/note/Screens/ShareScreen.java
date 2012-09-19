@@ -646,7 +646,9 @@ public class ShareScreen extends Screen implements OnClickListener {
 		final Dialog dialog = new Dialog(this, R.style.CornerDialog);
 		dialog.setContentView(R.layout.dialog_ok_cancel);
 		TextView titleView = (TextView) dialog.findViewById(R.id.dialog_title);
-		titleView.setText(id);
+		titleView.setText(R.string.dialog_title_tips);
+		TextView msgView = (TextView) dialog.findViewById(R.id.dialog_message);
+		msgView.setText(id);
 		Button btn_ok = (Button) dialog.findViewById(R.id.dialog_btn_ok);
 		btn_ok.setText(R.string.login_relogin);
 		btn_ok.setOnClickListener(new OnClickListener() {
@@ -689,7 +691,9 @@ public class ShareScreen extends Screen implements OnClickListener {
 		final Dialog dialog = new Dialog(this, R.style.CornerDialog);
 		dialog.setContentView(R.layout.dialog_ok_cancel);
 		TextView titleView = (TextView) dialog.findViewById(R.id.dialog_title);
-		titleView.setText(id);
+		titleView.setText(R.string.dialog_title_tips);
+		TextView msgView = (TextView) dialog.findViewById(R.id.dialog_message);
+		msgView.setText(id);
 		Button btn_ok = (Button) dialog.findViewById(R.id.dialog_btn_ok);
 		btn_ok.setText(R.string.share_dialog_bound);
 		btn_ok.setOnClickListener(new OnClickListener() {

@@ -1,13 +1,17 @@
 package com.archermind.note.Screens;
 
+import com.archermind.note.R;
+
 import android.app.Activity;
-import android.app.ProgressDialog;
+import android.app.Dialog;
 import android.content.pm.ActivityInfo;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Window;
+import android.widget.TextView;
 
 public class Screen extends Activity {
-	private ProgressDialog mProgressDialog;
+	private Dialog mProgressDialog;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -23,8 +27,15 @@ public class Screen extends Activity {
 	 * @param message
 	 */
 	public void showProgress(String title, String message) {
-		mProgressDialog = ProgressDialog.show(this, title, message);
-		mProgressDialog.setCancelable(true);
+		mProgressDialog = new Dialog(this, R.style.CustomDialog);
+		mProgressDialog.setContentView(R.layout.dialog_progress);
+		TextView textView = (TextView) mProgressDialog.findViewById(R.id.progress_msg);
+		textView.setText(message);
+		if (android.os.Build.VERSION.SDK_INT > 8) {
+			Typeface type = Typeface.createFromAsset(getAssets(), "xdxwzt.ttf");
+			textView.setTypeface(type);
+		}
+		mProgressDialog.show();
 	}
 
 	/**

@@ -36,12 +36,18 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.DisplayMetrics;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.RemoteViews;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Screens.AccountScreen;
 import com.archermind.note.Screens.HomeScreen;
+import com.archermind.note.Screens.ShareScreen;
 import com.archermind.note.Services.ServiceManager;
 //import com.archermind.note.Views.CustomDialog;
 import com.archermind.note.dialog.DialogCheckSignature;
@@ -201,7 +207,7 @@ public class DownloadApkHelper {
 				.setLatestEventInfo(
 						instance,
 						instance
-								.getString(R.string.dialog_check_sinature_not_match_title),
+								.getString(R.string.dialog_check_sinature_not_match),
 						instance
 								.getString(R.string.dialog_check_sinature_not_match_info),
 						PendingIntent.getActivity(instance, 0, uninstallIntent,
@@ -381,23 +387,24 @@ public class DownloadApkHelper {
 //		customBuilder
 //				.setWhichViewVisible(CustomDialog.contentIsTextView)
 
-		AlertDialog.Builder customBuilder = new AlertDialog.Builder(instance);
-		customBuilder
-				.setTitle(instance.getString(R.string.app_name))
-				.setMessage(
-						instance
-								.getString(R.string.screen_update_not_need_update))
-				.setPositiveButton(
-						instance.getString(R.string.screen_update_ok),
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								dialog.dismiss();
-							}
-						});
-		
-		updateDialog = customBuilder.create();
-		updateDialog.show();
+//		AlertDialog.Builder customBuilder = new AlertDialog.Builder(instance);
+//		customBuilder
+//				.setTitle(instance.getString(R.string.app_name))
+//				.setMessage(
+//						instance
+//								.getString(R.string.screen_update_not_need_update))
+//				.setPositiveButton(
+//						instance.getString(R.string.screen_update_ok),
+//						new DialogInterface.OnClickListener() {
+//							public void onClick(DialogInterface dialog,
+//									int which) {
+//								dialog.dismiss();
+//							}
+//						});
+//		
+//		updateDialog = customBuilder.create();
+//		updateDialog.show();
+		NoteApplication.toastShow(handler, R.string.screen_update_not_need_update);
 	}
 
 	private void installDownloadedApk(final File apkFile) {
@@ -405,89 +412,173 @@ public class DownloadApkHelper {
 //		customBuilder
 //				.setWhichViewVisible(CustomDialog.contentIsTextView)
 				
-		AlertDialog.Builder customBuilder = new AlertDialog.Builder(instance);	
-		customBuilder
-				.setTitle(
-						instance.getString(R.string.screen_update_have_update))
-				.setMessage(
-						instance
-								.getString(R.string.screen_update_select_to_install))
-				.setPositiveButton(
-						instance.getString(R.string.screen_update_install_now),
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								new Thread(new Runnable() {
-									private DialogCheckSignature mDialogCheckSignature;
+//		AlertDialog.Builder customBuilder = new AlertDialog.Builder(instance);	
+//		customBuilder
+//				.setTitle(
+//						instance.getString(R.string.screen_update_have_update))
+//				.setMessage(
+//						instance
+//								.getString(R.string.screen_update_select_to_install))
+//				.setPositiveButton(
+//						instance.getString(R.string.screen_update_install_now),
+//						new DialogInterface.OnClickListener() {
+//							public void onClick(DialogInterface dialog,
+//									int which) {
+//								new Thread(new Runnable() {
+//									private DialogCheckSignature mDialogCheckSignature;
+//
+//									@Override
+//									public void run() {
+//										instance.runOnUiThread(new Runnable() {
+//											@Override
+//											public void run() {
+//												mDialogCheckSignature = new DialogCheckSignature(instance);
+//												mDialogCheckSignature.show();
+//											}
+//										});
+//										String fileSignature = showUninstallAPKSignatures(apkFile
+//												.getAbsolutePath());
+//										NoteApplication
+//												.LogD(
+//														DownloadApkHelper.class,
+//														"------------------------------------"
+//																+ instance
+//																		.getPackageName());
+//										String onwerSignature = getSign(instance);
+//										System.out.println("=CCC="+ apkFile.getAbsolutePath());
+//										if (onwerSignature != null
+//												&& fileSignature != null) {
+//											if (onwerSignature
+//													.equals(fileSignature)) {
+//												mDialogCheckSignature.dismiss();
+//												Intent intent = new Intent(
+//														Intent.ACTION_VIEW);
+//												intent
+//														.setDataAndType(
+//																Uri
+//																		.fromFile(apkFile),
+//																"application/vnd.android.package-archive");
+//												instance.startActivity(intent);
+//											} else {
+//												instance
+//														.runOnUiThread(new Runnable() {
+//															@Override
+//															public void run() {
+//																mDialogCheckSignature
+//																		.changeDialog();
+//															}
+//														});
+//											}
+//										} else {
+//											instance
+//													.runOnUiThread(new Runnable() {
+//														@Override
+//														public void run() {
+//															mDialogCheckSignature
+//																	.changeDialog();
+//														}
+//													});
+//										}
+//									}
+//								}).start();
+//								dialog.dismiss();
+//							}
+//						})
+//				.setNegativeButton(
+//						instance
+//								.getString(R.string.screen_update_install_later),
+//						new DialogInterface.OnClickListener() {
+//							public void onClick(DialogInterface dialog,
+//									int which) {
+//								dialog.dismiss();
+//							}
+//						});
+//		updateDialog = customBuilder.create();
+//		updateDialog.show();
+		
+		updateDialog = new Dialog(instance,R.style.CornerDialog);
+		updateDialog.setContentView(R.layout.dialog_ok_cancel);
+		TextView titleView = (TextView) updateDialog.findViewById(R.id.dialog_title);
+		titleView.setText(R.string.screen_update_have_update);
+		TextView msgView = (TextView) updateDialog.findViewById(R.id.dialog_message);
+		msgView.setText(R.string.screen_update_select_to_install);
+		Button btn_ok = (Button) updateDialog.findViewById(R.id.dialog_btn_ok);
+		btn_ok.setText(R.string.screen_update_install);
+		btn_ok.setOnClickListener(new OnClickListener() {
 
-									@Override
-									public void run() {
-										instance.runOnUiThread(new Runnable() {
-											@Override
-											public void run() {
-												mDialogCheckSignature = new DialogCheckSignature(instance);
-												mDialogCheckSignature.show();
-											}
-										});
-										String fileSignature = showUninstallAPKSignatures(apkFile
-												.getAbsolutePath());
-										NoteApplication
-												.LogD(
-														DownloadApkHelper.class,
-														"------------------------------------"
-																+ instance
-																		.getPackageName());
-										String onwerSignature = getSign(instance);
-										System.out.println("=CCC="+ apkFile.getAbsolutePath());
-										if (onwerSignature != null
-												&& fileSignature != null) {
-											if (onwerSignature
-													.equals(fileSignature)) {
-												mDialogCheckSignature.dismiss();
-												Intent intent = new Intent(
-														Intent.ACTION_VIEW);
-												intent
-														.setDataAndType(
-																Uri
-																		.fromFile(apkFile),
-																"application/vnd.android.package-archive");
-												instance.startActivity(intent);
-											} else {
-												instance
-														.runOnUiThread(new Runnable() {
-															@Override
-															public void run() {
-																mDialogCheckSignature
-																		.changeDialog();
-															}
-														});
-											}
-										} else {
-											instance
-													.runOnUiThread(new Runnable() {
-														@Override
-														public void run() {
-															mDialogCheckSignature
-																	.changeDialog();
-														}
-													});
-										}
-									}
-								}).start();
-								dialog.dismiss();
-							}
-						})
-				.setNegativeButton(
-						instance
-								.getString(R.string.screen_update_install_later),
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								dialog.dismiss();
+			@Override
+			public void onClick(View v) {
+				new Thread(new Runnable() {
+					private DialogCheckSignature mDialogCheckSignature;
+
+					@Override
+					public void run() {
+						instance.runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								mDialogCheckSignature = new DialogCheckSignature(instance);
+								mDialogCheckSignature.show();
 							}
 						});
-		updateDialog = customBuilder.create();
+						String fileSignature = showUninstallAPKSignatures(apkFile
+								.getAbsolutePath());
+						NoteApplication
+								.LogD(
+										DownloadApkHelper.class,
+										"------------------------------------"
+												+ instance
+														.getPackageName());
+						String onwerSignature = getSign(instance);
+						System.out.println("=CCC="+ apkFile.getAbsolutePath());
+						if (onwerSignature != null
+								&& fileSignature != null) {
+							if (onwerSignature
+									.equals(fileSignature)) {
+								mDialogCheckSignature.dismiss();
+								Intent intent = new Intent(
+										Intent.ACTION_VIEW);
+								intent
+										.setDataAndType(
+												Uri
+														.fromFile(apkFile),
+												"application/vnd.android.package-archive");
+								instance.startActivity(intent);
+							} else {
+								instance
+										.runOnUiThread(new Runnable() {
+											@Override
+											public void run() {
+												mDialogCheckSignature
+														.changeDialog();
+											}
+										});
+							}
+						} else {
+							instance
+									.runOnUiThread(new Runnable() {
+										@Override
+										public void run() {
+											mDialogCheckSignature
+													.changeDialog();
+										}
+									});
+						}
+					}
+				}).start();
+				updateDialog.dismiss();
+			}
+		});
+		Button btn_cancel = (Button) updateDialog
+				.findViewById(R.id.dialog_btn_cancel);
+		btn_cancel.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				updateDialog.dismiss();
+			}
+		});
 		updateDialog.show();
+		
 		String date = sDateFormat.format(new java.util.Date());
 		preferences.edit().putString(XML_KEY_TIME, date).commit();
 	}
@@ -583,108 +674,214 @@ public class DownloadApkHelper {
 //		customBuilder
 //				.setWhichViewVisible(CustomDialog.contentIsTextView)
 		
-		AlertDialog.Builder customBuilder = new AlertDialog.Builder(instance);
-		customBuilder
-				.setTitle(
-						instance.getString(R.string.screen_update_have_update))
-				.setMessage(ToDBC(sb.toString()))
-				.setPositiveButton(
-						instance.getString(R.string.screen_update_install_now),
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								new Thread() {
-									@Override
-									public void run() {
-										String filePath = NoteApplication.packagePath
-												+ apkInfo.newVerCode
-												+ DownloadTask.PACKAGE_SUFFIX;
-										File file = new File(filePath);
-										int totalSize = getFileSizeFromServer(apkInfo.apkURL);
-										//MediaApplication.logD(DownloadApk.class
-										// , "apkInfo.fileSize :" +
-										// apkInfo.fileSize + "  serverSize : "
-										// + totalSize);
-										if (totalSize == -1) {
-											// toastShow(TOAST_ERROR_NETWORK);
-											return;
-										}
-										if (file.exists()) {// 本地存在升级文件
-											int xmlTotalSize = preferences
-													.getInt(XML_KEY_TOTAL_SIZE,
-															-2);
-											if (xmlTotalSize != totalSize) {// 本地XML存储的文件大小和服务器返回的不一致
-												delFolder(NoteApplication.packagePath);
-												preferences.edit().clear();
-												// if(!downloadApk(0, totalSize,
-												// apkInfo.apkURL,
-												// apkInfo.newVerCode)){
-												// delFolder(mediaService.
-												// getPackagePath());
-												// preferences.edit().clear();
-												//toastShow(TOAST_ERROR_NETWORK)
-												// ;
-												// };
-												downloadApk(apkInfo.apkURL, 0,
-														filePath,
-														apkInfo.newVerCode);
-											}
-											if (totalSize == file.length()) {// 文件下载完成
-												Intent intent = new Intent(
-														Intent.ACTION_VIEW);
-												intent.setDataAndType(
-																Uri.fromFile(file),
-																"application/vnd.android.package-archive");
-												instance.startActivity(intent);
-											} else {// 文件没有下载完成,开始断点续传了
-												toastShow(TOAST_DOWNLOAD_BACKGROUND);
-												//if(!downloadApk(file.length(),
-												// totalSize, apkInfo.apkURL,
-												// apkInfo.newVerCode)){
-												// delFolder(mediaService.
-												// getPackagePath());
-												// preferences.edit().clear();
-												//toastShow(TOAST_ERROR_NETWORK)
-												// ;
-												// };
-												downloadApk(apkInfo.apkURL,
-														file.length(),
-														filePath,
-														apkInfo.newVerCode);
+//		AlertDialog.Builder customBuilder = new AlertDialog.Builder(instance);
+//		customBuilder
+//				.setTitle(
+//						instance.getString(R.string.screen_update_have_update))
+//				.setMessage(ToDBC(sb.toString()))
+//				.setPositiveButton(
+//						instance.getString(R.string.screen_update_install_now),
+//						new DialogInterface.OnClickListener() {
+//							public void onClick(DialogInterface dialog,
+//									int which) {
+//								new Thread() {
+//									@Override
+//									public void run() {
+//										String filePath = NoteApplication.packagePath
+//												+ apkInfo.newVerCode
+//												+ DownloadTask.PACKAGE_SUFFIX;
+//										File file = new File(filePath);
+//										int totalSize = getFileSizeFromServer(apkInfo.apkURL);
+//										//MediaApplication.logD(DownloadApk.class
+//										// , "apkInfo.fileSize :" +
+//										// apkInfo.fileSize + "  serverSize : "
+//										// + totalSize);
+//										if (totalSize == -1) {
+//											// toastShow(TOAST_ERROR_NETWORK);
+//											return;
+//										}
+//										if (file.exists()) {// 本地存在升级文件
+//											int xmlTotalSize = preferences
+//													.getInt(XML_KEY_TOTAL_SIZE,
+//															-2);
+//											if (xmlTotalSize != totalSize) {// 本地XML存储的文件大小和服务器返回的不一致
+//												delFolder(NoteApplication.packagePath);
+//												preferences.edit().clear();
+//												// if(!downloadApk(0, totalSize,
+//												// apkInfo.apkURL,
+//												// apkInfo.newVerCode)){
+//												// delFolder(mediaService.
+//												// getPackagePath());
+//												// preferences.edit().clear();
+//												//toastShow(TOAST_ERROR_NETWORK)
+//												// ;
+//												// };
+//												downloadApk(apkInfo.apkURL, 0,
+//														filePath,
+//														apkInfo.newVerCode);
+//											}
+//											if (totalSize == file.length()) {// 文件下载完成
+//												Intent intent = new Intent(
+//														Intent.ACTION_VIEW);
+//												intent.setDataAndType(
+//																Uri.fromFile(file),
+//																"application/vnd.android.package-archive");
+//												instance.startActivity(intent);
+//											} else {// 文件没有下载完成,开始断点续传了
+//												toastShow(TOAST_DOWNLOAD_BACKGROUND);
+//												//if(!downloadApk(file.length(),
+//												// totalSize, apkInfo.apkURL,
+//												// apkInfo.newVerCode)){
+//												// delFolder(mediaService.
+//												// getPackagePath());
+//												// preferences.edit().clear();
+//												//toastShow(TOAST_ERROR_NETWORK)
+//												// ;
+//												// };
+//												downloadApk(apkInfo.apkURL,
+//														file.length(),
+//														filePath,
+//														apkInfo.newVerCode);
+//
+//											}
+//										} else {// 本地升级文件不存在
+//											toastShow(TOAST_DOWNLOAD_BACKGROUND);
+//											delFolder(NoteApplication.packagePath);
+//											preferences.edit().clear();
+//											// if(!downloadApk(0, totalSize,
+//											// apkInfo.apkURL,
+//											// apkInfo.newVerCode)){
+//											// delFolder(mediaService.
+//											// getPackagePath());
+//											// preferences.edit().clear();
+//											// toastShow(TOAST_ERROR_NETWORK);
+//											// };
+//											downloadApk(apkInfo.apkURL, 0,
+//													filePath,
+//													apkInfo.newVerCode);
+//										}
+//									};
+//								}.start();
+//								dialog.dismiss();
+//							}
+//						})
+//				.setNegativeButton(
+//						instance
+//								.getString(R.string.screen_update_install_later),
+//						new DialogInterface.OnClickListener() {
+//							public void onClick(DialogInterface dialog,
+//									int which) {
+//								dialog.dismiss();
+//							}
+//						});
+//		updateDialog = customBuilder.create();
+//		updateDialog.show();
+		
+		updateDialog = new Dialog(instance,R.style.CornerDialog);
+		updateDialog.setContentView(R.layout.dialog_ok_cancel);
+		TextView titleView = (TextView) updateDialog.findViewById(R.id.dialog_title);
+		titleView.setText(R.string.screen_update_have_update);
+		TextView msgView = (TextView) updateDialog.findViewById(R.id.dialog_message);
+		msgView.setText(ToDBC(sb.toString()));
+		Button btn_ok = (Button) updateDialog.findViewById(R.id.dialog_btn_ok);
+		btn_ok.setText(R.string.screen_update_install_now);
+		btn_ok.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				new Thread() {
+					@Override
+					public void run() {
+						String filePath = NoteApplication.packagePath
+								+ apkInfo.newVerCode
+								+ DownloadTask.PACKAGE_SUFFIX;
+						File file = new File(filePath);
+						int totalSize = getFileSizeFromServer(apkInfo.apkURL);
+						//MediaApplication.logD(DownloadApk.class
+						// , "apkInfo.fileSize :" +
+						// apkInfo.fileSize + "  serverSize : "
+						// + totalSize);
+						if (totalSize == -1) {
+							// toastShow(TOAST_ERROR_NETWORK);
+							return;
+						}
+						if (file.exists()) {// 本地存在升级文件
+							int xmlTotalSize = preferences
+									.getInt(XML_KEY_TOTAL_SIZE,
+											-2);
+							if (xmlTotalSize != totalSize) {// 本地XML存储的文件大小和服务器返回的不一致
+								delFolder(NoteApplication.packagePath);
+								preferences.edit().clear();
+								// if(!downloadApk(0, totalSize,
+								// apkInfo.apkURL,
+								// apkInfo.newVerCode)){
+								// delFolder(mediaService.
+								// getPackagePath());
+								// preferences.edit().clear();
+								//toastShow(TOAST_ERROR_NETWORK)
+								// ;
+								// };
+								downloadApk(apkInfo.apkURL, 0,
+										filePath,
+										apkInfo.newVerCode);
+							}
+							if (totalSize == file.length()) {// 文件下载完成
+								Intent intent = new Intent(
+										Intent.ACTION_VIEW);
+								intent.setDataAndType(
+												Uri.fromFile(file),
+												"application/vnd.android.package-archive");
+								instance.startActivity(intent);
+							} else {// 文件没有下载完成,开始断点续传了
+								toastShow(TOAST_DOWNLOAD_BACKGROUND);
+								//if(!downloadApk(file.length(),
+								// totalSize, apkInfo.apkURL,
+								// apkInfo.newVerCode)){
+								// delFolder(mediaService.
+								// getPackagePath());
+								// preferences.edit().clear();
+								//toastShow(TOAST_ERROR_NETWORK)
+								// ;
+								// };
+								downloadApk(apkInfo.apkURL,
+										file.length(),
+										filePath,
+										apkInfo.newVerCode);
 
-											}
-										} else {// 本地升级文件不存在
-											toastShow(TOAST_DOWNLOAD_BACKGROUND);
-											delFolder(NoteApplication.packagePath);
-											preferences.edit().clear();
-											// if(!downloadApk(0, totalSize,
-											// apkInfo.apkURL,
-											// apkInfo.newVerCode)){
-											// delFolder(mediaService.
-											// getPackagePath());
-											// preferences.edit().clear();
-											// toastShow(TOAST_ERROR_NETWORK);
-											// };
-											downloadApk(apkInfo.apkURL, 0,
-													filePath,
-													apkInfo.newVerCode);
-										}
-									};
-								}.start();
-								dialog.dismiss();
 							}
-						})
-				.setNegativeButton(
-						instance
-								.getString(R.string.screen_update_install_later),
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								dialog.dismiss();
-							}
-						});
-		updateDialog = customBuilder.create();
+						} else {// 本地升级文件不存在
+							toastShow(TOAST_DOWNLOAD_BACKGROUND);
+							delFolder(NoteApplication.packagePath);
+							preferences.edit().clear();
+							// if(!downloadApk(0, totalSize,
+							// apkInfo.apkURL,
+							// apkInfo.newVerCode)){
+							// delFolder(mediaService.
+							// getPackagePath());
+							// preferences.edit().clear();
+							// toastShow(TOAST_ERROR_NETWORK);
+							// };
+							downloadApk(apkInfo.apkURL, 0,
+									filePath,
+									apkInfo.newVerCode);
+						}
+					};
+				}.start();
+				updateDialog.dismiss();
+			}
+		});
+		Button btn_cancel = (Button) updateDialog
+				.findViewById(R.id.dialog_btn_cancel);
+		btn_cancel.setText(R.string.screen_update_install_later);
+		btn_cancel.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				updateDialog.dismiss();
+			}
+		});
 		updateDialog.show();
+		
 		String date = sDateFormat.format(new java.util.Date());
 		preferences.edit().putString(XML_KEY_TIME, date).commit();
 	}
