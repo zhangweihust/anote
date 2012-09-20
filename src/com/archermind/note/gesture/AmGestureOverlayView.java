@@ -153,7 +153,8 @@ public class AmGestureOverlayView extends FrameLayout {
         setPaintAlpha(255);
     }
 
-    public ArrayList<AmGesturePoint> getCurrentStroke() {
+
+	public ArrayList<AmGesturePoint> getCurrentStroke() {
         return mStrokeBuffer;
     }
 

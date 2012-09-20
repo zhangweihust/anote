@@ -1,10 +1,12 @@
 package com.archermind.note.gesture;
 
+import android.R.integer;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.Matrix;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -215,7 +217,6 @@ public class AmGesture implements Parcelable {
         final Path path = toPath();
         final RectF bounds = new RectF();
         path.computeBounds(bounds, true);
-
         final float sx = (width - 2 * inset) / bounds.width();
         final float sy = (height - 2 * inset) / bounds.height();
         final float scale = sx > sy ? sy : sx;
@@ -224,6 +225,7 @@ public class AmGesture implements Parcelable {
         path.offset(-bounds.left + (width - bounds.width() * scale) / 2.0f,
                 -bounds.top + (height - bounds.height() * scale) / 2.0f);
         path.computeBounds(bounds, true);
+        System.out.println("==path.computeBounds=2= left : " + bounds.left + ", top : " + bounds.top + ", bottom : " + bounds.bottom + ", Right : " + bounds.right );
         if (sx < sy && bounds.width() > bounds.height()) {
         	float top = (height / scale - bounds.height()) / 2.0f;
         	path.offset(0, -bounds.top + top);
@@ -232,6 +234,62 @@ public class AmGesture implements Parcelable {
         	path.offset(-bounds.left + left , 0);
         }
 
+        canvas.translate(inset, inset);
+        canvas.scale(scale, scale);
+
+        canvas.drawPath(path, paint);
+
+        return bitmap;
+    }
+
+    public Bitmap toBitmap(int width, int height, int inset, int color, int overlayHeight, int overlayWidth) {
+        final Bitmap bitmap = Bitmap.createBitmap(width, height,
+                Bitmap.Config.ARGB_8888);
+        final Canvas canvas = new Canvas(bitmap);
+
+        final Paint paint = new Paint();
+        paint.setAntiAlias(BITMAP_RENDERING_ANTIALIAS);
+        paint.setDither(BITMAP_RENDERING_DITHER);
+        paint.setColor(color);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeWidth(mGesturePaintWidth / 3.0f);
+
+        final Path path = toPath();
+        final RectF bounds = new RectF();
+        path.computeBounds(bounds, true);
+        System.out.println("==path.computeBounds=1= left : " + bounds.left + ", top : " + bounds.top + ", bottom : " + bounds.bottom + ", Right : " + bounds.right );
+        System.out.println("==path.computeBounds=1= width : " + bounds.width());
+        System.out.println("overlay height : " + overlayHeight + ", width " + overlayWidth);
+        System.out.println("bitmap height : " + height + ", width " + width);
+
+       final float scale = ((float)height - 2* inset)/overlayHeight;
+       /*         paint.setStrokeWidth((mGesturePaintWidth/scale) / 3.0f);
+        path.offset(-bounds.left + (width - bounds.width() * scale) / 2.0f,
+                -bounds.top + (height - bounds.height() * scale) / 2.0f);
+
+        System.out.println("==path.computeBounds=2= left : " + bounds.left + ", top : " + bounds.top + ", bottom : " + bounds.bottom + ", Right : " + bounds.right );
+*/
+        
+     /*   final float sx = (width - 2 * inset) / bounds.width();
+        final float sy = (height - 2 * inset) / bounds.height();
+        final float scale = sx > sy ? sy : sx;*/
+        paint.setStrokeWidth((mGesturePaintWidth / scale) / 3.0f);
+        System.out.println("===" + mGesturePaintWidth + ", scale : " + scale );
+        path.offset(0, 0);
+        //path.offset(-bounds.left + (width - bounds.width() * scale) / 2.0f,
+          //      -bounds.top + (height - bounds.height() * scale) / 2.0f);
+   //     path.computeBounds(bounds, true);
+        System.out.println("==path.computeBounds=2= left : " + bounds.left + ", top : " + bounds.top + ", bottom : " + bounds.bottom + ", Right : " + bounds.right );
+/*        if (sx < sy && bounds.width() > bounds.height()) {
+        	float top = (height / scale - bounds.height()) / 2.0f;
+        	path.offset(0, -bounds.top + top);
+        } else if (sx > sy && bounds.width() < bounds.hashCode()) {
+        	float left = (width / scale - bounds.width()) / 2.0f;
+        	path.offset(-bounds.left + left , 0);
+        }*/
+        
         canvas.translate(inset, inset);
         canvas.scale(scale, scale);
 

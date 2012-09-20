@@ -91,6 +91,7 @@ import com.archermind.note.Utils.DensityUtil;
 import com.archermind.note.Utils.GenerateName;
 import com.archermind.note.Utils.ServerInterface;
 import com.archermind.note.Utils.SetSystemProperty;
+import com.archermind.note.Views.ColorFullRectView;
 import com.archermind.note.editnote.ColorPickerDialog;
 import com.archermind.note.editnote.ColorPickerDialog.OnColorChangedListener;
 import com.archermind.note.editnote.MyEditText;
@@ -119,8 +120,10 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 
 	private SeekBar thickness_seekbar = null; // 粗细seekbar
 
+	private ColorFullRectView mColorFullRectView = null; // 手写时的边框
+
 	private AmGesture mGesture; // 当前一个的手势结构
-	private static final float LENGTH_THRESHOLD = 40.0f; // 一个手势滑动的最小临界值
+	private static final float LENGTH_THRESHOLD = 10.0f; // 一个手势滑动的最小临界值
 
 	private LinearLayout bitmap_rect_linearlayout;// 日记保存图像区域
 
@@ -227,6 +230,8 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			gestureview.addOnGestureListener(handWriteListener);
 		}
 
+		// 手写模式时的边框
+		mColorFullRectView = (ColorFullRectView) findViewById(R.id.colorfull_rect);
 		// EditText
 		myEdit = (MyEditText) findViewById(R.id.editText_view);
 
@@ -653,19 +658,20 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				if (gesture == null) {
 					return;
 				}
-				Bitmap bmp = Bitmap.createBitmap(
-						DensityUtil.dip2px(EditNoteScreen.this, 50),
-						DensityUtil.dip2px(EditNoteScreen.this, 71),
+				Bitmap bmp = Bitmap.createBitmap(dip2px(48), dip2px(48
+						* gestureview.getHeight() / gestureview.getWidth()),
 						Bitmap.Config.ARGB_8888);
 				;
 				bmp.eraseColor(0x00000000);
 				Canvas canvas = new Canvas(bmp);
-				Bitmap gestrueBmp = gesture.toBitmap(dip2px(44), dip2px(44), 0,
-						gesture.getGesturePaintColor());
+				Bitmap gestrueBmp = gesture.toBitmap(dip2px(48), dip2px(48
+						* gestureview.getHeight() / gestureview.getWidth()), 0,
+						mGesture.getGesturePaintColor(),
+						gestureview.getHeight(), gestureview.getWidth());
 				if (gestrueBmp == null || gestrueBmp.isRecycled()) {
 					return;
 				}
-				canvas.drawBitmap(gestrueBmp, dip2px(3), dip2px(20), null);
+				canvas.drawBitmap(gestrueBmp, 0, 0, null);
 				gestrueBmp.recycle();
 				Drawable drawable = new BitmapDrawable(bmp);
 				drawable.setBounds(0, 0, drawable.getIntrinsicWidth(),
@@ -997,6 +1003,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				isRemoveEdit = true;
 
 				flipper.removeAllViews();
+				
 				flipper.addView(myEdit, 0);
 
 				flipper.setInAnimation(AnimationUtils.loadAnimation(this,
@@ -2522,6 +2529,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		public void onGestureStarted(AmGestureOverlayView overlay,
 				MotionEvent event) {
 			mGesture = null;
+			mColorFullRectView.setVisibility(View.VISIBLE);
 		}
 
 		public void onGesture(AmGestureOverlayView overlay, MotionEvent event) {
@@ -2531,27 +2539,34 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				MotionEvent event) {
 			mGesture = overlay.getGesture();
 			if (mGesture.getLength() < LENGTH_THRESHOLD) {
+				System.out.println("====1====");
 				MotionEvent event2 = MotionEvent.obtain(event);
 				event2.setAction(MotionEvent.ACTION_DOWN);
 				myEdit.onTouchEvent(event2);
 				myEdit.onTouchEvent(event);
 				overlay.clear(false);
+				mColorFullRectView.setVisibility(View.GONE);
 			}
 		}
 
 		public void onGestureCancelled(AmGestureOverlayView overlay,
 				MotionEvent event) {
+
 			if (mGesture == null) {
 				return;
 			}
 			if (mGesture.getLength() < LENGTH_THRESHOLD) {
 				return;
 			}
+			
+			mColorFullRectView.setVisibility(View.GONE);
 			// int lineheight = DensityUtil.dip2px(EditNoteScreen.this,
 			// myEdit.getLineHeight() );
 			System.out.println("===create bitmap");
-			Bitmap gestrueBmp = mGesture.toBitmap(dip2px(48), dip2px(48), 0,
-					mGesture.getGesturePaintColor());
+			Bitmap gestrueBmp = mGesture.toBitmap(dip2px(48), dip2px(48
+					* gestureview.getHeight() / gestureview.getWidth()), 0,
+					mGesture.getGesturePaintColor(), gestureview.getHeight(),
+					gestureview.getWidth());
 			if (gestrueBmp == null || gestrueBmp.isRecycled()) {
 				return;
 			}
