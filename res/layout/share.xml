@@ -31,14 +31,14 @@
             android:textColor="@color/white"
             android:textSize="@dimen/main_screen_title_size" />
 
-        <ProgressBar
+        <!-- <ProgressBar
             android:id="@+id/share_progressBar"
             style="?android:attr/progressBarStyleSmall"
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="5dp" />
+            android:layout_marginRight="5dp" /> -->
 
         <Button
             android:id="@+id/share_btn_reupload"

@@ -167,6 +167,14 @@
                 android:layout_height="fill_parent"
                 android:gravity="center_horizontal"
  			    />
+         	<com.archermind.note.Views.ColorFullRectView
+  			    android:id="@+id/colorfull_rect"
+  			    android:layout_width="fill_parent"
+  			    android:layout_height="fill_parent"
+  			    android:background="@color/transparent"
+  			    android:visibility="gone"
+  			    />
+             
 		    <com.archermind.note.editnote.MyEditText
 		        android:id="@+id/editText_view"
 		        android:layout_width="fill_parent"
@@ -181,13 +189,7 @@
 		        >
     		</com.archermind.note.editnote.MyEditText>
             
-  			<com.archermind.note.Views.ColorFullRectView
-  			    android:id="@+id/colorfull_rect"
-  			    android:layout_width="fill_parent"
-  			    android:layout_height="fill_parent"
-  			    android:background="@color/transparent"
-  			    android:visibility="gone"
-  			    />
+
 		    
 		    <com.archermind.note.gesture.AmGestureOverlayView
 		           android:id="@+id/gestureview"

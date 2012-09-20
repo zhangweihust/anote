@@ -32,7 +32,7 @@
             android:text="@string/back"
             android:textColor="@color/white" />
 
-        <ProgressBar
+        <!-- <ProgressBar
             android:id="@+id/perosoninfo_progressBar"
             style="?android:attr/progressBarStyleSmall"
             android:layout_width="28dp"
@@ -40,7 +40,7 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="5dp"
-            android:visibility="gone" />
+            android:visibility="gone" /> -->
     </RelativeLayout>
 
     <LinearLayout

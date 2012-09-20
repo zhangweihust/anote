@@ -68,9 +68,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 	private Button mBackButton;
 	private ImageView mImageView;
 	private TextView mTextView;
-	// private LinearLayout mProgressLayout;
-	private ProgressBar mProgressBar;
-	// private TextView mUploadingView;
+//	private ProgressBar mProgressBar;
 	private Button mReuploadButton;
 	private LinearLayout mOthersLayout;
 	private Button mSinaButton;
@@ -171,7 +169,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 			ExceptionService.logException(e);
 		}
 
-		mProgressBar = (ProgressBar) findViewById(R.id.share_progressBar);
+//		mProgressBar = (ProgressBar) findViewById(R.id.share_progressBar);
 		mReuploadButton = (Button) findViewById(R.id.share_btn_reupload);
 		mReuploadButton.setOnClickListener(this);
 		mTextView = (TextView) findViewById(R.id.share_text);
@@ -331,8 +329,8 @@ public class ShareScreen extends Screen implements OnClickListener {
 	 * 上传笔记图片至服务器
 	 */
 	private void uploadNotePic() {
+		showProgressBar(R.string.share_msg_square);
 		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
-			showProgressBar(R.string.share_msg_square);
 			AmtApplication.setAmtUserName(ServiceManager.getUserName());
 			mAlbumObj = new AmtAlbumObj();
 			mAlbumObj.setHandler(mHandler);
@@ -379,8 +377,9 @@ public class ShareScreen extends Screen implements OnClickListener {
 									runOnUiThread(new Runnable() {
 										@Override
 										public void run() {
-											mProgressBar
-													.setVisibility(View.GONE);
+//											mProgressBar
+//													.setVisibility(View.GONE);
+											dismissProgress();
 											showLoginAlertDialog(R.string.share_sina_expired);
 										}
 									});
@@ -477,7 +476,8 @@ public class ShareScreen extends Screen implements OnClickListener {
 							R.string.share_err_equal_weibo, Toast.LENGTH_SHORT)
 							.show();
 				} else if (jsonObject.optInt("errcode") == 37) { // accessToken过期错误码
-					mProgressBar.setVisibility(View.GONE);
+//					mProgressBar.setVisibility(View.GONE);
+					dismissProgress();
 					showLoginAlertDialog(R.string.share_qq_expired);
 				} else {
 					dismssProgressBar(R.string.share_failed, false);
@@ -530,7 +530,8 @@ public class ShareScreen extends Screen implements OnClickListener {
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									mProgressBar.setVisibility(View.GONE);
+//									mProgressBar.setVisibility(View.GONE);
+									dismissProgress();
 									showLoginAlertDialog(R.string.share_renren_expired);
 								}
 							});
@@ -608,7 +609,6 @@ public class ShareScreen extends Screen implements OnClickListener {
 			}
 			break;
 		case R.id.share_btn_reupload:
-			showProgressBar(R.string.share_msg_square);
 			uploadNotePic();
 			break;
 		default:
@@ -617,13 +617,15 @@ public class ShareScreen extends Screen implements OnClickListener {
 	}
 
 	private void showProgressBar(int id) {
-		mProgressBar.setVisibility(View.VISIBLE);
+//		mProgressBar.setVisibility(View.VISIBLE);
+		showProgress(null, getString(id));
 		mReuploadButton.setVisibility(View.GONE);
-		Toast.makeText(this, id, Toast.LENGTH_SHORT).show();
+//		Toast.makeText(this, id, Toast.LENGTH_SHORT).show();
 	}
 
 	private void dismssProgressBar(int id, boolean isSuccessed) {
-		mProgressBar.setVisibility(View.GONE);
+//		mProgressBar.setVisibility(View.GONE);
+		dismissProgress();
 		Toast.makeText(this, id, Toast.LENGTH_SHORT).show();
 	}
 

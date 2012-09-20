@@ -13,15 +13,21 @@
         android:text="提示"
         android:textColor="@color/white"
         android:textSize="@dimen/dialog_title" />
-    
+
     <TextView
         android:id="@+id/dialog_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         android:text="信息"
-        android:textColor="@color/register_text_title"
-        android:textSize="@dimen/dialog_title"
-        android:layout_margin="16dp" />
+        android:textColor="@color/dialog_items_color"
+        android:textSize="@dimen/dialog_items" />
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_gravity="center"
+        android:background="@drawable/listview_divider" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -29,16 +35,16 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:orientation="horizontal"
-        android:layout_marginBottom="10dp" >
+        android:padding="5dp" >
 
         <Button
             android:id="@+id/dialog_btn_ok"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:background="@drawable/button_selector"
+            android:text="@string/dialog_ok"
             android:textColor="@color/white"
-            android:textSize="@dimen/dialog_btn"
-            android:text="@string/dialog_ok" />
+            android:textSize="@dimen/dialog_btn" />
 
         <Button
             android:id="@+id/dialog_btn_cancel"
@@ -46,9 +52,9 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:background="@drawable/button_selector"
+            android:text="@string/dialog_cancel"
             android:textColor="@color/white"
-            android:textSize="@dimen/dialog_btn"
-            android:text="@string/dialog_cancel" />
+            android:textSize="@dimen/dialog_btn" />
     </LinearLayout>
 
 </LinearLayout>

@@ -71,7 +71,6 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -81,7 +80,6 @@ import android.widget.ViewFlipper;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Adapter.FaceAdapter;
-import com.archermind.note.Adapter.FontAdapter;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Events.IEventHandler;
@@ -266,12 +264,12 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		String notePath = getIntent().getStringExtra("notePath");
 		if (notePath != null) {// 旧笔记编辑，则重新加载
 			mDiaryPath = notePath;
-			reload(notePath);
+			reload(mDiaryPath + ".note");
 		} else {
 			notePath = getIntent().getStringExtra("filePath");// 网络下载的笔记
 			if(notePath != null){
 				mDiaryPath = notePath;
-				reload(notePath);
+				reload(notePath + ".note");
 			}
 		}
 
@@ -658,16 +656,18 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				if (gesture == null) {
 					return;
 				}
+				int height = 581;
+				int width = 480;
 				Bitmap bmp = Bitmap.createBitmap(dip2px(48), dip2px(48
-						* gestureview.getHeight() / gestureview.getWidth()),
+						* height / width),
 						Bitmap.Config.ARGB_8888);
 				;
 				bmp.eraseColor(0x00000000);
 				Canvas canvas = new Canvas(bmp);
 				Bitmap gestrueBmp = gesture.toBitmap(dip2px(48), dip2px(48
-						* gestureview.getHeight() / gestureview.getWidth()), 0,
-						mGesture.getGesturePaintColor(),
-						gestureview.getHeight(), gestureview.getWidth());
+						* height / width), 0,
+						gesture.getGesturePaintColor(),
+						height, width);
 				if (gestrueBmp == null || gestrueBmp.isRecycled()) {
 					return;
 				}
@@ -995,7 +995,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				if (isRemoveEdit) {
 					FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
 					fl.addView(myEdit);
-					// isRemoveEdit = false;
+					 //isRemoveEdit = false;
 				}
 			} else {
 				FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
@@ -1003,7 +1003,6 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				isRemoveEdit = true;
 
 				flipper.removeAllViews();
-				
 				flipper.addView(myEdit, 0);
 
 				flipper.setInAnimation(AnimationUtils.loadAnimation(this,
@@ -2529,6 +2528,12 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		public void onGestureStarted(AmGestureOverlayView overlay,
 				MotionEvent event) {
 			mGesture = null;
+			System.out.println("==onGestureStarted== left : "
+					+ overlay.getLeft() + ", top : " + overlay.getTop()
+					+ ", bottom : " + overlay.getBottom() + ", Right : "
+					+ overlay.getRight());
+			System.out.println("==onGestureStarted== x : " + event.getX()
+					+ ", y : " + event.getY());
 			mColorFullRectView.setVisibility(View.VISIBLE);
 		}
 
@@ -2537,29 +2542,46 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 
 		public void onGestureEnded(AmGestureOverlayView overlay,
 				MotionEvent event) {
+			System.out.println("==onGestureEnded== left : " + overlay.getLeft()
+					+ ", top : " + overlay.getTop() + ", bottom : "
+					+ overlay.getBottom() + ", Right : " + overlay.getRight());
+			System.out.println("==onGestureEnded== x : " + event.getX()
+					+ ", y : " + event.getY());
 			mGesture = overlay.getGesture();
 			if (mGesture.getLength() < LENGTH_THRESHOLD) {
-				System.out.println("====1====");
 				MotionEvent event2 = MotionEvent.obtain(event);
 				event2.setAction(MotionEvent.ACTION_DOWN);
 				myEdit.onTouchEvent(event2);
 				myEdit.onTouchEvent(event);
 				overlay.clear(false);
-				mColorFullRectView.setVisibility(View.GONE);
 			}
 		}
 
 		public void onGestureCancelled(AmGestureOverlayView overlay,
 				MotionEvent event) {
+			System.out.println("==onGestureCancelled== left : "
+					+ overlay.getLeft() + ", top : " + overlay.getTop()
+					+ ", bottom : " + overlay.getBottom() + ", Right : "
+					+ overlay.getRight());
+			System.out.println("==onGestureCancelled== width : "
+					+ overlay.getWidth() + ", heigth : " + overlay.getHeight());
 
 			if (mGesture == null) {
 				return;
 			}
+
+			System.out.println("==mGesture.getBoundingBox()== left : "
+					+ mGesture.getBoundingBox().left + ", top : "
+					+ mGesture.getBoundingBox().top + ", bottom : "
+					+ mGesture.getBoundingBox().bottom + ", Right : "
+					+ mGesture.getBoundingBox().right);
+
 			if (mGesture.getLength() < LENGTH_THRESHOLD) {
 				return;
 			}
-			
+
 			mColorFullRectView.setVisibility(View.GONE);
+
 			// int lineheight = DensityUtil.dip2px(EditNoteScreen.this,
 			// myEdit.getLineHeight() );
 			System.out.println("===create bitmap");

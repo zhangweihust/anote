@@ -3,7 +3,8 @@
     android:layout_width="240dp"
     android:layout_height="wrap_content"
     android:gravity="center"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:background="@color/content_background" >
 
     <TextView
         android:layout_width="match_parent"

@@ -73,7 +73,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 	private Bitmap mAvatarBitmap;
 	private Dialog mPicChooseDialog;
 	private AmtAlbumObj mAlbumObj;
-	private ProgressBar mProgressBar;
+//	private ProgressBar mProgressBar;
 	private boolean ismodifyAvatar = false;
 	private static final String TAG = "PersonInfoScreen";
 	private Handler mHandler = new Handler() {
@@ -84,7 +84,8 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 			Log.i(TAG, "handler_message:" + msg.what);
 			switch (msg.what) {
 			case MessageTypes.ERROR_MESSAGE:
-				mProgressBar.setVisibility(View.GONE);
+//				mProgressBar.setVisibility(View.GONE);
+				dismissProgress();
 				Toast.makeText(PersonInfoScreen.this, R.string.update_failed,
 						Toast.LENGTH_SHORT).show();
 				dismissProgress();
@@ -178,7 +179,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 	private void initViews() {
 		mBackButton = (Button) findViewById(R.id.screen_top_play_control_back);
 		mBackButton.setOnClickListener(this);
-		mProgressBar = (ProgressBar) findViewById(R.id.perosoninfo_progressBar);
+//		mProgressBar = (ProgressBar) findViewById(R.id.perosoninfo_progressBar);
 
 		mSetAvatar = (LinearLayout) findViewById(R.id.set_avatar_layout);
 		mSetAvatar.setOnClickListener(this);
@@ -364,9 +365,10 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 			startActivityForResult(intent, REGION_RESULT);
 			break;
 		case R.id.confirm_change:
-			Toast.makeText(this, R.string.update_progress, Toast.LENGTH_SHORT)
-					.show();
-			mProgressBar.setVisibility(View.VISIBLE);
+//			Toast.makeText(this, R.string.update_progress, Toast.LENGTH_SHORT)
+//					.show();
+//			mProgressBar.setVisibility(View.VISIBLE);
+			showProgress(null, getString(R.string.update_progress));
 			if (ismodifyAvatar) {
 				AmtApplication.setAmtUserName(ServiceManager.getUserName());
 				mAlbumObj = new AmtAlbumObj();
@@ -425,7 +427,8 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
-			mProgressBar.setVisibility(View.GONE);
+//			mProgressBar.setVisibility(View.GONE);
+			dismissProgress();
 			if (result.equals("" + ServerInterface.ERROR_SERVER_INTERNAL)) {
 				Toast.makeText(PersonInfoScreen.this,
 						R.string.register_err_server_internal,

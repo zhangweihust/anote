@@ -300,8 +300,6 @@ public class LoginScreen extends Screen implements OnClickListener {
 	 * 绑定新浪微博账号 Oauth2.0 隐式授权认证方式
 	 */
 	private void boundSinaweibo() {
-		Toast.makeText(this, "请稍候...",
-				Toast.LENGTH_SHORT).show();
 		Weibo weibo = Weibo.getInstance();
 		weibo.setupConsumerConfig(AccountScreen.APPKEY_SINA,
 				AccountScreen.APPSECRET_SINA);
