@@ -25,7 +25,8 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                android:background="@color/content_background" />
 
             <!-- ImageView
                 android:id="@+id/downloaded"
@@ -40,9 +41,9 @@
              <ImageView
                 android:id="@+id/selected"
                 android:layout_width="100dp"
-                android:layout_height="80dp"
+                android:layout_height="100dp"
                 android:layout_gravity="center"
-                android:scaleType="fitCenter"
+                android:scaleType="centerCrop"
                 android:src="@drawable/screen_photo_selected"
                 android:visibility="gone" />
         </FrameLayout>

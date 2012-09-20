@@ -19,19 +19,20 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
+import android.graphics.PorterDuff.Mode;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Environment;
-import android.provider.CallLog.Calls;
 import android.util.Log;
 
-import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Services.ServiceManager;
 
@@ -335,5 +336,51 @@ public class ImageCapture {
 	 		// TODO Auto-generated catch block
 	 		e.printStackTrace();
 	 	} 
+	 	bitmap.recycle();
     }
+	
+	// 将图片的四角圆化
+    public static Bitmap getRoundedCornerBitmap(Bitmap bitmap,float roundPx) {
+     
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), 
+            bitmap.getHeight(), Config.ARGB_8888);
+//        bitmap.recycle();
+        //得到画布
+        Canvas canvas = new Canvas(output);
+    
+       
+       //将画布的四角圆化
+        final int color = Color.RED; 
+        final Paint paint = new Paint(); 
+        //得到与图像相同大小的区域  由构造的四个值决定区域的位置以及大小
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()); 
+        final RectF rectF = new RectF(rect); 
+
+        paint.setAntiAlias(true); 
+        canvas.drawARGB(0, 0, 0, 0); 
+        paint.setColor(color); 
+        //drawRoundRect的第2,3个参数一样则画的是正圆的一角，如果数值不同则是椭圆的一角,roundPx值越大角度越明显
+        canvas.drawRoundRect(rectF, roundPx,roundPx, paint); 
+      
+        paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN)); 
+        canvas.drawBitmap(bitmap, rect, rect, paint); 
+      
+        return output; 
+      } 
+    
+  //放大缩小图片  
+    public static Bitmap zoomBitmap(Bitmap bitmap,int w,int h){  
+    	if (bitmap == null)
+    	{
+    		return null;
+    	}
+        int width = bitmap.getWidth();  
+        int height = bitmap.getHeight();  
+        Matrix matrix = new Matrix();  
+        float scaleWidht = ((float)w / width);  
+        float scaleHeight = ((float)h / height);  
+        matrix.postScale(scaleWidht, scaleHeight);  
+        Bitmap newbmp = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);  
+        return newbmp;  
+    } 
 }

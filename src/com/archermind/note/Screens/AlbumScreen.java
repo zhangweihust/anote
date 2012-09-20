@@ -33,6 +33,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Parcelable;
 import android.provider.MediaStore.Audio;
 import android.util.MonthDisplayHelper;
 import android.view.Gravity;
@@ -78,7 +79,7 @@ import com.archermind.note.Views.PhotoGallery;
 public class AlbumScreen extends Screen implements OnClickListener {
 
 	private PhotoGallery mPhotoGallery;
-	private AlbumScrollLayout mPhotoView;
+	private static AlbumScrollLayout mPhotoView;
 	private View mPhotoGalleryLayout;
 	private View mPhotoGridLayout;
 	private RelativeLayout mTitleLayout;
@@ -139,7 +140,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	private Handler GalleryStatushandler;
 	private DataLoading dataLoad;
 	
-	private PhotoAdapter mLastChildAdapter;
+	private static PhotoAdapter mLastChildAdapter;
 	private PhotoAdapter mGalleryPhotoAdapter;
 	
 	private String mAlbumUrllist;
@@ -149,7 +150,10 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	private static final String ALBUMNAME = "myalbumname";
 	private Message uploadnewmsg = new Message();
 	private AmtDataObject uploadTask = null;
-	private ProgressDialog pDialog;
+	private static ProgressDialog pDialog;
+	private boolean activityFirstStart = true;
+	List<Map> ablumPhotoList = new ArrayList<Map>();
+	private TextView NoPhotoPrompt;
 	
 	private Handler mHandler = new Handler() {
 		@Override
@@ -159,6 +163,11 @@ public class AlbumScreen extends Screen implements OnClickListener {
 			switch (msg.what) {
 			case MessageTypes.ERROR_MESSAGE:
 				dismissProgress();
+				if (pDialog == null)
+				{
+					createProgressDialog();
+				}
+				pDialog.dismiss();
 				uploadnewmsg.what = UPLOAD_ALBUM_ERROR;
 				handler.sendMessage(uploadnewmsg);
 				break;
@@ -190,11 +199,19 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					picNames.add(mAvatarPath.substring(mAvatarPath
 							.lastIndexOf("/") + 1));
 					uploadTask = mAlbumObj.uploadPicFiles(picPath, picNames, albumid);
+					if (pDialog == null)
+					{
+						createProgressDialog();
+					}
 					pDialog.show();
 				}
 				break;
 			case MessageTypes.MESSAGE_UPLOADPIC:
 				uploadTask = null;
+				if (pDialog == null)
+				{
+					createProgressDialog();
+				}
 				pDialog.dismiss();
 				
 				// 上传头像文件成功，开始执行插入数据库操作
@@ -251,19 +268,12 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.album_screen);
 		
-		if (savedInstanceState != null)
-		{
-			mCacheImageFilePath = savedInstanceState.getString("mCacheImageFilePath");
-		}
-		
 		mContext = AlbumScreen.this;
 		
 		String user_name = ServiceManager.getUserName();
 		AmtApplication.setAmtUserName(user_name);
 		mAlbumObj = new AmtAlbumObj();
 		mAlbumObj.setHandler(mHandler);
-//		mAlbumObj.createAlbum(ServiceManager
-//				.getUserName(), ALBUMNAME);
 		
 		GalleryStatushandler = new Handler()
 		{
@@ -300,6 +310,8 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		mBtnGallerySetAvatar = (ImageButton) findViewById(R.id.p_gallery_set_avatar);
 		mBtnGridInsertImage = (Button) findViewById(R.id.bt_insert_image);
 		
+		NoPhotoPrompt = (TextView) findViewById(R.id.NoPhotoPrompt);
+		
 		mBtnGalleryBack.setOnClickListener(this);
 		mBtnGridBack.setOnClickListener(this);
 		mBtnGallerySetAvatar.setOnClickListener(this);
@@ -316,6 +328,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				mPageIndex = currentIndex;
 			}});
 
+		mPhotoGallery.setAdapter(mGalleryPhotoAdapter);
 		mPhotoGallery.setCallbackDuringFling(false);
 		mPhotoGallery.setOnTouchListener(new OnTouchListener() {
 			
@@ -391,33 +404,38 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				
 			}});
 		
-		mPageIndex = 0;
 		
 		mContentResolver = getContentResolver();
 		
 		mImgCapture = new ImageCapture(this, mContentResolver);
 		
 		serverInterface = new ServerInterface();
-//		serverInterface.InitAmtCloud(mContext);
 		
-		pDialog = new ProgressDialog(AlbumScreen.this);  
-		pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		pDialog.setTitle(getString(R.string.photo_upload_title));
-		pDialog.setMessage(getString(R.string.photo_uploading)); 
-		pDialog.setIndeterminate(false);
-		pDialog.setCancelable(false);
-		pDialog.setButton(getString(R.string.photo_upload_cancel), new DialogInterface.OnClickListener(){   
-			@Override  
-			public void onClick(DialogInterface dialog, int which) 
-			{   
-				if (uploadTask != null)
-				{
-					mAlbumObj.cancleUpload(uploadTask);
-				}
-				dialog.dismiss();   
-			}                 
-		});
+		if (savedInstanceState != null)
+		{
+			mCacheImageFilePath = savedInstanceState.getString("mCacheImageFilePath");
+			ablumPhotoList = (List<Map>) savedInstanceState.get("ablumPhotoList");
+			activityFirstStart = false;
+			mPageIndex = savedInstanceState.getInt("mPageIndex");
+			mGalleryPhotoAdapter = new PhotoAdapter(mContext, Gallery.class, ablumPhotoList, 0);
+			setAblumLayout(ablumPhotoList);
+			
+			if (ablumPhotoList.size() <= 0)
+			{
+				NoPhotoPrompt.setVisibility(View.VISIBLE);
+				mPhotoView.setVisibility(View.INVISIBLE);
+			}
+			
+		}
+		else
+		{
+			mPageIndex = 0;
+		}
 		
+		if (pDialog == null)
+		{
+			createProgressDialog();
+		}
 		loadAlbumData();
 	}
 	
@@ -491,8 +509,22 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	protected void onSaveInstanceState(Bundle outState) {
 		// TODO Auto-generated method stub
 		outState.putString("mCacheImageFilePath", mCacheImageFilePath);
+		outState.putParcelableArrayList("ablumPhotoList", (ArrayList<? extends Parcelable>) ablumPhotoList);
+		outState.putInt("mPageIndex", mPageIndex);
 		
 		super.onSaveInstanceState(outState);
+	}
+	
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		
+		if (pDialog != null)
+		{
+			pDialog.dismiss();
+		}
+		pDialog = null;
 	}
 	
 	private String getFilepathFromUri(Uri uri) {
@@ -555,7 +587,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		msg.getData().putString("filelocalpath", filepath);
 		msg.getData().putInt("uploadcount", uploadcount);
 		msg.what = UPLOAD_ALBUM;
-
+		
 		handler.sendMessage(msg);
 	}
 
@@ -595,7 +627,6 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				if (mAlbumUrllist == null || "".equals(mAlbumUrllist)) {
 					ParsePhotoJson();
 				} else {
-					List<Map> list = new ArrayList<Map>();
 					String[] items;
 					if (mAlbumUrllist != null && !"".equals(mAlbumUrllist)) {
 						items = mAlbumUrllist.split(",");
@@ -605,29 +636,29 @@ public class AlbumScreen extends Screen implements OnClickListener {
 							map.put("title", "");
 							map.put("filepath", items[i]);
 							map.put("isweb", 1);
-							list.add(map);
+							ablumPhotoList.add(map);
 						}
 					}
-
-			        int pageNo = (int)Math.ceil( list.size()/APP_PAGE_SIZE);
-					for (int i = 0; i < pageNo; i++) {
-						GridView appPage = new GridView(mContext);
-						// get the "i" page data
-						mLastChildAdapter = new PhotoAdapter(mContext, GridView.class, list, i);
-						appPage.setAdapter(mLastChildAdapter);
-						appPage.setNumColumns(3);
-						appPage.setGravity(Gravity.CENTER);
-						appPage.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
-						appPage.setVerticalSpacing(12);
-						appPage.setHorizontalSpacing(10);
-						appPage.setColumnWidth(90);
-						appPage.setOnItemClickListener(mItemClickListener);
-						appPage.setSelector(new ColorDrawable(Color.TRANSPARENT));
-						mPhotoView.addView(appPage);
-					}
-					
-					mGalleryPhotoAdapter = new PhotoAdapter(mContext, Gallery.class, list, 0);
-					mPhotoGallery.setAdapter(mGalleryPhotoAdapter);
+//			        int pageNo = (int)Math.ceil( list.size()/APP_PAGE_SIZE);
+//					for (int i = 0; i < pageNo; i++) {
+//						GridView appPage = new GridView(mContext);
+//						// get the "i" page data
+//						mLastChildAdapter = new PhotoAdapter(mContext, GridView.class, list,i);
+//						appPage.setAdapter(mLastChildAdapter);
+//						appPage.setNumColumns(3);
+//						appPage.setGravity(Gravity.CENTER);
+//						appPage.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
+//						appPage.setVerticalSpacing(12);
+//						appPage.setHorizontalSpacing(10);
+//						appPage.setColumnWidth(90);
+//						appPage.setOnItemClickListener(mItemClickListener);
+//						appPage.setSelector(new ColorDrawable(Color.TRANSPARENT));
+//						mPhotoView.addView(appPage);
+//					}
+//					
+//					mGalleryPhotoAdapter = new PhotoAdapter(mContext, Gallery.class, list, 0);
+//					mPhotoGallery.setAdapter(mGalleryPhotoAdapter);
+					setAblumLayout(ablumPhotoList);
 
 					//dataLoad.bindScrollViewGroup(mPhotoView);
 			     }
@@ -736,7 +767,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				uploadnewmsg.getData().putString("expandname", aExpandName);
 				uploadnewmsg.getData().putString("filelocalpath", aFilePath);
 				uploadnewmsg.getData().putInt("uploadcount", aUploadCount);
-
+				
 			}
 				break;
 				
@@ -746,8 +777,12 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				map.put("title", "");
 				map.put("filepath", msg.getData().getString("filelocalpath"));
 				map.put("isweb", 0);
+				ablumPhotoList.add(map);
+				NoPhotoPrompt.setVisibility(View.INVISIBLE);
+				mPhotoView.setVisibility(View.VISIBLE);
 				System.out.println("UPLOAD_ALBUM_OK" + msg.getData().getString("filelocalpath"));
 				if (mLastChildAdapter == null || mLastChildAdapter.getCount() == (int)APP_PAGE_SIZE) {
+					
 					List<Map> list = new ArrayList<Map>();
 					list.add(map);
 
@@ -767,6 +802,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					mLastChildAdapter.addNewItem(map);
 					mLastChildAdapter.notifyDataSetChanged();
 				}
+				
 				mGalleryPhotoAdapter.addNewItem(map);
 				mGalleryPhotoAdapter.notifyDataSetChanged();
 				break;
@@ -798,6 +834,11 @@ public class AlbumScreen extends Screen implements OnClickListener {
 					MyThread m = new MyThread();
 					new Thread(m).start();
 					// mDialogCheckSignature.dismiss();
+				}
+				else
+				{
+					NoPhotoPrompt.setVisibility(View.VISIBLE);
+					mPhotoView.setVisibility(View.INVISIBLE);
 				}
 
 				break;
@@ -863,9 +904,11 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		myHandler = new MyHandler(this,1);
 		handler = new UpDownloadHandler();
 		//起一个线程更新数据
-		MyThread m = new MyThread();
-		new Thread(m).start();
-		
+		if (activityFirstStart)
+		{
+			MyThread m = new MyThread();
+			new Thread(m).start();
+		}
 	}
 	
 	private void showSelImageDialog() {
@@ -944,6 +987,52 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		mTitleLayout.setBackgroundResource(R.drawable.title_bar_background);
 		mBtnGalleryBack.setVisibility(View.VISIBLE);
 		mGalleryTitle.setVisibility(View.VISIBLE);
+	}
+	
+	private void createProgressDialog()
+	{
+		pDialog = new ProgressDialog(AlbumScreen.this);
+		pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		pDialog.setTitle(getString(R.string.photo_upload_title));
+		pDialog.setMessage(getString(R.string.photo_uploading)); 
+		pDialog.setIndeterminate(false);
+		pDialog.setCancelable(false);
+		pDialog.setButton(getString(R.string.photo_upload_cancel), new DialogInterface.OnClickListener(){   
+			@Override  
+			public void onClick(DialogInterface dialog, int which) 
+			{   
+				if (uploadTask != null)
+				{
+					mAlbumObj.cancleUpload(uploadTask);
+				}
+				dialog.dismiss();   
+			}                 
+		});
+	}
+	
+	public void setAblumLayout(List<Map> list)
+	{
+		int pageNo = (int)Math.ceil( list.size()/APP_PAGE_SIZE);
+		for (int i = 0; i < pageNo; i++) {
+			GridView appPage = new GridView(mContext);
+			// get the "i" page data
+			mLastChildAdapter = new PhotoAdapter(mContext, GridView.class, list,i);
+			appPage.setAdapter(mLastChildAdapter);
+			appPage.setNumColumns(3);
+			appPage.setGravity(Gravity.CENTER);
+			appPage.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
+			appPage.setVerticalSpacing(12);
+			appPage.setHorizontalSpacing(10);
+			appPage.setColumnWidth(90);
+			appPage.setOnItemClickListener(mItemClickListener);
+			appPage.setSelector(new ColorDrawable(Color.TRANSPARENT));
+			mPhotoView.addView(appPage);
+		}
+		
+		mPhotoView.setToScreen(mPageIndex);
+		
+		mGalleryPhotoAdapter = new PhotoAdapter(mContext, Gallery.class, list, 0);
+		mPhotoGallery.setAdapter(mGalleryPhotoAdapter);
 	}
 }
 

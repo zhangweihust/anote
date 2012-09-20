@@ -6,21 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 import com.archermind.note.R;
-import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Utils.BitmapCache;
 import com.archermind.note.Utils.ImageCapture;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.CursorAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -48,10 +44,10 @@ public class PhotoAdapter extends BaseAdapter {
 				i++;
 			}
 		} else {
-			mList = list;
+			mList.addAll(list);
 		}
 	}
-
+	
 	public int getCount() {
 		// TODO Auto-generated method stub
 		return mList.size();
@@ -71,7 +67,7 @@ public class PhotoAdapter extends BaseAdapter {
 		// TODO Auto-generated method stub
 		return position;
 	}
-
+	
 	public View getView(int position, View convertView, ViewGroup parent) {
 		Map appInfo = mList.get(position);
 		final String title = appInfo.get("title").toString();
@@ -233,28 +229,29 @@ public class PhotoAdapter extends BaseAdapter {
 				item.finalfilepath)) {
 			image = BitmapCache.getInstance().getBitmap(item.finalfilepath);
 			if (image != null) {
-				item.imageBitmap = image;
+				image = ImageCapture.zoomBitmap(image,100,100);
+				item.imageBitmap = ImageCapture.getRoundedCornerBitmap(image,15.0f);
 				item.uri = Uri.fromFile(file);
 			}
 			else
 			{
 				BitmapCache.getInstance().deleteCacheBitmap(item.finalfilepath);
 				System.out.println("BitmapCache.size = " + BitmapCache.getInstance().size() + " mList.size = " + mList.size());
-				image = BitmapCache.decodeBitmap(item.finalfilepath);
+				image = ImageCapture.zoomBitmap(BitmapCache.decodeBitmap(item.finalfilepath),100,100);
 				if (image != null) {
 					BitmapCache.getInstance().addCacheBitmap(image,
 							item.finalfilepath);
-					item.imageBitmap = image;
+					item.imageBitmap = ImageCapture.getRoundedCornerBitmap(image,15.0f);
 					item.uri = Uri.fromFile(file);
 				}
 			}
 		} else {
 			System.out.println("=CCC= insert" + item.finalfilepath);
-			image = BitmapCache.decodeBitmap(item.finalfilepath);
+			image = ImageCapture.zoomBitmap(BitmapCache.decodeBitmap(item.finalfilepath),100,100);
 			if (image != null) {
 				BitmapCache.getInstance().addCacheBitmap(image,
 						item.finalfilepath);
-				item.imageBitmap = image;
+				item.imageBitmap = ImageCapture.getRoundedCornerBitmap(image,15.0f);
 				item.uri = Uri.fromFile(file);
 			}
 		}

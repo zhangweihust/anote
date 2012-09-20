@@ -74,10 +74,21 @@
 							android:orientation="vertical">
 						</LinearLayout>
 					</RelativeLayout>
-					<com.archermind.note.Views.AlbumScrollLayout
+					<FrameLayout
+					    android:layout_weight="1"
+						android:layout_width="fill_parent" 
+						android:layout_height="fill_parent">
+						<TextView
+						    android:id="@+id/NoPhotoPrompt"
+						    android:layout_width="fill_parent"
+						    android:layout_height="fill_parent"
+						    android:gravity="center"
+						    android:text="@string/album_no_photo"
+						    android:textSize="18dp"
+						    android:visibility="invisible" />
+					    <com.archermind.note.Views.AlbumScrollLayout
 				        xmlns:android="http://schemas.android.com/apk/res/android"
 				        android:id="@+id/ScrollLayoutTest"
-				        android:layout_weight="1"
 						android:layout_width="fill_parent" 
 						android:layout_height="fill_parent"
 				        android:layout_gravity="center_horizontal"
@@ -86,6 +97,7 @@
 				        android:layout_below="@id/p_grid_relativeLayout1"
 				        >
 				    </com.archermind.note.Views.AlbumScrollLayout>
+					</FrameLayout>
 				</LinearLayout>
 			</FrameLayout>
 		</RelativeLayout>

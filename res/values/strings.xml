@@ -706,6 +706,8 @@
 	<string name="photo_upload_failed">上传失败</string>
 	<string name="photo_uploading">正在上传图片...</string>
 	<string name="photo_upload_cancel">取消上传</string>
+	<string name="album_no_photo">相册中没有图片哦</string>
+	
 	
 	<string name="content_empty">回复的内容不能为空哦</string>
 	<string name="note_reply">回复</string>
