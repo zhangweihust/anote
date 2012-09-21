@@ -2,6 +2,7 @@ package com.archermind.note.Screens;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Events.EventArgs;
+import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Services.EventService;
 import com.archermind.note.Services.ServiceManager;
@@ -113,13 +115,31 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	                    view.getSettings().setJavaScriptEnabled(true);  
 	                    return true;
 	            }
+	            
 
-			/*	@Override
+				@Override
+				public void onPageStarted(WebView view, String url,
+						Bitmap favicon) {
+					// TODO Auto-generated method stub
+					super.onPageStarted(view, url, favicon);
+					if(view.getTitle()!=null&&!view.getTitle().equals("")){
+					MainScreen.eventService.onUpdateEvent(new EventArgs(
+							EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra(
+							"title",view.getTitle()));
+					}
+				}
+
+
+				@Override
 				public void onPageFinished(WebView view, String url) {
 					// TODO Auto-generated method stub
 					super.onPageFinished(view, url);
-					dismissLoadingProgress();
-				}	*/ 
+					if(view.getTitle()!=null&&!view.getTitle().equals("")){
+						MainScreen.eventService.onUpdateEvent(new EventArgs(
+								EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra(
+								"title",view.getTitle()));
+						}
+				}	 
 	            
 	            
 	         }); 
