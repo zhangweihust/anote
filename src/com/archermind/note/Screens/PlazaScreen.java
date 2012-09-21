@@ -89,7 +89,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		        mWebView.setVisibility(View.VISIBLE);
 		        mTextView.setVisibility(View.GONE);
 		        mWebView.getSettings().setJavaScriptEnabled(true); 
-		        mWebView.getSettings().setBuiltInZoomControls(true);
+		       // mWebView.getSettings().setBuiltInZoomControls(true);
 		        mWebView.getSettings().setUserAgentString(USER_AGENT);
 		        mWebView.requestFocus();
 		        if(ServiceManager.isLogin()){

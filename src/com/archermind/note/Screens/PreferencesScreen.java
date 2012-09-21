@@ -24,7 +24,6 @@ import com.archermind.note.R;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;
-import com.archermind.note.Views.CustomDialog;
 
 public class PreferencesScreen extends Screen implements OnClickListener {
 

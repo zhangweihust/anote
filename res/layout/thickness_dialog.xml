@@ -3,44 +3,61 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center_vertical|center"
-    android:orientation="vertical" >
+    android:orientation="vertical">
+    
+    <TextView
+    android:id="@+id/dialog_title"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_title_bg"
+    android:gravity="center"
+    android:text="@string/edit_pick_thinkness"
+    android:textColor="@color/white"
+    android:textSize="@dimen/dialog_title" />
     
     <TextView
         android:id="@+id/thickness_textview"
         android:layout_width="wrap_content"
-        android:layout_height="30dp"
+        android:layout_height="wrap_content"
         android:text="12px"
+        android:textSize="@dimen/dialog_items"
+        android:textColor="@color/dialog_items_color"
         />
 	        
 	<LinearLayout 
 	    android:layout_width="wrap_content"
-        android:layout_height="30dp"
-        android:layout_marginTop="20dp"
-        android:orientation="horizontal"  >
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:orientation="horizontal" 
+        android:gravity="center_vertical" >
            
 	    <TextView
 	        android:layout_width="wrap_content"
-	        android:layout_height="30dp"
-	        android:gravity="center_vertical"
+	        android:layout_height="wrap_content"
 	        android:text="细"
+	        android:textSize="@dimen/dialog_items"
+	         android:textColor="@color/dialog_items_color"
 	        />
 	      
 	    <SeekBar
 	        android:id="@+id/thickness_setting_bar"
-	        android:layout_width="200dp"
-	        android:layout_height="30dp"
+	        android:layout_width="170dp"
+	        android:layout_height="wrap_content"
 	        android:layout_marginLeft="5dp"
-	        android:maxHeight="8dp"
+	        android:maxHeight="12dp"
 	        android:max="24"
 	        android:progress="12"
 	        android:secondaryProgress="24"
+	        android:textSize="@dimen/dialog_items"
+	        android:scrollbarStyle="outsideOverlay"
 	        />
 	    <TextView
 	        android:layout_width="wrap_content"
-	        android:layout_height="30dp"
-	        android:gravity="center_vertical"
+	        android:layout_height="wrap_content"
 	        android:layout_marginLeft="5dp"
 	        android:text="粗"
+	        android:textSize="@dimen/dialog_items"
+	        android:textColor="@color/dialog_items_color"
 	        />
     </LinearLayout>  
 

@@ -5,7 +5,15 @@
     android:orientation="vertical"
     android:background="@color/transparent"
     >
-    
+     <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/dialog_title_bg"
+        android:gravity="center"
+        android:text="@string/edit_pick_face"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dialog_title" />
     <GridView
 	    android:id="@+id/face_gridview"
 	    android:layout_width="fill_parent"

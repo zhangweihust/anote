@@ -2,6 +2,7 @@ package com.archermind.note.editnote;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.R.color;
 import com.archermind.note.Utils.DensityUtil;
 
 import android.os.Bundle;
@@ -9,9 +10,16 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.*;
 import android.graphics.Paint.Align;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 
 
@@ -28,16 +36,16 @@ public class ColorPickerDialog extends Dialog {
         private Paint mPaint;
         private Paint mCenterPaint;
         private Paint mTextPaint;
-        private final int[] mColors;
+        private final int[] mColors = new int[] {
+                0xFFFF0000, 0xFFFF00FF, 0xFF0000FF, 0xFF00FFFF, 0xFF00FF00,
+                0xFFFFFF00, 0xFF000000,0xFFFF0000
+            };
         private OnColorChangedListener mListener;
+        
         
         ColorPickerView(Context c, OnColorChangedListener l, int color) {
             super(c);
             mListener = l;
-            mColors = new int[] {
-                0xFFFF0000, 0xFFFF00FF, 0xFF0000FF, 0xFF00FFFF, 0xFF00FF00,
-                0xFFFFFF00, 0xFF000000,0xFFFF0000
-            };
             Shader s = new SweepGradient(0, 0, mColors, null);
             
             mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -64,7 +72,6 @@ public class ColorPickerDialog extends Dialog {
             float r = CENTER_X - mPaint.getStrokeWidth()*0.5f;
             
             canvas.translate(CENTER_X, CENTER_X);
-            
             canvas.drawOval(new RectF(-r, -r, r, r), mPaint);
             canvas.drawCircle(0, 0, CENTER_RADIUS, mCenterPaint);
             canvas.drawText("OK", 0, DensityUtil.dip2px(mContext, 6), mTextPaint);
@@ -208,10 +215,10 @@ public class ColorPickerDialog extends Dialog {
         }
     }
 
-    public ColorPickerDialog(Context context,
+    public ColorPickerDialog(Context context,int style,
                              OnColorChangedListener listener,
                              int initialColor) {
-        super(context);
+        super(context, style);
         
         mContext = context;
         mListener = listener;
@@ -227,10 +234,30 @@ public class ColorPickerDialog extends Dialog {
                 dismiss();
             }
         };
+        
+        int padding = DensityUtil.dip2px(this.getContext(), 8);
+        LinearLayout layout = new LinearLayout(ColorPickerDialog.this.getContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setGravity(Gravity.CENTER);
+        layout.setPadding(0, 0, 0, padding);
+      LinearLayout.LayoutParams layoutParams =  new LinearLayout.LayoutParams(DensityUtil.dip2px(this.getContext(), 240),ViewGroup.LayoutParams.WRAP_CONTENT);
+      TextView textView = new TextView(this.getContext());
+      textView.setText(R.string.edit_pick_color);
+      textView.setBackgroundResource(R.drawable.dialog_title_bg);
+      textView.setId(25);
+      textView.setTextSize(this.getContext().getResources().getDimension(R.dimen.dialog_title));
+      textView.setTextColor(Color.WHITE);   
+      textView.setGravity(Gravity.CENTER);
+       LinearLayout.LayoutParams subParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+    		   ViewGroup.LayoutParams.WRAP_CONTENT);
+       layout.addView(textView,subParams);
+       ColorPickerView mColorPicker= new ColorPickerView(getContext(), l, mInitialColor);   
+      
+       
+       layout.addView(mColorPicker, subParams);
 
-        setContentView(new ColorPickerView(getContext(), l, mInitialColor));
+        setContentView(layout, layoutParams);
         setCanceledOnTouchOutside(true);
-        setTitle(NoteApplication.getContext().getString(R.string.edit_pick_color));
     }
 
 }

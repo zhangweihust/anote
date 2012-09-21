@@ -90,8 +90,8 @@
 	<dimen name="kmedia_dialog_button_textSize">18dp</dimen> 
 	
 	<!-- dialog -->
-	<dimen name="dialog_title">18sp</dimen>
-	<dimen name="dialog_btn">16sp</dimen>
-	<dimen name="dialog_items">16sp</dimen>
+	<dimen name="dialog_title">18dp</dimen>
+	<dimen name="dialog_btn">16dp</dimen>
+	<dimen name="dialog_items">16dp</dimen>
 </resources>
 

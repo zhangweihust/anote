@@ -90,7 +90,7 @@ public class NoteReplyScreen extends Screen implements OnClickListener {
 	}
 	
 	private void initFaceDialog() {
-		facechoose_dialog = new Dialog(this,R.style.transparentDialog);
+		facechoose_dialog = new Dialog(this,R.style.CornerDialog);
 		facechoose_dialog.setContentView(R.layout.face_dialog_window);
 		
 		facechoose_dialog.setTitle(getString(R.string.edit_pick_face));

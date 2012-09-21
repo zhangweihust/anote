@@ -11,8 +11,10 @@
     <string name="menu_right_info">通知</string>
     <string name="menu_right_feedback">反馈</string>
     <string name="menu_right_setting">设置</string>
-    <string name="edit_pick_color">请选择颜色</string>
-    <string name="edit_pick_face">请选择表情：</string>
+    <string name="edit_pick_color">请选择笔迹颜色</string>
+    <string name="edit_pick_face">请选择表情</string>
+    <string name="edit_pick_thinkness">请选择笔迹粗细</string>
+    
 
     <!-- calendar -->
     <string name="calendar_mon">周一</string>

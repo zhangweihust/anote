@@ -950,6 +950,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 	 */
 	public boolean moveNextPage(boolean isSave) {
 		if (mCurPage < mTotalPage) {
+			TextView tmpTextView = myEdit;
 			int pageStart = findNextPage(mLastPageEnd);
 			if (pageStart == -1) {
 				return false;
@@ -989,6 +990,8 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			}
 
 			if (isSave) {
+				System.out.println("flipper =2= " + flipper.getChildCount() + ", " + flipper.getCurrentView());
+
 				flipper.removeAllViews();
 				flipper.setVisibility(View.GONE);
 
@@ -1000,10 +1003,12 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			} else {
 				FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
 				fl.removeView(myEdit);
+				System.out.println("flipper =0= " + flipper.getChildCount() + ", " + flipper.getCurrentView());
 				isRemoveEdit = true;
 
 				flipper.removeAllViews();
 				flipper.addView(myEdit, 0);
+				System.out.println("flipper =1= " + flipper.getChildCount() + ", " + flipper.getCurrentView());
 
 				flipper.setInAnimation(AnimationUtils.loadAnimation(this,
 						R.anim.push_left_in));
@@ -1293,7 +1298,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 	 * 初始化粗细对话框
 	 */
 	private void initThicknessDialog() {
-		thickness_dialog = new Dialog(this, R.style.CustomDialog);
+		thickness_dialog = new Dialog(this, R.style.CornerDialog);
 		thickness_dialog.setContentView(R.layout.thickness_dialog);
 
 		thickness_seekbar = (SeekBar) thickness_dialog
@@ -1663,10 +1668,10 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 						gestureview.setGestureColor(color);
 					}
 				};
-				new ColorPickerDialog(this, listener,
+				new ColorPickerDialog(this, R.style.CornerDialog,listener,
 						gestureview.getGestureColor()).show();
 			} else if (mState == GRAFFITINSERTSTATE) {
-				new ColorPickerDialog(this, myEdit, myEdit.getFingerPen()
+				new ColorPickerDialog(this, R.style.CornerDialog, myEdit, myEdit.getFingerPen()
 						.getColor()).show();
 			} /*
 			 * else if (mState == SOFTINPUTSTATE) { OnColorChangedListener
@@ -2563,8 +2568,8 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 					+ overlay.getLeft() + ", top : " + overlay.getTop()
 					+ ", bottom : " + overlay.getBottom() + ", Right : "
 					+ overlay.getRight());
-			System.out.println("==onGestureCancelled== width : "
-					+ overlay.getWidth() + ", heigth : " + overlay.getHeight());
+			System.out.println("==onGestureCancelled gestureview== width : "
+					+ gestureview.getWidth() + ", heigth : " + gestureview.getHeight());
 
 			if (mGesture == null) {
 				return;
