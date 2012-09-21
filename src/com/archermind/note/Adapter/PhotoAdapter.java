@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class PhotoAdapter extends BaseAdapter {
@@ -88,6 +89,8 @@ public class PhotoAdapter extends BaseAdapter {
 						.findViewById(R.id.image);
 				viewHolder.selectedImage = (ImageView) convertView
 						.findViewById(R.id.selected);
+				viewHolder.loadprogress = (LinearLayout) convertView
+				.findViewById(R.id.loading);
 			} else {
 				convertView = LayoutInflater.from(mContext).inflate(
 						R.layout.photo_item, null);
@@ -122,6 +125,11 @@ public class PhotoAdapter extends BaseAdapter {
 		viewHolder.isWebImage = (isWebImage == 1 ? true : false);
 
 		if (this.clazz == GridView.class) {
+			if (viewHolder.isLoading == false) {
+				viewHolder.image.setVisibility(View.INVISIBLE);
+				viewHolder.loadprogress.setVisibility(View.VISIBLE);
+			}
+			
 			Thread newThread = new Thread() {
 				@Override
 				public void run() {
@@ -130,6 +138,7 @@ public class PhotoAdapter extends BaseAdapter {
 						return;
 					}
 					
+					
 					loadBitmap(viewHolder);
 
 					mHandler.post(new Runnable() {
@@ -137,6 +146,8 @@ public class PhotoAdapter extends BaseAdapter {
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
+							viewHolder.loadprogress.setVisibility(View.INVISIBLE);
+							viewHolder.image.setVisibility(View.VISIBLE);
 							viewHolder.image
 									.setImageBitmap(viewHolder.imageBitmap);
 						}
@@ -269,5 +280,6 @@ public class PhotoAdapter extends BaseAdapter {
 		//public boolean mustLoad;
 		public boolean isLoading;
 		public boolean isWebImage;
+		public LinearLayout loadprogress;
 	}
 }

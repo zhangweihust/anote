@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.net.Uri;
@@ -35,6 +36,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Parcelable;
 import android.provider.MediaStore.Audio;
+import android.text.TextUtils;
 import android.util.MonthDisplayHelper;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -66,6 +68,7 @@ import com.archermind.note.Adapter.PhotoAdapter;
 import com.archermind.note.Adapter.PhotoAdapter.ViewHolder;
 import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Screens.RegisterScreen.UploadAvatarTask;
+import com.archermind.note.Services.ExceptionService;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.AlbumInfoUtil;
 import com.archermind.note.Utils.ImageCapture;
@@ -160,81 +163,86 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			// 处理图片上传过程发送的消息
-			switch (msg.what) {
-			case MessageTypes.ERROR_MESSAGE:
-				dismissProgress();
-				if (pDialog == null)
-				{
-					createProgressDialog();
-				}
-				pDialog.dismiss();
-				uploadnewmsg.what = UPLOAD_ALBUM_ERROR;
-				handler.sendMessage(uploadnewmsg);
-				break;
-			case MessageTypes.MESSAGE_CREATEALBUM:
-				mAlbumObj.requestAlbumidInfo(ServiceManager
-						.getUserName());
-				break;
-			case MessageTypes.MESSAGE_GETALBUM:
-				AlbumItem[] albumItems = AlbumInfoUtil.getAlbumInfos(mAlbumObj,
-						msg.obj);
-				if (albumItems == null) {
-					mAlbumObj.createAlbum(ServiceManager
-							.getUserName(), ALBUMNAME);
-					break;
-				}
-				int albumid = -1;
-				for (int i = 0; i < albumItems.length; i++) {
-					if (albumItems[i].albumname.equals(ALBUMNAME)) {
-						albumid = albumItems[i].albumid;
-					}
-				}
-				if (albumid == -1) {
-					mAlbumObj.createAlbum(ServiceManager
-							.getUserName(), ALBUMNAME);
-				} else {
-					ArrayList<String> picPath = new ArrayList<String>();
-					picPath.add(mAvatarPath);
-					ArrayList<String> picNames = new ArrayList<String>();
-					picNames.add(mAvatarPath.substring(mAvatarPath
-							.lastIndexOf("/") + 1));
-					uploadTask = mAlbumObj.uploadPicFiles(picPath, picNames, albumid);
+			try {
+				switch (msg.what) {
+				case MessageTypes.ERROR_MESSAGE:
+					dismissProgress();
 					if (pDialog == null)
 					{
 						createProgressDialog();
 					}
-					pDialog.show();
-				}
-				break;
-			case MessageTypes.MESSAGE_UPLOADPIC:
-				uploadTask = null;
-				if (pDialog == null)
-				{
-					createProgressDialog();
-				}
-				pDialog.dismiss();
-				
-				// 上传头像文件成功，开始执行插入数据库操作
-				String filepath = mAvatarPath.substring(mAvatarPath.lastIndexOf("/") + 1);
-				int ret = ServerInterface.uploadAlbum(String.valueOf(ServiceManager.getUserId()), filepath, ALBUMNAME);
-				if (ret == ServerInterface.SUCCESS)
-				{
-					uploadnewmsg.what = UPLOAD_ALBUM_OK;
+					pDialog.dismiss();
+					uploadnewmsg.what = UPLOAD_ALBUM_ERROR;
 					handler.sendMessage(uploadnewmsg);
+					break;
+				case MessageTypes.MESSAGE_CREATEALBUM:
+					mAlbumObj.requestAlbumidInfo(ServiceManager
+							.getUserName());
+					break;
+				case MessageTypes.MESSAGE_GETALBUM:
+					AlbumItem[] albumItems = AlbumInfoUtil.getAlbumInfos(mAlbumObj,
+							msg.obj);
+					if (albumItems == null) {
+						mAlbumObj.createAlbum(ServiceManager
+								.getUserName(), ALBUMNAME);
+						break;
+					}
+					int albumid = -1;
+					for (int i = 0; i < albumItems.length; i++) {
+						if (albumItems[i].albumname.equals(ALBUMNAME)) {
+							albumid = albumItems[i].albumid;
+						}
+					}
+					if (albumid == -1) {
+						mAlbumObj.createAlbum(ServiceManager
+								.getUserName(), ALBUMNAME);
+					} else {
+						ArrayList<String> picPath = new ArrayList<String>();
+						picPath.add(mAvatarPath);
+						ArrayList<String> picNames = new ArrayList<String>();
+						picNames.add(mAvatarPath.substring(mAvatarPath
+								.lastIndexOf("/") + 1));
+						uploadTask = mAlbumObj.uploadPicFiles(picPath, picNames, albumid);
+						if (pDialog == null)
+						{
+							createProgressDialog();
+						}
+						pDialog.show();
+					}
+					break;
+				case MessageTypes.MESSAGE_UPLOADPIC:
+					uploadTask = null;
+					if (pDialog == null)
+					{
+						createProgressDialog();
+					}
+					pDialog.dismiss();
+					
+					// 上传头像文件成功，开始执行插入数据库操作
+					String filepath = mAvatarPath.substring(mAvatarPath.lastIndexOf("/") + 1);
+					int ret = ServerInterface.uploadAlbum(String.valueOf(ServiceManager.getUserId()), filepath, ALBUMNAME);
+					if (ret == ServerInterface.SUCCESS)
+					{
+						uploadnewmsg.what = UPLOAD_ALBUM_OK;
+						handler.sendMessage(uploadnewmsg);
+					}
+					else if (ret == ALBUM_COOKIES_ERROR)
+					{
+						ServiceManager.setLogin(false);
+						Toast.makeText(AlbumScreen.this, R.string.cookies_error, Toast.LENGTH_SHORT).show();
+						Intent intent = new Intent(AlbumScreen.this,LoginScreen.class);
+						startActivity(intent);
+					}
+					else
+					{
+						Toast.makeText(AlbumScreen.this, filepath + " " + getResources().getString(R.string.photo_upload_failed), Toast.LENGTH_SHORT).show();
+					}
+				default:
+					break;
 				}
-				else if (ret == ALBUM_COOKIES_ERROR)
-				{
-					ServiceManager.setLogin(false);
-					Toast.makeText(AlbumScreen.this, R.string.cookies_error, Toast.LENGTH_SHORT).show();
-					Intent intent = new Intent(AlbumScreen.this,LoginScreen.class);
-					startActivity(intent);
-				}
-				else
-				{
-					Toast.makeText(AlbumScreen.this, filepath + " " + getResources().getString(R.string.photo_upload_failed), Toast.LENGTH_SHORT).show();
-				}
-			default:
-				break;
+			} catch (Exception e) {
+				// TODO: handle exception
+				ExceptionService.logException(e);
 			}
 		}
 
@@ -311,6 +319,11 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		mBtnGridInsertImage = (Button) findViewById(R.id.bt_insert_image);
 		
 		NoPhotoPrompt = (TextView) findViewById(R.id.NoPhotoPrompt);
+		
+		if (android.os.Build.VERSION.SDK_INT > 8) {
+			Typeface type = Typeface.createFromAsset(getAssets(), "xdxwzt.ttf");
+			NoPhotoPrompt.setTypeface(type);
+		}
 		
 		mBtnGalleryBack.setOnClickListener(this);
 		mBtnGridBack.setOnClickListener(this);
@@ -757,8 +770,14 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				int aUploadCount = msg.getData().getInt("uploadcount");
 
 				mAvatarPath = aFilePath;
-				mAlbumObj.requestAlbumidInfo(ServiceManager
-						.getUserName());
+				if (!TextUtils.isEmpty(albumname))
+				{
+					mAlbumObj.requestAlbumidInfo(albumname);
+				}
+				else
+				{
+					Toast.makeText(mContext, "邮箱帐号为空", Toast.LENGTH_SHORT).show();
+				}
 //				int result = serverInterface.uploadAlbum(mContext, user_id,
 //						albumname, username, aFilePath, aName, aExpandName);
 
