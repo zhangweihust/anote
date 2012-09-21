@@ -47,6 +47,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.SystemClock;
+import android.provider.ContactsContract.CommonDataKinds.Event;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spannable;
@@ -72,9 +74,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.archermind.note.NoteApplication;
@@ -111,6 +115,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 	private ImageButton edit_input_type = null; // 输入模式（手写，涂鸦，阅读）
 	private ImageButton edit_setting = null; // 设置按钮（粗细，颜色）
 	private LinearLayout mEditLayout; // 包括以上4个按钮的编辑框部分
+	private ScrollView mScrollView = null;
 
 	private ImageView mWeatherImg = null; // 天气按钮
 
@@ -204,7 +209,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 
 	private boolean isNoteSaveOver = false; // 笔记是否已经保存完成
 
-	private boolean isRemoveEdit = false; // EditText是否在布局中被移除
+	//private boolean isRemoveEdit = false; // EditText是否在布局中被移除
 
 	private String mShareNoteId = ""; // 笔记数据库id
 	private String mShareNoteTitle = ""; // 笔记名称
@@ -232,6 +237,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		mColorFullRectView = (ColorFullRectView) findViewById(R.id.colorfull_rect);
 		// EditText
 		myEdit = (MyEditText) findViewById(R.id.editText_view);
+		mScrollView = (ScrollView)findViewById(R.id.sv_outside_editview);
 
 		// 最底下一排的四个按钮
 		edit_insert = (ImageButton) findViewById(R.id.edit_insert);
@@ -661,7 +667,6 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				Bitmap bmp = Bitmap.createBitmap(dip2px(48), dip2px(48
 						* height / width),
 						Bitmap.Config.ARGB_8888);
-				;
 				bmp.eraseColor(0x00000000);
 				Canvas canvas = new Canvas(bmp);
 				Bitmap gestrueBmp = gesture.toBitmap(dip2px(48), dip2px(48
@@ -950,7 +955,6 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 	 */
 	public boolean moveNextPage(boolean isSave) {
 		if (mCurPage < mTotalPage) {
-			TextView tmpTextView = myEdit;
 			int pageStart = findNextPage(mLastPageEnd);
 			if (pageStart == -1) {
 				return false;
@@ -994,20 +998,19 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 
 				flipper.removeAllViews();
 				flipper.setVisibility(View.GONE);
-
-				if (isRemoveEdit) {
-					FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
-					fl.addView(myEdit);
+				
+				FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
+				System.out.println("==fl.getChildCount : " + fl.getChildCount());
+				if (fl.getChildCount()==3) {
+					fl.addView(mScrollView);
 					 //isRemoveEdit = false;
 				}
 			} else {
 				FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
-				fl.removeView(myEdit);
+				fl.removeView(mScrollView);
 				System.out.println("flipper =0= " + flipper.getChildCount() + ", " + flipper.getCurrentView());
-				isRemoveEdit = true;
-
 				flipper.removeAllViews();
-				flipper.addView(myEdit, 0);
+				flipper.addView(mScrollView, 0);
 				System.out.println("flipper =1= " + flipper.getChildCount() + ", " + flipper.getCurrentView());
 
 				flipper.setInAnimation(AnimationUtils.loadAnimation(this,
@@ -1016,6 +1019,8 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 						R.anim.push_left_out));
 
 				flipper.setDisplayedChild(0);
+				Toast.makeText(EditNoteScreen.this, "第" + (mCurPage+1) + "页, 共"+ (mTotalPage+1) + "页",
+						Toast.LENGTH_SHORT).show();
 			}
 
 			// FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
@@ -1060,11 +1065,11 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				mLastPageEnd = pageStart + 1;
 			}
 			FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
-			fl.removeView(myEdit);
-			isRemoveEdit = true;
+			fl.removeView(mScrollView);
+			//isRemoveEdit = true;
 
 			flipper.removeAllViews();
-			flipper.addView(myEdit, 0);
+			flipper.addView(mScrollView, 0);
 
 			flipper.setInAnimation(AnimationUtils.loadAnimation(this,
 					R.anim.push_right_in));
@@ -1075,6 +1080,8 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			Selection.setSelection(myEdit.getEditableText(), myEdit.getText()
 					.length());
 			isNeedSaveChange = true;
+			Toast.makeText(EditNoteScreen.this, "第" + (mCurPage+1) + "页, 共"+ (mTotalPage+1) + "页",
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -2559,6 +2566,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				myEdit.onTouchEvent(event2);
 				myEdit.onTouchEvent(event);
 				overlay.clear(false);
+				mColorFullRectView.setVisibility(View.GONE);
 			}
 		}
 

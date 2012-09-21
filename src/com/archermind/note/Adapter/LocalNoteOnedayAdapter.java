@@ -40,12 +40,13 @@ import android.widget.TextView;
 
 public class LocalNoteOnedayAdapter  extends CursorAdapter {
 	private LayoutInflater mInflater;
+	private Context mContext;
 	
 	
 	public LocalNoteOnedayAdapter(Context context, Cursor c) {
 		super(context, c);
 		mInflater = LayoutInflater.from(context);
-
+		mContext = context;
 	}
 
 	@Override
@@ -167,11 +168,18 @@ public class LocalNoteOnedayAdapter  extends CursorAdapter {
 			        	if (store != null && store.getGestures(value) != null) {
 				        	AmGesture gesture = store.getGestures(value).get(0);
 				        	if (gesture != null) {
-				        		Bitmap bmp = Bitmap.createBitmap(DensityUtil.dip2px(context,50), DensityUtil.dip2px(context,71), Bitmap.Config.ARGB_8888);;
-					        	if (bmp != null && !bmp.isRecycled()) {
+				        		int height = 581;
+								int width = 480;
+								Bitmap bmp = Bitmap.createBitmap(DensityUtil.dip2px(mContext,48), DensityUtil.dip2px(mContext,48
+										* height / width),
+										Bitmap.Config.ARGB_8888);
+								if (bmp != null && !bmp.isRecycled()) {
 					        		bmp.eraseColor(0x00000000);
 						        	Canvas canvas = new Canvas(bmp);
-						        	canvas.drawBitmap(gesture.toBitmap(DensityUtil.dip2px(context,44), DensityUtil.dip2px(context,44), 0, gesture.getGesturePaintColor()), DensityUtil.dip2px(context,3), DensityUtil.dip2px(context,20), null);
+						        	canvas.drawBitmap(gesture.toBitmap(DensityUtil.dip2px(mContext,48), DensityUtil.dip2px(mContext,48
+											* height / width), 0,
+											gesture.getGesturePaintColor(),
+											height, width), 0,0, null);
 						        	Drawable drawable = new BitmapDrawable(bmp);
 						            drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
 						  		    ImageSpan span = new ImageSpan(drawable,ImageSpan.ALIGN_BOTTOM);

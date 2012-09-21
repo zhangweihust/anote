@@ -382,7 +382,7 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 		            method.invoke(this, true);
 		        } catch (Exception e) {
 		            // Fallback to the second method
-		        	e.printStackTrace();
+		        	//e.printStackTrace();
 		        }
 //		    }
 		} else {

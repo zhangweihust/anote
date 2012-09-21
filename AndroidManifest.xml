@@ -19,7 +19,9 @@
         </activity>
         <activity android:name=".Screens.PlazaScreen" />
         <activity android:name=".Screens.HomeScreen" />
-        <activity android:name=".Screens.EditNoteScreen" />
+        <activity android:name=".Screens.EditNoteScreen" 
+            android:windowSoftInputMode="adjustUnspecified|stateHidden"
+            android:configChanges="orientation|keyboardHidden"/>
         <activity android:name=".Screens.LoginScreen" />
         <activity android:name=".Screens.InformationScreen" />
         <activity android:name=".Screens.NoteReplyScreen" />

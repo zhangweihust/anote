@@ -142,6 +142,8 @@
                      android:background="@color/transparent"
                      android:layout_weight="1"
                      />
+           
+                     
                  <TextView
                   android:id="@+id/edit_weather_textview"
                   android:layout_width="wrap_content"
@@ -150,6 +152,7 @@
                   android:text="@string/weather_sunny"
                   android:layout_weight="1"
                   />
+                 
              </LinearLayout>
              
          </RelativeLayout>
@@ -167,14 +170,11 @@
                 android:layout_height="fill_parent"
                 android:gravity="center_horizontal"
  			    />
-         	<com.archermind.note.Views.ColorFullRectView
-  			    android:id="@+id/colorfull_rect"
-  			    android:layout_width="fill_parent"
-  			    android:layout_height="fill_parent"
-  			    android:background="@color/transparent"
-  			    android:visibility="gone"
-  			    />
-             
+                   <ScrollView 
+                       android:id="@+id/sv_outside_editview"
+                     android:layout_width="fill_parent"
+                     android:layout_height="fill_parent"
+                     android:orientation="vertical"  >
 		    <com.archermind.note.editnote.MyEditText
 		        android:id="@+id/editText_view"
 		        android:layout_width="fill_parent"
@@ -188,9 +188,15 @@
 		        android:background="@color/transparent"
 		        >
     		</com.archermind.note.editnote.MyEditText>
-            
+            </ScrollView>
 
-		    
+		             	<com.archermind.note.Views.ColorFullRectView
+  			    android:id="@+id/colorfull_rect"
+  			    android:layout_width="fill_parent"
+  			    android:layout_height="fill_parent"
+  			    android:background="@color/transparent"
+  			    android:visibility="gone"
+  			    />
 		    <com.archermind.note.gesture.AmGestureOverlayView
 		           android:id="@+id/gestureview"
 		           android:layout_width="fill_parent"
