@@ -1,91 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content" 
+    android:layout_height="wrap_content"
     android:background="@color/transparent"
     android:paddingLeft="8dp"
-    android:paddingRight="8dp"
-    >  	    
-	    <RelativeLayout
-	       android:id="@+id/rl_note_item"
+    android:paddingRight="8dp" >
+
+    <RelativeLayout
+        android:id="@+id/rl_note_item"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:orientation="horizontal" >
-		           	<TextView
-					android:id="@+id/tv_oneday_days"
-       			 	android:layout_width="wrap_content"
-       				android:layout_height="wrap_content"
-        			android:text="15天前"
-        			android:textColor="@color/note_time_color"
-        			android:textSize="@dimen/home_screen_note_time_info_text_size"
-        			/> 
-		        <RelativeLayout 
-		            android:id="@+id/rl_oneday_note_info"
-		            android:layout_width="fill_parent"
-			        android:layout_height="wrap_content"
-			        android:background="@drawable/note_info_oneday_item_selector"
-			        android:layout_below="@id/tv_oneday_days"
-		            >
-		            <TextView
-		                android:id="@+id/tv_oneday_title"
-		                android:layout_width="wrap_content"
-			        	android:layout_height="wrap_content"
-			        	android:textColor="@color/note_title_color"
-			        	android:textSize="@dimen/home_screen_note_title_text_size"
-		                android:layout_alignParentLeft="true"
-		                android:layout_centerVertical="true"
-		                android:layout_marginLeft="10dip"
-		                android:layout_marginRight="50dip"
-		                android:ellipsize="end"
-		                android:singleLine="true"
-		                />
-		            <TextView 
-		              	android:id="@+id/tv_oneday_time"
-		                android:layout_width="wrap_content"
-			        	android:layout_height="wrap_content"
-			        	android:textColor="@color/note_time_color"
-			        	android:textSize="@dimen/home_screen_note_time_info_text_size"
-		                android:layout_alignParentRight="true"
-		                android:layout_centerVertical="true"
-		                android:layout_marginRight="20dip"
-		                android:text="10:30"
-		                android:textStyle="bold"
-		                />
 
-		            <ImageView 
-		                android:id="@+id/iv_oneday_is_signed"
-		                android:layout_width="wrap_content"
-		                android:layout_height="wrap_content"
-		                android:src="@drawable/note_info_item_signed"
-		                android:layout_alignParentRight="true"
-		                android:layout_marginRight="2dip"
-		                />
-		        </RelativeLayout>
-		        <ImageView 
-		                android:id="@+id/iv_oneday_pic"
-		                android:layout_width="wrap_content"
-		                android:layout_height="wrap_content"
-		                android:layout_below="@id/rl_oneday_note_info"
-		                />
-		        		<TextView 
-		                android:id="@+id/tv_note_content"
-		                android:layout_width="fill_parent"
-		                android:layout_height="wrap_content"
-		                android:layout_below="@id/iv_oneday_pic"
-		                android:text="abbbb"
-		                android:background="@drawable/note_info_oneday_content"
-		                />
-		                <TextView 
-		                android:id="@+id/tv_note_last_edit"
-		                android:layout_width="fill_parent"
-		                android:layout_height="wrap_content"
-		                android:gravity="right"
-		                android:layout_below="@id/tv_note_content"
-		                android:background="@color/transparent"
-		                />
-		       
-        </RelativeLayout>		
-	
+        <TextView
+            android:id="@+id/tv_oneday_days"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="15天前"
+            android:textColor="@color/note_time_color"
+            android:textSize="@dimen/home_screen_note_time_info_text_size" />
+
+        <RelativeLayout
+            android:id="@+id/rl_oneday_note_info"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_oneday_days"
+            android:background="@drawable/note_info_oneday_item_selector" >
+
+            <TextView
+                android:id="@+id/tv_oneday_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="50dip"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:textColor="@color/note_title_color"
+                android:textSize="@dimen/home_screen_note_title_text_size" />
+
+            <TextView
+                android:id="@+id/tv_oneday_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="20dip"
+                android:text="10:30"
+                android:textColor="@color/note_time_color"
+                android:textSize="@dimen/home_screen_note_time_info_text_size"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/iv_oneday_is_signed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="2dip"
+                android:src="@drawable/note_info_item_signed" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_note_content"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/rl_oneday_note_info"
+            android:background="@drawable/note_info_oneday_content"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:id="@+id/iv_oneday_pic"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop" />
+
+            <TextView
+                android:id="@+id/tv_note_content"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="abbbb" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_note_last_edit"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_note_content"
+            android:background="@color/transparent"
+            android:gravity="right" />
+    </RelativeLayout>
+
 </RelativeLayout>

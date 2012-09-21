@@ -1,14 +1,15 @@
 package com.archermind.note.Utils;
 
 public class GenerateName {
+	private String prefix;
 	private long curNum = 0;
 	
-	public GenerateName() {
-		
+	public GenerateName(String prefix) {
+		this.prefix = prefix;
 	}
 	
 	public String generateName() {
-		String retStr = String.valueOf(curNum);
+		String retStr = prefix + String.valueOf(curNum);
 		curNum++;
 		return retStr;
 	}

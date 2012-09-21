@@ -1060,8 +1060,12 @@ public class HomeScreen extends Screen implements IEventHandler,
 					startActivity(intent);
 					return;
 				}
-				ArrayList<String> picPathList = EditNoteScreen.getNotePictureFromZip(mCursor.getString(mCursor
-						.getColumnIndex(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT)));
+				String diaryFilePath = mCursor.getString(mCursor
+						.getColumnIndex(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT))
+						+ ".note";
+				ArrayList<String> picPathList = EditNoteScreen
+						.getNotePictureFromZip(diaryFilePath);
+				picPathList.add(diaryFilePath);//将笔记压缩包的路径也传递过去
 				String sid = mCursor.getString((mCursor
 						.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID)));
 				String action = sid == null ? "A" : "M";
@@ -1092,21 +1096,25 @@ public class HomeScreen extends Screen implements IEventHandler,
 						id);
 			}
 		});
-		
-		TextView deleteView = (TextView) dialog.findViewById(R.id.dialog_item_delete);
+
+		TextView deleteView = (TextView) dialog
+				.findViewById(R.id.dialog_item_delete);
 		deleteView.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				dialog.dismiss();
 				dialog.setContentView(R.layout.dialog_ok_cancel);
-				TextView titleView = (TextView) dialog.findViewById(R.id.dialog_title);
+				TextView titleView = (TextView) dialog
+						.findViewById(R.id.dialog_title);
 				titleView.setText(R.string.dialog_title_tips);
-				TextView msgView = (TextView) dialog.findViewById(R.id.dialog_message);
+				TextView msgView = (TextView) dialog
+						.findViewById(R.id.dialog_message);
 				msgView.setText(R.string.dialog_title_delete);
-				Button btn_ok = (Button) dialog.findViewById(R.id.dialog_btn_ok);
+				Button btn_ok = (Button) dialog
+						.findViewById(R.id.dialog_btn_ok);
 				btn_ok.setOnClickListener(new OnClickListener() {
-					
+
 					@Override
 					public void onClick(View v) {
 						dialog.dismiss();
@@ -1119,9 +1127,10 @@ public class HomeScreen extends Screen implements IEventHandler,
 						}
 					}
 				});
-				Button btn_cancel = (Button) dialog.findViewById(R.id.dialog_btn_cancel);
+				Button btn_cancel = (Button) dialog
+						.findViewById(R.id.dialog_btn_cancel);
 				btn_cancel.setOnClickListener(new OnClickListener() {
-					
+
 					@Override
 					public void onClick(View v) {
 						dialog.dismiss();

@@ -191,7 +191,7 @@ public class ServerInterface {
 		}
 	}
 
-	public String getWeather(String prov, String city) {
+	public static String getWeather(String prov, String city) {
 		String weather = "";
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("city", city);

@@ -84,13 +84,13 @@ public class NoteSaveDialog implements OnClickListener{
 					return;
 				}
 				
-				final String title = mEditText.getEditableText().toString();// 标题
+				String title = mEditText.getEditableText().toString();// 标题
 				if ("".equals(title) || title == null) {
 					Toast.makeText(mEditNote, "标题为空，请输入标题", Toast.LENGTH_SHORT).show();
 					return;
 				}
 				if (mEditNote.hasChanged()) {
-				    mEditNote.save();
+				    mEditNote.save(title);
 				}
 				long updateTime = System.currentTimeMillis();// 更新时间
 				String diaryPath = mEditNote.getDiaryPath();// 存储地址
@@ -180,7 +180,7 @@ public class NoteSaveDialog implements OnClickListener{
 				}
 				
 				if (mEditNote.hasChanged()) {
-				    mEditNote.save();
+				    mEditNote.save(title);
 				}
 				long updateTime = System.currentTimeMillis();
 				String diaryPath = mEditNote.getDiaryPath();
