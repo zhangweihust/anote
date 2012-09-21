@@ -241,7 +241,7 @@ public class PhotoAdapter extends BaseAdapter {
 			image = BitmapCache.getInstance().getBitmap(item.finalfilepath);
 			if (image != null) {
 				image = ImageCapture.zoomBitmap(image,100,100);
-				item.imageBitmap = ImageCapture.getRoundedCornerBitmap(image,15.0f);
+				item.imageBitmap = ImageCapture.getRoundedCornerBitmap(image,10.0f);
 				item.uri = Uri.fromFile(file);
 			}
 			else
@@ -252,7 +252,7 @@ public class PhotoAdapter extends BaseAdapter {
 				if (image != null) {
 					BitmapCache.getInstance().addCacheBitmap(image,
 							item.finalfilepath);
-					item.imageBitmap = ImageCapture.getRoundedCornerBitmap(image,15.0f);
+					item.imageBitmap = ImageCapture.getRoundedCornerBitmap(image,10.0f);
 					item.uri = Uri.fromFile(file);
 				}
 			}
@@ -262,7 +262,7 @@ public class PhotoAdapter extends BaseAdapter {
 			if (image != null) {
 				BitmapCache.getInstance().addCacheBitmap(image,
 						item.finalfilepath);
-				item.imageBitmap = ImageCapture.getRoundedCornerBitmap(image,15.0f);
+				item.imageBitmap = ImageCapture.getRoundedCornerBitmap(image,10.0f);
 				item.uri = Uri.fromFile(file);
 			}
 		}

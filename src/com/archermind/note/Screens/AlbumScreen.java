@@ -144,7 +144,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	private DataLoading dataLoad;
 	
 	private static PhotoAdapter mLastChildAdapter;
-	private PhotoAdapter mGalleryPhotoAdapter;
+	private static PhotoAdapter mGalleryPhotoAdapter;
 	
 	private String mAlbumUrllist;
 	
