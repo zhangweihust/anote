@@ -66,10 +66,10 @@
             android:textSize="@dimen/dialog_items" />
 
         <View
-            android:layout_width="wrap_content"
-            android:layout_height="2dp"
-            android:layout_gravity="center"
-            android:background="@drawable/listview_divider" />
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_gravity="center"
+        android:background="@drawable/listview_divider" />
 
         <RadioButton
             android:id="@+id/save_only"

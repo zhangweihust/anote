@@ -45,6 +45,7 @@ public class LocalNoteOnedayAdapter extends CursorAdapter {
 	private Context mContext;
 	private int gesture_width;
 	private int gesture_height; // 手势的大小
+	private static final String TAG = "LocalNoteOnedayAdapter";
 
 	public LocalNoteOnedayAdapter(Context context, Cursor c) {
 		super(context, c);
@@ -126,17 +127,21 @@ public class LocalNoteOnedayAdapter extends CursorAdapter {
 
 		ArrayList<String> noteInfoList = EditNoteScreen
 				.readNoteInfoFromZip(notePath);
-		for (String str : noteInfoList) {
-			if (str.startsWith("gesture_width:")) {
-				gesture_width = Integer
-						.parseInt(str.substring(str.indexOf(":") + 1));
-			} else if (str.startsWith("gesture_height:")) {
-				gesture_height = Integer.parseInt(str.substring(str
-						.indexOf(":") + 1));
+		if (noteInfoList != null) {
+			for (String str : noteInfoList) {
+				if (str.startsWith("gesture_width:")) {
+					gesture_width = Integer.parseInt(str.substring(str
+							.indexOf(":") + 1));
+				} else if (str.startsWith("gesture_height:")) {
+					gesture_height = Integer.parseInt(str.substring(str
+							.indexOf(":") + 1));
+				}
 			}
+			Log.i(TAG, "width:" + gesture_width + "    " + "height"
+					+ gesture_height);
+		} else {
+			Log.e(TAG, "noteInfoList is null");
 		}
-		Log.i("noteInfo", "width:" + gesture_width + "    " + "height"
-				+ gesture_height);
 
 		String[] picIndex = new String[1];
 		String contextStr = EditNoteScreen.readTextFromZip(notePath, picIndex);
