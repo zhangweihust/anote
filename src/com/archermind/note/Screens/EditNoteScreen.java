@@ -164,7 +164,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 
 	private String mImageFilePath = null;// 插入图片的绝对路径
 
-	public static int mState = HANDWRITINGSTATE;// 当前的状态值
+	public int mState = HANDWRITINGSTATE;// 当前的状态值
 
 	private GesturesProcessorHandWrite handWriteListener;// 手势监听器
 
@@ -680,7 +680,6 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 					height = gesture_height;
 					width = gesture_width;
 				}
-				Log.i(TAG, "flag" + gesture_height + "     " + gesture_width);
 				Bitmap bmp = Bitmap.createBitmap(dip2px(48), dip2px(48 * height
 						/ width), Bitmap.Config.ARGB_8888);
 				;
@@ -710,7 +709,9 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			if (path == null) {
 				return;
 			}
-			Bitmap bmp = BitmapFactory.decodeFile(path);
+			// Bitmap bmp = BitmapFactory.decodeFile(path);
+			Bitmap bmp = decodeFile(new File(path), myEdit.getWidth(),
+					myEdit.getHeight());
 			ImageSpan span = new ImageSpan(bmp);
 			SpannableString spanStr = new SpannableString(value);
 			spanStr.setSpan(span, 0, spanStr.length(),
@@ -1212,9 +1213,11 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 					mWeatherView.setText(mWeather);
 					if (mWeather.equals(getString(R.string.weather_rain))) {
 						mWeatherImg.setImageResource(R.drawable.weather_rain);
-					} else if (mWeather.equals(getString(R.string.weather_snow))) {
+					} else if (mWeather
+							.equals(getString(R.string.weather_snow))) {
 						mWeatherImg.setImageResource(R.drawable.weather_snow);
-					} else if (mWeather.equals(getString(R.string.weather_sunny))) {
+					} else if (mWeather
+							.equals(getString(R.string.weather_sunny))) {
 						mWeatherImg.setImageResource(R.drawable.weather_sunny);
 					} else {
 						mWeatherImg.setImageResource(R.drawable.weather_cloudy);
@@ -1599,6 +1602,12 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 
 			break;
 		case R.id.edit_insert:
+			if (mState == READNOTESTATE) {
+				Toast.makeText(this, R.string.toast_status_read,
+						Toast.LENGTH_SHORT).show();
+				return;
+			}
+
 			if (mInsertTypePopupWindow == null) {
 				initInsertTypePopupWindow();
 			}
@@ -1611,6 +1620,12 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			}
 			break;
 		case R.id.edit_setting:
+			if (mState == READNOTESTATE) {
+				Toast.makeText(this, R.string.toast_status_read,
+						Toast.LENGTH_SHORT).show();
+				return;
+			}
+
 			if (mSetTypePopupWindow == null) {
 				initSetTypePopupWindow();
 			}
@@ -1650,7 +1665,10 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			}
 			break;
 		case R.id.edit_delete:
-			if (mState != GRAFFITINSERTSTATE) {
+			if (mState == READNOTESTATE) {
+				Toast.makeText(this, R.string.toast_status_read,
+						Toast.LENGTH_SHORT).show();
+			} else if (mState == HANDWRITINGSTATE) {
 				int delete_index = myEdit.getSelectionStart();
 				if (delete_index <= 0) {
 					return;
@@ -1693,7 +1711,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				}
 
 				myEdit.getText().delete(start_index, end_index);
-			} else {
+			} else if (mState == GRAFFITINSERTSTATE) {
 				if (isgraffit_erase) {
 					break;
 				}
@@ -1713,6 +1731,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			gestureview.setVisibility(View.VISIBLE);
 			myEdit.setFocusable(true);
 			myEdit.setFocusableInTouchMode(true);
+			myEdit.requestFocus();
 			edit_input_type.setImageDrawable(getResources().getDrawable(
 					R.drawable.edit_handwrite_selector));
 			edit_delete.setImageDrawable(getResources().getDrawable(
@@ -1748,6 +1767,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			gestureview.setVisibility(View.GONE);
 			myEdit.setFocusable(false);
 			myEdit.setFocusableInTouchMode(false);
+			myEdit.clearFocus();
 			if (mState == READNOTESTATE) {
 				break;
 			}
@@ -2852,6 +2872,9 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				index = myEdit.getSelectionStart();
 				myEdit.getText().insert(index, spanStr);
+				Log.i(TAG, "插入了一张图片");
+				index = myEdit.getSelectionStart();
+				myEdit.getText().insert(index, "\n");// 插入一张图片后再次插入一个换行
 			}
 		} else if (requestCode == ALBUM_RESULT) {
 			if (data == null) {
@@ -2885,6 +2908,9 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 
 				index = myEdit.getSelectionStart();
 				myEdit.getText().insert(index, spanStr);
+				Log.i(TAG, "插入了一张图片");
+				index = myEdit.getSelectionStart();
+				myEdit.getText().insert(index, "\n");// 插入一张图片后再次插入一个换行
 			}
 		}
 	}
@@ -2901,7 +2927,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		BufferedOutputStream bos;
 		try {
 			bos = new BufferedOutputStream(new FileOutputStream(file));
-			bmp.compress(Bitmap.CompressFormat.JPEG, 80, bos);
+			bmp.compress(Bitmap.CompressFormat.JPEG, 100, bos);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -112,6 +112,9 @@
     <string name="update_failed">修改失败！</string>
     <string name="update_success">修改成功！</string>
 
+    <!-- edit note -->
+    <string name="toast_status_read">当前为阅读模式</string>
+    
     <!-- login -->
     <string name="login_title">登录</string>
     <string name="login_tips">可用以下账号登录</string>

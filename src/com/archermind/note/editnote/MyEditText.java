@@ -330,7 +330,7 @@ public class MyEditText extends EditText implements ColorPickerDialog.OnColorCha
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		// TODO Auto-generated method stub
-		if (EditNoteScreen.mState != EditNoteScreen.GRAFFITINSERTSTATE) {
+		if (mEditNote.mState != EditNoteScreen.GRAFFITINSERTSTATE) {
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				isChangePage = false;
