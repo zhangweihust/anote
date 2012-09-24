@@ -1210,11 +1210,11 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 					mWeather = str.substring(str.indexOf(":") + 1);
 					;
 					mWeatherView.setText(mWeather);
-					if (str.equals(getString(R.string.weather_rain))) {
+					if (mWeather.equals(getString(R.string.weather_rain))) {
 						mWeatherImg.setImageResource(R.drawable.weather_rain);
-					} else if (str.equals(getString(R.string.weather_snow))) {
+					} else if (mWeather.equals(getString(R.string.weather_snow))) {
 						mWeatherImg.setImageResource(R.drawable.weather_snow);
-					} else if (str.equals(getString(R.string.weather_sunny))) {
+					} else if (mWeather.equals(getString(R.string.weather_sunny))) {
 						mWeatherImg.setImageResource(R.drawable.weather_sunny);
 					} else {
 						mWeatherImg.setImageResource(R.drawable.weather_cloudy);
@@ -1687,7 +1687,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 						mStore.save(false);
 					} else if (arrayStr[0].equals("pic")) {
 						mPicMap.remove(spanStr);
-						//同时删除保存的图片，图片名称和其在mpicmap中的键值相同
+						// 同时删除保存的图片，图片名称和其在mpicmap中的键值相同
 						deletefiles(new String[] { preffix + "pic/" + spanStr });
 					}
 				}
@@ -2055,6 +2055,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		mInfoList.add("gesture_width:" + String.valueOf(gesture_width));
 		mInfoList.add("gesture_height:" + String.valueOf(gesture_height));
 		saveList2File(preffix + "info", mInfoList);
+
 		// 保存正文
 		saveList2File(preffix + "text", mStrList);
 
@@ -2513,13 +2514,10 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			// 将解压的临时文件删除(pic目录和graffit文件不删除)
-			String[] deletefileNames = { preffix + "gesture",
-					preffix + "picmap", preffix + "info", preffix + "text",
-					preffix + "notepicindex" };
-			deletefiles(deletefileNames);
+			String[] fileNames = { preffix + "picmap", preffix + "info",
+					preffix + "text" };
+			deletefiles(fileNames);
 		}
-
 	}
 
 	/**
