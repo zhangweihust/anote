@@ -1,22 +1,15 @@
 package com.archermind.note.Screens;
 
-import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Typeface;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
-import android.text.Layout;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +19,6 @@ import com.archermind.note.R;
 import com.archermind.note.Utils.DownloadApkHelper;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.ServerInterface;
-import com.archermind.note.Utils.VersionUtil;
 
 public class AboutScreen extends Screen implements OnClickListener {
 	private AboutScreen mContext;
@@ -104,17 +96,8 @@ public class AboutScreen extends Screen implements OnClickListener {
 		case R.id.about_check_update: {
 			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
 				showProgress(null, getString(R.string.screen_update_get_new_version));			
-				new Thread() {
-					@Override
-					public void run() {
-						Looper.prepare();
-						DownloadApkHelper downloadApk = new DownloadApkHelper(
-								mContext, Looper.myLooper());
-						downloadApk.updateApk(DownloadApkHelper.MANUAL_UPDATE,
-								handler);
-						Looper.loop();
-					}
-				}.start();
+				DownloadApkHelper downloadApk = new DownloadApkHelper(mContext);
+				downloadApk.checkUpdate();
 				
 			} else {
 				Toast.makeText(NoteApplication.getContext(),

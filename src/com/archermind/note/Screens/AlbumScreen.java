@@ -153,7 +153,6 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	private static final String ALBUMNAME = "myalbumname";
 	private Message uploadnewmsg = new Message();
 	private AmtDataObject uploadTask = null;
-	private static ProgressDialog pDialog;
 	private boolean activityFirstStart = true;
 	List<Map> ablumPhotoList = new ArrayList<Map>();
 	private TextView NoPhotoPrompt;
@@ -167,11 +166,6 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				switch (msg.what) {
 				case MessageTypes.ERROR_MESSAGE:
 					dismissProgress();
-					if (pDialog == null)
-					{
-						createProgressDialog();
-					}
-					pDialog.dismiss();
 					uploadnewmsg.what = UPLOAD_ALBUM_ERROR;
 					handler.sendMessage(uploadnewmsg);
 					break;
@@ -203,21 +197,12 @@ public class AlbumScreen extends Screen implements OnClickListener {
 						picNames.add(mAvatarPath.substring(mAvatarPath
 								.lastIndexOf("/") + 1));
 						uploadTask = mAlbumObj.uploadPicFiles(picPath, picNames, albumid);
-						if (pDialog == null)
-						{
-							createProgressDialog();
-						}
-						pDialog.show();
+						showProgress(null, getString(R.string.photo_uploading));
 					}
 					break;
 				case MessageTypes.MESSAGE_UPLOADPIC:
 					uploadTask = null;
-					if (pDialog == null)
-					{
-						createProgressDialog();
-					}
-					pDialog.dismiss();
-					
+					dismissProgress();
 					// 上传头像文件成功，开始执行插入数据库操作
 					String filepath = mAvatarPath.substring(mAvatarPath.lastIndexOf("/") + 1);
 					int ret = ServerInterface.uploadAlbum(String.valueOf(ServiceManager.getUserId()), filepath, ALBUMNAME);
@@ -445,10 +430,6 @@ public class AlbumScreen extends Screen implements OnClickListener {
 			mPageIndex = 0;
 		}
 		
-		if (pDialog == null)
-		{
-			createProgressDialog();
-		}
 		loadAlbumData();
 	}
 	
@@ -526,18 +507,6 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		outState.putInt("mPageIndex", mPageIndex);
 		
 		super.onSaveInstanceState(outState);
-	}
-	
-	@Override
-	protected void onDestroy() {
-		// TODO Auto-generated method stub
-		super.onDestroy();
-		
-		if (pDialog != null)
-		{
-			pDialog.dismiss();
-		}
-		pDialog = null;
 	}
 	
 	private String getFilepathFromUri(Uri uri) {
@@ -652,25 +621,6 @@ public class AlbumScreen extends Screen implements OnClickListener {
 							ablumPhotoList.add(map);
 						}
 					}
-//			        int pageNo = (int)Math.ceil( list.size()/APP_PAGE_SIZE);
-//					for (int i = 0; i < pageNo; i++) {
-//						GridView appPage = new GridView(mContext);
-//						// get the "i" page data
-//						mLastChildAdapter = new PhotoAdapter(mContext, GridView.class, list,i);
-//						appPage.setAdapter(mLastChildAdapter);
-//						appPage.setNumColumns(3);
-//						appPage.setGravity(Gravity.CENTER);
-//						appPage.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
-//						appPage.setVerticalSpacing(12);
-//						appPage.setHorizontalSpacing(10);
-//						appPage.setColumnWidth(90);
-//						appPage.setOnItemClickListener(mItemClickListener);
-//						appPage.setSelector(new ColorDrawable(Color.TRANSPARENT));
-//						mPhotoView.addView(appPage);
-//					}
-//					
-//					mGalleryPhotoAdapter = new PhotoAdapter(mContext, Gallery.class, list, 0);
-//					mPhotoGallery.setAdapter(mGalleryPhotoAdapter);
 					setAblumLayout(ablumPhotoList);
 
 					//dataLoad.bindScrollViewGroup(mPhotoView);
@@ -778,8 +728,6 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				{
 					Toast.makeText(mContext, "邮箱帐号为空", Toast.LENGTH_SHORT).show();
 				}
-//				int result = serverInterface.uploadAlbum(mContext, user_id,
-//						albumname, username, aFilePath, aName, aExpandName);
 
 				uploadnewmsg = new Message();
 				uploadnewmsg.getData().putString("name", aName);
@@ -1006,27 +954,6 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		mTitleLayout.setBackgroundResource(R.drawable.title_bar_background);
 		mBtnGalleryBack.setVisibility(View.VISIBLE);
 		mGalleryTitle.setVisibility(View.VISIBLE);
-	}
-	
-	private void createProgressDialog()
-	{
-		pDialog = new ProgressDialog(AlbumScreen.this);
-		pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		pDialog.setTitle(getString(R.string.photo_upload_title));
-		pDialog.setMessage(getString(R.string.photo_uploading)); 
-		pDialog.setIndeterminate(false);
-		pDialog.setCancelable(false);
-		pDialog.setButton(getString(R.string.photo_upload_cancel), new DialogInterface.OnClickListener(){   
-			@Override  
-			public void onClick(DialogInterface dialog, int which) 
-			{   
-				if (uploadTask != null)
-				{
-					mAlbumObj.cancleUpload(uploadTask);
-				}
-				dialog.dismiss();   
-			}                 
-		});
 	}
 	
 	public void setAblumLayout(List<Map> list)

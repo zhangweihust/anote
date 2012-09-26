@@ -278,17 +278,8 @@ public class HomeScreen extends Screen implements IEventHandler,
 		if (isFirst) {
 			if (NetworkUtils.getNetworkState(HomeScreen.this) != NetworkUtils.NETWORN_NONE
 					&& NoteApplication.IS_AUTO_UPDATE) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						Looper.prepare();
-						DownloadApkHelper downloadApk = new DownloadApkHelper(
-								HomeScreen.this, Looper.myLooper());
-						downloadApk.updateApk(DownloadApkHelper.AUTO_UPDATE,
-								null);
-						Looper.loop();
-					}
-				}).start();
+				DownloadApkHelper downloadApk = new DownloadApkHelper(mContext);
+				downloadApk.checkUpdate();
 			}
 		}
 
