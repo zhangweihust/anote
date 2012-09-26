@@ -45,7 +45,7 @@
 	<dimen name="photo_item_font_size">20dp</dimen>
 	
 	<!-- login_register -->
-	<dimen name="login_register_text_size">16sp</dimen>
+	<dimen name="login_register_text_size">14sp</dimen>
 	
 	<!-- custom_dialog_listview_item2.xml -->
 	<dimen name="custom_dialog_listview_item2_textSize1">16sp</dimen>

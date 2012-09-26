@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -30,6 +31,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
@@ -50,6 +52,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.provider.ContactsContract.CommonDataKinds.Event;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -68,6 +71,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -106,8 +110,8 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		IEventHandler {
 
 	private AmGestureOverlayView gestureview = null;
-	private int gesture_width;
-	private int gesture_height; // 手势的大小
+	private int gesture_width = 480;
+	private int gesture_height = 580; // 手势区域的大小(默认宽480，高580）
 	private MyEditText myEdit = null;
 
 	// 最底下一排的四个按钮
@@ -120,6 +124,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 	private TextView mTitleView;
 	private TextView mDateView; // 日期
 	private TextView mWeekView; // 星期
+	private Calendar mTimeCal;
 	private ImageView mWeatherImg = null; // 天气按钮
 	private TextView mWeatherView = null;// 天气文本信息
 	private LinearLayout mWeatherLayout = null;// 天气图标和天气文本的一个LinearLayout
@@ -206,11 +211,11 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 
 	private int mCurSavePage = 0;// 笔记转换为图片时，当前已经保存了页数
 
-	private boolean isPicSaveOver = false; // 图片是否已经转换完成
-
-	private boolean isNoteTobeShare = false; // 是否到了可以分享的时候
-
-	private boolean isNoteSaveOver = false; // 笔记是否已经保存完成
+	// private boolean isPicSaveOver = false; // 图片是否已经转换完成
+	//
+	// private boolean isNoteTobeShare = false; // 是否到了可以分享的时候
+	//
+	// private boolean isNoteSaveOver = false; // 笔记是否已经保存完成
 
 	// private boolean isRemoveEdit = false; // EditText是否在布局中被移除
 
@@ -263,6 +268,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		mTitleView = (TextView) findViewById(R.id.edit_title_textview);
 		mDateView = (TextView) findViewById(R.id.edit_date_textview);
 		mWeekView = (TextView) findViewById(R.id.edit_week_textview);
+		mDateView.setOnClickListener(this);
 
 		// 天气图标
 		mWeatherView = (TextView) findViewById(R.id.edit_weather_textview);
@@ -295,6 +301,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				mState = NETNOTESTATE;
 			} else {
 				initNewWeatherAndDate();// 若是新建笔记，初始化天气日期信息
+				mState = HANDWRITINGSTATE;
 			}
 		}
 
@@ -399,6 +406,17 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 											"str:" + afterStr);
 								}
 							}
+						} else if (arrayStr[0].equals("sign")) {
+							mStrList.add(picindex, "sign:" + spanStr);
+							if (beforeStr.length() != 0) {
+								mStrList.add(picindex, "str:" + beforeStr);
+								String str1 = mStrList.get(mLastPageEnd
+										+ position + 2);
+								if (str1.startsWith("str:")) {
+									mStrList.set(mLastPageEnd + position + 2,
+											"str:" + afterStr);
+								}
+							}
 						}
 					}
 				}
@@ -476,11 +494,11 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			}
 		});
 
-		if (Integer.parseInt(Build.VERSION.SDK) >= 9) {
-			Typeface type = Typeface.createFromAsset(getAssets(), "xdxwzt.ttf");
-			myEdit.setTypeface(type);
-		}
-
+		// if (Integer.parseInt(Build.VERSION.SDK) >= 9) {
+		// Typeface type = Typeface.createFromAsset(getAssets(), "xdxwzt.ttf");
+		// myEdit.setTypeface(type);
+		// }
+		//
 		myEdit.setEditNote(this);
 
 		MainScreen.eventService.add(this);
@@ -674,20 +692,16 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				if (gesture == null) {
 					return;
 				}
-				int height = 581;
-				int width = 480;
-				if (gesture_height != 0 && gesture_width != 0) {
-					height = gesture_height;
-					width = gesture_width;
-				}
-				Bitmap bmp = Bitmap.createBitmap(dip2px(48), dip2px(48 * height
-						/ width), Bitmap.Config.ARGB_8888);
+				Bitmap bmp = Bitmap.createBitmap(dip2px(48), dip2px(48
+						* gesture_height / gesture_width),
+						Bitmap.Config.ARGB_8888);
 				;
 				bmp.eraseColor(0x00000000);
 				Canvas canvas = new Canvas(bmp);
 				Bitmap gestrueBmp = gesture.toBitmap(dip2px(48), dip2px(48
-						* height / width), 0, gesture.getGesturePaintColor(),
-						height, width);
+						* gesture_height / gesture_width), 0,
+						gesture.getGesturePaintColor(), gesture_height,
+						gesture_width);
 				if (gestrueBmp == null || gestrueBmp.isRecycled()) {
 					return;
 				}
@@ -758,6 +772,19 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				appendFace(R.drawable.face_19);
 			} else if (value.endsWith("face_10")) {
 				appendFace(R.drawable.face_10);
+			}
+		} else if (tempString.startsWith("sign:")) {
+			String value = tempString.substring("sign:".length(),
+					tempString.length());
+			if (value.equals("sign_space")) {
+				Bitmap bmp = Bitmap.createBitmap(dip2px(48), dip2px(48
+						* gesture_height / gesture_width),
+						Bitmap.Config.ARGB_8888);
+				ImageSpan span = new ImageSpan(bmp);
+				SpannableString spanStr = new SpannableString(value);
+				spanStr.setSpan(span, 0, spanStr.length(),
+						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				myEdit.getText().append(spanStr);
 			}
 		}
 
@@ -1301,26 +1328,13 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			createTime = MainScreen.snoteCreateTime;
 		}
 
-		Calendar timeCal = Calendar.getInstance(Locale.CHINA);
-		timeCal.setTimeInMillis(createTime);
+		mTimeCal = Calendar.getInstance(Locale.CHINA);
+		mTimeCal.setTimeInMillis(createTime);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
-		String dateStr = sdf.format(timeCal.getTime());
+		String dateStr = sdf.format(mTimeCal.getTime());
 		SimpleDateFormat sdf1 = new SimpleDateFormat("EEEE");
-		String weekStr = sdf1.format(timeCal.getTime());
+		String weekStr = sdf1.format(mTimeCal.getTime());
 
-		// handler.post(new Runnable() {
-		// @Override
-		// public void run() {
-		// // TODO Auto-generated method stub
-		// TextView dateTextView = (TextView)
-		// findViewById(R.id.edit_date_textview);
-		// dateTextView.setText(dateStr);
-		//
-		// TextView weekTextView = (TextView)
-		// findViewById(R.id.edit_week_textview);
-		// weekTextView.setText(weekStr);
-		// }
-		// });
 		mDateView.setText(dateStr);
 		mWeekView.setText(weekStr);
 
@@ -1799,9 +1813,17 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 
 			break;
 		case R.id.edit_insert_space:
+			Bitmap bmp = Bitmap.createBitmap(dip2px(48), dip2px(48
+					* gestureview.getHeight() / gestureview.getWidth()),
+					Bitmap.Config.ARGB_8888);
+			ImageSpan span = new ImageSpan(bmp);
+			SpannableString spanStr = new SpannableString("sign_space");
+			spanStr.setSpan(span, 0, spanStr.length(),
+					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			int index = myEdit.getSelectionStart();
 			index = index < 0 ? 0 : index;
-			myEdit.getText().insert(index, " ");
+			// myEdit.getText().insert(index, "");
+			myEdit.getText().insert(index, spanStr);
 			mInsertTypePopupWindow.dismiss();
 			break;
 		case R.id.edit_insert_newline:
@@ -1932,6 +1954,40 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			}
 			save_dialog.show();
 			break;
+		case R.id.edit_date_textview:
+			if (mState == NETNOTESTATE) {
+				return;
+			}
+			final Dialog dialog = new Dialog(EditNoteScreen.this,
+					R.style.CornerDialog);
+			dialog.setContentView(R.layout.dialog_datepicker);
+			final DatePicker datePicker = (DatePicker) dialog
+					.findViewById(R.id.datePicker);
+			Button btn_ok = (Button) dialog.findViewById(R.id.dialog_btn_ok);
+			btn_ok.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					mDateView.setText(datePicker.getYear() + "."
+							+ (datePicker.getMonth() + 1) + "."
+							+ datePicker.getDayOfMonth());
+					mTimeCal.set(datePicker.getYear(), datePicker.getMonth(),
+							datePicker.getDayOfMonth());
+					mWeekView.setText(new SimpleDateFormat("EEEE")
+							.format(mTimeCal.getTime()));
+					dialog.dismiss();
+				}
+			});
+			Button btn_cancel = (Button) dialog
+					.findViewById(R.id.dialog_btn_cancel);
+			btn_cancel.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					dialog.dismiss();
+				}
+			});
+			dialog.show();
 		}
 	}
 
@@ -2285,7 +2341,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		}
 
 		final String fileName = NoteApplication.savePath + "notepicture/"
-				+ noteFileName + "_page" + String.valueOf(mCurPage) + ".png";
+				+ noteFileName + "_page" + String.valueOf(mCurPage) + ".jpg";
 		mPicPathList.add(fileName);
 
 		// // 保存插入的图片到pic目录下
@@ -2304,37 +2360,52 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		// }
 		// }
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				File myCaptureFile = new File(fileName);
-				if (!myCaptureFile.getParentFile().exists()) {
-					myCaptureFile.getParentFile().mkdir();
-				}
+		// new Thread(new Runnable() {
+		// @Override
+		// public void run() {
+		// // TODO Auto-generated method stub
+		// File myCaptureFile = new File(fileName);
+		// if (!myCaptureFile.getParentFile().exists()) {
+		// myCaptureFile.getParentFile().mkdir();
+		// }
+		//
+		// try {
+		// BufferedOutputStream bos = new BufferedOutputStream(
+		// new FileOutputStream(myCaptureFile));
+		// viewBitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos);
+		// bos.flush();
+		// bos.close();
+		// viewBitmap.recycle();
+		// synchronized (thread_lock) {
+		// mCurSavePage++;
+		// if (mCurSavePage == mTotalPage + 1) {
+		// ServiceManager
+		// .getEventservice()
+		// .onUpdateEvent(
+		// new EventArgs(
+		// EventTypes.NOTE_PIC_SAVE_OVER));
+		// }
+		// }
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+		// }
+		// }).start();
+		File myCaptureFile = new File(fileName);
+		if (!myCaptureFile.getParentFile().exists()) {
+			myCaptureFile.getParentFile().mkdir();
+		}
 
-				try {
-					BufferedOutputStream bos = new BufferedOutputStream(
-							new FileOutputStream(myCaptureFile));
-					viewBitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos);
-					bos.flush();
-					bos.close();
-					viewBitmap.recycle();
-					synchronized (thread_lock) {
-						mCurSavePage++;
-						if (mCurSavePage == mTotalPage + 1) {
-							ServiceManager
-									.getEventservice()
-									.onUpdateEvent(
-											new EventArgs(
-													EventTypes.NOTE_PIC_SAVE_OVER));
-						}
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+		try {
+			BufferedOutputStream bos = new BufferedOutputStream(
+					new FileOutputStream(myCaptureFile));
+			viewBitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos);
+			bos.flush();
+			bos.close();
+			viewBitmap.recycle();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -2745,10 +2816,8 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			if (mGesture.getLength() < LENGTH_THRESHOLD) {
 				return;
 			}
-			if (gesture_height == 0 && gesture_width == 0) {
-				gesture_width = gestureview.getWidth();
-				gesture_height = gestureview.getHeight();// 保存手势区域的大小
-			}
+			gesture_width = gestureview.getWidth();
+			gesture_height = gestureview.getHeight();// 保存手势区域的大小
 			mColorFullRectView.setVisibility(View.GONE);
 
 			// int lineheight = DensityUtil.dip2px(EditNoteScreen.this,
@@ -2990,6 +3059,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 
 			fis.close();
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return retBmp;
 	}
@@ -3093,65 +3163,65 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			dismissProgress();
 			finish();
 			break;
-		case NOTE_PIC_SAVE_OVER:
-			isPicSaveOver = true;
-			shareNote2Square();
-			saveOverAndFinish();
-			break;
-		case NOTE_TO_BE_SHARE:
-			handler.post(new Runnable() {
-				@Override
-				public void run() {
-					if (!EditNoteScreen.this.isFinishing()) {
-						showProgress(null, getString(R.string.saving_note_now));
-					}
-				}
-			});
-			isNoteTobeShare = true;
-			mShareNoteId = (String) e.getExtra("noteid");
-			mShareNoteTitle = (String) e.getExtra("title");
-			mShareNoteAction = (String) e.getExtra("action");
-			mShareNoteSid = (String) e.getExtra("sid");
-			shareNote2Square();
-			break;
-		case NOTE_SAVE_OVER:
-			handler.post(new Runnable() {
-				@Override
-				public void run() {
-					if (!EditNoteScreen.this.isFinishing()) {
-						showProgress(null, getString(R.string.saving_note_now));
-					}
-				}
-			});
-			isNoteSaveOver = true;
-			saveOverAndFinish();
-			break;
+		// case NOTE_PIC_SAVE_OVER:
+		// isPicSaveOver = true;
+		// shareNote2Square();
+		// saveOverAndFinish();
+		// break;
+		// case NOTE_TO_BE_SHARE:
+		// handler.post(new Runnable() {
+		// @Override
+		// public void run() {
+		// if (!EditNoteScreen.this.isFinishing()) {
+		// showProgress(null, getString(R.string.saving_note_now));
+		// }
+		// }
+		// });
+		// isNoteTobeShare = true;
+		// mShareNoteId = (String) e.getExtra("noteid");
+		// mShareNoteTitle = (String) e.getExtra("title");
+		// mShareNoteAction = (String) e.getExtra("action");
+		// mShareNoteSid = (String) e.getExtra("sid");
+		// shareNote2Square();
+		// break;
+		// case NOTE_SAVE_OVER:
+		// handler.post(new Runnable() {
+		// @Override
+		// public void run() {
+		// if (!EditNoteScreen.this.isFinishing()) {
+		// showProgress(null, getString(R.string.saving_note_now));
+		// }
+		// }
+		// });
+		// isNoteSaveOver = true;
+		// saveOverAndFinish();
+		// break;
 		}
 		return false;
 	}
 
-	private void shareNote2Square() {
-		if (isPicSaveOver && isNoteTobeShare) {
-			dismissProgress();
-			Intent intent = new Intent(this, ShareScreen.class);
-			intent.putStringArrayListExtra("picpathlist", mPicPathList);
-			intent.putExtra("noteid", mShareNoteId);
-			intent.putExtra("title", mShareNoteTitle);
-			intent.putExtra("action", mShareNoteAction);
-			intent.putExtra("sid", mShareNoteSid);
-			this.startActivity(intent);
-		}
-	}
-
-	private void saveOverAndFinish() {
-		if (isPicSaveOver && isNoteSaveOver) {
-			handler.post(new Runnable() {
-				@Override
-				public void run() {
-					dismissProgress();
-					finish();
-				}
-			});
-		}
-	}
+	// private void shareNote2Square() {
+	// if (isPicSaveOver && isNoteTobeShare) {
+	// dismissProgress();
+	// Intent intent = new Intent(this, ShareScreen.class);
+	// intent.putStringArrayListExtra("picpathlist", mPicPathList);
+	// intent.putExtra("noteid", mShareNoteId);
+	// intent.putExtra("title", mShareNoteTitle);
+	// intent.putExtra("action", mShareNoteAction);
+	// intent.putExtra("sid", mShareNoteSid);
+	// this.startActivity(intent);
+	// }
+	// }
+	//
+	// private void saveOverAndFinish() {
+	// if (isPicSaveOver && isNoteSaveOver) {
+	// handler.post(new Runnable() {
+	// @Override
+	// public void run() {
+	// dismissProgress();
+	// finish();
+	// }
+	// });
+	// }
+	// }
 }

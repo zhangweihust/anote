@@ -19,11 +19,13 @@ import com.archermind.note.Utils.DateTimeUtils;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.ServerInterface;
 
+import android.R.integer;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,249 +34,274 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-public class NoteSaveDialog implements OnClickListener{
+public class NoteSaveDialog implements OnClickListener {
 
 	private Button note_save_ok;
-	private Button  note_save_cancel;
+	private Button note_save_cancel;
 	private RadioGroup saveGroup;
 	private Dialog noteSaveDialog;
 	private EditNoteScreen mEditNote;
 	private EditText mEditText;
-	
+	private String mAction;// 保存的类别（新增或者修改）
+	private String mSid;// 笔记的服务器id
+	private Boolean mIfShare; // 是否分享标志
+
 	public NoteSaveDialog(Context context) {
-		noteSaveDialog = new Dialog(context,R.style.CornerDialog);
+		noteSaveDialog = new Dialog(context, R.style.CornerDialog);
 		noteSaveDialog.setContentView(R.layout.dialog_note_save);
 		noteSaveDialog.setCanceledOnTouchOutside(true);
-		mEditNote = (EditNoteScreen)context;
+		mEditNote = (EditNoteScreen) context;
 		init();
 	}
-	
+
 	private void init() {
-		saveGroup = (RadioGroup) noteSaveDialog.findViewById(R.id.note_save_group);
+		saveGroup = (RadioGroup) noteSaveDialog
+				.findViewById(R.id.note_save_group);
 		note_save_ok = (Button) noteSaveDialog.findViewById(R.id.dialog_btn_ok);
-		note_save_cancel = (Button) noteSaveDialog.findViewById(R.id.dialog_btn_cancel);
+		note_save_cancel = (Button) noteSaveDialog
+				.findViewById(R.id.dialog_btn_cancel);
 		note_save_ok.setOnClickListener(this);
 		note_save_cancel.setOnClickListener(this);
-		
-		mEditText = (EditText) noteSaveDialog.findViewById(R.id.dialog_note_title);
+
+		mEditText = (EditText) noteSaveDialog
+				.findViewById(R.id.dialog_note_title);
 	}
-	
+
 	public void show() {
 		noteSaveDialog.show();
 		String oldTitle = mEditNote.getIntent().getStringExtra("title");
 		mEditText.setText(oldTitle);
 	}
-	
+
 	public void dismiss() {
 		if (noteSaveDialog.isShowing()) {
-		    noteSaveDialog.dismiss();
+			noteSaveDialog.dismiss();
 		}
 	}
-	
+
 	@Override
 	public void onClick(View v) {
-		// TODO Auto-generated method stub
-		switch(v.getId()){
+		dismiss();
+		switch (v.getId()) {
 		case R.id.dialog_btn_ok:
+			String title = mEditText.getEditableText().toString();// 标题
+			if ("".equals(title) || title == null) {
+				Toast.makeText(mEditNote, "标题为空，请输入标题", Toast.LENGTH_SHORT).show();
+				return;
+			}	
+			
 			if (saveGroup.getCheckedRadioButtonId() == R.id.save_and_share) {
 				if (!ServiceManager.isLogin()) {
-					Toast.makeText(mEditNote, R.string.no_login_info, Toast.LENGTH_SHORT).show();
-					Intent intent = new Intent(mEditNote,LoginScreen.class);
+					Toast.makeText(mEditNote, R.string.no_login_info,
+							Toast.LENGTH_SHORT).show();
+					Intent intent = new Intent(mEditNote, LoginScreen.class);
 					mEditNote.startActivity(intent);
 					return;
 				}
-				
-				String title = mEditText.getEditableText().toString();// 标题
-				if ("".equals(title) || title == null) {
-					Toast.makeText(mEditNote, "标题为空，请输入标题", Toast.LENGTH_SHORT).show();
-					return;
-				}
-				if (mEditNote.hasChanged()) {
-				    mEditNote.save(title);
-				}
+			}
+			
+			try {
+				// 保存笔记文件等
+				mEditNote.save(mEditText.getEditableText().toString());
+
+				// 保存相关信息至数据库
 				long updateTime = System.currentTimeMillis();// 更新时间
 				String diaryPath = mEditNote.getDiaryPath();// 存储地址
 				String weather = mEditNote.getWeather();// 天气
-				final int noteId = mEditNote.getIntent().getIntExtra("noteID", 0);// 笔记id
-				
+				String noteId = String.valueOf(mEditNote.getIntent()
+						.getIntExtra("noteID", 0)); // 笔记id
+
 				ContentValues contentValues = new ContentValues();
 				if (mEditNote.getIntent().getBooleanExtra("isNewNote", false)) {
-					long firstTime = mEditNote.getIntent().getLongExtra("time", 0);
+					long firstTime = mEditNote.getIntent().getLongExtra("time",
+							0);
 					long createTime = 0;
 					if (firstTime != 0) { // 如果是在指定日期下创建笔记
-						createTime = DateTimeUtils.getTimeOfOneDay(firstTime, MainScreen.snoteCreateTime);
+						createTime = DateTimeUtils.getTimeOfOneDay(firstTime,
+								MainScreen.snoteCreateTime);
 					} else { // 直接创建笔记
 						createTime = MainScreen.snoteCreateTime;
 					}
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,title);
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, createTime);
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT, diaryPath);
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER, weather);
-					long id = ServiceManager.getDbManager().insertLocalNotes(contentValues);
+					contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
+							mEditText.getEditableText().toString());
+					contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME,
+							createTime);
+					contentValues.put(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT,
+							diaryPath);
+					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME,
+							updateTime);
+					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER,
+							weather);
+					noteId = String.valueOf(ServiceManager.getDbManager()
+							.insertLocalNotes(contentValues));
 					mEditNote.getIntent().putExtra("isNewNote", false);
-					
-					EventArgs args = new EventArgs();
-					args.setType(EventTypes.NOTE_TO_BE_SHARE);
-					args.putExtra("noteid", String.valueOf(id));
-					args.putExtra("title", title);
-					args.putExtra("action", "A");
-					args.putExtra("sid", "0");
-					ServiceManager.getEventservice().onUpdateEvent(args);
-					
-					/*Intent intent = new Intent(mEditNote,ShareScreen.class);
-					intent.putStringArrayListExtra("picpathlist", mEditNote.mPicPathList);
-					intent.putExtra("noteid", String.valueOf(id));
-					intent.putExtra("title", title);
-					intent.putExtra("action", "A");
-					intent.putExtra("sid", "0");
-					mEditNote.startActivity(intent);*/
-					dismiss();
-					
+					// 设定传递到分享界面的intent的相关参数
+					mAction = "A";
+					mSid = "0";
+
 				} else {
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,title);
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER, weather);
-					ServiceManager.getDbManager().updateLocalNotes(contentValues, noteId);
-					
-					Cursor cursor = ServiceManager.getDbManager().queryLocalNotesById(noteId);
+					contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
+							mEditText.getEditableText().toString());
+					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME,
+							updateTime);
+					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER,
+							weather);
+					ServiceManager.getDbManager().updateLocalNotes(
+							contentValues, Integer.parseInt(noteId));
+
+					Cursor cursor = ServiceManager.getDbManager()
+							.queryLocalNotesById(Integer.parseInt(noteId));
 					if (cursor == null || cursor.getCount() == 0) {
 						System.out.println("================不存在此数据===========");
 						return;
 					}
 					cursor.moveToFirst();
-					String serviceID = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID));
+					mSid = cursor
+							.getString(cursor
+									.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID));
 					cursor.close();
-					String action = "N";
-					if (serviceID != null && Integer.parseInt(serviceID) > 0) {
-						action = "M";
+					if (mSid != null && Integer.parseInt(mSid) > 0) {
+						// 设定传递到分享界面的intent的相关参数
+						mAction = "M";
 					} else {
-						action = "A";
-						serviceID = "0";
+						mAction = "A";
+						mSid = "0";
 					}
-						
-					Log.d("=AAAA=","share now");
-					EventArgs args = new EventArgs();
-					args.setType(EventTypes.NOTE_TO_BE_SHARE);
-					args.putExtra("noteid", String.valueOf(noteId));
-					args.putExtra("title", title);
-					args.putExtra("action", action);
-					args.putExtra("sid", serviceID);
-					ServiceManager.getEventservice().onUpdateEvent(args);
-					
-					
-					/*Intent intent = new Intent(mEditNote,ShareScreen.class);
-					intent.putStringArrayListExtra("picpathlist", mEditNote.mPicPathList);
-					intent.putExtra("noteid", String.valueOf(noteId));
+				}
+
+				if (saveGroup.getCheckedRadioButtonId() == R.id.save_and_share) {
+					Intent intent = new Intent(mEditNote, ShareScreen.class);
+					intent.putStringArrayListExtra("picpathlist",
+							mEditNote.mPicPathList);
+					intent.putExtra("noteid", noteId);
 					intent.putExtra("title", title);
-					intent.putExtra("action", action);
-					intent.putExtra("sid", serviceID);
-					mEditNote.startActivity(intent);*/
-					dismiss();
+					intent.putExtra("action", mAction);
+					intent.putExtra("sid", mSid);
+					mEditNote.startActivity(intent);
 				}
-			} else if (saveGroup.getCheckedRadioButtonId() == R.id.save_only) {
-				String title = mEditText.getEditableText().toString();
-				if ("".equals(title) || title == null) {
-					Toast.makeText(mEditNote, "标题为空，请输入标题",  Toast.LENGTH_SHORT).show();
-					return;
-				}
-				
-				if (mEditNote.hasChanged()) {
-				    mEditNote.save(title);
-				}
-				long updateTime = System.currentTimeMillis();
-				String diaryPath = mEditNote.getDiaryPath();
-				String weather = mEditNote.getWeather();
-				int noteId = mEditNote.getIntent().getIntExtra("noteID", 0);
-				
-				long firstTime = mEditNote.getIntent().getLongExtra("time", 0);
-				long createTime = 0;
-				if (firstTime != 0) {
-					createTime = DateTimeUtils.getTimeOfOneDay(firstTime, MainScreen.snoteCreateTime);
-				} else {
-					createTime = MainScreen.snoteCreateTime;
-				}
-				
-				ContentValues contentValues = new ContentValues();
-				if (mEditNote.getIntent().getBooleanExtra("isNewNote", false)) {
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,title);
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME, createTime);
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT, diaryPath);
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER, weather);
-					long id = ServiceManager.getDbManager().insertLocalNotes(contentValues);
-					mEditNote.getIntent().putExtra("isNewNote", false);
-					Log.d("=UUU=","id = " + id);
-				} else {
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,title);
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME, updateTime);
-					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER, weather);
-					ServiceManager.getDbManager().updateLocalNotes(contentValues, noteId);
-				}
-				dismiss();
-				ServiceManager.getEventservice().onUpdateEvent(new EventArgs(EventTypes.NOTE_SAVE_OVER));
-//				mEditNote.finish();
-			} else {
-				dismiss();
 				mEditNote.finish();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 			break;
 		case R.id.dialog_btn_cancel:
-			dismiss();
 			mEditNote.finish();
 			break;
 		}
 	}
-	
-//	private void uploadNote(long id,String title,String action,String sid,String userId) {
-//		int totalPage = 0;
-//		if (mEditNote.mPicPathList != null) {
-//			totalPage = mEditNote.mPicPathList.size();
-//		}
-//		
-//		String context = totalPage == 0 ? "" : mEditNote.mPicPathList.get(0);
-//		
-//		if (!"".equals(context)) {
-//			context = context.substring(context.lastIndexOf("/") + 1);
-//		}
-//		
-//		int serviceId = ServerInterface.uploadNote(id,userId,sid,action,title,context,String.valueOf(totalPage));
-//		if ("A".equals(action)) {
-//			if (serviceId > 0) {
-//				ContentValues contentValues2 = new ContentValues();
-//				contentValues2.put(DatabaseHelper.COLUMN_NOTE_SERVICE_ID, String.valueOf(serviceId));
-//				contentValues2.put(DatabaseHelper.COLUMN_NOTE_USER_ID,Integer.parseInt(userId));
-//				ServiceManager.getDbManager().updateLocalNotes(contentValues2,(int)id);
-//				System.out.println("===============分享成功===============");
-//				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_SUCCESSED));
-//			} else {
-//				System.out.println("===============分享失败===============");
-//				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_FAILED));
-//			}
-//		} else if ("M".equals(action)) {
-//			if (serviceId == 0) {
-//				System.out.println("===============分享成功===============");
-//				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_SUCCESSED));
-//			} else {
-//				System.out.println("===============分享失败===============");
-//				MainScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.SHARE_NOTE_FAILED));
-//			}
-//		}
-//	}
-//	
-//	private void uploadImg(String userIdStr) {
-//		int totalPage = 0;
-//		if (mEditNote.mPicPathList != null) {
-//			totalPage = mEditNote.mPicPathList.size();
-//		}
-//		
-//		ServerInterface sInterface = new ServerInterface();
-//		sInterface.InitAmtCloud(MainScreen.mContext);
-//		
-//		for (int i = 0; i < totalPage;i++) {
-//			sInterface.uploadFile(MainScreen.mContext, userIdStr, mEditNote.mPicPathList.get(i));
-//		}
-//		
-//	}
+
+	// class SaveTask extends AsyncTask<Boolean, integer, String> {
+	//
+	// @Override
+	// protected void onPreExecute() {
+	// super.onPreExecute();
+	// mEditNote.showProgress(null,
+	// mEditNote.getString(R.string.saving_note_now));
+	// }
+	//
+	// @Override
+	// protected String doInBackground(Boolean... params) {
+	// try {
+	// mEditNote.runOnUiThread(new Runnable() {
+	//
+	// @Override
+	// public void run() {
+	// mEditNote.save(mEditText.getEditableText().toString());
+	// }
+	// });
+	//
+	// // 保存相关信息至数据库
+	// long updateTime = System.currentTimeMillis();// 更新时间
+	// String diaryPath = mEditNote.getDiaryPath();// 存储地址
+	// String weather = mEditNote.getWeather();// 天气
+	// int noteId = mEditNote.getIntent().getIntExtra("noteID", 0); // 笔记id
+	//
+	// ContentValues contentValues = new ContentValues();
+	// if (mEditNote.getIntent().getBooleanExtra("isNewNote", false)) {
+	// long firstTime = mEditNote.getIntent().getLongExtra("time",
+	// 0);
+	// long createTime = 0;
+	// if (firstTime != 0) { // 如果是在指定日期下创建笔记
+	// createTime = DateTimeUtils.getTimeOfOneDay(firstTime,
+	// MainScreen.snoteCreateTime);
+	// } else { // 直接创建笔记
+	// createTime = MainScreen.snoteCreateTime;
+	// }
+	// contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
+	// mEditText.getEditableText().toString());
+	// contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME,
+	// createTime);
+	// contentValues.put(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT,
+	// diaryPath);
+	// contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME,
+	// updateTime);
+	// contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER,
+	// weather);
+	// ServiceManager.getDbManager().insertLocalNotes(
+	// contentValues);
+	// mEditNote.getIntent().putExtra("isNewNote", false);
+	// // 设定传递到分享界面的intent的相关参数
+	// mAction = "A";
+	// mSid = "0";
+	//
+	// } else {
+	// contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
+	// mEditText.getEditableText().toString());
+	// contentValues.put(DatabaseHelper.COLUMN_NOTE_UPDATE_TIME,
+	// updateTime);
+	// contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER,
+	// weather);
+	// ServiceManager.getDbManager().updateLocalNotes(
+	// contentValues, noteId);
+	//
+	// Cursor cursor = ServiceManager.getDbManager()
+	// .queryLocalNotesById(noteId);
+	// if (cursor == null || cursor.getCount() == 0) {
+	// System.out.println("================不存在此数据===========");
+	// return "failed";
+	// }
+	// cursor.moveToFirst();
+	// mSid = cursor
+	// .getString(cursor
+	// .getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID));
+	// cursor.close();
+	// if (mSid != null && Integer.parseInt(mSid) > 0) { //
+	// 设定传递到分享界面的intent的相关参数
+	// mAction = "M";
+	// } else {
+	// mAction = "A";
+	// mSid = "0";
+	// }
+	// }
+	// return "success";
+	// } catch (Exception e) {
+	// return "failed";
+	// }
+	// }
+	//
+	// @Override
+	// protected void onPostExecute(String result) {
+	// super.onPostExecute(result);
+	// if (result.equals("success")) {
+	// if (mIfShare) {
+	// Intent intent = new Intent(mEditNote, ShareScreen.class);
+	// intent.putStringArrayListExtra("picpathlist",
+	// mEditNote.mPicPathList);
+	// intent.putExtra("noteid", mEditNote.getIntent()
+	// .getIntExtra("noteID", 0));
+	// intent.putExtra("title", mEditText.getEditableText()
+	// .toString());
+	// intent.putExtra("action", mAction);
+	// intent.putExtra("sid", mSid);
+	// mEditNote.startActivity(intent);
+	// }
+	// } else {
+	// Toast.makeText(mEditNote, "保存失败！", Toast.LENGTH_SHORT).show();
+	// }
+	// mEditNote.dismissProgress();
+	// mEditNote.finish();
+	// }
+	//
+	// }
 
 }

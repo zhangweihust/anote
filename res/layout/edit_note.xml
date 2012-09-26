@@ -39,13 +39,13 @@
         android:id="@+id/bottom"
         style="@android:style/ButtonBar"
         android:layout_width="fill_parent"
-        android:layout_height="42.5dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@drawable/handwrite_btn_bg"
         android:gravity="center"
         android:orientation="horizontal" >
 
-        <ImageButton
+         <ImageButton
             android:id="@+id/edit_insert"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -80,7 +80,8 @@
             android:background="@drawable/tab_btn_selector"
             android:scaleType="fitCenter"
             android:src="@drawable/edit_setting_selector" />
-
+        
+       
         <TextView
             android:id="@+id/edit_logo_text"
             android:layout_width="fill_parent"
@@ -90,7 +91,7 @@
             android:text="@string/about_logo_title"
             android:textColor="#888888"
             android:textSize="20dp"
-            android:visibility="gone" />
+            android:visibility="gone"/>
     </LinearLayout>
 
     <LinearLayout
@@ -114,6 +115,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
                 android:layout_marginLeft="12dp"
+                android:background="@drawable/edit_click_effect_selector"
                 android:gravity="center|center_vertical"
                 android:text="2012.7.1"
                 android:textColor="@color/toptextcolor" />
@@ -122,8 +124,7 @@
                 android:id="@+id/edit_week_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
-                android:layout_marginLeft="65dp"
-                android:layout_toRightOf="@id/edit_date_textview"
+                android:layout_centerHorizontal="true"
                 android:gravity="center_vertical"
                 android:text="星期一"
                 android:textColor="@color/toptextcolor" />
@@ -176,18 +177,17 @@
                 android:background="@color/transparent"
                 android:visibility="gone" />
 
-                <com.archermind.note.editnote.MyEditText
-                    android:id="@+id/editText_view"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:background="@color/transparent"
-                    android:gravity="top"
-                    android:includeFontPadding="false"
-                    android:lineSpacingExtra="0dp"
-                    android:lineSpacingMultiplier="1.0"
-                    android:lines="9"
-                    android:textSize="32px" >
-                </com.archermind.note.editnote.MyEditText>
+            <com.archermind.note.editnote.MyEditText
+                android:id="@+id/editText_view"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:background="@color/transparent"
+                android:gravity="top"
+                android:includeFontPadding="false"
+                android:inputType="none"
+                android:lineSpacingExtra="0dp"
+                android:lineSpacingMultiplier="1.0" >
+            </com.archermind.note.editnote.MyEditText>
 
             <com.archermind.note.gesture.AmGestureOverlayView
                 android:id="@+id/gestureview"

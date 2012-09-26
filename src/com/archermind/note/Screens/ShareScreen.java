@@ -272,8 +272,6 @@ public class ShareScreen extends Screen implements OnClickListener {
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 			if (result.equals("success")) {
-				ServiceManager.getEventservice().onUpdateEvent(
-						new EventArgs(EventTypes.SHARE_NOTE_SUCCESSED));
 				Cursor cursor = ServiceManager.getDbManager()
 						.queryLocalNotesById(
 								Integer.parseInt(getIntent().getStringExtra(
