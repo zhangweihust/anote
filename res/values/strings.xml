@@ -250,6 +250,8 @@
     <string name="screen_update_version_info">更新说明:</string>
     <string name="screen_update_ok">确定</string>
     <string name="screen_update_error">安装包数字签名不匹配, 请先卸载老版本再进行安装</string>
+    <string name="screen_update_download_failed">下载失败!</string>
+    <string name="screen_update_exception">更新过程中发生异常</string>
     
     <!-- screen_version.xml 
     <string name="screen_version_top_title">Version info</string>

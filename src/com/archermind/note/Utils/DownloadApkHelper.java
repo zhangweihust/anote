@@ -34,7 +34,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -65,13 +64,10 @@ public class DownloadApkHelper {
 			public void handleMessage(Message msg) {
 				switch (msg.what) {
 				case MessageTypes.DOWN_DATA_CHANGED:// 下载进度的更新
-					Log.e("---lqf---","下载进度的更新 : " + msg.obj);
 					updateActiveNotification((Integer)msg.obj);
 					break;
 				case MessageTypes.FILE_ALREADY_DOWNLOADED:// 文件已经下载完毕
-					Log.e("---lqf---","文件已经下载完毕");
 				case MessageTypes.DOWN_SUCCESS://  下载成功
-					Log.e("---lqf---","下载成功");
 					updateActiveNotification(100);
 					if (!TextUtils.isEmpty(downloadApkName))
 					{
@@ -86,10 +82,9 @@ public class DownloadApkHelper {
 					}
 					break;
 				case MessageTypes.DOWN_FAIL://  下载失败
-					Log.e("---lqf---","下载失败");
+					NoteApplication.toastShow(mHandler, R.string.screen_update_download_failed);
 					break;
 				case MessageTypes.NO_NEED_TO_UPGRADE://  不需要更新
-					Log.e("---lqf---","不需要更新");
 					if (mContext.getClass().getName().equals("com.archermind.note.Screens.AboutScreen"))
 					{
 						((AboutScreen) mContext).dismissProgress();
@@ -97,7 +92,6 @@ public class DownloadApkHelper {
 					NoteApplication.toastShow(mHandler, R.string.screen_update_not_need_update);
 					break;
 				case MessageTypes.NEED_TO_UPGRADE://  需要更新
-					Log.e("---lqf---","需要更新 " + mContext.getClass().getName());
 					if (mContext.getClass().getName().equals("com.archermind.note.Screens.AboutScreen"))
 					{
 						((AboutScreen) mContext).dismissProgress();
@@ -106,26 +100,23 @@ public class DownloadApkHelper {
 					doNewVersionUpdate(update);
 					break;
 				case MessageTypes.ERROR://  有异常
-					Log.e("---lqf---","有异常");
 					if (mContext.getClass().getName().equals("com.archermind.note.Screens.AboutScreen"))
 					{
 						((AboutScreen) mContext).dismissProgress();
 					}
+					NoteApplication.toastShow(mHandler, R.string.screen_update_exception);
+					NoteApplication.LogD(DownloadApkHelper.class,
+							"异常种类 : " + msg.obj);
 					switch ((Integer) msg.obj) {
 					case MessageTypes.ERROR_NO_SDCARD://  没有SD卡
-						Log.e("---lqf---","没有SD卡");
 						break;
 					case MessageTypes.ERROR_IO_ERROR://  IO异常
-						Log.e("---lqf---","IO异常");
 						break;
 					case MessageTypes.ERROR_PARSE_JSON_ERROR://  解析JSON异常
-						Log.e("---lqf---","解析JSON异常");
 						break;
 					case MessageTypes.ERROR_HTTP_DATA_ERROR://  网络数据交互异常
-						Log.e("---lqf---","网络数据交互异常");
 						break;
 					case MessageTypes.ERROR_FILE_ERROR://  文件操作异常
-						Log.e("---lqf---","文件操作异常");
 						break;
 					}
 					break;
@@ -259,7 +250,6 @@ public class DownloadApkHelper {
 		{
 			boolean ret = false;
 			File file = new File(saveApkPath);
-			Log.e("---lqf---","saveApkPath = " + saveApkPath + " exists = " + file.exists());
 			String fileSignature = showUninstallAPKSignatures(saveApkPath);
 			NoteApplication.LogD(DownloadApkHelper.class,
 					"------------------------------------"
