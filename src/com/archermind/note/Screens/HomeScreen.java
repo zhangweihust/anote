@@ -754,9 +754,13 @@ public class HomeScreen extends Screen implements IEventHandler,
 			HomeScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					mflHomePage.setVisibility(View.GONE);
-					mllCalendarPage.setVisibility(View.VISIBLE);
 					showCalendarMonth(NEXT_MONTH, false);
+
+					mllCalendarPage.setVisibility(View.VISIBLE);	
+					mflHomePage.setVisibility(View.GONE);
+					MainScreen.eventService.onUpdateEvent(new EventArgs(
+							EventTypes.SHOW_OR_HIDE_BUTTON_BACK).putExtra("isVisible",
+							View.GONE));
 				}
 			});
 			break;
@@ -1030,9 +1034,6 @@ public class HomeScreen extends Screen implements IEventHandler,
 		String title = null;
 		int id = 0;
 		int index = arg2;
-		if (arg0.getId() == R.id.lv_month_note_list) {
-			index = arg2 - 1;
-		}
 		mCursor.moveToPosition(index);
 		path = mCursor.getString(mCursor
 				.getColumnIndex(DatabaseHelper.COLUMN_NOTE_LOCAL_CONTENT));

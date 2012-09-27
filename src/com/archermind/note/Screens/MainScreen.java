@@ -258,9 +258,6 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 				public void run() {
 					// TODO Auto-generated method stub
 					if (mTabHost.getCurrentTabTag() == TAB_HOME) {
-						mbtnBack.setVisibility(View.GONE);
-						mtvTitleBarTitle.setText(mContext.getResources()
-								.getString(R.string.home_screen_title));
 						HomeScreen.eventService
 								.onUpdateEvent(new EventArgs(
 										EventTypes.HOME_SCREEN_ONEDAY_NOTE_BACK_PRESSED));
@@ -419,6 +416,8 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 					if (Integer.parseInt(e.getExtra("isVisible").toString()) == View.VISIBLE) {
 						mbtnBack.setVisibility(View.VISIBLE);
 					} else {
+						mtvTitleBarTitle.setText(mContext.getResources()
+								.getString(R.string.home_screen_title));
 						mbtnBack.setVisibility(View.GONE);
 					}
 				}
