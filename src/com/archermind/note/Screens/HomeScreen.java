@@ -130,7 +130,7 @@ public class HomeScreen extends Screen implements IEventHandler,
 	private Cursor mCursor;
 
 	private static boolean isFirst = true;
-	private static int calendarHeight = 0;
+	private static int calendarHeight = 410;
 	public static final EventService eventService = ServiceManager
 			.getEventservice();
 
