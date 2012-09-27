@@ -80,17 +80,11 @@ public class InformationAdapter extends BaseAdapter
 	    if(data.photo != null){
 	    	item.ivPhoto.setImageUrl(data.photo, R.drawable.default_photo, R.drawable.default_photo);
 	    }
-	    if(data.nickname != null){
-	    	item.tvNickname.setText(data.nickname);
-	    }else{
-	    	item.tvNickname.setVisibility(View.GONE);
-	    }
 	    
-	    if(data.title != null){
-	    	item.tvTitle.setText("回复：" + data.title);
-	    }else{
-	    	item.tvTitle.setVisibility(View.INVISIBLE);
-	    }
+	    item.tvNickname.setText(data.nickname);
+	    
+	    item.tvTitle.setText("回复：" + data.title);
+	
 	    
 	    
 	   if(data.content.contains(":face")){
@@ -154,7 +148,7 @@ public class InformationAdapter extends BaseAdapter
 		InformationData data = new InformationData();
 		data.content = "暂时没有回复，下拉刷新！";
  		data.time = time/1000;
-		
+		data.title = "无主题";
 		mDatas.clear();
 		mDatas.add(data);
 		existsPrompt = true;
