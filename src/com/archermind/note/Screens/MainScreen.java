@@ -196,7 +196,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 										.getText(
 												R.string.home_screen_calendar_page_title));
 					} else {
-						if (HomeScreen.isSubPage() == View.VISIBLE){
+						if (HomeScreen.isHomePage()){
 							mbtnBack.setVisibility(View.VISIBLE);
 							mbtnBack.setText(getResources().getString(R.string.back));
 							mtvTitleBarTitle.setText(DateTimeUtils.time2String("yyyy.MM.dd", HomeScreen.getCurtime()));
@@ -387,6 +387,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
 				// TODO Auto-generated method stub
+				mMorePopupWindow.dismiss();
 				if (arg2 == 1) {
 					Intent i = new Intent(mContext, PreferencesScreen.class);
 					mContext.startActivity(i);
@@ -394,7 +395,6 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 					Intent i = new Intent(mContext, InformationScreen.class);
 					mContext.startActivity(i);
 				}
-				mMorePopupWindow.dismiss();
 			}
 		});
 		DisplayMetrics dm = new DisplayMetrics();
@@ -451,7 +451,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		// " , PlazaScreen.isFirstPage : " + PlazaScreen.isFirstPage);
 		if (event.getKeyCode() == KeyEvent.KEYCODE_BACK
 				&& event.getAction() == KeyEvent.ACTION_UP) {
-			if (HomeScreen.isSubPage() == View.VISIBLE
+			if (HomeScreen.isSubPage()
 					|| (mTabHost.getCurrentTabTag().equalsIgnoreCase(TAB_PLAZA) && !PlazaScreen.isFirstPage)) {
 				return super.dispatchKeyEvent(event);
 			} else if (mExit_Flag

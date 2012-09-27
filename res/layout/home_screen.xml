@@ -3,30 +3,11 @@
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 	android:background="@color/content_background">
- 	<LinearLayout 
-	    android:id="@+id/ll_home_page"
-	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
-        android:visibility="gone"
-	    >
                 <FrameLayout
+                    android:id="@+id/fl_home_page"
                     android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="0" >
-
-<!--                     <RelativeLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent" >
-
-                        <ImageView
-                            android:layout_width="2dip"
-                            android:layout_height="fill_parent"
-                            android:layout_marginLeft="60.0dip"
-                            android:background="#ffff0000"
-                            android:scaleType="fitXY"
-                            android:src="@drawable/note_item_track" />
-                    </RelativeLayout> -->
-  
+                    android:layout_height="fill_parent" 
+                    android:visibility="gone">  
 		        <ListView
 		            android:id="@+id/lv_day_note_list"
 		            android:layout_width="fill_parent"
@@ -55,7 +36,6 @@
 			        android:background="@drawable/listview_divider"
 			        />  -->
 		    </FrameLayout>   
-	</LinearLayout> 
 
 	<com.archermind.note.Views.VerticalScrollView
         android:id="@+id/ll_calendar_page"
@@ -164,9 +144,60 @@
 			    android:layout_below="@id/ll_weekdays"
 			    />
         </RelativeLayout>
+<LinearLayout 
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+<LinearLayout
+    android:id="@+id/ll_header"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/content_background"
+    >
+            <RelativeLayout 
+            android:id="@+id/ll_middle_bar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="6dp"
+            android:background="@drawable/home_middle_bar_background"
+            >
+            <TextView 
+                android:id="@+id/tv_cur_month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/home_screen_cur_month_text_size"
+				android:textColor="@color/blue"
+				android:textStyle="bold"
+				android:layout_centerHorizontal="true"
+                />
+             <Button
+                android:id="@+id/btn_back_curmonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/btn_back_curmonth_selector"
+                android:layout_marginLeft="@dimen/home_screen_middle_bar_margin_left"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="5dp"
+                android:visibility="gone"
+                /> 
+        </RelativeLayout>
+        <TextView 
+              android:id="@+id/tv_my_note_info"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:textSize="@dimen/home_screen_cur_month_text_size"
+              android:textColor="@color/note_info_text_color"
+              android:gravity="center_horizontal"
+              android:paddingBottom="20dp"
+              />
 
+</LinearLayout>
          
                 <FrameLayout
+                    android:id="@+id/fl_month_view"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_weight="0" >
@@ -195,23 +226,17 @@
                             />
                     </RelativeLayout>
   
-		        <ListView
-		            android:id="@+id/lv_month_note_list"
-		            android:layout_width="fill_parent"
-		            android:layout_height="wrap_content"
-		            android:divider="@color/content_background"
-		            android:background="@color/transparent"
-		            android:listSelector="@drawable/listview_selector"
-		            android:cacheColorHint="#00000000"
-		            >
-		        </ListView>
-<!-- 		        
-		        <View
-		          	android:layout_below="@id/lv_month_note_list"
-			        android:layout_width="fill_parent"
-			        android:layout_height="2dip"
-			        android:background="@drawable/listview_divider"
-			        />  -->
+			        <ListView
+			            android:id="@+id/lv_month_note_list"
+			            android:layout_width="fill_parent"
+			            android:layout_height="wrap_content"
+			            android:divider="@color/content_background"
+			            android:background="@color/transparent"
+			            android:listSelector="@drawable/listview_selector"
+			            android:cacheColorHint="#00000000"
+			            >
+			        </ListView>
 		    </FrameLayout>
+		    </LinearLayout>
     </com.archermind.note.Views.VerticalScrollView>
 </LinearLayout>

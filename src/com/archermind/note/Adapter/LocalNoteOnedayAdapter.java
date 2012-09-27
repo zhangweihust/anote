@@ -206,7 +206,7 @@ public class LocalNoteOnedayAdapter extends CursorAdapter {
 									height = gesture_height;
 									width = gesture_width;
 								}
-
+                                try{
 								Bitmap bmp = Bitmap.createBitmap(
 										DensityUtil.dip2px(mContext, 48),
 										DensityUtil.dip2px(mContext, 48
@@ -233,6 +233,9 @@ public class LocalNoteOnedayAdapter extends CursorAdapter {
 											Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 									item.tvNoteContent.append(spanStr);
 									wordNum++;
+								}
+                                }catch (Exception e) {
+									// TODO: handle exception
 								}
 							}
 						}

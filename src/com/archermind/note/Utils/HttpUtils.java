@@ -43,9 +43,8 @@ public class HttpUtils {
 
 	public static String doPost(Map<String, String> parmas, String url) {
 		DefaultHttpClient client = new DefaultHttpClient();
-		client.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, 30000);
-		client.getParams().setParameter(
-				CoreConnectionPNames.CONNECTION_TIMEOUT, 30000);
+		client.getParams().setParameter(HttpConnectionParams.SO_TIMEOUT, 30000);
+		client.getParams().setParameter(HttpConnectionParams.CONNECTION_TIMEOUT, 30000);
 		HttpPost httpPost = new HttpPost(url);
 
 		ArrayList<BasicNameValuePair> pairs = new ArrayList<BasicNameValuePair>();

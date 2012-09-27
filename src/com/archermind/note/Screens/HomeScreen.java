@@ -26,10 +26,16 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
+import android.view.animation.RotateAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -63,12 +69,14 @@ import com.archermind.note.Views.VerticalScrollView;
 public class HomeScreen extends Screen implements IEventHandler,
 		OnClickListener, OnItemClickListener, OnItemLongClickListener {
 	/** Called when the activity is first created. */
-	private VerticalScrollView mllCalendarPage;
-	private static LinearLayout mllHomePage;
-	private LinearLayout mListHeader;
+	private static VerticalScrollView mllCalendarPage;
+	private static FrameLayout mflHomePage;
+	private static LinearLayout mListHeader;
 	private TextView mTvMyNoteInfo;
 	private static String tagCalendar = "calendar";
 	private static String tagTimeList = "timelist";
+	
+	private FrameLayout mflMonthView;
 	/*
 	 * private Button mBtnPreMonth; private Button mBtnNextMonth;
 	 */
@@ -115,12 +123,11 @@ public class HomeScreen extends Screen implements IEventHandler,
 
 	private LocalNoteOnedayAdapter mLocalNoteOnedayAdapter = null;
 	private LocalNoteAdapter mLocalNoteAdapter = null;
+	
+	private LayoutAnimationController mControllerLeft;
+	private LayoutAnimationController mControllerRight;
 
 	private Cursor mCursor;
-	private CharSequence[] transactItemsSign = { "分享", "标记", "删除" };
-	private CharSequence[] transactItemsUnsign = { "分享", "取消标记", "删除" };
-	private AlertDialog.Builder mbuilder;
-	private AlertDialog madTransact;
 
 	private static boolean isFirst = true;
 	private static int calendarHeight = 0;
@@ -140,9 +147,26 @@ public class HomeScreen extends Screen implements IEventHandler,
 
 		mContext = HomeScreen.this;
 
-		mllHomePage = (LinearLayout) findViewById(R.id.ll_home_page);
+		mflHomePage = (FrameLayout) findViewById(R.id.fl_home_page);
 		mllCalendarPage = (VerticalScrollView) findViewById(R.id.ll_calendar_page);
-
+        mflMonthView = (FrameLayout) findViewById(R.id.fl_month_view);
+		
+		WindowManager windowManager = getWindowManager();
+        Display display = windowManager.getDefaultDisplay();
+        int Width = display.getWidth(); 
+        System.out.println("====width : " + Width);
+		AnimationSet setLeft = new AnimationSet(false);  
+		Animation animationLeft = new TranslateAnimation(Width, 0, 0, 0);    //TranslateAnimation  控制画面平移的动画效果  
+		animationLeft.setDuration(300);  
+		setLeft.addAnimation(animationLeft);  
+		mControllerLeft = new LayoutAnimationController(setLeft, 1);
+		
+		AnimationSet setRight = new AnimationSet(false);  
+		Animation animationRight = new TranslateAnimation(-Width, 0, 0, 0);    //TranslateAnimation  控制画面平移的动画效果  
+		animationRight.setDuration(300);  
+		setRight.addAnimation(animationRight);
+		mControllerRight = new LayoutAnimationController(setRight, 1);
+		
 		mlvMonthNotes = (ListView) findViewById(R.id.lv_month_note_list);
 		mlvMonthNotes.setOnItemClickListener(this);
 		mlvMonthNotes.setOnItemLongClickListener(this);
@@ -152,15 +176,12 @@ public class HomeScreen extends Screen implements IEventHandler,
 		mlvDayNotes.setOnItemClickListener(this);
 		mlvDayNotes.setOnItemLongClickListener(this);
 
-		mListHeader = (LinearLayout) LayoutInflater.from(this).inflate(
-				R.layout.home_screen_listview_header, null);
-		mTvMyNoteInfo = (TextView) mListHeader
-				.findViewById(R.id.tv_my_note_info);
+		mListHeader = (LinearLayout) findViewById(R.id.ll_header);
+		mTvMyNoteInfo = (TextView) findViewById(R.id.tv_my_note_info);
 
-		mTvCurMonth = (TextView) mListHeader.findViewById(R.id.tv_cur_month);
+		mTvCurMonth = (TextView) findViewById(R.id.tv_cur_month);
 
-		mBtnBackCurmonth = (Button) mListHeader
-				.findViewById(R.id.btn_back_curmonth);
+		mBtnBackCurmonth = (Button)findViewById(R.id.btn_back_curmonth);
 		mBtnBackCurmonth.setOnClickListener(this);
 
 		mListHeader.setTag(tagCalendar);
@@ -198,7 +219,6 @@ public class HomeScreen extends Screen implements IEventHandler,
 
 		});
 
-		mlvMonthNotes.addHeaderView(mListHeader);
 		Calendar time = Calendar.getInstance(Locale.CHINA);
 		time.setTimeInMillis(System.currentTimeMillis());
 		mCurMonth = time.get(Calendar.MONTH);
@@ -242,8 +262,6 @@ public class HomeScreen extends Screen implements IEventHandler,
 			tvNoNoteCurMonth.setTypeface(type);
 		}
 
-		mbuilder = new AlertDialog.Builder(mContext);
-		mbuilder.setTitle("请操作");
 	}
 
 	@Override
@@ -254,8 +272,9 @@ public class HomeScreen extends Screen implements IEventHandler,
 		}
 		System.out.println("=====onWindowFocusChanged flipper height : "
 				+ flipper.getHeight() + " mCurMonth : " + mCurMonth);
-		if (flipper.getHeight() != 0) {
-			calendarHeight = flipper.getHeight();
+		int height = flipper.getHeight();
+		if (height != 0) {
+			calendarHeight = height;
 		}
 		if (Constant.flagType == 1) {
 			tvCalendarWeekday0.setText(R.string.calendar_mon);
@@ -283,10 +302,6 @@ public class HomeScreen extends Screen implements IEventHandler,
 			}
 		}
 
-		if (isFirst) {
-			isFirst = false;
-		}
-
 		if (mllCalendarPage.getVisibility() == View.VISIBLE) {
 			if (mListHeader.getTag().equals(tagTimeList)) {
 				mCursor = ServiceManager.getDbManager().queryMonthLocalNOTES(
@@ -304,7 +319,8 @@ public class HomeScreen extends Screen implements IEventHandler,
 			} else {
 				showCalendarMonth(NEXT_MONTH, false);
 			}
-		} else if (mllHomePage.getVisibility() == View.VISIBLE) {
+			
+		} else if (mflHomePage.getVisibility() == View.VISIBLE) {
 			System.out.println(" before "
 					+ DateTimeUtils.time2String("yyyyMMdd", mCurTime));
 			mCursor = ServiceManager.getDbManager().queryTodayLocalNOTEs(
@@ -324,6 +340,9 @@ public class HomeScreen extends Screen implements IEventHandler,
 			}
 		}
 
+		if (isFirst) {
+			isFirst = false;
+		}
 		Cursor localNotes = ServiceManager.getDbManager().queryLocalNotes();
 		if (localNotes.getCount() != 0 && localNotes.moveToFirst()) {
 			Long time = Long.parseLong(localNotes.getString(localNotes
@@ -442,6 +461,20 @@ public class HomeScreen extends Screen implements IEventHandler,
 						HomeScreen.eventService.onUpdateEvent(new EventArgs(
 								EventTypes.SHOW_ONEDAY_NOTES).putExtra("time",
 								mCalendarAdapter.getTimeByClickItem(position)));
+					}else if(!mCalendarAdapter.getLastClickPosition().endsWith(clicking)){
+						if(mCalendarAdapter.getNoteInfo(position)== DatabaseManager.NO_NOTE){
+							mTvMyNoteInfo.setText("这一天没有写笔迹哦");
+						}else{
+							Cursor cursor = ServiceManager.getDbManager()
+									.queryTodayLocalNOTEs(mCalendarAdapter.getTimeByClickItem(position));
+							int count = cursor.getCount();
+							cursor.close();
+							if (count == 0) {
+								mTvMyNoteInfo.setText("这一天没有写笔迹哦");
+							} else {
+								mTvMyNoteInfo.setText("这一天写了" + count + "篇笔迹");
+							}
+						}
 					}
 					mCalendarAdapter.setLastClick(position);
 					mCalendarAdapter.setLastClickPosition(clicking);
@@ -501,17 +534,16 @@ public class HomeScreen extends Screen implements IEventHandler,
 									ivTrack.setVisibility(View.VISIBLE);
 									tvNoNoteCurMonth.setVisibility(View.GONE);
 								}
+								mflMonthView.setLayoutAnimation(mControllerLeft);
 							}
-						} else if (mllHomePage.getVisibility() == View.VISIBLE) {
+						} else if (mflHomePage.getVisibility() == View.VISIBLE) {
 							long time = DateTimeUtils.getToday(Calendar.PM,
 									mCurTime) + 2000;
+							boolean flag = false;
 							// System.out.println("mCurTime-- " +
 							// DateTimeUtils.time2String("yyyyMMdd hh:mm:ss",
 							// mCurTime));
 							while (time < mLastestTime) {
-								// System.out.println("time-- " +
-								// DateTimeUtils.time2String("yyyyMMdd hh:mm:ss",
-								// time));
 								mCursor = ServiceManager.getDbManager()
 										.queryTodayLocalNOTEs(time);
 								// startManagingCursor(mCursor);
@@ -527,6 +559,7 @@ public class HomeScreen extends Screen implements IEventHandler,
 											.changeCursor(mCursor);
 									mlvDayNotes
 											.setAdapter(mLocalNoteOnedayAdapter);
+									mflHomePage.setLayoutAnimation(mControllerLeft);
 									if (Integer.parseInt(DateTimeUtils
 											.time2String("yyyyMMdd", mCurTime)) != Integer
 											.parseInt(DateTimeUtils
@@ -546,8 +579,12 @@ public class HomeScreen extends Screen implements IEventHandler,
 																	.time2String(
 																			"yyyy.MM.dd",
 																			mCurTime)));
+									flag = true;
 									break;
 								}
+							}
+							if(!flag){
+								Toast.makeText(mContext, "已经是最后一天", Toast.LENGTH_SHORT).show();
 							}
 						}
 					} else {
@@ -586,16 +623,18 @@ public class HomeScreen extends Screen implements IEventHandler,
 									ivTrack.setVisibility(View.VISIBLE);
 									tvNoNoteCurMonth.setVisibility(View.GONE);
 								}
+								mflMonthView.setLayoutAnimation(mControllerRight);
 							}
-						} else if (mllHomePage.getVisibility() == View.VISIBLE) {
+						} else if (mflHomePage.getVisibility() == View.VISIBLE) {
 							long time = DateTimeUtils.getToday(Calendar.AM,
 									mCurTime) - 2000;
-							System.out.println("mCurTime-- "
+							/*System.out.println("mCurTime-- "
 									+ DateTimeUtils.time2String(
 											"yyyyMMdd hh:mm:ss", mCurTime));
 							System.out.println("mEarlistTime "
 									+ DateTimeUtils.time2String(
-											"yyyyMMdd hh:mm:ss", mEarlistTime));
+											"yyyyMMdd hh:mm:ss", mEarlistTime));*/
+							boolean flag = false;
 							while (time > mEarlistTime) {
 								System.out.println("time-- "
 										+ DateTimeUtils.time2String(
@@ -614,6 +653,7 @@ public class HomeScreen extends Screen implements IEventHandler,
 											.changeCursor(mCursor);
 									mlvDayNotes
 											.setAdapter(mLocalNoteOnedayAdapter);
+									mflHomePage.setLayoutAnimation(mControllerRight);
 									if (Integer.parseInt(DateTimeUtils
 											.time2String("yyyyMMdd", mCurTime)) != Integer
 											.parseInt(DateTimeUtils
@@ -633,8 +673,13 @@ public class HomeScreen extends Screen implements IEventHandler,
 																	.time2String(
 																			"yyyy.MM.dd",
 																			mCurTime)));
+									flag = true;
 									break;
 								}
+							}
+							
+							if(!flag){
+								Toast.makeText(mContext, "已经是最前一天", Toast.LENGTH_SHORT).show();
 							}
 						}
 					}
@@ -676,7 +721,7 @@ public class HomeScreen extends Screen implements IEventHandler,
 			HomeScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					mllHomePage.setVisibility(View.VISIBLE);
+					mflHomePage.setVisibility(View.VISIBLE);
 					mllCalendarPage.setVisibility(View.GONE);
 					mCursor = ServiceManager.getDbManager()
 							.queryTodayLocalNOTEs(time);
@@ -709,7 +754,7 @@ public class HomeScreen extends Screen implements IEventHandler,
 			HomeScreen.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					mllHomePage.setVisibility(View.GONE);
+					mflHomePage.setVisibility(View.GONE);
 					mllCalendarPage.setVisibility(View.VISIBLE);
 					showCalendarMonth(NEXT_MONTH, false);
 				}
@@ -730,6 +775,21 @@ public class HomeScreen extends Screen implements IEventHandler,
 			// //startManagingCursor(mCursor);
 			mLocalNoteOnedayAdapter.changeCursor(mCursor);
 			mlvDayNotes.setAdapter(mLocalNoteOnedayAdapter);
+			Calendar calendar = Calendar.getInstance(Locale.CHINA);
+			calendar.setTimeInMillis(mCurTime);
+			int curYear = calendar.get(Calendar.YEAR);
+			int curMonth = calendar.get(Calendar.MONTH);
+			int curDay = calendar.get(Calendar.DATE);
+			calendar.setTimeInMillis(mRecentTime);
+			int recentYear = calendar.get(Calendar.YEAR);
+			int recentMonth = calendar.get(Calendar.MONTH);
+			int recentDay = calendar.get(Calendar.DATE);
+			boolean isNextDay = curYear > recentYear ||( curYear>=recentYear && curMonth > recentMonth) || (curYear>=recentYear && curMonth>=recentMonth && curDay>recentDay);
+			if(isNextDay){
+				mflHomePage.setLayoutAnimation(mControllerRight);
+			}else{
+				mflHomePage.setLayoutAnimation(mControllerLeft);
+			}
 			mCurTime = mRecentTime;
 			mbtnBackRecent.setVisibility(View.GONE);
 			MainScreen.eventService.onUpdateEvent(new EventArgs(
@@ -740,8 +800,7 @@ public class HomeScreen extends Screen implements IEventHandler,
 			String tag = mListHeader.getTag().toString();
 			Calendar cal = Calendar.getInstance(Locale.CHINA);
 			cal.setTimeInMillis(System.currentTimeMillis());
-			boolean isPre = mCurYear >= cal.get(Calendar.YEAR)
-					&& mCurMonth > cal.get(Calendar.MONTH);
+			boolean isPre = mCurYear > cal.get(Calendar.YEAR) || (mCurYear >= cal.get(Calendar.YEAR)&& mCurMonth > cal.get(Calendar.MONTH));
 
 			mCurMonth = cal.get(Calendar.MONTH);
 			mCurYear = cal.get(Calendar.YEAR);
@@ -766,6 +825,11 @@ public class HomeScreen extends Screen implements IEventHandler,
 				} else {
 					ivTrack.setVisibility(View.VISIBLE);
 					tvNoNoteCurMonth.setVisibility(View.GONE);
+				}
+				if(isPre){
+					mflMonthView.setLayoutAnimation(mControllerLeft);
+				}else{
+					mflMonthView.setLayoutAnimation(mControllerRight);
 				}
 			}
 			break;
@@ -874,8 +938,8 @@ public class HomeScreen extends Screen implements IEventHandler,
 	@Override
 	public void onBackPressed() {
 		// TODO Auto-generated method stub
-		if (mllHomePage.getVisibility() == View.VISIBLE) {
-			mllHomePage.setVisibility(View.GONE);
+		if (mflHomePage.getVisibility() == View.VISIBLE) {
+			mflHomePage.setVisibility(View.GONE);
 			mllCalendarPage.setVisibility(View.VISIBLE);
 			showCalendarMonth(NEXT_MONTH, false);
 			MainScreen.eventService.onUpdateEvent(new EventArgs(
@@ -886,7 +950,16 @@ public class HomeScreen extends Screen implements IEventHandler,
 					"title",
 					mContext.getResources().getString(
 							R.string.home_screen_title)));
-		} else {
+		} else if(mllCalendarPage.getVisibility() == View.VISIBLE){
+			System.out.println("=========calendar page=====");
+			String tag = mListHeader.getTag().toString();
+			if (tag != null && tag.equals(tagTimeList)) {
+					mllCalendarPage.snapToPage(0);
+					mListHeader.setTag(tagCalendar);
+					mTvMyNoteInfo.setVisibility(View.VISIBLE);
+					showCalendarMonth(NEXT_MONTH, false);
+			}
+		} else{
 			super.onBackPressed();
 		}
 	}
@@ -894,7 +967,7 @@ public class HomeScreen extends Screen implements IEventHandler,
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		// System.out.println("homescreen ondispatchKeyEvent");
-		if (mllHomePage.getVisibility() == View.VISIBLE
+		if (mflHomePage.getVisibility() == View.VISIBLE
 				&& event.getKeyCode() == KeyEvent.KEYCODE_BACK
 				&& event.getAction() == KeyEvent.ACTION_UP) {
 			System.out.println("homescreen ondispatchKeyEvent000");
@@ -904,8 +977,25 @@ public class HomeScreen extends Screen implements IEventHandler,
 		return super.dispatchKeyEvent(event);
 	}
 
-	public static int isSubPage() {
-		return mllHomePage.getVisibility();
+	public static boolean isSubPage() {
+		boolean isSub = false;
+		if(mllCalendarPage.getVisibility() == View.VISIBLE){
+			String tag = mListHeader.getTag().toString();
+			if (tag != null && tag.equals(tagTimeList)) {
+				isSub = true;
+				}
+		}else if(mflHomePage.getVisibility() == View.VISIBLE){
+			isSub = true;
+		}
+		return isSub;
+	}
+	
+	public static boolean isHomePage(){
+		boolean isSub = false;
+		if(mflHomePage.getVisibility() == View.VISIBLE){
+			isSub = true;
+		}
+		return isSub;
 	}
 
 	@Override
