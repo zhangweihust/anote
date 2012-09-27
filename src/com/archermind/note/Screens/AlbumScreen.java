@@ -518,10 +518,16 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	
 	private String getFilepathFromUri(Uri uri) {
 		Cursor cursor = mContentResolver.query(uri, null,   
-                null, null, null);   
-		cursor.moveToFirst();   
-		String filepath = cursor.getString(1);
-		cursor.close();
+                null, null, null); 
+		String filepath = "";
+		try {
+			cursor.moveToFirst();   
+			filepath = cursor.getString(1);
+			cursor.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+			ExceptionService.logException(e);
+		}
 		
 		return filepath;
 	}

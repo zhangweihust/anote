@@ -329,10 +329,10 @@ public class ShareScreen extends Screen implements OnClickListener {
 	private void uploadNotePic() {
 		showProgressBar(R.string.share_msg_square);
 		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
-			AmtApplication.setAmtUserName(ServiceManager.getUserName());
+//			AmtApplication.setAmtUserName(ServiceManager.getUserName());
 			mAlbumObj = new AmtAlbumObj();
 			mAlbumObj.setHandler(mHandler);
-//			mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
+			mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
 		} else {
 			dismssProgressBar(R.string.network_none, false);
 			mReuploadButton.setVisibility(View.VISIBLE);
