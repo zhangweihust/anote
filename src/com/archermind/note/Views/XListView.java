@@ -383,4 +383,10 @@ public class XListView extends ListView implements OnScrollListener {
 
 		public void onLoadMore();
 	}
+	
+	public void setFooterVisibility(int visibility) {
+		if(mFooterView.getVisibility() != visibility){
+			mFooterView.setVisibility(visibility);
+		}
+	}
 }

@@ -74,13 +74,16 @@ public class InformationScreen extends Screen implements IXListViewListener,
 				Toast.makeText(InformationScreen.this,
 						"共有" + listdata.size() + "条更新", Toast.LENGTH_LONG)
 						.show();
+				mxlvInformation.setFooterVisibility(View.VISIBLE);
+				mxlvInformation.setFooterDividersEnabled(true);
+				mxlvInformation.setPullLoadEnable(true);
 				refreshCompleted();
 				break;
 			case ON_LoadMore:
 				mInformationAdapter.addAfterData(listdata);
 				mxlvInformation.setSelection(mInformationAdapter.getCount());
 				Toast.makeText(InformationScreen.this,
-						"更新了" + listdata.size() + "条通知", Toast.LENGTH_LONG)
+						"共有" + listdata.size() + "条更新", Toast.LENGTH_LONG)
 						.show();
 				moreCompleted();
 				break;
@@ -90,6 +93,9 @@ public class InformationScreen extends Screen implements IXListViewListener,
 				if (mInformationAdapter.isEmpty()) {
 					mInformationAdapter.setNoInformationPrompt(System
 							.currentTimeMillis());
+					mxlvInformation.setFooterVisibility(View.GONE);
+					mxlvInformation.setFooterDividersEnabled(false);
+					mxlvInformation.setPullLoadEnable(false);
 				}
 				break;
 			case ON_Null:
