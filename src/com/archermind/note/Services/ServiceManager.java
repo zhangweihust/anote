@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.view.WindowManager;
 
+import com.amtcloud.mobile.android.utils.HttpUtils;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.Provider.DatabaseManager;
 import com.archermind.note.Utils.BitmapCache;
@@ -75,6 +76,8 @@ public class ServiceManager extends Service {
 		}
 		
 		ServiceManager.started = true;
+		HttpUtils.setTimeOutParams(5000, 30000);	//设置与服务器进行网络交互时的连网超时和请求超时时间
+		
 		return true;
 	}
 	

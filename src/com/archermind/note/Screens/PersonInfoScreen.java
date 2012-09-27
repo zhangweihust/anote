@@ -126,7 +126,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 					ArrayList<String> picNames = new ArrayList<String>();
 					picNames.add(mAvatarPath.substring(mAvatarPath
 							.lastIndexOf("/") + 1));
-					mAlbumObj.uploadPicFiles(picPath, picNames, albumid);
+					mAlbumObj.uploadPicFiles(ServiceManager.getUserName(),picPath, picNames, albumid);
 					Log.i(TAG, "albumid：" + albumid);
 				}
 				break;
@@ -370,7 +370,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 //			mProgressBar.setVisibility(View.VISIBLE);
 			showProgress(null, getString(R.string.update_progress));
 			if (ismodifyAvatar) {
-				AmtApplication.setAmtUserName(ServiceManager.getUserName());
+//				AmtApplication.setAmtUserName(ServiceManager.getUserName());
 				mAlbumObj = new AmtAlbumObj();
 				mAlbumObj.setHandler(mHandler);
 				mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());

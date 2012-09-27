@@ -119,7 +119,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 						Log.e(TAG, "mPicPathList is null");
 						return;
 					}
-					mAlbumObj.uploadPicFiles(mPicPathList, mPicnameList,
+					mAlbumObj.uploadPicFiles(ServiceManager.getUserName(),mPicPathList, mPicnameList,
 							albumid);
 					Log.i(TAG, "albumid：" + albumid);
 				}
@@ -332,7 +332,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 			AmtApplication.setAmtUserName(ServiceManager.getUserName());
 			mAlbumObj = new AmtAlbumObj();
 			mAlbumObj.setHandler(mHandler);
-			mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
+//			mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
 		} else {
 			dismssProgressBar(R.string.network_none, false);
 			mReuploadButton.setVisibility(View.VISIBLE);

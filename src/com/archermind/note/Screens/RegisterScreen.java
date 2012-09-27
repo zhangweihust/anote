@@ -128,7 +128,7 @@ public class RegisterScreen extends Screen implements OnClickListener {
 							"图片名称："
 									+ mAvatarPath.substring(mAvatarPath
 											.lastIndexOf("/") + 1));
-					mAlbumObj.uploadPicFiles(picPath, picNames, albumid);
+					mAlbumObj.uploadPicFiles(ServiceManager.getUserName(),picPath, picNames, albumid);
 					Log.i(TAG, "albumid：" + albumid);
 				}
 				break;
@@ -454,8 +454,8 @@ public class RegisterScreen extends Screen implements OnClickListener {
 
 						// 文件操作：上传头像文件
 						if (mAvatarBitmap != null) {
-							AmtApplication.setAmtUserName(ServiceManager
-									.getUserName());
+//							AmtApplication.setAmtUserName(ServiceManager
+//									.getUserName());
 							mAlbumObj = new AmtAlbumObj();
 							mAlbumObj.setHandler(mHandler);
 							mAlbumObj.createAlbum(ServiceManager.getUserName(),

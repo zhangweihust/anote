@@ -88,8 +88,8 @@ public class DownloadApkHelper {
 					if (mContext.getClass().getName().equals("com.archermind.note.Screens.AboutScreen"))
 					{
 						((AboutScreen) mContext).dismissProgress();
+						NoteApplication.toastShow(mHandler, R.string.screen_update_not_need_update);
 					}
-					NoteApplication.toastShow(mHandler, R.string.screen_update_not_need_update);
 					break;
 				case MessageTypes.NEED_TO_UPGRADE://  需要更新
 					if (mContext.getClass().getName().equals("com.archermind.note.Screens.AboutScreen"))

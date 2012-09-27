@@ -196,7 +196,7 @@ public class AlbumScreen extends Screen implements OnClickListener {
 						ArrayList<String> picNames = new ArrayList<String>();
 						picNames.add(mAvatarPath.substring(mAvatarPath
 								.lastIndexOf("/") + 1));
-						uploadTask = mAlbumObj.uploadPicFiles(picPath, picNames, albumid);
+						uploadTask = mAlbumObj.uploadPicFiles(ServiceManager.getUserName(),picPath, picNames, albumid);
 						showProgress(null, getString(R.string.photo_uploading));
 					}
 					break;
@@ -263,8 +263,8 @@ public class AlbumScreen extends Screen implements OnClickListener {
 		
 		mContext = AlbumScreen.this;
 		
-		String user_name = ServiceManager.getUserName();
-		AmtApplication.setAmtUserName(user_name);
+//		String user_name = ServiceManager.getUserName();
+//		AmtApplication.setAmtUserName(user_name);
 		mAlbumObj = new AmtAlbumObj();
 		mAlbumObj.setHandler(mHandler);
 		
@@ -448,17 +448,24 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				        String title = mImgCapture.createName(dateTaken);
 				        mCacheImageFilePath = mImgCapture.IMAGE_CACHE_PATH 
 								+ "/"+ title +".jpg";
-				        mImgCapture.CompressionImage(file.getAbsolutePath(), mCacheImageFilePath,false);
-				        File cachefile = new File(mCacheImageFilePath);
-				        if (cachefile.exists()) {
-							filepath = cachefile.getAbsolutePath();
-							String name = filepath.substring(filepath.lastIndexOf("/") + 1, filepath.length());
-							String expandname = filepath.substring(filepath.lastIndexOf(".") + 1, filepath.length()).toLowerCase();
-							name = name.substring(0, name.lastIndexOf("."));
-							uploadImage(name, expandname, filepath, 1);
-				        } else {
-				        	System.out.println("ALBUM create_cache_file_failed ");
-				        	Toast.makeText(AlbumScreen.this, getString(R.string.image_create_cache_file_failed_io), Toast.LENGTH_SHORT).show();
+				        boolean ret = mImgCapture.CompressionImage(file.getAbsolutePath(), mCacheImageFilePath,false);
+				        if (ret)
+				        {
+				        	File cachefile = new File(mCacheImageFilePath);
+					        if (cachefile.exists()) {
+								filepath = cachefile.getAbsolutePath();
+								String name = filepath.substring(filepath.lastIndexOf("/") + 1, filepath.length());
+								String expandname = filepath.substring(filepath.lastIndexOf(".") + 1, filepath.length()).toLowerCase();
+								name = name.substring(0, name.lastIndexOf("."));
+								uploadImage(name, expandname, filepath, 1);
+					        } else {
+					        	System.out.println("ALBUM create_cache_file_failed ");
+					        	Toast.makeText(AlbumScreen.this, getString(R.string.image_create_cache_file_failed_io), Toast.LENGTH_SHORT).show();
+					        }
+				        }
+				        else
+				        {
+				        	Toast.makeText(mContext, getString(R.string.select_file_not_image), Toast.LENGTH_SHORT).show();
 				        }
 					}
 				}

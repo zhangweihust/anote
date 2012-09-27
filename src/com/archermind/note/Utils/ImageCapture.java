@@ -297,7 +297,7 @@ public class ImageCapture {
 		}
 	} 
 	
-	public void CompressionImage(String srcPath,String desPath,boolean delSrc)
+	public boolean CompressionImage(String srcPath,String desPath,boolean delSrc)
     {
 		File srcfile = new File(srcPath); 
 		BitmapFactory.Options options = new BitmapFactory.Options();
@@ -313,6 +313,10 @@ public class ImageCapture {
 	 	options.inSampleSize = be;
 	 	//重新读入图片，注意这次要把options.inJustDecodeBounds 设为 false哦
 	 	bitmap=BitmapFactory.decodeFile(srcPath,options);
+	 	if (bitmap == null)
+	 	{
+	 		return false;
+	 	}
 	 	int w = bitmap.getWidth();
 	 	int h = bitmap.getHeight();
 	 	System.out.println("width = " + w + " height = " + h); 
@@ -337,6 +341,8 @@ public class ImageCapture {
 	 		e.printStackTrace();
 	 	} 
 	 	bitmap.recycle();
+	 	
+	 	return true;
     }
 	
 	// 将图片的四角圆化

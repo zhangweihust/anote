@@ -98,6 +98,7 @@
     <string name="msg_img_source">请选择图片来源：</string>
 	<string name="btn_img_source_camera">相机拍摄</string>
 	<string name="btn_img_source_local">本地相册</string>
+	<string name="select_file_not_image">您选择的并非图片文件</string>
 
     <!-- personal_info_title -->
     <string name="personal_info_title">个人信息</string>
