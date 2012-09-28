@@ -92,7 +92,10 @@ public class InformationScreen extends Screen implements IXListViewListener,
 				mxlvInformation.setSelection(1);
 				if (mInformationAdapter.isEmpty()) {
 					mInformationAdapter.setNoInformationPrompt(System
-							.currentTimeMillis());
+							.currentTimeMillis());					
+				}
+				
+				if(mInformationAdapter.getCount()<10){
 					mxlvInformation.setFooterVisibility(View.GONE);
 					mxlvInformation.setFooterDividersEnabled(false);
 					mxlvInformation.setPullLoadEnable(false);
