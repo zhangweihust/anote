@@ -81,7 +81,6 @@ public class NoteSaveDialog implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		dismiss();
 		switch (v.getId()) {
 		case R.id.dialog_btn_ok:
 			String title = mEditText.getEditableText().toString();// 标题
@@ -183,8 +182,10 @@ public class NoteSaveDialog implements OnClickListener {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			dismiss();
 			break;
 		case R.id.dialog_btn_cancel:
+			dismiss();
 			mEditNote.finish();
 			break;
 		}

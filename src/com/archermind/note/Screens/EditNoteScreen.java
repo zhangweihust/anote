@@ -205,19 +205,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 
 	public ArrayList<String> mPicPathList = null;// 保存笔记转换为图片的图片地址List
 
-	private ViewFlipper flipper = null;// 翻页时动画信息
-
-	private byte[] thread_lock = new byte[0];// 笔记转换为图片时的线程锁
-
 	private int mCurSavePage = 0;// 笔记转换为图片时，当前已经保存了页数
-
-	// private boolean isPicSaveOver = false; // 图片是否已经转换完成
-	//
-	// private boolean isNoteTobeShare = false; // 是否到了可以分享的时候
-	//
-	// private boolean isNoteSaveOver = false; // 笔记是否已经保存完成
-
-	// private boolean isRemoveEdit = false; // EditText是否在布局中被移除
 
 	private String mShareNoteId = ""; // 笔记数据库id
 	private String mShareNoteTitle = ""; // 笔记名称
@@ -461,30 +449,34 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				}
 			}
 
-			// 实现文本改变时翻页的下过
+			// 实现文本改变时翻页的效果
 			@Override
 			public void afterTextChanged(Editable s) {
 				// TODO Auto-generated method stub
+				Log.e("edittext", "edittext length:"
+						+ myEdit.getText().length());
+				Log.e("edittext", "edittext content:" + s.toString());
 				if (isInsert) {
 					return;
 				}
 				int totalLine = myEdit.getLineCount();
 				int i = countLinesHeight(totalLine);
-
 				if (i != totalLine) { // 超出视图边界
-					int lineStart = myEdit.getLayout().getLineStart(i + 1);
+					int lineStart = myEdit.getLayout().getLineStart(i);
 					int textLength = myEdit.getText().length();
 					if (lineStart < textLength) { // 超出部分
-
 						processWhenOutofbounds(i, lineStart, textLength);
 
 						int curLine = myEdit.getLayout().getLineForOffset(
 								myEdit.getSelectionStart());
-						if (curLine >= i + 1) {// 若光标在最后，则翻到下一页
+						if (curLine >= i) {// 若光标在最后，则翻到下一页
 							moveNextPage(false);
 						} else {// 若光标不在最后，则删除EditText中超出部分的内容
 							myEdit.getText().delete(lineStart, textLength);
 						}
+					} else {// 用户手动输入换行符,linestart月textlength相等
+						myEdit.getText().delete(lineStart - 1, textLength);// 删除前一页的换行符
+						moveNextPage(false);
 					}
 				} else { // 未超出视图边界
 					if (mCurPage < mTotalPage) {
@@ -502,9 +494,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		myEdit.setEditNote(this);
 
 		MainScreen.eventService.add(this);
-
-		flipper = (ViewFlipper) findViewById(R.id.flipper);
-		flipper.removeAllViews();
+		
 	}
 
 	/**
@@ -521,6 +511,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		for (i = 0; i < totalLine; i++) {
 			myEdit.getLineBounds(i, rc);
 			int curLineHeight = rc.height();
+			Log.e(TAG, "第" + i + "行的高度为：" + curLineHeight);
 			totalHeight += curLineHeight;
 			if (totalHeight > myEdit.getHeight()) {
 				return i;
@@ -628,11 +619,17 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			wrapItemOfList(mStrList.indexOf(pageStr), i);
 
 			if (j != totalLine) {
-				int lineStart = myEdit.getLayout().getLineStart(j + 1);
+				int lineStart = myEdit.getLayout().getLineStart(j);
 				int textLength2 = myEdit.getText().length();
 				if (lineStart < textLength2) { // 超出本分
-					processWhenOutofbounds(i, lineStart, textLength);
-					myEdit.getText().delete(lineStart, textLength);
+					processWhenOutofbounds(j, lineStart, textLength2);
+					int curLine = myEdit.getLayout().getLineForOffset(
+							myEdit.getSelectionStart());
+					if (curLine >= j) {// 若光标在超出边界的最后一行
+						moveNextPage(false);
+					} else {// 若光标不在最后，则删除EditText中超出部分的内容
+						myEdit.getText().delete(lineStart, textLength2);
+					}
 				}
 
 				isInsert = false;
@@ -1006,7 +1003,6 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			} /*
 			 * else { pageEnd = pageEnd - 1; }
 			 */
-			myEdit.addGraffit("page" + String.valueOf(mCurPage));
 			isNeedSaveChange = false;
 			isInsert = true;
 			myEdit.getEditableText().clear();
@@ -1021,7 +1017,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			int i = countLinesHeight(totalLine);
 
 			if (i != totalLine) {
-				int lineStart = myEdit.getLayout().getLineStart(i + 1);
+				int lineStart = myEdit.getLayout().getLineStart(i);
 				int textLength = myEdit.getText().length();
 				if (lineStart < textLength) { // 超出本分
 					processWhenOutofbounds(i, lineStart, textLength);
@@ -1033,53 +1029,14 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				}
 			}
 
-			if (isSave) {
-				System.out.println("flipper =2= " + flipper.getChildCount()
-						+ ", " + flipper.getCurrentView());
-
-				flipper.removeAllViews();
-				flipper.setVisibility(View.GONE);
-
-				FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
-				System.out
-						.println("==fl.getChildCount : " + fl.getChildCount());
-				if (fl.getChildCount() == 3) {
-					fl.addView(myEdit);
-					// isRemoveEdit = false;
-				}
-			} else {
-				FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
-				fl.removeView(myEdit);
-				System.out.println("flipper =0= " + flipper.getChildCount()
-						+ ", " + flipper.getCurrentView());
-				flipper.removeAllViews();
-				flipper.addView(myEdit, 0);
-				System.out.println("flipper =1= " + flipper.getChildCount()
-						+ ", " + flipper.getCurrentView());
-
-				flipper.setInAnimation(AnimationUtils.loadAnimation(this,
-						R.anim.push_left_in));
-				flipper.setOutAnimation(AnimationUtils.loadAnimation(this,
-						R.anim.push_left_out));
-
-				flipper.setDisplayedChild(0);
+			if (!isSave) {
+				myEdit.startAnimation(AnimationUtils.loadAnimation(this,
+						R.anim.push_right_in));
 				Toast.makeText(EditNoteScreen.this,
 						"第" + (mCurPage + 1) + "页, 共" + (mTotalPage + 1) + "页",
 						Toast.LENGTH_SHORT).show();
 			}
-
-			// FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
-			// fl.removeView(myEdit);
-			//
-			// flipper.removeAllViews();
-			// flipper.addView(myEdit,0);
-			//
-			// flipper.setInAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_in));
-			// flipper.setOutAnimation(AnimationUtils.loadAnimation(this,R.anim.push_left_out));
-			//
-			// flipper.setDisplayedChild(0);
-			Selection.setSelection(myEdit.getEditableText(), myEdit.getText()
-					.length());
+			
 			isNeedSaveChange = true;
 			return true;
 		}
@@ -1102,6 +1059,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			myEdit.getEditableText().clear();
 			reInsert(pageStart, pageEnd);
 			isInsert = false;
+			isNeedSaveChange = true;
 			mCurPage--;
 			myEdit.reloadGraffit("page" + String.valueOf(mCurPage));
 			if (pageStart == 0) {
@@ -1109,22 +1067,8 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			} else {
 				mLastPageEnd = pageStart + 1;
 			}
-			FrameLayout fl = (FrameLayout) findViewById(R.id.framelayout1);
-			fl.removeView(myEdit);
-			// isRemoveEdit = true;
-
-			flipper.removeAllViews();
-			flipper.addView(myEdit, 0);
-
-			flipper.setInAnimation(AnimationUtils.loadAnimation(this,
-					R.anim.push_right_in));
-			flipper.setOutAnimation(AnimationUtils.loadAnimation(this,
-					R.anim.push_right_out));
-
-			flipper.setDisplayedChild(0);
-			Selection.setSelection(myEdit.getEditableText(), myEdit.getText()
-					.length());
-			isNeedSaveChange = true;
+			myEdit.startAnimation(AnimationUtils.loadAnimation(this,
+					R.anim.push_left_in));
 			Toast.makeText(EditNoteScreen.this,
 					"第" + (mCurPage + 1) + "页, 共" + (mTotalPage + 1) + "页",
 					Toast.LENGTH_SHORT).show();
@@ -1685,6 +1629,8 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			} else if (mState == HANDWRITINGSTATE) {
 				int delete_index = myEdit.getSelectionStart();
 				if (delete_index <= 0) {
+					movePrePage();
+					myEdit.setSelection(myEdit.getText().length());
 					return;
 				}
 				Spanned s_delete = myEdit.getText();
@@ -1829,7 +1775,11 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		case R.id.edit_insert_newline:
 			int index1 = myEdit.getSelectionStart();
 			index1 = index1 < 0 ? 0 : index1;
-			myEdit.getText().insert(index1, "\n");
+			try {
+				myEdit.getText().insert(index1, "\n");
+			} catch (Exception e) {
+				Log.e(TAG, "插入换行符错误");
+			}
 			mInsertTypePopupWindow.dismiss();
 			break;
 		case R.id.edit_setting_color:
@@ -1971,6 +1921,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 					mDateView.setText(datePicker.getYear() + "."
 							+ (datePicker.getMonth() + 1) + "."
 							+ datePicker.getDayOfMonth());
+					mTimeCal = Calendar.getInstance(Locale.CHINA);
 					mTimeCal.set(datePicker.getYear(), datePicker.getMonth(),
 							datePicker.getDayOfMonth());
 					mWeekView.setText(new SimpleDateFormat("EEEE")
@@ -2932,14 +2883,14 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				comPressBmp(bmp, preffix + "pic/" + pName);
 				mPicMap.put(pName, preffix + "pic/" + pName);
 				ImageSpan span = new ImageSpan(bmp);
-				int index = myEdit.getSelectionStart();
-				if (index > 0) {
-					myEdit.getText().insert(index, "\n");
-				}
+				// int index = myEdit.getSelectionStart();
+				// if (index > 0) {
+				// myEdit.getText().insert(index, "\n");
+				// }
 				SpannableString spanStr = new SpannableString(pName);
 				spanStr.setSpan(span, 0, spanStr.length(),
 						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				index = myEdit.getSelectionStart();
+				int index = myEdit.getSelectionStart();
 				myEdit.getText().insert(index, spanStr);
 				Log.i(TAG, "插入了一张图片");
 				index = myEdit.getSelectionStart();
@@ -2967,15 +2918,15 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				comPressBmp(bmp, preffix + "pic/" + pName);
 				mPicMap.put(pName, preffix + "pic/" + pName);
 				ImageSpan span = new ImageSpan(bmp);
-				int index = myEdit.getSelectionStart();
-				if (index > 0) {
-					myEdit.getText().insert(index, "\n");
-				}
+				// int index = myEdit.getSelectionStart();
+				// if (index > 0) {
+				// myEdit.getText().insert(index, "\n");
+				// }
 				SpannableString spanStr = new SpannableString(pName);
 				spanStr.setSpan(span, 0, spanStr.length(),
 						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-				index = myEdit.getSelectionStart();
+				int index = myEdit.getSelectionStart();
 				myEdit.getText().insert(index, spanStr);
 				Log.i(TAG, "插入了一张图片");
 				index = myEdit.getSelectionStart();

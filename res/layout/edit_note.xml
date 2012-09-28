@@ -164,12 +164,6 @@
             android:layout_height="match_parent"
             android:orientation="vertical" >
 
-            <ViewFlipper
-                android:id="@+id/flipper"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:gravity="center_horizontal" />
-
             <com.archermind.note.Views.ColorFullRectView
                 android:id="@+id/colorfull_rect"
                 android:layout_width="fill_parent"
@@ -181,6 +175,7 @@
                 android:id="@+id/editText_view"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
+                android:layout_marginLeft="10dp"
                 android:background="@color/transparent"
                 android:gravity="top"
                 android:includeFontPadding="false"

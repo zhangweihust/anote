@@ -884,12 +884,12 @@ public class HomeScreen extends Screen implements IEventHandler,
 		if (needAnimation) {
 			if (preORnext == NEXT_MONTH) {
 				flipper.setInAnimation(AnimationUtils.loadAnimation(this,
-						R.anim.push_left_in));
+						R.anim.push_right_in));
 				flipper.setOutAnimation(AnimationUtils.loadAnimation(this,
 						R.anim.push_left_out));
 			} else {
 				flipper.setInAnimation(AnimationUtils.loadAnimation(this,
-						R.anim.push_right_in));
+						R.anim.push_left_in));
 				flipper.setOutAnimation(AnimationUtils.loadAnimation(this,
 						R.anim.push_right_out));
 			}

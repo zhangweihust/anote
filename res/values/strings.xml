@@ -123,7 +123,7 @@
     <string name="login_qq">QQ账号</string>
     <string name="login_renren">人人账号</string>
     <string name="login_or">或者</string>
-    <string name="login_username">请输入分享笔迹帐号</string>
+    <string name="login_username">请输入邮箱帐号</string>
     <string name="login_auto">下次自动登录</string>
     <string name="login_password">请输入密码</string>
     <string name="login_btn">账号登录</string>
@@ -206,7 +206,7 @@
     
     <!-- share -->
     <string name="share_title">分享</string>
-    <string name="share_default_text">分享笔迹，分享快乐！@诚迈科技 @分享笔迹\n查看请点击：http://anote.archermind.com/web/note.php</string>
+    <string name="share_default_text">分享笔迹，分享快乐！@诚迈科技 @分享笔迹\n查看请点击:http://anote.archermind.com/web/note.php</string>
     <string name="share_text_others">您还可以分享到以下平台</string>
     <string name="share_msg_sina">正在分享到新浪微博...</string>
     <string name="share_msg_qq">正在分享到腾讯微博...</string>

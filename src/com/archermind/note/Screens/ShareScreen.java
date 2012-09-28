@@ -7,13 +7,10 @@ import java.util.Random;
 import org.json.JSONObject;
 
 import com.amtcloud.mobile.android.business.AmtAlbumObj;
-import com.amtcloud.mobile.android.business.AmtApplication;
 import com.amtcloud.mobile.android.business.AmtAlbumObj.AlbumItem;
 import com.amtcloud.mobile.android.business.MessageTypes;
-import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
-import com.archermind.note.Events.EventArgs;
-import com.archermind.note.Events.EventTypes;
+import com.archermind.note.Adapter.MyGalleryAdapter;
 import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Services.ExceptionService;
 import com.archermind.note.Services.ServiceManager;
@@ -38,15 +35,15 @@ import com.weibo.net.WeiboException;
 import com.weibo.net.WeiboParameters;
 
 import android.R.integer;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -56,9 +53,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.Gallery;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,9 +62,9 @@ public class ShareScreen extends Screen implements OnClickListener {
 
 	private SharedPreferences mPreferences;
 	private Button mBackButton;
-	private ImageView mImageView;
+	// private ViewPager mViewPager;
+	private Gallery mGallery;
 	private TextView mTextView;
-//	private ProgressBar mProgressBar;
 	private Button mReuploadButton;
 	private LinearLayout mOthersLayout;
 	private Button mSinaButton;
@@ -119,8 +115,8 @@ public class ShareScreen extends Screen implements OnClickListener {
 						Log.e(TAG, "mPicPathList is null");
 						return;
 					}
-					mAlbumObj.uploadPicFiles(ServiceManager.getUserName(),mPicPathList, mPicnameList,
-							albumid);
+					mAlbumObj.uploadPicFiles(ServiceManager.getUserName(),
+							mPicPathList, mPicnameList, albumid);
 					Log.i(TAG, "albumid：" + albumid);
 				}
 				break;
@@ -154,41 +150,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 				mPicnameList.add(s.substring(s.lastIndexOf("/") + 1));
 			}
 		}
-
-		mBackButton = (Button) findViewById(R.id.screen_top_play_control_back);
-		mBackButton.setOnClickListener(this);
-
-		mImageView = (ImageView) findViewById(R.id.share_image);
-		mImageView.setMaxWidth(getWindowManager().getDefaultDisplay()
-				.getWidth() / 2);
-		try {
-			mImageView.setImageBitmap(BitmapFactory.decodeFile(mPicPathList
-					.get(0)));
-		} catch (Exception e) {
-			Log.e(TAG, "未找到该笔记图片");
-			ExceptionService.logException(e);
-		}
-
-//		mProgressBar = (ProgressBar) findViewById(R.id.share_progressBar);
-		mReuploadButton = (Button) findViewById(R.id.share_btn_reupload);
-		mReuploadButton.setOnClickListener(this);
-		mTextView = (TextView) findViewById(R.id.share_text);
-		if (android.os.Build.VERSION.SDK_INT > 8) {
-			Typeface type = Typeface.createFromAsset(getAssets(), "xdxwzt.ttf");
-			mTextView.setTypeface(type);
-		}
-
-		mOthersLayout = (LinearLayout) findViewById(R.id.share_layout_others);
-
-		mSinaButton = (Button) findViewById(R.id.btn_share_sina);
-		mSinaButton.setOnClickListener(this);
-
-		mQQButton = (Button) findViewById(R.id.btn_share_qq);
-		mQQButton.setOnClickListener(this);
-
-		mRenrenButton = (Button) findViewById(R.id.btn_share_renren);
-		mRenrenButton.setOnClickListener(this);
-
+		initViews();
 		uploadNotePic();
 	}
 
@@ -212,6 +174,78 @@ public class ShareScreen extends Screen implements OnClickListener {
 		} else {
 			mRenrenButton.setBackgroundResource(R.drawable.renren_gray);
 		}
+	}
+
+	private void initViews() {
+		mBackButton = (Button) findViewById(R.id.screen_top_play_control_back);
+		mBackButton.setOnClickListener(this);
+
+		mGallery = (Gallery) findViewById(R.id.share_gallery);
+		ArrayList<Bitmap> imageBitmaps = new ArrayList<Bitmap>();
+		for (String path : mPicPathList) {
+			if (path.endsWith(".jpg")) {
+				try {
+					imageBitmaps.add(BitmapFactory.decodeFile(path));
+				} catch (Exception e) {
+					Log.e(TAG, "未找到该笔记图片");
+					ExceptionService.logException(e);
+				}
+			}
+		}
+		mGallery.setAdapter(new MyGalleryAdapter(this, imageBitmaps));
+		// mViewPager = (ViewPager) findViewById(R.id.share_viewpager);
+		// LayoutInflater layoutInflater = LayoutInflater.from(this);
+		// for (String path : mPicPathList) {
+		// if (path.endsWith(".jpg")) {
+		// View view = layoutInflater.inflate(
+		// R.layout.share_viewpager_item, null);
+		// ImageView imageView = (ImageView) view
+		// .findViewById(R.id.share_imageview);
+		// // imageView.setMaxWidth(getWindowManager().getDefaultDisplay()
+		// // .getWidth() / 2);
+		// try {
+		// imageView.setImageBitmap(BitmapFactory.decodeFile(path));
+		// } catch (Exception e) {
+		// Log.e(TAG, "未找到该笔记图片");
+		// ExceptionService.logException(e);
+		// }
+		// mPicViewList.add(view);
+		// }
+		// }
+		// mViewPager.setAdapter(new MyPagerAdapter(mPicViewList));
+		// mViewPager.setCurrentItem(1);
+
+		// mImageView = (ImageView) findViewById(R.id.share_image);
+		// mImageView.setMaxWidth(getWindowManager().getDefaultDisplay()
+		// .getWidth() / 2);
+		// try {
+		// mImageView.setImageBitmap(BitmapFactory.decodeFile(mPicPathList
+		// .get(0)));
+		// } catch (Exception e) {
+		// Log.e(TAG, "未找到该笔记图片");
+		// ExceptionService.logException(e);
+		// }
+
+		mReuploadButton = (Button) findViewById(R.id.share_btn_reupload);
+		mReuploadButton.setOnClickListener(this);
+		mTextView = (TextView) findViewById(R.id.share_text);
+		if (android.os.Build.VERSION.SDK_INT > 8) {
+			Typeface type = Typeface.createFromAsset(getAssets(), "xdxwzt.ttf");
+			mTextView.setTypeface(type);
+		}
+		mTextView.setOnClickListener(this);
+
+		mOthersLayout = (LinearLayout) findViewById(R.id.share_layout_others);
+
+		mSinaButton = (Button) findViewById(R.id.btn_share_sina);
+		mSinaButton.setOnClickListener(this);
+
+		mQQButton = (Button) findViewById(R.id.btn_share_qq);
+		mQQButton.setOnClickListener(this);
+
+		mRenrenButton = (Button) findViewById(R.id.btn_share_renren);
+		mRenrenButton.setOnClickListener(this);
+
 	}
 
 	/*
@@ -329,7 +363,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 	private void uploadNotePic() {
 		showProgressBar(R.string.share_msg_square);
 		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
-//			AmtApplication.setAmtUserName(ServiceManager.getUserName());
+			// AmtApplication.setAmtUserName(ServiceManager.getUserName());
 			mAlbumObj = new AmtAlbumObj();
 			mAlbumObj.setHandler(mHandler);
 			mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
@@ -375,8 +409,8 @@ public class ShareScreen extends Screen implements OnClickListener {
 									runOnUiThread(new Runnable() {
 										@Override
 										public void run() {
-//											mProgressBar
-//													.setVisibility(View.GONE);
+											// mProgressBar
+											// .setVisibility(View.GONE);
 											dismissProgress();
 											showLoginAlertDialog(R.string.share_sina_expired);
 										}
@@ -474,7 +508,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 							R.string.share_err_equal_weibo, Toast.LENGTH_SHORT)
 							.show();
 				} else if (jsonObject.optInt("errcode") == 37) { // accessToken过期错误码
-//					mProgressBar.setVisibility(View.GONE);
+					// mProgressBar.setVisibility(View.GONE);
 					dismissProgress();
 					showLoginAlertDialog(R.string.share_qq_expired);
 				} else {
@@ -528,7 +562,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-//									mProgressBar.setVisibility(View.GONE);
+									// mProgressBar.setVisibility(View.GONE);
 									dismissProgress();
 									showLoginAlertDialog(R.string.share_renren_expired);
 								}
@@ -582,6 +616,13 @@ public class ShareScreen extends Screen implements OnClickListener {
 		case R.id.screen_top_play_control_back:
 			finish();
 			break;
+		case R.id.share_text:
+			String share_text = mTextView.getText().toString();
+			String url = share_text.substring(share_text.indexOf("http"));
+			Intent intent = new Intent("android.intent.action.VIEW");
+			intent.setData(Uri.parse(url));
+			startActivity(intent);
+			break;
 		case R.id.btn_share_sina:
 			if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
 				shareToSina(mPicPathList.get(0), mTextView.getText().toString());
@@ -615,14 +656,14 @@ public class ShareScreen extends Screen implements OnClickListener {
 	}
 
 	private void showProgressBar(int id) {
-//		mProgressBar.setVisibility(View.VISIBLE);
+		// mProgressBar.setVisibility(View.VISIBLE);
 		showProgress(null, getString(id));
 		mReuploadButton.setVisibility(View.GONE);
-//		Toast.makeText(this, id, Toast.LENGTH_SHORT).show();
+		// Toast.makeText(this, id, Toast.LENGTH_SHORT).show();
 	}
 
 	private void dismssProgressBar(int id, boolean isSuccessed) {
-//		mProgressBar.setVisibility(View.GONE);
+		// mProgressBar.setVisibility(View.GONE);
 		dismissProgress();
 		Toast.makeText(this, id, Toast.LENGTH_SHORT).show();
 	}

@@ -31,14 +31,16 @@
             android:textColor="@color/white"
             android:textSize="@dimen/main_screen_title_size" />
 
-        <!-- <ProgressBar
+        <!--
+             <ProgressBar
             android:id="@+id/share_progressBar"
             style="?android:attr/progressBarStyleSmall"
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="5dp" /> -->
+            android:layout_marginRight="5dp" />
+        -->
 
         <Button
             android:id="@+id/share_btn_reupload"
@@ -69,14 +71,11 @@
                 android:orientation="horizontal"
                 android:padding="10dp" >
 
-                <ImageView
-                    android:id="@+id/share_image"
+                <Gallery
+                    android:id="@+id/share_gallery"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:maxWidth="150dp"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/share_test" />
+                    android:spacing="10dp" />
 
                 <TextView
                     android:id="@+id/share_text"
