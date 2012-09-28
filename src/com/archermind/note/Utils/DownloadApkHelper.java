@@ -82,7 +82,10 @@ public class DownloadApkHelper {
 					}
 					break;
 				case MessageTypes.DOWN_FAIL://  下载失败
-					NoteApplication.toastShow(mHandler, R.string.screen_update_download_failed);
+					if (mContext.getClass().getName().equals("com.archermind.note.Screens.AboutScreen"))
+					{
+						NoteApplication.toastShow(mHandler, R.string.screen_update_download_failed);
+					}
 					break;
 				case MessageTypes.NO_NEED_TO_UPGRADE://  不需要更新
 					if (mContext.getClass().getName().equals("com.archermind.note.Screens.AboutScreen"))
@@ -103,8 +106,8 @@ public class DownloadApkHelper {
 					if (mContext.getClass().getName().equals("com.archermind.note.Screens.AboutScreen"))
 					{
 						((AboutScreen) mContext).dismissProgress();
+						NoteApplication.toastShow(mHandler, R.string.screen_update_exception);
 					}
-					NoteApplication.toastShow(mHandler, R.string.screen_update_exception);
 					NoteApplication.LogD(DownloadApkHelper.class,
 							"异常种类 : " + msg.obj);
 					switch ((Integer) msg.obj) {
