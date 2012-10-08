@@ -30,15 +30,16 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
 public class NoteSaveDialog implements OnClickListener {
 
+	private CheckBox note_save_checkBox;
 	private Button note_save_ok;
 	private Button note_save_cancel;
-	private RadioGroup saveGroup;
 	private Dialog noteSaveDialog;
 	private EditNoteScreen mEditNote;
 	private EditText mEditText;
@@ -55,8 +56,8 @@ public class NoteSaveDialog implements OnClickListener {
 	}
 
 	private void init() {
-		saveGroup = (RadioGroup) noteSaveDialog
-				.findViewById(R.id.note_save_group);
+		note_save_checkBox = (CheckBox) noteSaveDialog
+				.findViewById(R.id.note_save_checkbox);
 		note_save_ok = (Button) noteSaveDialog.findViewById(R.id.dialog_btn_ok);
 		note_save_cancel = (Button) noteSaveDialog
 				.findViewById(R.id.dialog_btn_cancel);
@@ -85,11 +86,11 @@ public class NoteSaveDialog implements OnClickListener {
 		case R.id.dialog_btn_ok:
 			String title = mEditText.getEditableText().toString();// 标题
 			if ("".equals(title) || title == null) {
-				Toast.makeText(mEditNote, "标题为空，请输入标题", Toast.LENGTH_SHORT).show();
+				Toast.makeText(mEditNote, R.string.note_input_title, Toast.LENGTH_SHORT).show();
 				return;
 			}	
 			
-			if (saveGroup.getCheckedRadioButtonId() == R.id.save_and_share) {
+			if (note_save_checkBox.isChecked()) {
 				if (!ServiceManager.isLogin()) {
 					Toast.makeText(mEditNote, R.string.no_login_info,
 							Toast.LENGTH_SHORT).show();
@@ -168,7 +169,7 @@ public class NoteSaveDialog implements OnClickListener {
 					}
 				}
 
-				if (saveGroup.getCheckedRadioButtonId() == R.id.save_and_share) {
+				if (note_save_checkBox.isChecked()) {
 					Intent intent = new Intent(mEditNote, ShareScreen.class);
 					intent.putStringArrayListExtra("picpathlist",
 							mEditNote.mPicPathList);

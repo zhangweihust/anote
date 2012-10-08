@@ -24,6 +24,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
+import android.text.InputType;
 import android.text.method.MovementMethod;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -43,7 +44,7 @@ public class MyEditText extends EditText implements
 	/**
 	 * 字体大小
 	 */
-	public static int fontSize = 40;
+	public static int fontSize = 36;
 	/**
 	 * 字体颜色
 	 */
@@ -326,10 +327,15 @@ public class MyEditText extends EditText implements
 	}
 
 	@Override
+	public void setInputType(int type) {
+		// TODO Auto-generated method stub
+		super.setInputType(type);
+		setSingleLine(false);
+	}
+
+	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		// TODO Auto-generated method stub
-		super.onTouchEvent(event);
-		imm.hideSoftInputFromWindow(getWindowToken(), 0);
 		if (mEditNote.mState != EditNoteScreen.GRAFFITINSERTSTATE) {
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
@@ -378,15 +384,20 @@ public class MyEditText extends EditText implements
 			// return super.onTouchEvent(event);
 			// } else {
 			//
-//			try {
-//				Method method = TextView.class.getMethod(
-//						"setSoftInputShownOnFocus", boolean.class);
-//				method.invoke(this, false);
-//				super.onTouchEvent(event);
-//				method.invoke(this, true);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
+
+			if (android.os.Build.VERSION.SDK_INT <= 10) {
+				super.onTouchEvent(event);
+			} else {
+				try {
+					Method method = TextView.class.getMethod(
+							"setSoftInputShownOnFocus", boolean.class);
+					method.invoke(this, false);
+					super.onTouchEvent(event);
+					method.invoke(this, true);
+				} catch (Exception e) {
+					Log.e(VIEW_LOG_TAG, "未找到setSoftInputShownOnFocus方法");
+				}
+			}
 
 		} else {
 			switch (event.getAction()) {

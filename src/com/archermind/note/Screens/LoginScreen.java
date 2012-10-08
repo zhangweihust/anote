@@ -118,9 +118,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 							editor.putString(PreferencesHelper.XML_USER_PASSWD,
 									jsonObject.getString("pswd"));
 							editor.commit();
-							// 保存至Application
-							NoteApplication noteApplication = NoteApplication
-									.getInstance();
+							// 保存用户信息
 							ServiceManager.setUserName(jsonObject
 									.optString("email"));
 							ServiceManager.setUserId(jsonObject

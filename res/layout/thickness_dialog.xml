@@ -3,62 +3,87 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center_vertical|center"
-    android:orientation="vertical">
-    
+    android:orientation="vertical" >
+
     <TextView
-    android:id="@+id/dialog_title"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/dialog_title_bg"
-    android:gravity="center"
-    android:text="@string/edit_pick_thinkness"
-    android:textColor="@color/white"
-    android:textSize="@dimen/dialog_title" />
+        android:id="@+id/dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/dialog_title_bg"
+        android:gravity="center"
+        android:text="@string/edit_pick_thinkness"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dialog_title" />
+
     
-    <TextView
+         <TextView
         android:id="@+id/thickness_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="12px"
-        android:textSize="@dimen/dialog_items"
         android:textColor="@color/dialog_items_color"
-        />
-	        
-	<LinearLayout 
-	    android:layout_width="wrap_content"
+        android:textSize="@dimen/dialog_items" />
+    
+
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:orientation="horizontal" 
-        android:gravity="center_vertical" >
-           
-	    <TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="细"
-	        android:textSize="@dimen/dialog_items"
-	         android:textColor="@color/dialog_items_color"
-	        />
-	      
-	    <SeekBar
-	        android:id="@+id/thickness_setting_bar"
-	        android:layout_width="170dp"
-	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="5dp"
-	        android:maxHeight="12dp"
-	        android:max="24"
-	        android:progress="12"
-	        android:secondaryProgress="24"
-	        android:textSize="@dimen/dialog_items"
-	        android:scrollbarStyle="outsideOverlay"
-	        />
-	    <TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="5dp"
-	        android:text="粗"
-	        android:textSize="@dimen/dialog_items"
-	        android:textColor="@color/dialog_items_color"
-	        />
-    </LinearLayout>  
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="细"
+            android:textColor="@color/dialog_items_color"
+            android:textSize="@dimen/dialog_items" />
+
+        <SeekBar
+            android:id="@+id/thickness_setting_bar"
+            android:layout_width="170dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:max="24"
+            android:maxHeight="12dp"
+            android:progress="12"
+            android:textSize="@dimen/dialog_items" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="粗"
+            android:textColor="@color/dialog_items_color"
+            android:textSize="@dimen/dialog_items" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="5dp" >
+
+        <Button
+            android:id="@+id/dialog_btn_ok"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_selector"
+            android:text="@string/dialog_ok"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dialog_btn" />
+
+        <Button
+            android:id="@+id/dialog_btn_cancel"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:background="@drawable/button_selector"
+            android:text="@string/dialog_cancel"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dialog_btn" />
+    </LinearLayout>
 
 </LinearLayout>

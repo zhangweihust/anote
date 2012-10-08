@@ -31,13 +31,16 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import android.R.integer;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -63,8 +66,11 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.animation.AnimationUtils;
@@ -94,6 +100,7 @@ import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DensityUtil;
 import com.archermind.note.Utils.GenerateName;
+import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
 import com.archermind.note.Utils.SetSystemProperty;
 import com.archermind.note.Views.ColorFullRectView;
@@ -106,17 +113,17 @@ import com.archermind.note.gesture.AmGestureLibraries;
 import com.archermind.note.gesture.AmGestureLibrary;
 import com.archermind.note.gesture.AmGestureOverlayView;
 
-public class EditNoteScreen extends Screen implements OnClickListener,
-		IEventHandler {
+public class EditNoteScreen extends Screen implements OnClickListener {
 
 	private AmGestureOverlayView gestureview = null;
 	private int gesture_width = 480;
 	private int gesture_height = 580; // 手势区域的大小(默认宽480，高580）
 	private MyEditText myEdit = null;
 
-	// 最底下一排的四个按钮
+	// 最底下一排的按钮
 	private ImageButton edit_insert = null; // 插入方式（图像，表情等）
 	private ImageButton edit_delete = null; // 删除按钮
+	private ImageButton edit_erase = null; // 橡皮擦
 	private ImageButton edit_input_type = null; // 输入模式（手写，涂鸦，阅读）
 	private ImageButton edit_setting = null; // 设置按钮（粗细，颜色）
 	private TextView mLogoTextView; // logo文字
@@ -140,9 +147,8 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 
 	private LinearLayout bitmap_rect_linearlayout;// 日记保存图像区域
 
-	private boolean isgraffit_erase = false;// 标志删除按钮当前是否是在涂鸦模式的橡皮擦功能。
+	private boolean isGraffit_erase = false;// 标志橡皮擦功能是否启用
 
-	private Dialog thickness_dialog = null;// 手势粗细对话框
 	private Dialog picchoose_dialog = null;// 图片选择对话框
 	// private Dialog fontchoose_dialog = null;
 	private Dialog facechoose_dialog = null;// 表情选择对话框
@@ -173,10 +179,10 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 
 	private GesturesProcessorHandWrite handWriteListener;// 手势监听器
 
-	private final int MIN_STROKEWIDTH = 12;// 手势最小宽度
-	private final int MAX_STROKEWIDTH = 30;// 手势最大宽度
-	private float mStrokeWidth = MIN_STROKEWIDTH;// 当前手势宽度
-	private int mFingerColor = 0xffff0000;// 当前手势颜色
+	// private final int MIN_STROKEWIDTH = 12;// 手势最小宽度
+	// private final int MAX_STROKEWIDTH = 30;// 手势最大宽度
+	// private float mStrokeWidth = MIN_STROKEWIDTH;// 当前手势宽度
+	// private int mFingerColor = 0xffff0000;// 当前手势颜色
 
 	private Handler handler = new Handler();// 主线程handler
 
@@ -213,6 +219,8 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 	private String mShareNoteSid = ""; // 分享笔记的网络id
 
 	private String preffix = NoteApplication.savePath + "diary/"; // 路径前缀
+
+	private SharedPreferences mPreferences;
 	private static final String TAG = "EditNoteScreen";
 
 	@Override
@@ -234,11 +242,14 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		mColorFullRectView = (ColorFullRectView) findViewById(R.id.colorfull_rect);
 		// EditText
 		myEdit = (MyEditText) findViewById(R.id.editText_view);
-		// mScrollView = (ScrollView)findViewById(R.id.sv_outside_editview);
+		if (android.os.Build.VERSION.SDK_INT <= 10) {
+			myEdit.setInputType(InputType.TYPE_NULL);
+		}
 
 		// 最底下一排的四个按钮
 		edit_insert = (ImageButton) findViewById(R.id.edit_insert);
 		edit_delete = (ImageButton) findViewById(R.id.edit_delete);
+		edit_erase = (ImageButton) findViewById(R.id.edit_erase);
 		edit_input_type = (ImageButton) findViewById(R.id.edit_inputtype);
 		edit_setting = (ImageButton) findViewById(R.id.edit_setting);
 		mLogoTextView = (TextView) findViewById(R.id.edit_logo_text);
@@ -249,6 +260,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 
 		edit_insert.setOnClickListener(this);
 		edit_delete.setOnClickListener(this);
+		edit_erase.setOnClickListener(this);
 		edit_input_type.setOnClickListener(this);
 		edit_setting.setOnClickListener(this);
 
@@ -284,6 +296,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				edit_insert.setVisibility(View.GONE);
 				edit_input_type.setVisibility(View.GONE);
 				edit_delete.setVisibility(View.GONE);
+				edit_erase.setVisibility(View.GONE);
 				edit_setting.setVisibility(View.GONE);
 				mLogoTextView.setVisibility(View.VISIBLE);
 				mState = NETNOTESTATE;
@@ -493,8 +506,7 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		//
 		myEdit.setEditNote(this);
 
-		MainScreen.eventService.add(this);
-		
+		initUserPreference();// 初始化用户颜色及粗细设置
 	}
 
 	/**
@@ -1036,7 +1048,8 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 						"第" + (mCurPage + 1) + "页, 共" + (mTotalPage + 1) + "页",
 						Toast.LENGTH_SHORT).show();
 			}
-			
+			Selection.setSelection(myEdit.getEditableText(), myEdit.getText()
+					.length());
 			isNeedSaveChange = true;
 			return true;
 		}
@@ -1072,6 +1085,8 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			Toast.makeText(EditNoteScreen.this,
 					"第" + (mCurPage + 1) + "页, 共" + (mTotalPage + 1) + "页",
 					Toast.LENGTH_SHORT).show();
+			Selection.setSelection(myEdit.getEditableText(), myEdit.getText()
+					.length());
 		}
 	}
 
@@ -1311,40 +1326,113 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 	 */
 
 	/**
-	 * 初始化粗细对话框
+	 * 显示粗细对话框
 	 */
-	private void initThicknessDialog() {
-		thickness_dialog = new Dialog(this, R.style.CornerDialog);
+	private void showThicknessDialog() {
+		final Dialog thickness_dialog = new Dialog(this, R.style.CornerDialog);
 		thickness_dialog.setContentView(R.layout.thickness_dialog);
+
+		final TextView thickness_textview = (TextView) thickness_dialog
+				.findViewById(R.id.thickness_textview);
 
 		thickness_seekbar = (SeekBar) thickness_dialog
 				.findViewById(R.id.thickness_setting_bar);
-		final TextView thickness_textview = (TextView) thickness_dialog
-				.findViewById(R.id.thickness_textview);
-		thickness_textview.setText(thickness_seekbar.getProgress() + "px");
+		if (mState == HANDWRITINGSTATE) {
+			thickness_seekbar.setProgress(mPreferences.getInt(
+					PreferencesHelper.XML_GESTURE_THICKNESS, 12));
+			thickness_textview.setText(mPreferences.getInt(
+					PreferencesHelper.XML_GESTURE_THICKNESS, 12) + "px");
+		} else if (mState == GRAFFITINSERTSTATE) {
+			thickness_seekbar.setProgress(mPreferences.getInt(
+					PreferencesHelper.XML_GRAFFIT_THICKNESS, 12));
+			Log.e(TAG,
+					"粗细："
+							+ mPreferences
+									.getInt(PreferencesHelper.XML_GRAFFIT_THICKNESS,
+											12));
+			thickness_textview.setText(mPreferences.getInt(
+					PreferencesHelper.XML_GRAFFIT_THICKNESS, 12) + "px");
+		}
+
 		thickness_seekbar
 				.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-					public void onProgressChanged(SeekBar arg0, int arg1,
-							boolean arg2) {
-						// TODO Auto-generated method stub
-						if (mState == HANDWRITINGSTATE) {
-							gestureview.setGestureStrokeWidth(arg1);
-						} else if (mState == GRAFFITINSERTSTATE) {
-							myEdit.getFingerPen().setStrokeWidth(arg1);
-						}
-						thickness_textview.setText(arg1 + "px");
-					}
 
-					public void onStartTrackingTouch(SeekBar arg0) {
+					@Override
+					public void onStopTrackingTouch(SeekBar seekBar) {
 						// TODO Auto-generated method stub
 
 					}
 
-					public void onStopTrackingTouch(SeekBar arg0) {
+					@Override
+					public void onStartTrackingTouch(SeekBar seekBar) {
 						// TODO Auto-generated method stub
 
+					}
+
+					@Override
+					public void onProgressChanged(SeekBar seekBar,
+							int progress, boolean fromUser) {
+						thickness_textview.setText(progress + "px");
 					}
 				});
+
+		Button btn_ok = (Button) thickness_dialog
+				.findViewById(R.id.dialog_btn_ok);
+		btn_ok.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (mState == HANDWRITINGSTATE) {
+					gestureview.setGestureStrokeWidth(thickness_seekbar
+							.getProgress());
+					mPreferences
+							.edit()
+							.putInt(PreferencesHelper.XML_GESTURE_THICKNESS,
+									thickness_seekbar.getProgress()).commit();
+				} else if (mState == GRAFFITINSERTSTATE) {
+					myEdit.setFingerStrokeWidth(thickness_seekbar.getProgress());
+					mPreferences
+							.edit()
+							.putInt(PreferencesHelper.XML_GRAFFIT_THICKNESS,
+									thickness_seekbar.getProgress()).commit();
+				}
+				thickness_dialog.dismiss();
+			}
+		});
+		Button btn_cancel = (Button) thickness_dialog
+				.findViewById(R.id.dialog_btn_cancel);
+		btn_cancel.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				thickness_dialog.dismiss();
+			}
+		});
+
+		thickness_dialog.show();
+		// thickness_seekbar
+		// .setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+		// public void onProgressChanged(SeekBar arg0, int arg1,
+		// boolean arg2) {
+		// // TODO Auto-generated method stub
+		// if (mState == HANDWRITINGSTATE) {
+		// gestureview.setGestureStrokeWidth(arg1);
+		// } else if (mState == GRAFFITINSERTSTATE) {
+		// myEdit.getFingerPen().setStrokeWidth(arg1);
+		// }
+		// thickness_textview.setText(arg1 + "px");
+		// }
+		//
+		// public void onStartTrackingTouch(SeekBar arg0) {
+		// // TODO Auto-generated method stub
+		//
+		// }
+		//
+		// public void onStopTrackingTouch(SeekBar arg0) {
+		// // TODO Auto-generated method stub
+		//
+		// }
+		// });
 	}
 
 	/**
@@ -1671,19 +1759,43 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 				}
 
 				myEdit.getText().delete(start_index, end_index);
-			} else if (mState == GRAFFITINSERTSTATE) {
-				if (isgraffit_erase) {
-					break;
-				}
-				mStrokeWidth = myEdit.getFingerPen().getStrokeWidth();
-				mFingerColor = myEdit.getFingerPen().getColor();
-				myEdit.setFingerStrokeWidth(MAX_STROKEWIDTH);
-				myEdit.getFingerPen().setStrokeWidth(MAX_STROKEWIDTH);
+			}
+			// else if (mState == GRAFFITINSERTSTATE) {
+			// if (isgraffit_erase) {
+			// break;
+			// }
+			// // mStrokeWidth = myEdit.getFingerPen().getStrokeWidth();
+			// // mFingerColor = myEdit.getFingerPen().getColor();
+			// myEdit.setFingerStrokeWidth(MAX_STROKEWIDTH);
+			// myEdit.getFingerPen().setStrokeWidth(MAX_STROKEWIDTH);
+			// myEdit.getFingerPen().setColor(0xffffffff);
+			// myEdit.setFingerColor(0x00000000);
+			// myEdit.setErase(true);
+			// isgraffit_erase = true;
+			// }
+			break;
+		case R.id.edit_erase:
+			if (isGraffit_erase) {
+				isGraffit_erase = false;
+				myEdit.setFingerStrokeWidth(mPreferences.getInt(
+						PreferencesHelper.XML_GRAFFIT_THICKNESS, 12));
+				myEdit.colorChanged(mPreferences.getInt(
+						PreferencesHelper.XML_GRAFFIT_COLOR, Color.RED));
+				myEdit.getFingerPen().setXfermode(null);
+				myEdit.setErase(false);
+				edit_erase.setBackgroundResource(R.color.transparent);
+				edit_erase.setImageResource(R.drawable.edit_erase);
+			} else {
+				isGraffit_erase = true;
+				myEdit.setFingerStrokeWidth(30);
 				myEdit.getFingerPen().setColor(0xffffffff);
 				myEdit.setFingerColor(0x00000000);
 				myEdit.setErase(true);
-				isgraffit_erase = true;
+				edit_erase
+						.setBackgroundResource(R.drawable.handwrite_btn_press_bg);
+				edit_erase.setImageResource(R.drawable.edit_erase_press);
 			}
+
 			break;
 		case R.id.edit_type_handwrite:
 
@@ -1694,8 +1806,8 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			myEdit.requestFocus();
 			edit_input_type.setImageDrawable(getResources().getDrawable(
 					R.drawable.edit_handwrite_selector));
-			edit_delete.setImageDrawable(getResources().getDrawable(
-					R.drawable.edit_delete_1_selector));
+			edit_delete.setVisibility(View.VISIBLE);
+			edit_erase.setVisibility(View.GONE);
 			mState = HANDWRITINGSTATE;
 			break;
 		case R.id.edit_type_graffit:
@@ -1703,23 +1815,22 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			gestureview.setVisibility(View.GONE);
 			myEdit.setFocusable(true);
 			myEdit.setFocusableInTouchMode(true);
-			myEdit.setErase(false);
-			if (isgraffit_erase) {
-				myEdit.setFingerStrokeWidth((int) mStrokeWidth);
-				myEdit.colorChanged(mFingerColor);
-				myEdit.getFingerPen().setXfermode(null);
-				isgraffit_erase = false;
-				break;
-			}
+			// myEdit.setErase(false);
+			// if (isgraffit_erase) {
+			// // myEdit.setFingerStrokeWidth((int) mStrokeWidth);
+			// // myEdit.colorChanged(mFingerColor);
+			// myEdit.getFingerPen().setXfermode(null);
+			// isgraffit_erase = false;
+			// break;
+			// }
 
 			if (mState == GRAFFITINSERTSTATE) {
 				break;
 			}
 			edit_input_type.setImageDrawable(getResources().getDrawable(
 					R.drawable.edit_graffit_selector));
-			edit_delete.setImageDrawable(getResources().getDrawable(
-					R.drawable.edit_delete_selector));
-
+			edit_delete.setVisibility(View.GONE);
+			edit_erase.setVisibility(View.VISIBLE);
 			mState = GRAFFITINSERTSTATE;
 			break;
 		case R.id.edit_type_soft:
@@ -1783,32 +1894,60 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			mInsertTypePopupWindow.dismiss();
 			break;
 		case R.id.edit_setting_color:
-			if (mState == HANDWRITINGSTATE) {
-				OnColorChangedListener listener = new OnColorChangedListener() {
-					public void colorChanged(int color) {
+			mSetTypePopupWindow.dismiss();
+			if (isGraffit_erase) {
+				Toast.makeText(this, R.string.graffit_erase_enable,
+						Toast.LENGTH_SHORT).show();
+				break;
+			}
+			OnColorChangedListener listener = new OnColorChangedListener() {
+				public void colorChanged(int color) {
+					Log.i(TAG, "设定的颜色值为：" + color);
+					if (mState == HANDWRITINGSTATE) {
 						gestureview.setGestureColor(color);
+						mPreferences
+								.edit()
+								.putInt(PreferencesHelper.XML_GESTURE_COLOR,
+										color).commit();
+					} else if (mState == GRAFFITINSERTSTATE) {
+						myEdit.colorChanged(color);
+						mPreferences
+								.edit()
+								.putInt(PreferencesHelper.XML_GRAFFIT_COLOR,
+										color).commit();
 					}
-				};
-				new ColorPickerDialog(this, R.style.CornerDialog, listener,
-						gestureview.getGestureColor()).show();
+				}
+			};
+			int initialColor = Color.BLACK;
+			if (mState == HANDWRITINGSTATE) {
+				initialColor = mPreferences.getInt(
+						PreferencesHelper.XML_GESTURE_COLOR, Color.BLACK);
 			} else if (mState == GRAFFITINSERTSTATE) {
-				new ColorPickerDialog(this, R.style.CornerDialog, myEdit,
-						myEdit.getFingerPen().getColor()).show();
-			} /*
+				initialColor = mPreferences.getInt(
+						PreferencesHelper.XML_GRAFFIT_COLOR, Color.RED);
+			}
+
+			new ColorPickerDialog(this, R.style.CornerDialog, listener,
+					initialColor).show();
+
+			/*
 			 * else if (mState == SOFTINPUTSTATE) { OnColorChangedListener
 			 * listener = new OnColorChangedListener() { public void
 			 * colorChanged(int color) { myEdit.setTextColor(color); } }; new
 			 * ColorPickerDialog(this, listener,
 			 * myEdit.getCurrentTextColor()).show(); }
 			 */
-			mSetTypePopupWindow.dismiss();
 			break;
 		case R.id.edit_setting_thickness:
+			mSetTypePopupWindow.dismiss();
+			if (isGraffit_erase) {
+				Toast.makeText(this, R.string.graffit_erase_enable,
+						Toast.LENGTH_SHORT).show();
+				break;
+			}
+			
 			if (mState == HANDWRITINGSTATE || mState == GRAFFITINSERTSTATE) {
-				if (thickness_dialog == null) {
-					initThicknessDialog();
-				}
-				thickness_dialog.show();
+				showThicknessDialog();
 			} /*
 			 * else if (mState == SOFTINPUTSTATE) { if
 			 * (myEdit.getPaint().isFakeBoldText()) {
@@ -1816,7 +1955,6 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 			 * else { myEdit.getPaint().setFakeBoldText(true);
 			 * myEdit.invalidate(); } }
 			 */
-			mSetTypePopupWindow.dismiss();
 			break;
 		/*
 		 * case R.id.edit_setting_font: if (fontchoose_dialog == null) {
@@ -2169,8 +2307,6 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		// EditNoteScreen.mState = EditNoteScreen.HANDWRITINGSTATE;
 		// 确保将产生的临时文件删除
 		deleteDefaultFiles();
-
-		ServiceManager.getEventservice().remove(this);
 		// if (mStrList != null) {
 		// mStrList.clear();
 		// }
@@ -2874,65 +3010,70 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		// TODO Auto-generated method stub
 		super.onActivityResult(requestCode, resultCode, data);
 		// mState = SOFTINPUTSTATE;
-		if (requestCode == CAMERA_RESULT) {
-			if (resultCode == RESULT_OK) {
-				Bitmap bmp = decodeFile(new File(mImageFilePath),
-						myEdit.getWidth(), myEdit.getHeight());
-				deletefiles(new String[] { mImageFilePath });
-				String pName = picName.generateName();
-				comPressBmp(bmp, preffix + "pic/" + pName);
-				mPicMap.put(pName, preffix + "pic/" + pName);
-				ImageSpan span = new ImageSpan(bmp);
-				// int index = myEdit.getSelectionStart();
-				// if (index > 0) {
-				// myEdit.getText().insert(index, "\n");
-				// }
-				SpannableString spanStr = new SpannableString(pName);
-				spanStr.setSpan(span, 0, spanStr.length(),
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				int index = myEdit.getSelectionStart();
-				myEdit.getText().insert(index, spanStr);
-				Log.i(TAG, "插入了一张图片");
-				index = myEdit.getSelectionStart();
-				myEdit.getText().insert(index, "\n");// 插入一张图片后再次插入一个换行
-			}
-		} else if (requestCode == ALBUM_RESULT) {
-			if (data == null) {
-				return;
-			}
-			Uri _uri = data.getData();
-			if (_uri != null) {
-				Cursor cursor = getContentResolver().query(_uri, null, null,
-						null, null);
-
-				if (cursor == null || cursor.getCount() == 0) {
+		try {
+			if (requestCode == CAMERA_RESULT) {
+				if (resultCode == RESULT_OK) {
+					Bitmap bmp = decodeFile(new File(mImageFilePath),
+							myEdit.getWidth(), myEdit.getHeight());
+					deletefiles(new String[] { mImageFilePath });
+					String pName = picName.generateName();
+					comPressBmp(bmp, preffix + "pic/" + pName);
+					mPicMap.put(pName, preffix + "pic/" + pName);
+					ImageSpan span = new ImageSpan(bmp);
+					// int index = myEdit.getSelectionStart();
+					// if (index > 0) {
+					// myEdit.getText().insert(index, "\n");
+					// }
+					SpannableString spanStr = new SpannableString(pName);
+					spanStr.setSpan(span, 0, spanStr.length(),
+							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					int index = myEdit.getSelectionStart();
+					myEdit.getText().insert(index, spanStr);
+					Log.i(TAG, "插入了一张图片");
+					index = myEdit.getSelectionStart();
+					myEdit.getText().insert(index, "\n");// 插入一张图片后再次插入一个换行
+				}
+			} else if (requestCode == ALBUM_RESULT) {
+				if (data == null) {
 					return;
 				}
-				cursor.moveToFirst();
-				mImageFilePath = cursor.getString(1);
-				cursor.close();
+				Uri _uri = data.getData();
+				if (_uri != null) {
+					Cursor cursor = getContentResolver().query(_uri, null,
+							null, null, null);
 
-				Bitmap bmp = decodeFile(new File(mImageFilePath),
-						myEdit.getWidth(), myEdit.getHeight());
-				String pName = picName.generateName();
-				comPressBmp(bmp, preffix + "pic/" + pName);
-				mPicMap.put(pName, preffix + "pic/" + pName);
-				ImageSpan span = new ImageSpan(bmp);
-				// int index = myEdit.getSelectionStart();
-				// if (index > 0) {
-				// myEdit.getText().insert(index, "\n");
-				// }
-				SpannableString spanStr = new SpannableString(pName);
-				spanStr.setSpan(span, 0, spanStr.length(),
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					if (cursor == null || cursor.getCount() == 0) {
+						return;
+					}
+					cursor.moveToFirst();
+					mImageFilePath = cursor.getString(1);
+					cursor.close();
 
-				int index = myEdit.getSelectionStart();
-				myEdit.getText().insert(index, spanStr);
-				Log.i(TAG, "插入了一张图片");
-				index = myEdit.getSelectionStart();
-				myEdit.getText().insert(index, "\n");// 插入一张图片后再次插入一个换行
+					Bitmap bmp = decodeFile(new File(mImageFilePath),
+							myEdit.getWidth(), myEdit.getHeight());
+					String pName = picName.generateName();
+					comPressBmp(bmp, preffix + "pic/" + pName);
+					mPicMap.put(pName, preffix + "pic/" + pName);
+					ImageSpan span = new ImageSpan(bmp);
+					// int index = myEdit.getSelectionStart();
+					// if (index > 0) {
+					// myEdit.getText().insert(index, "\n");
+					// }
+					SpannableString spanStr = new SpannableString(pName);
+					spanStr.setSpan(span, 0, spanStr.length(),
+							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+					int index = myEdit.getSelectionStart();
+					myEdit.getText().insert(index, spanStr);
+					Log.i(TAG, "插入了一张图片");
+					// index = myEdit.getSelectionStart();
+					// myEdit.getText().insert(index, "\n");// 插入一张图片后再次插入一个换行
+				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+
 	}
 
 	private void comPressBmp(Bitmap bmp, String filePath) {
@@ -3102,77 +3243,19 @@ public class EditNoteScreen extends Screen implements OnClickListener,
 		myEdit.getText().append(spanStr);
 	}
 
-	@Override
-	public boolean onEvent(Object sender, EventArgs e) {
-		// TODO Auto-generated method stub
-		switch (e.getType()) {
-		case SHARE_NOTE_SUCCESSED:
-			dismissProgress();
-			finish();
-			break;
-		case SHARE_NOTE_FAILED:
-			dismissProgress();
-			finish();
-			break;
-		// case NOTE_PIC_SAVE_OVER:
-		// isPicSaveOver = true;
-		// shareNote2Square();
-		// saveOverAndFinish();
-		// break;
-		// case NOTE_TO_BE_SHARE:
-		// handler.post(new Runnable() {
-		// @Override
-		// public void run() {
-		// if (!EditNoteScreen.this.isFinishing()) {
-		// showProgress(null, getString(R.string.saving_note_now));
-		// }
-		// }
-		// });
-		// isNoteTobeShare = true;
-		// mShareNoteId = (String) e.getExtra("noteid");
-		// mShareNoteTitle = (String) e.getExtra("title");
-		// mShareNoteAction = (String) e.getExtra("action");
-		// mShareNoteSid = (String) e.getExtra("sid");
-		// shareNote2Square();
-		// break;
-		// case NOTE_SAVE_OVER:
-		// handler.post(new Runnable() {
-		// @Override
-		// public void run() {
-		// if (!EditNoteScreen.this.isFinishing()) {
-		// showProgress(null, getString(R.string.saving_note_now));
-		// }
-		// }
-		// });
-		// isNoteSaveOver = true;
-		// saveOverAndFinish();
-		// break;
+	private void initUserPreference() {
+		if (mPreferences == null) {
+			mPreferences = PreferencesHelper.getSharedPreferences(this, 0);
 		}
-		return false;
-	}
 
-	// private void shareNote2Square() {
-	// if (isPicSaveOver && isNoteTobeShare) {
-	// dismissProgress();
-	// Intent intent = new Intent(this, ShareScreen.class);
-	// intent.putStringArrayListExtra("picpathlist", mPicPathList);
-	// intent.putExtra("noteid", mShareNoteId);
-	// intent.putExtra("title", mShareNoteTitle);
-	// intent.putExtra("action", mShareNoteAction);
-	// intent.putExtra("sid", mShareNoteSid);
-	// this.startActivity(intent);
-	// }
-	// }
-	//
-	// private void saveOverAndFinish() {
-	// if (isPicSaveOver && isNoteSaveOver) {
-	// handler.post(new Runnable() {
-	// @Override
-	// public void run() {
-	// dismissProgress();
-	// finish();
-	// }
-	// });
-	// }
-	// }
+		gestureview.setGestureStrokeWidth(mPreferences.getInt(
+				PreferencesHelper.XML_GESTURE_THICKNESS, 12));
+		gestureview.setGestureColor(mPreferences.getInt(
+				PreferencesHelper.XML_GESTURE_COLOR, Color.BLACK));
+
+		myEdit.setFingerStrokeWidth(mPreferences.getInt(
+				PreferencesHelper.XML_GRAFFIT_THICKNESS, 12));
+		myEdit.colorChanged(mPreferences.getInt(
+				PreferencesHelper.XML_GRAFFIT_COLOR, Color.RED));
+	}
 }

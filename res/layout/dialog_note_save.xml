@@ -42,12 +42,8 @@
             android:textSize="@dimen/dialog_items" />
     </LinearLayout>
 
-    <View
-        android:layout_width="wrap_content"
-        android:layout_height="2dp"
-        android:layout_gravity="center"
-        android:background="@drawable/listview_divider" />
 
+    <!--
     <RadioGroup
         android:id="@+id/note_save_group"
         android:layout_width="fill_parent"
@@ -81,12 +77,18 @@
             android:textColor="@color/dialog_items_color"
             android:textSize="@dimen/dialog_items" />
     </RadioGroup>
+    -->
 
-    <View
-        android:layout_width="wrap_content"
-        android:layout_height="2dp"
-        android:layout_gravity="center"
-        android:background="@drawable/listview_divider" />
+    <CheckBox
+        android:id="@+id/note_save_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:checked="true"
+        android:button="@drawable/radiobutton_save_share"
+        android:text="@string/save_and_share"
+        android:textColor="@color/dialog_items_color"
+        android:textSize="@dimen/dialog_items" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -100,7 +102,7 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:background="@drawable/button_selector"
-            android:text="@string/dialog_ok"
+            android:text="@string/save_only"
             android:textColor="@color/white"
             android:textSize="@dimen/dialog_btn" />
 
@@ -110,7 +112,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:background="@drawable/button_selector"
-            android:text="@string/dialog_cancel"
+            android:text="@string/not_save"
             android:textColor="@color/white"
             android:textSize="@dimen/dialog_btn" />
     </LinearLayout>

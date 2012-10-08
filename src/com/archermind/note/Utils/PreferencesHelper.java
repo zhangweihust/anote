@@ -37,6 +37,10 @@ public class PreferencesHelper {
 	public static final String XML_QQ_OPENID = "qq_openid";
 	public static final String XML_RENREN_ACCESS_TOKEN = "renren_access_token";
 	public static final String XML_COOKIES = "cookies";
+	public static final String XML_GESTURE_THICKNESS = "gesture_thickness";
+	public static final String XML_GESTURE_COLOR = "gesture_color";
+	public static final String XML_GRAFFIT_THICKNESS = "graffit_thickness";
+	public static final String XML_GRAFFIT_COLOR = "graffit_color";
 	
 	private static Bitmap mUserAvatarBitmap = null;
 	private static ArrayList<Map<String, Object>> mProvinceLists;

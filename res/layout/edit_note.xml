@@ -61,8 +61,18 @@
             android:layout_weight="1"
             android:background="@drawable/tab_btn_selector"
             android:scaleType="fitCenter"
-            android:src="@drawable/edit_delete_1_selector" />
+            android:src="@drawable/edit_delete_selector" />
 
+        <ImageButton
+            android:id="@+id/edit_erase"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/edit_erase"
+            android:visibility="gone" />
+        
         <ImageButton
             android:id="@+id/edit_inputtype"
             android:layout_width="wrap_content"
@@ -179,7 +189,6 @@
                 android:background="@color/transparent"
                 android:gravity="top"
                 android:includeFontPadding="false"
-                android:inputType="none"
                 android:lineSpacingExtra="0dp"
                 android:lineSpacingMultiplier="1.0" >
             </com.archermind.note.editnote.MyEditText>
