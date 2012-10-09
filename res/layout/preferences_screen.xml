@@ -41,13 +41,13 @@
 
                 <Button
                     android:id="@+id/back"
-                    android:layout_width="42dp" 
-		            android:layout_height="32dp"
-					android:layout_centerVertical="true"
-					android:text="@string/back"
-		            android:background="@drawable/button_selector" 
-		            android:layout_marginLeft="8dip"
-		            android:textColor="@color/white" />
+                    android:layout_width="42dp"
+                    android:layout_height="32dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="8dip"
+                    android:background="@drawable/button_selector"
+                    android:text="@string/back"
+                    android:textColor="@color/white" />
 
                 <TextView
                     android:id="@+id/activityTitle"
@@ -106,8 +106,8 @@
                         android:id="@+id/user_avatar"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
-                        android:layout_marginRight="12dp" 
-                        android:visibility="invisible"/>
+                        android:layout_marginRight="12dp"
+                        android:visibility="invisible" />
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -179,11 +179,44 @@
                         android:layout_marginRight="12dp"
                         android:src="@drawable/arrow_right" />
                 </LinearLayout>
+
                 <ImageView
                     android:layout_width="fill_parent"
                     android:layout_height="1.0px"
                     android:scaleType="fitXY"
                     android:src="@drawable/new_track" />
+
+               <!--  <LinearLayout
+                    android:id="@+id/share_layout"
+                    android:layout_width="fill_parent"
+                    android:layout_height="42dp"
+                    android:background="@android:drawable/list_selector_background"
+                    android:gravity="center_vertical" >
+
+                    <TextView
+                        android:id="@+id/share_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="12dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:singleLine="true"
+                        android:text="分享设置"
+                        android:textColor="#555555"
+                        android:textSize="16dp" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="12dp"
+                        android:src="@drawable/arrow_right" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="fill_parent"
+                    android:layout_height="1.0px"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/new_track" /> -->
 
                 <LinearLayout
                     android:id="@+id/feedback_layout"
@@ -210,7 +243,7 @@
                         android:layout_marginRight="12dp"
                         android:src="@drawable/arrow_right" />
                 </LinearLayout>
-                                
+
                 <ImageView
                     android:layout_width="fill_parent"
                     android:layout_height="1.0px"

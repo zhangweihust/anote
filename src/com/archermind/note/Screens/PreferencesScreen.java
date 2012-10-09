@@ -49,10 +49,12 @@ public class PreferencesScreen extends Screen implements OnClickListener {
 		album_view.setOnClickListener(this);
 		View account_view = (View) this.findViewById(R.id.account_layout);
 		account_view.setOnClickListener(this);
-		View about_view = (View) this.findViewById(R.id.about_layout);
-		about_view.setOnClickListener(this);
+//		View share_view = (View) this.findViewById(R.id.share_layout);
+//		share_view.setOnClickListener(this);
 		View feedback_view = (View) this.findViewById(R.id.feedback_layout);
 		feedback_view.setOnClickListener(this);
+		View about_view = (View) this.findViewById(R.id.about_layout);
+		about_view.setOnClickListener(this);
 
 		mUserAvatar = (ImageView) this.findViewById(R.id.user_avatar);
 

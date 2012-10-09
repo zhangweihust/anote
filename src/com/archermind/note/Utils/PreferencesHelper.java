@@ -41,6 +41,7 @@ public class PreferencesHelper {
 	public static final String XML_GESTURE_COLOR = "gesture_color";
 	public static final String XML_GRAFFIT_THICKNESS = "graffit_thickness";
 	public static final String XML_GRAFFIT_COLOR = "graffit_color";
+	public static final String XML_DEFAULT_SHARE = "default_share";
 	
 	private static Bitmap mUserAvatarBitmap = null;
 	private static ArrayList<Map<String, Object>> mProvinceLists;

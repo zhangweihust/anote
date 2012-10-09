@@ -27,9 +27,14 @@
             android:id="@+id/edit_title_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="60dp"
+            android:layout_marginRight="50dp"
             android:layout_centerInParent="true"
             android:layout_centerVertical="true"
             android:gravity="center_vertical"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
             android:text="写笔迹"
             android:textColor="@color/white"
             android:textSize="@dimen/main_screen_title_size" />
@@ -45,7 +50,7 @@
         android:gravity="center"
         android:orientation="horizontal" >
 
-         <ImageButton
+        <ImageButton
             android:id="@+id/edit_insert"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -72,7 +77,7 @@
             android:scaleType="fitCenter"
             android:src="@drawable/edit_erase"
             android:visibility="gone" />
-        
+
         <ImageButton
             android:id="@+id/edit_inputtype"
             android:layout_width="wrap_content"
@@ -90,8 +95,7 @@
             android:background="@drawable/tab_btn_selector"
             android:scaleType="fitCenter"
             android:src="@drawable/edit_setting_selector" />
-        
-       
+
         <TextView
             android:id="@+id/edit_logo_text"
             android:layout_width="fill_parent"
@@ -101,7 +105,7 @@
             android:text="@string/about_logo_title"
             android:textColor="#888888"
             android:textSize="20dp"
-            android:visibility="gone"/>
+            android:visibility="gone" />
     </LinearLayout>
 
     <LinearLayout
@@ -185,7 +189,6 @@
                 android:id="@+id/editText_view"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:layout_marginLeft="10dp"
                 android:background="@color/transparent"
                 android:gravity="top"
                 android:includeFontPadding="false"

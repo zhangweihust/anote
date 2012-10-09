@@ -266,6 +266,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 
 		// 标题、日期和星期
 		mTitleView = (TextView) findViewById(R.id.edit_title_textview);
+		mTitleView.setSelected(true);
 		mDateView = (TextView) findViewById(R.id.edit_date_textview);
 		mWeekView = (TextView) findViewById(R.id.edit_week_textview);
 		mDateView.setOnClickListener(this);
@@ -1945,7 +1946,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 						Toast.LENGTH_SHORT).show();
 				break;
 			}
-			
+
 			if (mState == HANDWRITINGSTATE || mState == GRAFFITINSERTSTATE) {
 				showThicknessDialog();
 			} /*
@@ -2279,47 +2280,47 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 	@Override
 	public void finish() {
 		// TODO Auto-generated method stub
-		// EditNoteScreen.this.runOnUiThread(new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// // TODO Auto-generated method stub
-		// isInsert = true;
-		// isNeedSaveChange = false;
-		// myEdit.getText().clear();
-		// myEdit.recycleBitmap();
-		// if (gestureview != null) {
-		// gestureview.clear(false);
-		// gestureview = null;
-		// }
-		// isInsert = false;
-		// isNeedSaveChange = true;
-		//
-		// if (flipper != null) {
-		// flipper.removeAllViews();
-		// flipper = null;
-		// }
-		//
-		// myEdit = null;
-		// }
-		// });
-		// // EditNoteScreen.mState = EditNoteScreen.SOFTINPUTSTATE;
+		EditNoteScreen.this.runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				isInsert = true;
+				isNeedSaveChange = false;
+				myEdit.getText().clear();
+				myEdit.recycleBitmap();
+				if (gestureview != null) {
+					gestureview.clear(false);
+					gestureview = null;
+				}
+				isInsert = false;
+				isNeedSaveChange = true;
+
+				// if (flipper != null) {
+				// flipper.removeAllViews();
+				// flipper = null;
+				// }
+
+				myEdit = null;
+			}
+		});
+		// EditNoteScreen.mState = EditNoteScreen.SOFTINPUTSTATE;
 		// EditNoteScreen.mState = EditNoteScreen.HANDWRITINGSTATE;
 		// 确保将产生的临时文件删除
 		deleteDefaultFiles();
-		// if (mStrList != null) {
-		// mStrList.clear();
-		// }
-		// if (mPicPathList != null) {
-		// mPicPathList.clear();
-		// }
-		// if (mPicMap != null) {
-		// mPicMap.clear();
-		// }
-		//
-		// mGesture = null;
-		//
-		// System.gc();
+		if (mStrList != null) {
+			mStrList.clear();
+		}
+		if (mPicPathList != null) {
+			mPicPathList.clear();
+		}
+		if (mPicMap != null) {
+			mPicMap.clear();
+		}
+
+		mGesture = null;
+
+		System.gc();
 		super.finish();
 	}
 
@@ -2544,7 +2545,10 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 					File[] fl = file.listFiles();
 					for (File f : fl) {
 						FileInputStream in = new FileInputStream(f);
-						ZipEntry entry = new ZipEntry(fileFrom + f.getName());
+						String temp = fileFrom.substring(0,
+								fileFrom.lastIndexOf("/"));
+						ZipEntry entry = new ZipEntry(temp.substring(temp
+								.lastIndexOf("/") + 1) + "/" + f.getName());
 						zipOut.putNextEntry(entry);
 						int nNumber;
 						byte[] buffer = new byte[512];
@@ -2557,7 +2561,9 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 					file.delete();
 				} else {
 					FileInputStream in = new FileInputStream(fileFrom);
-					ZipEntry entry = new ZipEntry(fileFrom);
+					// ZipEntry entry = new ZipEntry(fileFrom);
+					ZipEntry entry = new ZipEntry(fileFrom.substring(fileFrom
+							.lastIndexOf("/") + 1));
 					zipOut.putNextEntry(entry);
 					int nNumber;
 					byte[] buffer = new byte[512];
@@ -2607,7 +2613,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 		if (!noteFile.exists()) {
 			return;
 		}
-		Unzip(filePath, "");
+		Unzip(filePath, preffix);
 
 		try {
 			// 加载图片资源，并保存到map中

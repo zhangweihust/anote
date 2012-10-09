@@ -74,7 +74,7 @@
     <string name="account_bound_sina_none">您还未绑定新浪账号！</string>
     <string name="account_bound_qq_none">您还未绑定QQ账号！</string>
     <string name="account_bound_renren_none">您还未绑定人人账号！</string>
-
+    <string name="share_setting_title">分享设置</string>
     <string name="setting_tips">提示</string>
     <string name="no_login_info">请先登录</string>
     <string name="network_none">无法连接到网络，请检查网络设置！</string>

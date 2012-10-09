@@ -159,8 +159,8 @@ public class LoginScreen extends Screen implements OnClickListener {
 	 */
 	private void initViews() {
 		mUserName = (EditText) findViewById(R.id.editText_login_username);
-		// mUserName.setText(PreferencesHelper.getSharedPreferences(this, 0)
-		// .getString(PreferencesHelper.XML_USER_ACCOUNT, null));
+		mUserName.setText(PreferencesHelper.getSharedPreferences(this, 0)
+				.getString(PreferencesHelper.XML_USER_ACCOUNT, null));
 		mPassWord = (EditText) findViewById(R.id.editText_login_password);
 		mBackButton = (Button) findViewById(R.id.screen_top_play_control_back);
 		mBackButton.setOnClickListener(this);

@@ -62,7 +62,6 @@ public class ShareScreen extends Screen implements OnClickListener {
 
 	private SharedPreferences mPreferences;
 	private Button mBackButton;
-	// private ViewPager mViewPager;
 	private Gallery mGallery;
 	private TextView mTextView;
 	private Button mReuploadButton;
@@ -340,7 +339,24 @@ public class ShareScreen extends Screen implements OnClickListener {
 					break;
 				}
 
-				dismssProgressBar(R.string.share_success, true);
+				// 默认分享相关
+				String default_share = mPreferences.getString(
+						PreferencesHelper.XML_DEFAULT_SHARE, null);
+				if (default_share == null) {
+					dismssProgressBar(R.string.share_success, true);
+				} else if (default_share.equals("sina")) {
+					dismissProgress();
+					shareToSina(mPicPathList.get(0), mTextView.getText()
+							.toString());
+				} else if (default_share.equals("qq")) {
+					dismissProgress();
+					shareToQQ(mPicPathList.get(0), mTextView.getText()
+							.toString());
+				} else if (default_share.equals("renren")) {
+					dismissProgress();
+					shareToRenren(imgurl_renren, mTextView.getText().toString());
+				}
+
 				Log.i(TAG, "分享到广场成功!");
 			} else if (result.equals("failed")) {
 				dismssProgressBar(R.string.share_failed, false);

@@ -100,7 +100,7 @@
                         android:layout_weight="1"
                         android:background="@color/edittext_background_color"
                         android:hint="@string/register_nickname_hint"
-                        android:maxEms="20"
+                        android:maxLength="10"
                         android:singleLine="true"
                         android:textColor="@color/register_text_content"
                         android:textSize="@dimen/login_register_text_size" >

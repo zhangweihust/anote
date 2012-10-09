@@ -69,7 +69,7 @@
                     android:singleLine="true"
                     android:text="@string/account_user_account"
                     android:textColor="@color/share_setting_title_color"
-                    android:textSize="@dimen/login_register_text_size" />
+                    android:textSize="16dp" />
 
                 <TextView
                     android:id="@+id/user_account"
@@ -79,7 +79,7 @@
                     android:gravity="right"
                     android:singleLine="true"
                     android:textColor="@color/register_text_content"
-                    android:textSize="@dimen/login_register_text_size" />
+                    android:textSize="16dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -104,7 +104,7 @@
                         android:gravity="center_vertical"
                         android:text="@string/login_sina"
                         android:textColor="@color/share_setting_title_color"
-                        android:textSize="@dimen/login_register_text_size" />
+                        android:textSize="16dp" />
 
                     <TextView
                         android:id="@+id/acount_sina_unbound"
@@ -114,7 +114,7 @@
                         android:gravity="center_vertical|right"
                         android:text="@string/account_unbound"
                         android:textColor="@color/register_text_content"
-                        android:textSize="@dimen/login_register_text_size" />
+                        android:textSize="16dp" />
 
                     <TextView
                         android:id="@+id/acount_sina_bounded"
@@ -124,7 +124,7 @@
                         android:gravity="center_vertical|right"
                         android:text="@string/account_bounded"
                         android:textColor="@color/toptextcolor"
-                        android:textSize="@dimen/login_register_text_size"
+                        android:textSize="16dp"
                         android:visibility="gone" />
                 </LinearLayout>
 
@@ -149,7 +149,7 @@
                         android:gravity="center_vertical"
                         android:text="@string/login_qq"
                         android:textColor="@color/share_setting_title_color"
-                        android:textSize="@dimen/login_register_text_size" />
+                        android:textSize="16dp" />
 
                     <TextView
                         android:id="@+id/acount_qq_unbound"
@@ -159,7 +159,7 @@
                         android:gravity="center_vertical|right"
                         android:text="@string/account_unbound"
                         android:textColor="@color/register_text_content"
-                        android:textSize="@dimen/login_register_text_size" />
+                        android:textSize="16dp" />
 
                     <TextView
                         android:id="@+id/acount_qq_bounded"
@@ -169,7 +169,7 @@
                         android:gravity="center_vertical|right"
                         android:text="@string/account_bounded"
                         android:textColor="@color/toptextcolor"
-                        android:textSize="@dimen/login_register_text_size"
+                        android:textSize="16dp"
                         android:visibility="gone" />
                 </LinearLayout>
 
@@ -194,7 +194,7 @@
                         android:gravity="center_vertical"
                         android:text="@string/login_renren"
                         android:textColor="@color/share_setting_title_color"
-                        android:textSize="@dimen/login_register_text_size" />
+                        android:textSize="16dp" />
 
                     <TextView
                         android:id="@+id/acount_renren_unbound"
@@ -204,7 +204,7 @@
                         android:gravity="center_vertical|right"
                         android:text="@string/account_unbound"
                         android:textColor="@color/register_text_content"
-                        android:textSize="@dimen/login_register_text_size" />
+                        android:textSize="16dp" />
 
                     <TextView
                         android:id="@+id/acount_renren_bounded"
@@ -214,7 +214,7 @@
                         android:gravity="center_vertical|right"
                         android:text="@string/account_bounded"
                         android:textColor="@color/toptextcolor"
-                        android:textSize="@dimen/login_register_text_size"
+                        android:textSize="16dp"
                         android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
