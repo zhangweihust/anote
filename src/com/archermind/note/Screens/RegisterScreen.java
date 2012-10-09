@@ -128,7 +128,8 @@ public class RegisterScreen extends Screen implements OnClickListener {
 							"图片名称："
 									+ mAvatarPath.substring(mAvatarPath
 											.lastIndexOf("/") + 1));
-					mAlbumObj.uploadPicFiles(ServiceManager.getUserName(),picPath, picNames, albumid);
+					mAlbumObj.uploadPicFiles(ServiceManager.getUserName(),
+							picPath, picNames, albumid);
 					Log.i(TAG, "albumid：" + albumid);
 				}
 				break;
@@ -159,19 +160,19 @@ public class RegisterScreen extends Screen implements OnClickListener {
 		mPreferences = PreferencesHelper.getSharedPreferences(this, 0);
 	}
 
-	@Override
-	protected void onResume() {
-		// TODO Auto-generated method stub
-		super.onResume();
-		Bitmap image = PreferencesHelper.getAvatarBitmap(this);
-		if (image != null) {
-			mUserAvatar.setImageBitmap(image);
-			if (mAvatarPath == null) {
-				mAvatarPath = mPreferences.getString(
-						PreferencesHelper.XML_USER_AVATAR, null);
-			}
-		}
-	}
+//	@Override
+//	protected void onResume() {
+//		// TODO Auto-generated method stub
+//		super.onResume();
+//		Bitmap image = PreferencesHelper.getAvatarBitmap(this);
+//		if (image != null) {
+//			mUserAvatar.setImageBitmap(image);
+//			if (mAvatarPath == null) {
+//				mAvatarPath = mPreferences.getString(
+//						PreferencesHelper.XML_USER_AVATAR, null);
+//			}
+//		}
+//	}
 
 	@Override
 	protected void onDestroy() {
@@ -454,8 +455,8 @@ public class RegisterScreen extends Screen implements OnClickListener {
 
 						// 文件操作：上传头像文件
 						if (mAvatarBitmap != null) {
-//							AmtApplication.setAmtUserName(ServiceManager
-//									.getUserName());
+							// AmtApplication.setAmtUserName(ServiceManager
+							// .getUserName());
 							mAlbumObj = new AmtAlbumObj();
 							mAlbumObj.setHandler(mHandler);
 							mAlbumObj.createAlbum(ServiceManager.getUserName(),
@@ -501,6 +502,23 @@ public class RegisterScreen extends Screen implements OnClickListener {
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 			if (result.equals("success")) {
+				// 设置默认分享
+				if (getIntent().getIntExtra("type", 0) == ServerInterface.LOGIN_TYPE_SINA) {
+					mPreferences
+							.edit()
+							.putString(PreferencesHelper.XML_DEFAULT_SHARE,
+									"sina").commit();
+				} else if (getIntent().getIntExtra("type", 0) == ServerInterface.LOGIN_TYPE_QQ) {
+					mPreferences
+							.edit()
+							.putString(PreferencesHelper.XML_DEFAULT_SHARE,
+									"qq").commit();
+				} else if (getIntent().getIntExtra("type", 0) == ServerInterface.LOGIN_TYPE_RENREN) {
+					mPreferences
+							.edit()
+							.putString(PreferencesHelper.XML_DEFAULT_SHARE,
+									"renren").commit();
+				}
 				Toast.makeText(RegisterScreen.this, R.string.register_success,
 						Toast.LENGTH_SHORT).show();
 			} else {

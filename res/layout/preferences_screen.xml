@@ -186,7 +186,7 @@
                     android:scaleType="fitXY"
                     android:src="@drawable/new_track" />
 
-               <!--  <LinearLayout
+               <LinearLayout
                     android:id="@+id/share_layout"
                     android:layout_width="fill_parent"
                     android:layout_height="42dp"
@@ -216,7 +216,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="1.0px"
                     android:scaleType="fitXY"
-                    android:src="@drawable/new_track" /> -->
+                    android:src="@drawable/new_track" />
 
                 <LinearLayout
                     android:id="@+id/feedback_layout"

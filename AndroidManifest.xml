@@ -41,6 +41,7 @@
         <activity android:name=".Screens.AlbumScreen" />
         <activity android:name=".Screens.PersonInfoScreen" />
         <activity android:name=".Screens.PersonalInfoRegionScreen" />
+        <activity android:name=".Screens.ShareSettingScreen" />
         <activity android:name=".Screens.AboutScreen" />
         <activity android:name=".Screens.FeedbackScreen" />
         <activity

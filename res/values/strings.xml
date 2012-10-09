@@ -209,7 +209,7 @@
     <!-- share -->
     <string name="share_title">分享</string>
     <string name="share_default_text">分享笔迹，分享快乐！@诚迈科技 @分享笔迹\n查看请点击:http://anote.archermind.com/web/note.php</string>
-    <string name="share_text_others">您还可以分享到以下平台</string>
+    <string name="share_text_others">分享到其他平台</string>
     <string name="share_msg_sina">正在分享到新浪微博...</string>
     <string name="share_msg_qq">正在分享到腾讯微博...</string>
     <string name="share_msg_renren">正在分享到人人网...</string>
