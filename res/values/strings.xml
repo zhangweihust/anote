@@ -6,6 +6,7 @@
     <string name="app_name">分享笔迹</string>
     <string name="home_screen_title">笔迹本</string>
     <string name="plaza_screen_title">广场</string>
+    <string name="plaza_screen_title_note">作品主页</string>
     <string name="home_screen_calendar_page_title">日历</string>
     <string name="menu_right_count">账户</string>
     <string name="menu_right_info">通知</string>
@@ -124,7 +125,7 @@
     <string name="login_qq">QQ账号</string>
     <string name="login_renren">人人账号</string>
     <string name="login_or">或者</string>
-    <string name="login_username">请输入邮箱帐号</string>
+    <string name="login_username">请输入帐号(邮箱)</string>
     <string name="login_auto">下次自动登录</string>
     <string name="login_password">请输入密码</string>
     <string name="login_btn">账号登录</string>
@@ -710,6 +711,7 @@
 	<string name="no_note_curmonth">这个月没有写笔迹哦</string>
 	<string name="refreshing">加载中...</string>
 	<string name="notfound">抱歉，未找到此笔记</string>
+	<string name="loadfailed">抱歉，加载失败，请重试</string>
 	
 	<string name="photo_upload_title">图片上传</string>
 	<string name="photo_upload_failed">上传失败</string>

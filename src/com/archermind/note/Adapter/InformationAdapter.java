@@ -17,6 +17,7 @@ import com.archermind.note.Image.SmartImageView;
 import com.archermind.note.Utils.DateTimeUtils;
 import com.archermind.note.Utils.InformationData;
 
+import android.R.bool;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -84,8 +85,7 @@ public class InformationAdapter extends BaseAdapter
 	    item.tvNickname.setText(data.nickname);
 	    
 	    item.tvTitle.setText("回复：" + data.title);
-	
-	    
+
 	    
 	   if(data.content.contains(":face")){
 		    item.tvContent.setText("");
@@ -133,14 +133,6 @@ public class InformationAdapter extends BaseAdapter
 		return convertView;
 	}
 
-	/**
-	 * 插入表情
-	 * @param id 表情id
-	 */
-	private void insertFace(String face) {
-	
-		
-	}
 	
 	
 	public void setNoInformationPrompt(long time)
@@ -191,34 +183,32 @@ public class InformationAdapter extends BaseAdapter
 		notifyDataSetChanged();
 	}
 	
-	public long getLatestTime()
-	{
-		long time = 0;
-		if ((mDatas.size() > 0 && !existsPrompt)||(mDatas.size() > 1))
-		{
-			time = mDatas.get(0).time;
-		}
-		
-		return time;
-	}
-	
-	public long getEarlistTime()
-	{
-		long time = System.currentTimeMillis()/1000;
-		int size = mDatas.size();
-		if  ((size > 0 && !existsPrompt)||(size > 1))
-		{
-			time = mDatas.get(size - 1).time;
-		}
-		
-		return time;
-	}
-	
+
 	public boolean isEmpty()
 	{
 		return mDatas.isEmpty();
 	}
 	
+	public ArrayList<InformationData> getDatas(){
+		return mDatas;
+	}
+	
+	
+	public long getLatestTime(){		
+		if(mDatas != null && !mDatas.isEmpty()){
+			InformationData in = mDatas.get(0);
+			return in.time;
+		}
+		return 0;
+	}
+	
+	public long getEarlistTime(){
+		if(mDatas != null && !mDatas.isEmpty()){
+			InformationData in = mDatas.get(mDatas.size()-1);
+			return in.time;
+		}
+		return System.currentTimeMillis()/1000;
+	}
 	
 	public final class ListItemsView{
 		public SmartImageView ivPhoto;

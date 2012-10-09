@@ -9,4 +9,5 @@ public class InformationData {
 	public String nickname;
 	public String photo;
 	public int userid;
+	public int nid;
 }

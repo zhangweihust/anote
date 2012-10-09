@@ -2,6 +2,8 @@ package com.archermind.note.Provider;
 
 import java.util.Calendar;
 
+import com.archermind.note.Screens.InformationScreen;
+import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DateTimeUtils;
 
 import android.R.integer;
@@ -177,24 +179,25 @@ public class DatabaseManager {
 	}
 
 	public Cursor queryInformations() {
-		return database.query(DatabaseHelper.TAB_REPLY, null, null, null, null,
+		System.out.println("===userid===" + ServiceManager.getUserId());
+		return database.query(DatabaseHelper.TAB_REPLY, null, databaseHelper.COLUMN_REPLY_USER_ID + " = ?", new String[] {String.valueOf(InformationScreen.getUserId())}, null,
 				 null, DatabaseHelper.COLUMN_REPLY_TIME + " DESC");
 	}
 	
 	public Cursor queryInformationsAfter(Long time) {
-		return database.query(DatabaseHelper.TAB_REPLY, null, DatabaseHelper.COLUMN_REPLY_TIME + " > ? ",
-				new String[] {String.valueOf(time)}, null,
+		return database.query(DatabaseHelper.TAB_REPLY, null, DatabaseHelper.COLUMN_REPLY_TIME + " > ? AND " + databaseHelper.COLUMN_REPLY_USER_ID + " = ?",
+				new String[] {String.valueOf(time), String.valueOf(ServiceManager.getUserId())}, null,
 				 null, DatabaseHelper.COLUMN_REPLY_TIME + " DESC");
 	}
 	
-/*	public Cursor querySomeInformationsBefore(Long time, int count) {
-		return database.query(DatabaseHelper.TAB_REPLY, null, DatabaseHelper.COLUMN_REPLY_TIME + " < ? ",
-				new String[] {String.valueOf(time)}, null,
-				 null, DatabaseHelper.COLUMN_REPLY_TIME + " DESC" , String.valueOf(count));
+	public Cursor queryInformationsBefore(Long time) {
+		return database.query(DatabaseHelper.TAB_REPLY, null, DatabaseHelper.COLUMN_REPLY_TIME + " < ? AND " + databaseHelper.COLUMN_REPLY_USER_ID + " = ?",
+				new String[] {String.valueOf(time), String.valueOf(ServiceManager.getUserId())}, null,
+				 null, DatabaseHelper.COLUMN_REPLY_TIME + " DESC");
 	}
-	*/
+	
 	public void deleteInformations(long timeInMillis) {
-		   Cursor dCursor = database.query(DatabaseHelper.TAB_REPLY, null, DatabaseHelper.COLUMN_REPLY_TIME + " < ? ", new String[]{String.valueOf(timeInMillis)}, null, null, null); 
+		   Cursor dCursor = database.query(DatabaseHelper.TAB_REPLY, null, DatabaseHelper.COLUMN_REPLY_TIME + " < ? AND " + databaseHelper.COLUMN_REPLY_USER_ID + " = ?", new String[]{String.valueOf(timeInMillis), String.valueOf(InformationScreen.getUserId())}, null, null, null); 
 		   while(dCursor.moveToNext()){ 
 			   int id = dCursor.getInt(dCursor.getColumnIndex(databaseHelper.COLUMN_REPLY_ID));
 			   database.delete(DatabaseHelper.TAB_NOTE,
@@ -203,4 +206,24 @@ public class DatabaseManager {
 		   }
 		   dCursor.close();
 	}
+	
+/*	public long getLastestReplyTime(){
+		Cursor cursor = database.query(databaseHelper.TAB_REPLY, null, DatabaseHelper.COLUMN_REPLY_USER_ID + " = ?", new String[]{String.valueOf(InformationScreen.getUserId())}, null, null, databaseHelper.COLUMN_REPLY_TIME + " DESC", String.valueOf(1));
+		long time = 0;
+		if(cursor.moveToFirst()){
+			time = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.COLUMN_REPLY_TIME));
+		}
+		System.out.println("===latest time = " + time);
+		return time;
+	}
+	
+	public long getEarlistReplyTime(){
+		Cursor cursor = database.query(databaseHelper.TAB_REPLY, null, DatabaseHelper.COLUMN_REPLY_USER_ID + " = ?", new String[]{String.valueOf(InformationScreen.getUserId())}, null, null, databaseHelper.COLUMN_REPLY_TIME, String.valueOf(1));
+		long time = 0;
+		if(cursor.moveToFirst()){
+			time = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.COLUMN_REPLY_TIME));
+		}
+		System.out.println("===earlist time = " + time);
+		return time;
+	}*/
 }

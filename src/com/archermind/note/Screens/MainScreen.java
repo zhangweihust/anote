@@ -214,16 +214,44 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					mtvTitleBarTitle.setText(MainScreen.this.getResources()
-							.getText(R.string.plaza_screen_title));
+				/*	mtvTitleBarTitle.setText(MainScreen.this.getResources()
+							.getText(R.string.plaza_screen_title));*/
 					mflTabhost
 							.setBackgroundResource(R.drawable.tab_bottom_background_plaza);
 					mbtnBack.setVisibility(View.VISIBLE);
 					mbtnBack.setText(getResources().getString(R.string.refresh));
+					
+					String url = ServerInterface.URL_WEBSITE;
+					if(getIntent().getExtras()!=null && getIntent().getExtras().containsKey("url")){
+						url = getIntent().getExtras().getString("url");
+						getIntent().removeExtra("url");
+					}
+					if(url.equals(ServerInterface.URL_WEBSITE)){
+						mtvTitleBarTitle.setText(MainScreen.this.getResources()
+								.getText(R.string.plaza_screen_title));
+					}else{
+						mtvTitleBarTitle.setText(MainScreen.this.getResources()
+								.getText(R.string.plaza_screen_title_note));
+					}
+					PlazaScreen.eventService.onUpdateEvent(new EventArgs(
+							EventTypes.REFRESH_WEBVIEW).putExtra("url", url));
 				}
 			});
 		}
 
+	}
+	
+	
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		System.out.println("==main screen resumed");
+		if(getIntent().getExtras() != null && getIntent().getExtras().containsKey("url")){
+			System.out.println("====== jump to plaza");
+			mTabHost.setCurrentTab(1);
+		}
 	}
 
 	@Override
@@ -355,7 +383,9 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	public boolean onSingleTapUp(MotionEvent arg0) {
 		// TODO Auto-generated method stub
 		System.out.println("==mainscreen onSingleTapUp ");
-		HomeScreen.setIsClicked();
+		if(mTabHost.getCurrentTabTag().equals(TAB_HOME)){
+		 HomeScreen.setIsClicked();
+		}
 		return false;
 	}
 
@@ -542,6 +572,12 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			}
 		}
 	}
+	
+	protected void onNewIntent(Intent intent) {
+		  super.onNewIntent(intent);
+		  setIntent(intent);// must store the new intent unless getIntent() will
+		  // return the old one
+		  }
 
 	@Override
 	protected void onDestroy() {
@@ -549,4 +585,5 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		super.onDestroy();
 		eventService.remove(this);
 	}
+
 }

@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper{
 	
 	public static final String NAME = "note.db";
-	private static final int version = 1;
+	private static final int version = 2;
 	
 	public static int NOT_SIGN = 0;
 	public static int SIGNED = 1;
@@ -111,7 +111,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	public static final String COLUMN_REPLY_TITLE = "title";//帖子的标题
 	public static final String COLUMN_REPLY_CONTENT = "content";//回帖的内容
 	public static final String COLUMN_REPLY_TIME = "time";//回帖的时间
-	public static final String COLUMN_REPLY_USER_ID = "user_id";//回帖人的ID
+	public static final String COLUMN_REPLY_USER_ID = "user_id";//当前的用户ID
+	public static final String COLUMN_REPLY_NID = "nid";//帖子的id
 
 	private static final String CRETAE_TAB_REPLY= " CREATE TABLE IF NOT EXISTS "
 			+ TAB_REPLY
@@ -129,6 +130,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 			+ COLUMN_REPLY_TIME
 			+ " TEXT, "
 			+ COLUMN_REPLY_USER_ID
+			+ " INTEGER, "
+			+ COLUMN_REPLY_NID
 			+ " INTEGER"
 			+ ")";
 	

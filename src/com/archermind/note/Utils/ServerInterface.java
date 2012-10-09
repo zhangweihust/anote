@@ -62,6 +62,7 @@ public class ServerInterface {
 	public static final String URL_NOTEREPLY = URL_SERVER + "ci/index.php/anote/setReply";
 	public static final String URL_GET_DIARY = URL_SERVER + "ci/index.php/anote/getDiary";
 	public static final String URL_WEBSITE = URL_SERVER + "web/index.php";
+	public static final String URL_WEBSITE_NOTE = URL_SERVER + "web/note.php?id="; //12&nid=82
 	// "http://219.138.163.58/"
 
 	public static final int SUCCESS = 0;

@@ -1,7 +1,10 @@
 package com.archermind.note.Utils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -188,6 +191,31 @@ public class HttpUtils {
 		return httphead;
 	}
 
+	public static boolean saveUrlAs(String Url, String fileName) {
+	    //此方法只能用户HTTP协议
+	        try {
+	        	File file = new File(fileName);
+	    		if (file.exists()){
+	    			file.delete();
+	    		}
+	          URL url = new URL(Url);
+	          HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+	          DataInputStream in = new DataInputStream(connection.getInputStream());
+	          DataOutputStream out = new DataOutputStream(new FileOutputStream(fileName));
+	          byte[] buffer = new byte[4096];
+	          int count = 0;
+	          while ((count = in.read(buffer)) > 0) {
+	              out.write(buffer, 0, count);
+	            }   
+	          out.close();
+	          in.close();
+	          return true;
+	        }catch (Exception e) {
+	            return false;
+	        }   
+	    }   
+
+	
 	public static long DownloadFile(String sURL, String sFilepath) {
 		long nStartPos = 0;
 		int nRead = 0;
@@ -213,6 +241,9 @@ public class HttpUtils {
 			long nEndPos = getFileSize(sURL);
 			System.out.println("nEndPos==" + nEndPos);
 			if (nEndPos <= 0) {
+				if(saveUrlAs(sURL, sFilepath)){
+					return 0;
+				}
 				return -2;
 			}
 			httpConnection.setConnectTimeout(30000);
@@ -236,6 +267,9 @@ public class HttpUtils {
 			httpConnection.disconnect();
 		} catch (Exception e) {
 			e.printStackTrace();
+			if(saveUrlAs(sURL, sFilepath)){
+				return 0;
+			}
 			return -3;
 		}
 		return 0;

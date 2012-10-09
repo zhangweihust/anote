@@ -7,6 +7,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.ContactsContract.CommonDataKinds.Nickname;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -43,6 +44,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 			.getEventservice();
 	private JsResult mResult = null;
 	public static String USER_AGENT = "archermind-anote";
+
 	
 	private Handler mHandler = new Handler() {
 
@@ -57,6 +59,8 @@ public class PlazaScreen extends Screen implements IEventHandler{
 				intent.setClass(PlazaScreen.this, EditNoteScreen.class);
 				intent.putExtra("filePath", filePath);
 				PlazaScreen.this.startActivity(intent);
+		}else if(msg.what == 0){
+			showToast(R.string.loadfailed);
 		}
 	}
 	};
@@ -75,12 +79,13 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		        Typeface type = Typeface.createFromAsset(getAssets(),"xdxwzt.ttf");
 				mTextView.setTypeface(type);
 	        }
+	       	        
 	        CookieSyncManager.createInstance(this);
-			init();
 			eventService.add(this);
+			System.out.println("=== plazascreen onCreate");
 		}
 	 
-		private void init(){
+		private void init(String url){
 			mNetwork = NetworkUtils.getNetworkState(this);
 			  if(mNetwork == NetworkUtils.NETWORN_NONE){
 					showToast(R.string.network_none);
@@ -97,8 +102,6 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		        if(ServiceManager.isLogin()){
 	 		        CookieSyncManager.getInstance().startSync();
 	 		        CookieManager.getInstance().setCookie(ServerInterface.URL_WEBSITE, "userid=" + ServiceManager.getUserId() + ";");
-	 		        //mWebView.clearCache(true);
-	 		        mWebView.clearHistory();
 	 		        mIsLogin = true;
 	 		    }else{
 	 		    	CookieSyncManager.getInstance().startSync();
@@ -112,7 +115,6 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	            public boolean shouldOverrideUrlLoading(WebView view, String url) {
 	                    // TODO Auto-generated method stub
 	                    view.loadUrl(url);
-	                    view.getSettings().setJavaScriptEnabled(true);  
 	                    return true;
 	            }
 	            
@@ -122,6 +124,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 						Bitmap favicon) {
 					// TODO Auto-generated method stub
 					super.onPageStarted(view, url, favicon);
+					showLoadingProgress();
 					if(view.getTitle()!=null&&!view.getTitle().equals("")){
 					MainScreen.eventService.onUpdateEvent(new EventArgs(
 							EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra(
@@ -139,6 +142,9 @@ public class PlazaScreen extends Screen implements IEventHandler{
 								EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra(
 								"title",view.getTitle()));
 						}
+					dismissLoadingProgress();
+					 //System.out.println("====" + getWindowManager().getDefaultDisplay().getHeight());
+
 				}	 
 	            
 	            
@@ -198,6 +204,12 @@ public class PlazaScreen extends Screen implements IEventHandler{
 						PlazaScreen.this.startActivity(intent);						
 						result.confirm();
 						return true;
+					}else if(message.trim().equals("portrait")){
+						Intent intent = new Intent();
+						intent.setClass(PlazaScreen.this, PersonInfoScreen.class);
+						PlazaScreen.this.startActivity(intent);						
+						result.confirm();
+						return true;
 					}else if(message.trim().startsWith("note")){
 						final String nid = message.trim().substring(message.trim().indexOf(":")+1);
 						System.out.println("====nid===" + nid + ", " + message);
@@ -253,9 +265,14 @@ public class PlazaScreen extends Screen implements IEventHandler{
 					return super.onJsAlert(view, url, message, result);
 				}
 		       });
-		    	           
-		        mWebView.loadUrl(ServerInterface.URL_WEBSITE);
-		         
+		    	
+		       if(!url.equals("")){
+		    	   mWebView.loadUrl(url);
+		       }else{
+		    	   mWebView.loadUrl(ServerInterface.URL_WEBSITE);
+		       }
+		        
+
 		        
 		}
 		@Override
@@ -265,10 +282,21 @@ public class PlazaScreen extends Screen implements IEventHandler{
 			System.out.println("wl.getCurrentIndex() : " + wl.getCurrentIndex());
 			if(wl.getCurrentIndex() > 1){
 	    		isFirstPage = false;
-	    		mWebView.goBack();
+	    		System.out.println("go back 0");
+	    		String urlBefore = wl.getCurrentItem().getUrl();
+	    		String urlAfter = wl.getItemAtIndex(wl.getCurrentIndex()-1).getUrl();
+	    		System.out.println(urlBefore);
+	    		System.out.println(urlAfter);
+	    		if(urlBefore.startsWith(urlAfter)){
+	    			System.out.println("go back 2");
+	    			mWebView.goBackOrForward(-2);
+	    		}else{
+	    			mWebView.goBack();
+	    		}
 	    	}else if(wl.getCurrentIndex() == 1 || wl.getCurrentIndex() == -1){
 	    		isFirstPage = true;
 	    		if(mWebView.canGoBack()){
+	    			System.out.println("go back 1");
 	    			mWebView.goBack();
 	    		}
 	    	}else{
@@ -281,10 +309,17 @@ public class PlazaScreen extends Screen implements IEventHandler{
 			System.out.println("plazascreen dispatchKeyEvent : " + event.getKeyCode() + ", " + event.getAction());
 			WebBackForwardList wl = mWebView.copyBackForwardList();
 			System.out.println("wl.getCurrentIndex() : " + wl.getCurrentIndex());
-			if(event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN && wl.getCurrentIndex() > 0){
+			System.out.println(mWebView.getUrl());
+			if(event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN && mWebView.getUrl().equals(ServerInterface.URL_WEBSITE)){
+				isFirstPage = true;
+			}else if(event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN && (wl.getCurrentIndex() > 0 || (!mWebView.canGoBack() && wl.getCurrentIndex() ==0 && mWebView.getUrl().contains("note")))){
 				isFirstPage = false;
-			}	
-	    	System.out.println(mWebView.canGoBack() + ", " + event.getRepeatCount());	    
+			}else if(event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP && !mWebView.canGoBack() && wl.getCurrentIndex() == 0 && mWebView.getUrl().contains("note")){
+	    		mWebView.loadUrl(ServerInterface.URL_WEBSITE);
+	    		isFirstPage = true;
+	    		return true;
+	    	}
+	    	
 	    	if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP && event.getRepeatCount() == 0) { 
 		    	this.onBackPressed();
 		        return true;  
@@ -293,18 +328,23 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		    
 		}
 	 
-	 	public  void refresh(){
+	 	public void refresh(final String url){
 	 		System.out.println("===refresh===" + mNetwork);
 	 		System.out.println("CurrentUA : " + mWebView.getSettings().getUserAgentString());
-	 		showToast(R.string.refreshing);
-	 	    if(NetworkUtils.getNetworkState(this) == NetworkUtils.NETWORN_NONE){
+
+			PlazaScreen.this.runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub	
+	 	    if(NetworkUtils.getNetworkState(PlazaScreen.this) == NetworkUtils.NETWORN_NONE){
 	 	    	showToast(R.string.network_none);
 	        	mTextView.setVisibility(View.VISIBLE);
 	        	mWebView.setVisibility(View.GONE);
-	        	mNetwork = NetworkUtils.getNetworkState(this);
+	        	mNetwork = NetworkUtils.getNetworkState(PlazaScreen.this);
 	        	return;
-	        }else if(NetworkUtils.getNetworkState(this) != mNetwork){
-	        	init();
+	        }else if(NetworkUtils.getNetworkState(PlazaScreen.this) != mNetwork){
+	        	init(url);
 	        }else{
         		if(ServiceManager.isLogin()){
 	 		        CookieSyncManager.getInstance().startSync();
@@ -315,24 +355,28 @@ public class PlazaScreen extends Screen implements IEventHandler{
  			        CookieManager.getInstance().removeSessionCookie();
  			        mIsLogin = false;
  		        }
-	        	mNetwork = NetworkUtils.getNetworkState(this);
+	        	mNetwork = NetworkUtils.getNetworkState(PlazaScreen.this);
 		        mWebView.requestFocus();		        
 		        try {
 					Thread.sleep(50);
-					mWebView.reload();
+					if(url.equals("")){
+						mWebView.reload();
+					}else{
+						 mWebView.loadUrl(url);
+					}
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-	        	
-		 		
-		 }
+	        	}
+	 	    }});
 	 	}
 	 	
 	 	@Override
 	 	protected void onResume() {
 	 	  super.onResume();
 		 	 System.out.println("===== resume =====");
+
 		 	 if(NetworkUtils.getNetworkState(this) == NetworkUtils.NETWORN_NONE){
 		 		showToast(R.string.network_none);
 		        	mTextView.setVisibility(View.VISIBLE);
@@ -342,7 +386,6 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		     }
 		 	 
 		 	 if(ServiceManager.isLogin() != mIsLogin){
-		 		showToast(R.string.refreshing);
 		 		 if(ServiceManager.isLogin()){
 				 		System.out.println("===== logined =====");
 				        CookieSyncManager.getInstance().startSync();
@@ -381,14 +424,12 @@ public class PlazaScreen extends Screen implements IEventHandler{
 			// TODO Auto-generated method stub
 			switch(e.getType()){
 			case REFRESH_WEBVIEW:
-				PlazaScreen.this.runOnUiThread(new Runnable() {
-					
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						refresh();
-					}
-				});
+				String url = "";
+				if(e.getExtra("url") != null && !e.getExtra("url").equals("")){
+					url = (String)e.getExtra("url");
+				}
+				System.out.println("onEvent " + url);
+				refresh(url);					
 				break;
 			}
 			return false;
