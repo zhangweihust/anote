@@ -194,20 +194,24 @@ public class InformationAdapter extends BaseAdapter
 	}
 	
 	
-	public long getLatestTime(){		
-		if(mDatas != null && !mDatas.isEmpty()){
+	public long getLatestTime(){	
+		long time = 0;
+		if(mDatas != null && !mDatas.isEmpty() && !existsPrompt){
 			InformationData in = mDatas.get(0);
-			return in.time;
+			time = in.time;
 		}
-		return 0;
+		System.out.println("== latest time == " + time);
+		return time;
 	}
 	
 	public long getEarlistTime(){
+		long time = System.currentTimeMillis()/1000;
 		if(mDatas != null && !mDatas.isEmpty()){
 			InformationData in = mDatas.get(mDatas.size()-1);
-			return in.time;
+			time = in.time;
 		}
-		return System.currentTimeMillis()/1000;
+		System.out.println("== earlist time == " + time);
+		return time;
 	}
 	
 	public final class ListItemsView{

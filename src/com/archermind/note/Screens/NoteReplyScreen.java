@@ -133,6 +133,7 @@ public class NoteReplyScreen extends Screen implements OnClickListener {
 		// TODO Auto-generated method stub
 		switch (v.getId()) {
 		case R.id.back:
+			NoteReplyScreen.this.setResult(RESULT_OK);
 			this.finish();
 			break;
 		case R.id.btn_commit: 
@@ -166,10 +167,14 @@ public class NoteReplyScreen extends Screen implements OnClickListener {
 							Intent intent = new Intent();
 							intent.setClass(NoteReplyScreen.this, LoginScreen.class);
 							NoteReplyScreen.this.startActivity(intent);
+							NoteReplyScreen.this.setResult(RESULT_OK);
+							NoteReplyScreen.this.finish();
 						}else{
 							Toast.makeText(NoteApplication.getContext(),
 									R.string.reply_failure, Toast.LENGTH_SHORT)
 									.show();
+							NoteReplyScreen.this.setResult(RESULT_OK);
+							NoteReplyScreen.this.finish();
 						}
 					
 			}

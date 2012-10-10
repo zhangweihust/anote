@@ -261,6 +261,10 @@ public class PlazaScreen extends Screen implements IEventHandler{
 						dismissLoadingProgress();
 						result.confirm();
 						return true;
+					}else if(message.trim().startsWith("result:")){
+						System.out.println(message);
+						result.confirm();
+						return true;
 					}
 					return super.onJsAlert(view, url, message, result);
 				}
@@ -376,7 +380,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	 	protected void onResume() {
 	 	  super.onResume();
 		 	 System.out.println("===== resume =====");
-
+		 	 mWebView.requestFocus();
 		 	 if(NetworkUtils.getNetworkState(this) == NetworkUtils.NETWORN_NONE){
 		 		showToast(R.string.network_none);
 		        	mTextView.setVisibility(View.VISIBLE);
@@ -384,8 +388,11 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		        	mNetwork = NetworkUtils.getNetworkState(this);
 		        	return;
 		     }
+			if(mResult!=null){ 
+				mResult.confirm();
+			}
 		 	 
-		 	 if(ServiceManager.isLogin() != mIsLogin){
+		 	 if(mWebView.getUrl()!= null && ServiceManager.isLogin() != mIsLogin && mWebView.getUrl().equals(ServerInterface.URL_WEBSITE)){
 		 		 if(ServiceManager.isLogin()){
 				 		System.out.println("===== logined =====");
 				        CookieSyncManager.getInstance().startSync();
@@ -396,7 +403,6 @@ public class PlazaScreen extends Screen implements IEventHandler{
 					    CookieManager.getInstance().removeSessionCookie();
 					    mIsLogin = false;
 				    }
-		 		 mWebView.requestFocus();
 		 		 try {
 					Thread.sleep(50);
 					mWebView.reload();
@@ -483,6 +489,8 @@ public class PlazaScreen extends Screen implements IEventHandler{
 			// TODO Auto-generated method stub
 			if(mResult!=null && resultCode ==RESULT_OK){ 
 				mResult.confirm();
+			}else{
+				
 			}
 			super.onActivityResult(requestCode, resultCode, data);
 		}

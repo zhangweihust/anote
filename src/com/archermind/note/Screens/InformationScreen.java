@@ -50,6 +50,8 @@ public class InformationScreen extends Screen implements IXListViewListener,
 	protected static final int ON_Null = 0x104;
 	
 	private static int userid = 0;
+	
+	private  boolean isFirst = true;
 
 	Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
@@ -161,6 +163,21 @@ public class InformationScreen extends Screen implements IXListViewListener,
 		
 		});
 	}
+	
+	
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		if(isFirst){
+			isFirst = false;
+		}else{
+			refreshInfo();
+		}
+	}
+
+
 
 	private void insertData(InformationData data) {
 		ContentValues contentValues = new ContentValues();
