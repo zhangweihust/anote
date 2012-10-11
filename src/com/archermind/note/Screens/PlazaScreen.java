@@ -392,7 +392,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 				mResult.confirm();
 			}
 		 	 
-		 	 if(mWebView.getUrl()!= null && ServiceManager.isLogin() != mIsLogin && mWebView.getUrl().equals(ServerInterface.URL_WEBSITE)){
+		 	 if(mWebView.getUrl()!= null && ServiceManager.isLogin() != mIsLogin && (mWebView.getUrl().equals(ServerInterface.URL_WEBSITE)||mWebView.getUrl().startsWith(ServerInterface.URL_WEBSITE_NOTE))){
 		 		 if(ServiceManager.isLogin()){
 				 		System.out.println("===== logined =====");
 				        CookieSyncManager.getInstance().startSync();

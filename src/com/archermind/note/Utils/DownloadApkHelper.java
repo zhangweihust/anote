@@ -52,7 +52,7 @@ public class DownloadApkHelper {
 	private NotificationManager manager;
 	private String downloadApkName = "";
 	
-	private  String URL = "http://note.archermind.com/ci/index.php/AppUpdate/getUpdateInfo";
+	private  String URL = ServerInterface.URL_SERVER + "ci/index.php/AppUpdate/getUpdateInfo";
 
 	public DownloadApkHelper(Context context)
 	{
