@@ -172,7 +172,7 @@ public class InformationScreen extends Screen implements IXListViewListener,
 		super.onResume();
 		if(isFirst){
 			isFirst = false;
-		}else{
+		}else if(ServiceManager.isLogin()){
 			refreshInfo();
 		}
 	}

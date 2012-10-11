@@ -91,7 +91,7 @@ public class InformationAdapter extends BaseAdapter
 		    item.tvContent.setText("");
 	    	Pattern p = Pattern.compile(":face_[0-9]{1,2}:");
 	        Matcher m = p.matcher(data.content);
-	        System.out.println("content lenght : " + data.content.length() + ", " + data.content);
+	       // System.out.println("content lenght : " + data.content.length() + ", " + data.content);
 	        Class drawable  =  R.drawable.class;
 	        int lastIndex = 0;
 	    	while(m.find()){		 
@@ -121,8 +121,10 @@ public class InformationAdapter extends BaseAdapter
 	    }else{
 	    	item.tvContent.setText(data.content);
 	    }
-	    if(data.time*1000 < DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis())){
+	    if(data.time*1000 < DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis()) - 24*3600*1000){
 	    	item.tvTime.setText(DateTimeUtils.time2String("yyyy年MM月dd日 HH:mm  ", data.time*1000));
+	    }else if(data.time*1000 < DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis()) && data.time*1000 >= DateTimeUtils.getToday(Calendar.AM, System.currentTimeMillis()) - 24*3600*1000){
+	    	item.tvTime.setText(DateTimeUtils.time2String("昨天 HH:mm  ", data.time*1000));
 	    }else{
 	    	item.tvTime.setText(DateTimeUtils.time2String("今天 HH:mm  ", data.time*1000));
 	    }

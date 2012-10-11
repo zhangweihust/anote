@@ -314,8 +314,9 @@ public class ShareScreen extends Screen implements OnClickListener {
 					String sid = cursor
 							.getString((cursor
 									.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID)));
+					String title = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_TITLE));
 					cursor.close();
-					mTextView.append("?id=" + ServiceManager.getUserId()
+					mTextView.append("<<" + title +  ">>，详情请查看作品页面：" + ServerInterface.URL_WEBSITE_NOTE + ServiceManager.getUserId()
 							+ "&nid=" + sid);
 				}
 				// 随机动画
