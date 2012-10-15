@@ -63,6 +63,7 @@ public class ServerInterface {
 	public static final String URL_GET_DIARY = URL_SERVER + "ci/index.php/anote/getDiary";
 	public static final String URL_WEBSITE = URL_SERVER + "web/index.php";
 	public static final String URL_WEBSITE_NOTE = URL_SERVER + "web/note.php?id="; //12&nid=82
+	public static final String URL_WEBSITE_PRODUCT = URL_SERVER + "web/";
 	// "http://219.138.163.58/"
 
 	public static final int SUCCESS = 0;

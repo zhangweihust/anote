@@ -98,6 +98,7 @@ import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Services.ServiceManager;
+import com.archermind.note.Utils.DateTimeUtils;
 import com.archermind.note.Utils.DensityUtil;
 import com.archermind.note.Utils.GenerateName;
 import com.archermind.note.Utils.PreferencesHelper;
@@ -158,6 +159,8 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 	private PopupWindow mSetTypePopupWindow = null;// 设置popwindow
 
 	private NoteSaveDialog save_dialog = null;// 保存对话框
+	
+	public static long mNoteCreateTime = 0;//笔记的创建时间
 
 	// 六种状态模式
 	public static final int PICINSERTSTATE = 1;
@@ -269,7 +272,9 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 		mTitleView.setSelected(true);
 		mDateView = (TextView) findViewById(R.id.edit_date_textview);
 		mWeekView = (TextView) findViewById(R.id.edit_week_textview);
-		mDateView.setOnClickListener(this);
+		if(getIntent().getBooleanExtra("isNewNote", false)){
+			mDateView.setOnClickListener(this);
+		}
 
 		// 天气图标
 		mWeatherView = (TextView) findViewById(R.id.edit_weather_textview);
@@ -317,7 +322,9 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			public void onTextChanged(CharSequence s, int start, int before,
 					int count) {
 				// TODO Auto-generated method stub
-
+				Log.e("edittext", "===onTextChanged===");
+				Log.e("edittext", "" + s);
+				Log.e("edittext", "start:" + start + ", before:" + before + ", count:" + count);
 				ImageSpan[] imgspans = myEdit.getText().getSpans(start,
 						start + count, ImageSpan.class);
 				if (count == 0) {
@@ -470,10 +477,12 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 				Log.e("edittext", "edittext length:"
 						+ myEdit.getText().length());
 				Log.e("edittext", "edittext content:" + s.toString());
+				Log.e("edittext", "isInsert:" + isInsert);
 				if (isInsert) {
 					return;
 				}
 				int totalLine = myEdit.getLineCount();
+				Log.e("edittext","totalLine:" + totalLine);
 				int i = countLinesHeight(totalLine);
 				if (i != totalLine) { // 超出视图边界
 					int lineStart = myEdit.getLayout().getLineStart(i);
@@ -526,6 +535,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			int curLineHeight = rc.height();
 			Log.e(TAG, "第" + i + "行的高度为：" + curLineHeight);
 			totalHeight += curLineHeight;
+			Log.e(TAG, "myEdit.getHeight" + myEdit.getHeight());
 			if (totalHeight > myEdit.getHeight()) {
 				return i;
 			}
@@ -1005,6 +1015,8 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 	 */
 	public boolean moveNextPage(boolean isSave) {
 		if (mCurPage < mTotalPage) {
+			System.out.println("mCurPage : " + mCurPage + ", mTotalPage : " + mTotalPage);
+			System.out.println("mlastPageEnd : " + mLastPageEnd);
 			int pageStart = findNextPage(mLastPageEnd);
 			if (pageStart == -1) {
 				return false;
@@ -1281,15 +1293,14 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 	 */
 	private void initNewWeatherAndDate() {
 		long timeTemp = getIntent().getLongExtra("time", 0);
-		long createTime = 0;
 		if (timeTemp != 0) {
-			createTime = timeTemp;
+			mNoteCreateTime = DateTimeUtils.getTimeOfOneDay(timeTemp,System.currentTimeMillis());
 		} else {
-			createTime = MainScreen.snoteCreateTime;
+			mNoteCreateTime = System.currentTimeMillis();
 		}
 
 		mTimeCal = Calendar.getInstance(Locale.CHINA);
-		mTimeCal.setTimeInMillis(createTime);
+		mTimeCal.setTimeInMillis(mNoteCreateTime);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 		String dateStr = sdf.format(mTimeCal.getTime());
 		SimpleDateFormat sdf1 = new SimpleDateFormat("EEEE");
@@ -2065,6 +2076,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 							datePicker.getDayOfMonth());
 					mWeekView.setText(new SimpleDateFormat("EEEE")
 							.format(mTimeCal.getTime()));
+					mNoteCreateTime = DateTimeUtils.getTimeOfOneDay(mTimeCal.getTimeInMillis(), System.currentTimeMillis());
 					dialog.dismiss();
 				}
 			});
@@ -2233,7 +2245,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 				preffix + "graffit", preffix + "info", preffix + "text",
 				preffix + "notepicindex", preffix + "pic/" };
 		if ("".equals(mDiaryPath)) {
-			mDiaryPath = preffix + "diary_" + MainScreen.snoteCreateTime;
+			mDiaryPath = preffix + "diary_" + mNoteCreateTime;
 		}
 		zipFile(fileNames, mDiaryPath + ".note");
 		mPicPathList.add(mDiaryPath + ".note");
@@ -2378,7 +2390,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 	 */
 	private void convertDiary2Pic() {
 		if ("".equals(mDiaryPath)) {
-			mDiaryPath = preffix + "diary_" + MainScreen.snoteCreateTime;
+			mDiaryPath = preffix + "diary_" + mNoteCreateTime;
 		}
 		String noteFileName = "";
 		if (!"".equals(mDiaryPath)) {
@@ -2870,11 +2882,11 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 
 		public void onGestureEnded(AmGestureOverlayView overlay,
 				MotionEvent event) {
-			System.out.println("==onGestureEnded== left : " + overlay.getLeft()
+/*			System.out.println("==onGestureEnded== left : " + overlay.getLeft()
 					+ ", top : " + overlay.getTop() + ", bottom : "
 					+ overlay.getBottom() + ", Right : " + overlay.getRight());
 			System.out.println("==onGestureEnded== x : " + event.getX()
-					+ ", y : " + event.getY());
+					+ ", y : " + event.getY());*/
 			mGesture = overlay.getGesture();
 			if (mGesture.getLength() < LENGTH_THRESHOLD) {
 				MotionEvent event2 = MotionEvent.obtain(event);
@@ -2888,23 +2900,23 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 
 		public void onGestureCancelled(AmGestureOverlayView overlay,
 				MotionEvent event) {
-			System.out.println("==onGestureCancelled== left : "
+/*			System.out.println("==onGestureCancelled== left : "
 					+ overlay.getLeft() + ", top : " + overlay.getTop()
 					+ ", bottom : " + overlay.getBottom() + ", Right : "
 					+ overlay.getRight());
 			System.out.println("==onGestureCancelled gestureview== width : "
 					+ gestureview.getWidth() + ", heigth : "
 					+ gestureview.getHeight());
-
+*/
 			if (mGesture == null) {
 				return;
 			}
 
-			System.out.println("==mGesture.getBoundingBox()== left : "
+	/*		System.out.println("==mGesture.getBoundingBox()== left : "
 					+ mGesture.getBoundingBox().left + ", top : "
 					+ mGesture.getBoundingBox().top + ", bottom : "
 					+ mGesture.getBoundingBox().bottom + ", Right : "
-					+ mGesture.getBoundingBox().right);
+					+ mGesture.getBoundingBox().right);*/
 
 			if (mGesture.getLength() < LENGTH_THRESHOLD) {
 				return;
@@ -3072,8 +3084,8 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 					int index = myEdit.getSelectionStart();
 					myEdit.getText().insert(index, spanStr);
 					Log.i(TAG, "插入了一张图片");
-					// index = myEdit.getSelectionStart();
-					// myEdit.getText().insert(index, "\n");// 插入一张图片后再次插入一个换行
+				    index = myEdit.getSelectionStart();
+					myEdit.getText().insert(index, "\n");// 插入一张图片后再次插入一个换行
 				}
 			}
 		} catch (Exception e) {

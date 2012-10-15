@@ -90,7 +90,7 @@ public class AboutScreen extends Screen implements OnClickListener {
 			break;
 		case R.id.about_web_layout:
 			Intent intent = new Intent("android.intent.action.VIEW");
-			intent.setData(Uri.parse(ServerInterface.URL_SERVER));
+			intent.setData(Uri.parse(ServerInterface.URL_WEBSITE_PRODUCT));
 			startActivity(intent);
 			break;
 		case R.id.about_check_update: {

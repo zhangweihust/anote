@@ -686,7 +686,7 @@ public class HomeScreen extends Screen implements IEventHandler,
 				}
 			});
 			break;
-		case NOTE_INSERT_TO_DATABASE:
+		/*case NOTE_INSERT_TO_DATABASE:
 			ContentValues contentValues = new ContentValues();
 			String noteTitle = (String) e.getExtra("noteTitle");
 			long updateTime = (Long) e.getExtra("updateTime");
@@ -702,7 +702,7 @@ public class HomeScreen extends Screen implements IEventHandler,
 					updateTime);
 			long id = ServiceManager.getDbManager().insertLocalNotes(
 					contentValues);
-			break;
+			break;*/
 		case NOTE_UPDATE_TO_DATABASE:
 			String noteTitle2 = (String) e.getExtra("noteTitle");
 			long updateTime2 = (Long) e.getExtra("updateTime");

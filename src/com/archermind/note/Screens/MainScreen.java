@@ -103,7 +103,9 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 
 	private Handler handler;
 	public static GestureDetector mGestureDetector = null;
-	public static long snoteCreateTime = 0;
+	//public static long snoteCreateTime = 0;
+	
+	private boolean isPlazaFirst = true;
 
 	public static final EventService eventService = ServiceManager
 			.getEventservice();
@@ -224,17 +226,16 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 					String url = ServerInterface.URL_WEBSITE;
 					if(getIntent().getExtras()!=null && getIntent().getExtras().containsKey("url")){
 						url = getIntent().getExtras().getString("url");
-						getIntent().removeExtra("url");
 					}
 					if(url.equals(ServerInterface.URL_WEBSITE)){
 						mtvTitleBarTitle.setText(MainScreen.this.getResources()
 								.getText(R.string.plaza_screen_title));
-					}else{
-						mtvTitleBarTitle.setText(MainScreen.this.getResources()
-								.getText(R.string.plaza_screen_title_note));
 					}
-					PlazaScreen.eventService.onUpdateEvent(new EventArgs(
-							EventTypes.REFRESH_WEBVIEW).putExtra("url", url));
+					if(isPlazaFirst){
+						isPlazaFirst = false;
+						PlazaScreen.eventService.onUpdateEvent(new EventArgs(
+								EventTypes.REFRESH_WEBVIEW).putExtra("url", url));
+					}
 				}
 			});
 		}
@@ -251,6 +252,12 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		if(getIntent().getExtras() != null && getIntent().getExtras().containsKey("url")){
 			System.out.println("====== jump to plaza");
 			mTabHost.setCurrentTab(1);
+			String url = getIntent().getExtras().getString("url");			
+			mtvTitleBarTitle.setText(MainScreen.this.getResources()
+					.getText(R.string.plaza_screen_title_note));
+			PlazaScreen.eventService.onUpdateEvent(new EventArgs(
+					EventTypes.REFRESH_WEBVIEW).putExtra("url", url));
+			getIntent().removeExtra("url");
 		}
 	}
 
@@ -278,7 +285,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 				intent.putExtra("time", HomeScreen.getNewNoteTime());
 			}
 			mContext.startActivity(intent);
-			snoteCreateTime = System.currentTimeMillis();
+			//snoteCreateTime = System.currentTimeMillis();
 			break;
 		case R.id.btn_title_bar_back:
 			MainScreen.this.runOnUiThread(new Runnable() {

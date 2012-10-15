@@ -15,8 +15,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
@@ -27,40 +29,39 @@ public class LogoScreen extends Screen{
 	private final long time = 2000;
 	private static Context mContext;
 	private Dialog noSdcardDialog;
+	private boolean flag = false;
 	
-	private Runnable logo = new Runnable() {
 
-		@Override
-		public void run() {
-			try {
-				Thread.sleep(time);
+	/**
+     * 用Handler来更新UI
+     */
+    private Handler handler = new Handler() {
 
-				
-				handler.post(new Runnable() {
+        public void handleMessage(Message msg) {
 
-					@Override
-					public void run() {
-						boolean isHasSD = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
-						if(!isHasSD){
-							noSdcardDialog.show();
-						}else{
-							Intent intent = new Intent();
-							intent.setClass(mContext, MainScreen.class);
-							mContext.startActivity(intent);
-							LogoScreen.this.finish();
-						}
-					}
-				});
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	};
+            switch (msg.what) {
 
-	private final Handler handler;
+                case 1:
+                	System.out.println("===flag is ====" + flag);
+                	boolean isHasSD = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+					if(!isHasSD){
+						noSdcardDialog.show();
+					}else if(!flag){
+						Intent intent = new Intent();
+						intent.setClass(mContext, MainScreen.class);
+						mContext.startActivity(intent);
+						LogoScreen.this.finish();
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    };
 
 	public LogoScreen() {
-		handler = new Handler();
+		super();
 	}
 	
 	@Override
@@ -101,6 +102,36 @@ public class LogoScreen extends Screen{
 			}
 		});
 		
-		new Thread(logo).start();
+		new Thread() {
+            public void run() {
+
+                try {
+                    Thread.sleep(time);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                handler.sendEmptyMessage(1);
+            }
+        }.start();
 	}
+	
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+            return true;
+        } else if (event.getKeyCode() == KeyEvent.KEYCODE_HOME){
+        	flag = true;
+			this.finish();
+        }
+        return super.dispatchKeyEvent(event);
+    }
+    
+    @Override
+    public void onAttachedToWindow () {
+        this.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD);
+        super.onAttachedToWindow();
+    }
 }

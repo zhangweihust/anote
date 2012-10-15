@@ -113,15 +113,14 @@ public class NoteSaveDialog implements OnClickListener {
 
 				ContentValues contentValues = new ContentValues();
 				if (mEditNote.getIntent().getBooleanExtra("isNewNote", false)) {
-					long firstTime = mEditNote.getIntent().getLongExtra("time",
-							0);
+					//long firstTime = mEditNote.getIntent().getLongExtra("time",
+					//		0);
 					long createTime = 0;
-					if (firstTime != 0) { // 如果是在指定日期下创建笔记
-						createTime = DateTimeUtils.getTimeOfOneDay(firstTime,
-								MainScreen.snoteCreateTime);
-					} else { // 直接创建笔记
+					//if (firstTime != 0) { // 如果是在指定日期下创建笔记
+						createTime = EditNoteScreen.mNoteCreateTime;
+					/*} else { // 直接创建笔记
 						createTime = MainScreen.snoteCreateTime;
-					}
+					}*/
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_TITLE,
 							mEditText.getEditableText().toString());
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_CREATE_TIME,

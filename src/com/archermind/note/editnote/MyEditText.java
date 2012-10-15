@@ -365,11 +365,13 @@ public class MyEditText extends EditText implements
 				if (isChangePage) {
 					if (mVelocityX > 0) {
 						if (mEditNote != null) {
+							System.out.println("~~~~~prePage~~~~~");
 							mEditNote.movePrePage();
 							imm.hideSoftInputFromWindow(getWindowToken(), 0);
 						}
 					} else {
 						if (mEditNote != null) {
+							System.out.println("~~~~~nextPage~~~~~");
 							mEditNote.moveNextPage(false);
 							imm.hideSoftInputFromWindow(getWindowToken(), 0);
 						}

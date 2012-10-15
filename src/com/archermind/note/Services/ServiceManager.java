@@ -181,6 +181,7 @@ public class ServiceManager extends Service {
 	}
 
 	public static String getUserName() {
+		System.out.println("====getUserName : " + _mUserName);
 		return _mUserName;
 	}
 
