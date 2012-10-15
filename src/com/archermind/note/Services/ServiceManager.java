@@ -76,7 +76,7 @@ public class ServiceManager extends Service {
 		}
 		
 		ServiceManager.started = true;
-		HttpUtils.setTimeOutParams(5000, 30000);	//设置与服务器进行网络交互时的连网超时和请求超时时间
+		HttpUtils.setTimeOutParams(5000, 300000);	//设置与服务器进行网络交互时的连网超时和请求超时时间
 		
 		return true;
 	}

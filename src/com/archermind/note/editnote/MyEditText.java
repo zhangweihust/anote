@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.Screens.EditNoteScreen;
+import com.archermind.note.Screens.EditNoteScreen.SpanComparator;
 import com.archermind.note.gesture.AmGesture;
 import com.archermind.note.gesture.AmGestureLibraries;
 import com.archermind.note.gesture.AmGestureLibrary;
@@ -25,7 +28,9 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
 import android.text.InputType;
+import android.text.Spanned;
 import android.text.method.MovementMethod;
+import android.text.style.ImageSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -400,6 +405,14 @@ public class MyEditText extends EditText implements
 					Log.e(VIEW_LOG_TAG, "未找到setSoftInputShownOnFocus方法");
 				}
 			}
+			
+			int curLine = getLayout().getLineForOffset(getSelectionStart());
+			int lastpos = getLayout().getLineVisibleEnd(curLine);
+			int nowpos = getSelectionEnd();
+			if (nowpos + 1 == lastpos)
+			{
+				setSelection(getPreSpanStartPos(nowpos));
+			}
 
 		} else {
 			switch (event.getAction()) {
@@ -483,5 +496,33 @@ public class MyEditText extends EditText implements
 
 	public void setErase(boolean flag) {
 		isErasing = flag;
+	}
+	
+	public int getPreSpanStartPos(int curpos)
+	{
+		int ret = 0;
+		ImageSpan[] imgspans = getText().getSpans(0,curpos, ImageSpan.class);
+		
+		Arrays.sort(imgspans, new SpanComparator());
+		ret = getText().getSpanEnd(imgspans[imgspans.length -2]);
+		return ret;
+	}
+	
+	public class SpanComparator implements Comparator {
+
+		@Override
+		public int compare(Object o1, Object o2) {
+			// TODO Auto-generated method stub
+			int firstIndex = getText().getSpanStart((ImageSpan) o1);
+
+			int secondIndex = getText().getSpanStart((ImageSpan) o2);
+			if (firstIndex > secondIndex) {
+				return 1;
+			} else if (firstIndex < secondIndex) {
+				return -1;
+			} else {
+				return 0;
+			}
+		}
 	}
 }

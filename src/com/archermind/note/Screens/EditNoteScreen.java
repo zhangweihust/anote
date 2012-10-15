@@ -841,7 +841,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private class SpanComparator implements Comparator {
+	public class SpanComparator implements Comparator {
 
 		@Override
 		public int compare(Object o1, Object o2) {
@@ -1816,6 +1816,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			myEdit.setFocusable(true);
 			myEdit.setFocusableInTouchMode(true);
 			myEdit.requestFocus();
+			myEdit.setSelection(myEdit.getText().length());
 			edit_input_type.setImageDrawable(getResources().getDrawable(
 					R.drawable.edit_handwrite_selector));
 			edit_delete.setVisibility(View.VISIBLE);
