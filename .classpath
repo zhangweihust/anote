@@ -7,8 +7,8 @@
 	<classpathentry exported="true" kind="lib" path="libs/renren_android_connect.jar"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="lib" path="libs/upgrademanager.jar"/>
+	<classpathentry kind="src" path="com_weibo_android_src"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="src" path="com_weibo_android_src"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
