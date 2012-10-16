@@ -294,10 +294,12 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 		String notePath = getIntent().getStringExtra("notePath");
 		if (notePath != null) {// 旧笔记编辑，则重新加载
 			mDiaryPath = notePath;
+			myEdit.setCursorVisible(false);
 			reload(mDiaryPath + ".note");
 		} else {
 			notePath = getIntent().getStringExtra("filePath");// 网络下载的笔记
 			if (notePath != null) {
+				myEdit.setCursorVisible(false);
 				reload(notePath);
 				edit_insert.setVisibility(View.GONE);
 				edit_input_type.setVisibility(View.GONE);
@@ -369,16 +371,24 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 					int end_index = myEdit.getText().getSpanEnd(span); // ImageSpan结束Index
 					String spanStr = myEdit.getText()
 							.subSequence(start_index, end_index).toString();
+					System.out.println("=====插入图片了====" + spanStr);
 					String[] arrayStr = spanStr.split("_");
 					String beforeStr = "";
 					String afterStr = getNewString(end_index);
+					System.out.println("=== afterStr:" + afterStr);
 					if (afterStr.length() != 0 && findEndIndex(start) < start) {// 若end_index后面有文本
 						beforeStr = getNewString(start_index); // start_index前方的文本,若长度不为零，则插入ImageSpan把以前的文本分割
 					}
+					System.out.println("=== beforeStr:" + before);
+					System.out.println("=== mLastPageEnd:" + mLastPageEnd);
+					System.out.println("=== position:" + position);
 					int picindex = mLastPageEnd + position;// ImageSpan在mStrList的映射Index
 
 					if (findEndIndex(start) < start && afterStr.length() == 0) {
 						picindex = mLastPageEnd + position + 1;
+					}
+					if(mStrList.size()>picindex){
+						picindex = mStrList.size();
 					}
 
 					if (arrayStr.length == 2) {
@@ -484,7 +494,8 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 				int totalLine = myEdit.getLineCount();
 				Log.e("edittext","totalLine:" + totalLine);
 				int i = countLinesHeight(totalLine);
-				if (i != totalLine) { // 超出视图边界
+				if (i != -1) { // 超出视图边界
+					System.out.println("超出边界了:" + i);
 					int lineStart = myEdit.getLayout().getLineStart(i);
 					int textLength = myEdit.getText().length();
 					if (lineStart < textLength) { // 超出部分
@@ -524,7 +535,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 	 * 
 	 * @param totalLine
 	 *            总行数
-	 * @return 返回超出边界行的行号，若没超出边界则返回行数。
+	 * @return 返回超出边界行的行号，若没超出边界则-1。
 	 */
 	private int countLinesHeight(int totalLine) {
 		int totalHeight = 0;
@@ -540,7 +551,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 				return i;
 			}
 		}
-		return totalLine;
+		return -1;
 	}
 
 	/**
@@ -591,7 +602,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 					mergerSentence(mLastPageEnd + position + 2);
 				}
 			} else {
-				int nextPageIndex = findNextPage(position);
+				int nextPageIndex = findNextPage(mLastPageEnd + position);
 				if (nextPageIndex != -1) { // 将新一页的标志清掉。然后重新插入新一页的标志
 					mStrList.remove(nextPageIndex);
 					mTotalPage--;
@@ -603,7 +614,8 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 				mergerSentence(mLastPageEnd + position + 1);
 			}
 		} else {
-			int nextPageIndex = findNextPage(position);
+			int nextPageIndex = findNextPage(mLastPageEnd + position);
+			System.out.println(nextPageIndex);
 			// 将新一页的标志清掉。然后重新插入新一页的标志
 			if (nextPageIndex != -1) {
 				mStrList.remove(nextPageIndex);
@@ -641,7 +653,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			int j = countLinesHeight(totalLine);
 			wrapItemOfList(mStrList.indexOf(pageStr), i);
 
-			if (j != totalLine) {
+			if (j != -1) {
 				int lineStart = myEdit.getLayout().getLineStart(j);
 				int textLength2 = myEdit.getText().length();
 				if (lineStart < textLength2) { // 超出本分
@@ -743,6 +755,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			if (path == null) {
 				return;
 			}
+			path = preffix + path;
 			// Bitmap bmp = BitmapFactory.decodeFile(path);
 			Bitmap bmp = decodeFile(new File(path), myEdit.getWidth(),
 					myEdit.getHeight());
@@ -1041,13 +1054,14 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			int totalLine = myEdit.getLineCount();
 			int i = countLinesHeight(totalLine);
 
-			if (i != totalLine) {
+			if (i != -1) {
 				int lineStart = myEdit.getLayout().getLineStart(i);
 				int textLength = myEdit.getText().length();
 				if (lineStart < textLength) { // 超出本分
 					processWhenOutofbounds(i, lineStart, textLength);
 					myEdit.getText().delete(lineStart, textLength);
 				}
+				System.out.println("");
 			} else {
 				if (mCurPage < mTotalPage) {
 					processWhenInBounds();
@@ -1063,6 +1077,76 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			}
 			Selection.setSelection(myEdit.getEditableText(), myEdit.getText()
 					.length());
+			isNeedSaveChange = true;
+			return true;
+		}
+		return false;
+	}
+
+	
+	/**
+	 * 滑动到下一页，阅读翻页时调用
+	 * 
+	 * @return
+	 */
+	public boolean moveNextPageForRead() {
+		if (mCurPage < mTotalPage) {
+			System.out.println("==mCurPage : " + mCurPage + ", mTotalPage : " + mTotalPage);
+			System.out.println("==mlastPageEnd : " + mLastPageEnd);
+			
+			int pageStart = findNextPage(mLastPageEnd);
+			System.out.println("==pagestart : " + pageStart);
+			if (pageStart == -1) {
+				return false;
+			}
+			pageStart = pageStart + 1;
+			int pageEnd = findNextPage(pageStart);
+			System.out.println("==pagesend 0 : " + pageEnd);
+			if (pageEnd == -1) {
+				pageEnd = mStrList.size();
+			}
+			System.out.println("==pagesend 1 : " + pageEnd);
+			/*
+			 * else { pageEnd = pageEnd - 1; }
+			 */
+			isNeedSaveChange = false;
+			isInsert = true;
+			myEdit.getEditableText().clear();
+			reInsert(pageStart, pageEnd);
+			isInsert = false;
+			mCurPage++;
+			mLastPageEnd = pageStart;
+
+			myEdit.reloadGraffit("page" + String.valueOf(mCurPage));
+
+			/*	int totalLine = myEdit.getLineCount();
+			int i = countLinesHeight(totalLine);
+
+			if (i != totalLine) {
+				int lineStart = myEdit.getLayout().getLineStart(i);
+				int textLength = myEdit.getText().length();
+				if (lineStart < textLength) { // 超出本分
+					processWhenOutofbounds(i, lineStart, textLength);
+					myEdit.getText().delete(lineStart, textLength);
+				}
+				System.out.println("");
+			} else {
+				if (mCurPage < mTotalPage) {
+					processWhenInBounds();
+				}
+			}*/
+
+			
+				myEdit.startAnimation(AnimationUtils.loadAnimation(this,
+						R.anim.push_right_in));
+				Toast.makeText(EditNoteScreen.this,
+						"第" + (mCurPage + 1) + "页, 共" + (mTotalPage + 1) + "页",
+						Toast.LENGTH_SHORT).show();
+			
+			 Selection.setSelection(myEdit.getEditableText(), myEdit.getText()
+					.length());
+				myEdit.setCursorVisible(false);
+			
 			isNeedSaveChange = true;
 			return true;
 		}
@@ -1100,6 +1184,10 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 					Toast.LENGTH_SHORT).show();
 			Selection.setSelection(myEdit.getEditableText(), myEdit.getText()
 					.length());
+			myEdit.setCursorVisible(false);
+			/*myEdit.setFocusable(false);
+			myEdit.setFocusableInTouchMode(false);
+			myEdit.clearFocus();*/
 		}
 	}
 
@@ -1816,6 +1904,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			myEdit.setFocusable(true);
 			myEdit.setFocusableInTouchMode(true);
 			myEdit.requestFocus();
+			myEdit.setCursorVisible(true);
 			myEdit.setSelection(myEdit.getText().length());
 			edit_input_type.setImageDrawable(getResources().getDrawable(
 					R.drawable.edit_handwrite_selector));
@@ -2606,7 +2695,17 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 		File file = new File(filePath);
 		return file.exists();
 	}
-
+	
+	/**
+	 * 如果文件存在则删除文件
+	 */
+	private void removeFileIfExists(String filePath){
+	   File file = new File(filePath);
+	   if(file.exists() && !file.isDirectory()){
+		   file.delete();
+		   }
+	   }
+	
 	/**
 	 * 重新加载笔记文件并显示到编辑框中
 	 * 
@@ -2621,7 +2720,13 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 		edit_input_type.setImageDrawable(getResources().getDrawable(
 				R.drawable.edit_readnote_selector));
 		mState = READNOTESTATE;
-
+        
+		removeFileIfExists(preffix + "picmap");
+		removeFileIfExists(preffix + "info");
+		removeFileIfExists(preffix + "gesture");
+		removeFileIfExists(preffix + "notepicindex");
+		removeFileIfExists(preffix + "text");
+		
 		File noteFile = new File(filePath);
 		if (!noteFile.exists()) {
 			return;
@@ -3037,21 +3142,21 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 					deletefiles(new String[] { mImageFilePath });
 					String pName = picName.generateName();
 					comPressBmp(bmp, preffix + "pic/" + pName);
-					mPicMap.put(pName, preffix + "pic/" + pName);
+					mPicMap.put(pName, "pic/" + pName);
 					ImageSpan span = new ImageSpan(bmp);
-					// int index = myEdit.getSelectionStart();
-					// if (index > 0) {
-					// myEdit.getText().insert(index, "\n");
-					// }
+				/*	int index = myEdit.getSelectionStart();
+					if (index > 0) {
+					myEdit.getText().insert(index, "\n");
+					}*/
 					SpannableString spanStr = new SpannableString(pName);
 					spanStr.setSpan(span, 0, spanStr.length(),
 							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					int index = myEdit.getSelectionStart();
 					myEdit.getText().insert(index, spanStr);
 					Log.i(TAG, "插入了一张图片");
-					index = myEdit.getSelectionStart();
+					/*index = myEdit.getSelectionStart();
 					myEdit.getText().insert(index, "\n");// 插入一张图片后再次插入一个换行
-				}
+*/				}
 			} else if (requestCode == ALBUM_RESULT) {
 				if (data == null) {
 					return;
@@ -3072,22 +3177,22 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 							myEdit.getWidth(), myEdit.getHeight());
 					String pName = picName.generateName();
 					comPressBmp(bmp, preffix + "pic/" + pName);
-					mPicMap.put(pName, preffix + "pic/" + pName);
+					mPicMap.put(pName, "pic/" + pName);
 					ImageSpan span = new ImageSpan(bmp);
-					// int index = myEdit.getSelectionStart();
-					// if (index > 0) {
-					// myEdit.getText().insert(index, "\n");
-					// }
+					/*int index = myEdit.getSelectionStart();
+					if (index > 0) {
+					myEdit.getText().insert(index, "\n");
+					}*/
 					SpannableString spanStr = new SpannableString(pName);
 					spanStr.setSpan(span, 0, spanStr.length(),
 							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
 					int index = myEdit.getSelectionStart();
 					myEdit.getText().insert(index, spanStr);
-					Log.i(TAG, "插入了一张图片");
+					Log.i(TAG, "插入了一张图片");/*
 				    index = myEdit.getSelectionStart();
 					myEdit.getText().insert(index, "\n");// 插入一张图片后再次插入一个换行
-				}
+*/				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -3276,5 +3381,9 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 				PreferencesHelper.XML_GRAFFIT_THICKNESS, 12));
 		myEdit.colorChanged(mPreferences.getInt(
 				PreferencesHelper.XML_GRAFFIT_COLOR, Color.RED));
+	}
+	
+	public int getTotalPages(){
+		return mTotalPage+1;
 	}
 }

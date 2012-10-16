@@ -176,6 +176,7 @@ public class NoteSaveDialog implements OnClickListener {
 					intent.putExtra("title", title);
 					intent.putExtra("action", mAction);
 					intent.putExtra("sid", mSid);
+					intent.putExtra("pages", mEditNote.getTotalPages());
 					mEditNote.startActivity(intent);
 				}
 				mEditNote.finish();

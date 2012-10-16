@@ -126,7 +126,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 				squareTask.execute(intent.getStringExtra("noteid"),
 						intent.getStringExtra("title"),
 						intent.getStringExtra("action"),
-						intent.getStringExtra("sid"));
+						intent.getStringExtra("sid"),""+(intent.getIntExtra("pages", 0)));
 				break;
 			default:
 				break;
@@ -271,7 +271,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 					Long.parseLong(params[0]),
 					String.valueOf(ServiceManager.getUserId()), params[3],
 					params[2], params[1], fristPicUrl + "," + contentUrl + ",",
-					String.valueOf(mPicnameList.size() - 1));
+					params[4]);
 			if (serviceId == ServerInterface.COOKIES_ERROR) {
 				return "cookies_error";
 			} else {
