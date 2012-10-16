@@ -1046,9 +1046,10 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			myEdit.getEditableText().clear();
 			reInsert(pageStart, pageEnd);
 			isInsert = false;
-			mCurPage++;
 			mLastPageEnd = pageStart;
 
+			saveGraffit();
+			mCurPage++;
 			myEdit.reloadGraffit("page" + String.valueOf(mCurPage));
 
 			int totalLine = myEdit.getLineCount();
@@ -1114,9 +1115,10 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			myEdit.getEditableText().clear();
 			reInsert(pageStart, pageEnd);
 			isInsert = false;
-			mCurPage++;
 			mLastPageEnd = pageStart;
 
+			saveGraffit();
+			mCurPage++;
 			myEdit.reloadGraffit("page" + String.valueOf(mCurPage));
 
 			/*	int totalLine = myEdit.getLineCount();
