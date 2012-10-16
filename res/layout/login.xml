@@ -127,7 +127,7 @@
         android:background="@drawable/login_edit_background"
         android:orientation="vertical" >
 
-        <EditText
+        <com.archermind.note.Utils.MyAutoCompleteTextView
             android:id="@+id/editText_login_username"
             android:layout_width="match_parent"
             android:layout_height="40dp"
@@ -200,7 +200,19 @@
                 android:text="@string/login_findpassword"
                 android:textColor="@color/login_text_color"
                 android:textSize="@dimen/login_register_text_size" />
+                
         </RelativeLayout>
+        <CheckBox
+                android:id="@+id/login_savepassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:button="@drawable/checkbox_selector"
+                android:checked="false"
+                android:text="@string/login_savepassword"
+                android:textColor="@color/login_text_color"
+                android:textSize="@dimen/login_register_text_size"/>
     </LinearLayout>
 
 </LinearLayout>

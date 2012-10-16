@@ -1,6 +1,10 @@
 package com.archermind.note.Screens;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,11 +13,14 @@ import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.IEventHandler;
+import com.archermind.note.Provider.UserLoginHelper;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.CookieCrypt;
+import com.archermind.note.Utils.MyAutoCompleteTextView;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.PreferencesHelper;
 import com.archermind.note.Utils.ServerInterface;
+import com.archermind.note.bean.UserLoginInfo;
 import com.renren.api.connect.android.AsyncRenren;
 import com.renren.api.connect.android.Renren;
 import com.renren.api.connect.android.common.AbstractRequestListener;
@@ -46,6 +53,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -57,7 +67,7 @@ import android.widget.Toast;
 public class LoginScreen extends Screen implements OnClickListener {
 
 	public static final String USERINFO_KEY = "archwh001";// 保存用户信息的加密密钥
-	private EditText mUserName;
+	private MyAutoCompleteTextView mUserName;
 	private EditText mPassWord;
 	private Button mLoginButton;
 	private Button mBackButton;
@@ -65,11 +75,15 @@ public class LoginScreen extends Screen implements OnClickListener {
 	private TextView mLoginButton_qq;
 	private TextView mLoginButton_renren;
 	private CheckBox mCheckBox;
+	private CheckBox mSavePassword;
 	private TextView mFindPassword;
 	private Handler mHandler;
 	private NetThread mNetThread;
 	private static final String TAG = "LoginScreen";
-
+	private long isSavePassword=0;
+	private List<UserLoginInfo> mUserLoingInfoList=new ArrayList<UserLoginInfo>();
+	private Map<String,UserLoginInfo> map=new HashMap<String, UserLoginInfo>();
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -118,6 +132,38 @@ public class LoginScreen extends Screen implements OnClickListener {
 							editor.putString(PreferencesHelper.XML_USER_PASSWD,
 									jsonObject.getString("pswd"));
 							editor.commit();
+							
+							boolean isRepeat=false;
+                                
+								for(int i=0;i<mUserLoingInfoList.size();i++){
+									if(jsonObject.optString("email").equals(
+											mUserLoingInfoList.get(i).getUserName())){
+										isRepeat=true;
+                                              //已登录过的用户名判断记住密码状态是否修改
+										if(mUserLoingInfoList.get(i).getIsSave()!=isSavePassword){
+											ServiceManager.getDbManager().
+											changeUserSavePassword(isSavePassword, 
+													mUserLoingInfoList.get(i).getUserName());
+										}
+                                              //已登录过的用户名判断密码是否修改
+										if(!mUserLoingInfoList.get(i).getPassword().equals(
+												jsonObject.getString("pswd"))){
+											ServiceManager.getDbManager().
+											changeUserPassword(jsonObject.getString("pswd"), 
+													mUserLoingInfoList.get(i).getUserName());
+										}
+										break;
+									}
+								}
+							//若新用户则插入到user表
+							if(!isRepeat){
+								String name=jsonObject.optString("email");
+								String pwd=jsonObject.getString("pswd");
+								long save=isSavePassword;
+								ServiceManager.getDbManager().insertUser(name,pwd,save);
+								
+							}
+							
 							// 保存用户信息
 							ServiceManager.setUserName(jsonObject
 									.optString("email"));
@@ -158,10 +204,52 @@ public class LoginScreen extends Screen implements OnClickListener {
 	 * 初始化各个控件
 	 */
 	private void initViews() {
-		mUserName = (EditText) findViewById(R.id.editText_login_username);
+		mUserLoingInfoList=ServiceManager.getDbManager().listAllUser();
+		List<String> userNameList=new ArrayList<String>();
+		//提示用户帐号
+		for(int i=0;i<mUserLoingInfoList.size();i++){
+			userNameList.add(mUserLoingInfoList.get(i).getUserName());
+			map.put(mUserLoingInfoList.get(i).getUserName(), mUserLoingInfoList.get(i));
+		}
+		mUserName = (MyAutoCompleteTextView) findViewById(R.id.editText_login_username);
 		mUserName.setText(PreferencesHelper.getSharedPreferences(this, 0)
 				.getString(PreferencesHelper.XML_USER_ACCOUNT, null));
+		ArrayAdapter<String> arrayAdapter = 
+        		new ArrayAdapter<String>(this,R.layout.user_login_item,userNameList); 
+		mUserName.setAdapter(arrayAdapter);
+		mUserName.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+					
+					String select=mUserName.getText().toString();
+				if(map.get(select).getIsSave()==1){
+						try {
+							mPassWord.setText(CookieCrypt.decrypt(USERINFO_KEY,
+									map.get(select).getPassword()));
+						} catch (Exception e) {
+							Log.i("user","password E = "+e.toString());
+							e.printStackTrace();
+						}
+						mSavePassword.setChecked(true);
+				}else{
+					mPassWord.setText(null);
+					mSavePassword.setChecked(false);
+				}
+			}
+		});
 		mPassWord = (EditText) findViewById(R.id.editText_login_password);
+         //记住密码
+		if(PreferencesHelper.getSharedPreferences(this, 0)
+				.getBoolean(PreferencesHelper.XML_SAVEPASSWORD, false)){
+			try {
+				mPassWord.setText(CookieCrypt.decrypt(USERINFO_KEY, PreferencesHelper.getSharedPreferences(this, 0)
+						.getString(PreferencesHelper.XML_USER_PASSWD, null)));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+		}
 		mBackButton = (Button) findViewById(R.id.screen_top_play_control_back);
 		mBackButton.setOnClickListener(this);
 		mLoginButton = (Button) findViewById(R.id.btn_login);
@@ -189,6 +277,23 @@ public class LoginScreen extends Screen implements OnClickListener {
 		});
 		mCheckBox.setChecked(true);
 		mFindPassword.setOnClickListener(this);
+        //记住密码，将值存入SharedPreferences中
+		mSavePassword = (CheckBox) findViewById(R.id.login_savepassword);
+		mSavePassword.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, 
+					boolean isChecked) {
+				isSavePassword = isChecked ? 1 : 0;
+				SharedPreferences sp = getSharedPreferences(
+						PreferencesHelper.XML_NAME, 0);
+				Editor editor = sp.edit();
+				editor.putBoolean(PreferencesHelper.XML_SAVEPASSWORD,
+						isChecked ? true : false);
+				editor.commit();
+			}
+		});
+		mSavePassword.setChecked(true);
 	}
 
 	@Override

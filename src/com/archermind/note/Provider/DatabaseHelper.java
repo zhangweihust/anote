@@ -149,6 +149,18 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	 + COLUMN_PHOTO_FILEPATH
 	 + " TEXT"
 	   + ")";
+	
+	public static final String TAB_USER = "user";
+	public static final String COLUMN_USERID = "_id";
+	public static final String COLUMN_USERNAME = "username";
+	public static final String COLUMN_PASSWORD = "password";
+	public static final String COLUMN_ISSAVE = "issave";
+	
+	String CREATE_TAB_USER = "CREATE TABLE IF NOT EXISTS " + TAB_USER + "("
+			+ COLUMN_USERID + " integer primary key autoincrement,"
+			+ COLUMN_USERNAME + " text, " + COLUMN_PASSWORD + " text, "
+			+ COLUMN_ISSAVE + " long );";
+	
 	public DatabaseHelper(Context context) {
 		super(context, NAME, null, version);
 		// TODO Auto-generated constructor stub
@@ -173,5 +185,6 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 		//db.execSQL(CRETAE_TAB_WEATHER);
 		//db.execSQL(CRETAE_TAB_NOTE_RELATION);
 		//db.execSQL(CRETAE_TAB_PHOTO);
+		db.execSQL(CREATE_TAB_USER);
 	}
 }

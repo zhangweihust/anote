@@ -493,7 +493,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 		protected String doInBackground(String... params) {
 			// 关闭OAuthV2Client中的默认开启的QHttpClient。
 			OAuthV2Client.getQHttpClient().shutdownConnection();
-			OAuthV2 oAuthV2 = new OAuthV2("http://www.archermind.com");
+			OAuthV2 oAuthV2 = new OAuthV2(ServerInterface.URL_SERVER);
 			oAuthV2.setClientId(AccountScreen.APPKEY_QQ);
 			oAuthV2.setAccessToken(params[0]);
 			oAuthV2.setOpenid(params[1]);

@@ -1,10 +1,13 @@
 package com.archermind.note.Provider;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import com.archermind.note.Screens.InformationScreen;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.DateTimeUtils;
+import com.archermind.note.bean.UserLoginInfo;
 
 import android.R.integer;
 import android.content.ContentValues;
@@ -226,4 +229,47 @@ public class DatabaseManager {
 		System.out.println("===earlist time = " + time);
 		return time;
 	}*/
+	
+    //将用户帐号、密码、是否保存密码信息添加到user表中
+	public long insertUser(String username, String password, long isSave) {
+		ContentValues values = new ContentValues();
+		values.put(DatabaseHelper.COLUMN_USERNAME, username);
+		values.put(DatabaseHelper.COLUMN_PASSWORD, password);
+		values.put(DatabaseHelper.COLUMN_ISSAVE, isSave);
+		return database.insert(DatabaseHelper.TAB_USER, null, values);
+	}
+	
+    //查找user表中所有信息
+	public List<UserLoginInfo> listAllUser() {
+		List<UserLoginInfo> list = new ArrayList<UserLoginInfo>();
+		Cursor cursor = database.query(DatabaseHelper.TAB_USER, 
+				null, null, null, null, null, null);
+		while (cursor.moveToNext()) {
+			String username = cursor.getString(cursor
+					.getColumnIndex(DatabaseHelper.COLUMN_USERNAME));
+			String password = cursor.getString(cursor
+					.getColumnIndex(DatabaseHelper.COLUMN_PASSWORD));
+			long isSave = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.COLUMN_ISSAVE));
+			UserLoginInfo info = new UserLoginInfo(username, password, isSave);
+			list.add(info);
+		}
+		cursor.close();
+		return list;
+	}
+	
+    //修改是否记住密码
+	public int changeUserSavePassword(long isSave,String name){
+		ContentValues values = new ContentValues();
+		values.put(DatabaseHelper.COLUMN_ISSAVE, isSave);
+		return database.update(DatabaseHelper.TAB_USER, values, 
+				DatabaseHelper.COLUMN_USERNAME+"=?", new String[]{name});
+	}
+	
+    //修改密码
+	public int changeUserPassword(String pwd,String name){
+		ContentValues values = new ContentValues();
+		values.put(DatabaseHelper.COLUMN_PASSWORD, pwd);
+		return database.update(DatabaseHelper.TAB_USER, values, 
+				DatabaseHelper.COLUMN_USERNAME+"=?", new String[]{name});
+	}
 }

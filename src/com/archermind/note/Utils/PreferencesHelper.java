@@ -32,6 +32,7 @@ public class PreferencesHelper {
 	public static final String XML_USER_ACCOUNT = "account";
 	public static final String XML_USER_PASSWD = "passwd";
 	public static final String XML_AUTOLOGIN = "autologin";
+	public static final String XML_SAVEPASSWORD = "savepasswd";
 	public static final String XML_SINA_ACCESS_TOKEN = "sina_access_token";
 	public static final String XML_QQ_ACCESS_TOKEN = "qq_access_token";
 	public static final String XML_QQ_OPENID = "qq_openid";

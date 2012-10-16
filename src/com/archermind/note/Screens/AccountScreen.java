@@ -661,6 +661,9 @@ public class AccountScreen extends Screen implements OnClickListener {
 				Editor editor = mPreferences.edit();
 				editor.putString(PreferencesHelper.XML_USER_PASSWD, mPswd);
 				editor.commit();
+                //将所修改密码更新到user表中
+				ServiceManager.getDbManager().
+					changeUserPassword(mPswd,ServiceManager.getUserName());
 				Toast.makeText(AccountScreen.this, R.string.update_success,
 						Toast.LENGTH_SHORT).show();
 			} else if (result.equals("" + ServerInterface.COOKIES_ERROR)) {

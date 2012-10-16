@@ -127,6 +127,7 @@
     <string name="login_or">或者</string>
     <string name="login_username">请输入帐号(邮箱)</string>
     <string name="login_auto">下次自动登录</string>
+    <string name="login_savepassword">记住密码</string>
     <string name="login_password">请输入密码</string>
     <string name="login_btn">账号登录</string>
     <string name="logout_btn">退出登录</string>
