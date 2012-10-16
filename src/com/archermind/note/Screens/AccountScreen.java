@@ -64,13 +64,13 @@ import com.weibo.net.WeiboParameters;
 
 public class AccountScreen extends Screen implements OnClickListener {
 
-	public static final String APPKEY_SINA = "3366130678";// 申请的新浪KEY
-	public static final String APPSECRET_SINA = "8bdbc9095e53791249c47db21dad550c"; // 申请的新浪SECRET
-	public static final String APPKEY_QQ = "801210743";// 申请的腾讯KEY
-	public static final String APPSECRET_QQ = "bee5553c65ee5ebb84f08f0c45630c4d"; // 申请的腾讯SECRET
-	public static final String APPKEY_RENREN = "87e5e8e6175b46519fe9eb40968ba2dc";// 申请的人人KEY
-	public static final String APPSECRET_RENREN = "3f093253cf344d3099e6df1e42f1d661"; // 申请的人人SECRET
-	public static final String APPID_RENREN = "207067";
+	public static final String APPKEY_SINA = "912194859";// 申请的新浪KEY
+	public static final String APPSECRET_SINA = "9752e36d822247fb03247d9efdd203e5"; // 申请的新浪SECRET
+	public static final String APPKEY_QQ = "801251403";// 申请的腾讯KEY
+	public static final String APPSECRET_QQ = "15b4b7236004f1e343fe18c81bca7b47"; // 申请的腾讯SECRET
+	public static final String APPKEY_RENREN = "cd0fa65df9254ec8b6bc44820e39e719";// 申请的人人KEY
+	public static final String APPSECRET_RENREN = "1b5748c3e61d45f9bedc6a72e226d413"; // 申请的人人SECRET
+	public static final String APPID_RENREN = "215068";
 	private TextView mSina_unbound;
 	private TextView mSina_bounded;
 	private TextView mQQ_unbound;
@@ -379,7 +379,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 		mType = ServerInterface.LOGIN_TYPE_SINA;
 		Weibo weibo = Weibo.getInstance();
 		weibo.setupConsumerConfig(APPKEY_SINA, APPSECRET_SINA);
-		weibo.setRedirectUrl("http://www.sina.com");// 此处使用的URL必须和新浪微博上应用提供的回调地址一样
+		weibo.setRedirectUrl(ServerInterface.URL_SERVER);// 此处使用的URL必须和新浪微博上应用提供的回调地址一样
 		weibo.authorize(this, new WeiboDialogListener() {
 
 			@Override
@@ -431,7 +431,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 	 */
 	private void boundQQweibo() {
 		mType = ServerInterface.LOGIN_TYPE_QQ;
-		OAuthV2 oAuthV2 = new OAuthV2("http://www.archermind.com");
+		OAuthV2 oAuthV2 = new OAuthV2(ServerInterface.URL_SERVER);
 		oAuthV2.setClientId(APPKEY_QQ);
 		oAuthV2.setClientSecret(APPSECRET_QQ);
 		Intent intent = new Intent(this, OAuthV2AuthorizeWebView.class);
@@ -599,7 +599,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 
 		@Override
 		protected String doInBackground(String... params) {
-			OAuthV2 oAuthV2 = new OAuthV2("http://www.archermind.com");
+			OAuthV2 oAuthV2 = new OAuthV2(ServerInterface.URL_SERVER);
 			oAuthV2.setClientId(AccountScreen.APPKEY_QQ);
 			oAuthV2.setAccessToken(params[0]);
 			oAuthV2.setOpenid(params[1]);

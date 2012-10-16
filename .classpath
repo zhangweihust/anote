@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry kind="lib" path="libs/Amt_Android_v1.0Beta.jar"/>
-	<classpathentry kind="lib" path="libs/Android_SDK_v1.2.jar"/>
-	<classpathentry kind="lib" path="libs/renren_android_connect.jar"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com_weibo_android"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry exported="true" kind="lib" path="libs/Amt_Android_v1.0Beta.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/Android_SDK_v1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/renren_android_connect.jar"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry exported="true" kind="lib" path="libs/upgrademanager.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="lib" path="libs/upgrademanager.jar"/>
+	<classpathentry kind="src" path="com_weibo_android_src"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

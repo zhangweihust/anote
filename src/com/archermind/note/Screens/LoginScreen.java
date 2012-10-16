@@ -301,7 +301,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 		Weibo weibo = Weibo.getInstance();
 		weibo.setupConsumerConfig(AccountScreen.APPKEY_SINA,
 				AccountScreen.APPSECRET_SINA);
-		weibo.setRedirectUrl("http://www.sina.com");// 此处使用的URL必须和新浪微博上应用提供的回调地址一样
+		weibo.setRedirectUrl(ServerInterface.URL_SERVER);// 此处使用的URL必须和新浪微博上应用提供的回调地址一样
 		weibo.authorize(this, new WeiboDialogListener() {
 
 			@Override
@@ -346,7 +346,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 	 * 绑定腾讯 OAuth Version 2 授权认证方式
 	 */
 	private void boundQQweibo() {
-		OAuthV2 oAuthV2 = new OAuthV2("http://www.archermind.com");
+		OAuthV2 oAuthV2 = new OAuthV2(ServerInterface.URL_SERVER);
 		oAuthV2.setClientId(AccountScreen.APPKEY_QQ);
 		oAuthV2.setClientSecret(AccountScreen.APPSECRET_QQ);
 		Intent intent = new Intent(this, OAuthV2AuthorizeWebView.class);
@@ -585,7 +585,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 
 		@Override
 		protected String doInBackground(String... params) {
-			OAuthV2 oAuthV2 = new OAuthV2("http://www.archermind.com");
+			OAuthV2 oAuthV2 = new OAuthV2(ServerInterface.URL_SERVER);
 			oAuthV2.setClientId(AccountScreen.APPKEY_QQ);
 			oAuthV2.setAccessToken(params[0]);
 			oAuthV2.setOpenid(params[1]);
