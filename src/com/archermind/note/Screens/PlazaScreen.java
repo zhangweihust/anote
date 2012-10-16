@@ -173,15 +173,15 @@ public class PlazaScreen extends Screen implements IEventHandler{
 						return true;
 					}
 										
-					if(message.trim().equals("unlogin")){
+					if(message.trim().equals("unlogin")){/*
 						showToast(R.string.no_login_info);
 						Intent intent = new Intent();
 						intent.setClass(PlazaScreen.this, LoginScreen.class);
-						PlazaScreen.this.startActivity(intent);
+						PlazaScreen.this.startActivity(intent);*/
 						result.confirm();
 						return true;
 					}else if(message.trim().equals("content_empty")){
-						showToast(R.string.content_empty);
+						//showToast(R.string.content_empty);
 						result.confirm();
 						return true;
 					}else if(message.trim().startsWith("reply")){
@@ -436,6 +436,9 @@ public class PlazaScreen extends Screen implements IEventHandler{
 				}
 				System.out.println("onEvent " + url);
 				refresh(url);					
+				break;
+			case PLAZA_COOKIE_ERROR:
+				mResult.confirm();
 				break;
 			}
 			return false;

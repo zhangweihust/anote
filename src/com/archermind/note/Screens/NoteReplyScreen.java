@@ -3,6 +3,8 @@ package com.archermind.note.Screens;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
 import com.archermind.note.Adapter.FaceAdapter;
+import com.archermind.note.Events.EventArgs;
+import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.NetworkUtils;
 import com.archermind.note.Utils.ServerInterface;
@@ -164,11 +166,10 @@ public class NoteReplyScreen extends Screen implements OnClickListener {
 							ServiceManager.setLogin(false);
 							Toast.makeText(NoteReplyScreen.this,
 									R.string.cookies_error, Toast.LENGTH_SHORT).show();
+							PlazaScreen.eventService.onUpdateEvent(new EventArgs(EventTypes.PLAZA_COOKIE_ERROR));
 							Intent intent = new Intent();
 							intent.setClass(NoteReplyScreen.this, LoginScreen.class);
 							NoteReplyScreen.this.startActivity(intent);
-							NoteReplyScreen.this.setResult(RESULT_OK);
-							NoteReplyScreen.this.finish();
 						}else{
 							Toast.makeText(NoteApplication.getContext(),
 									R.string.reply_failure, Toast.LENGTH_SHORT)
