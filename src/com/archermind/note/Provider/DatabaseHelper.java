@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper{
 	
 	public static final String NAME = "note.db";
-	private static final int version = 2;
+	private static final int version = 4;
 	
 	public static int NOT_SIGN = 0;
 	public static int SIGNED = 1;
@@ -28,6 +28,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	public static final String COLUMN_NOTE_LOCAL_CONTENT = "local_content";//笔记本地的存储地址
 	public static final String COLUMN_NOTE_SERVICE_ID = "content";//笔记服务器上的存储地址
 	public static final String COLUMN_NOTE_LAST_FLAG = "last_flag";//是否为当天最后一条日志
+	public static final String COLUMN_NOTE_PAGES = "pages";
 
 	private static final String CRETAE_TAB_NOTE = " CREATE TABLE IF NOT EXISTS "
 			+ TAB_NOTE
@@ -59,8 +60,12 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 			+ COLUMN_NOTE_SERVICE_ID
 			+ " TEXT, "
 			+ COLUMN_NOTE_LAST_FLAG
-			+ " BOOLEAN"
+			+ " BOOLEAN, "
+			+ COLUMN_NOTE_PAGES
+			+ " INTEGER"
 			+ ")";
+	
+	private static final String ALTER_TAB_NOTE = "ALTER TABLE " + TAB_NOTE + " ADD COLUMN " + COLUMN_NOTE_PAGES + " INTEGER";
 /*	
 	public static final String TAB_USER = "user";
 	public static final String COLUMN_USER_USER_ID = "user_id";//用户ID
@@ -175,7 +180,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// TODO Auto-generated method stub
-		
+		db.execSQL(ALTER_TAB_NOTE);
 	}
 
 	private void createTabs(SQLiteDatabase db) {

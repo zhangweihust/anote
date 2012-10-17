@@ -88,35 +88,45 @@ public class ShareScreen extends Screen implements OnClickListener {
 				mReuploadButton.setVisibility(View.VISIBLE);
 				break;
 			case MessageTypes.MESSAGE_CREATEALBUM:
-				mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
+				try {
+					mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
 				break;
 			case MessageTypes.MESSAGE_GETALBUM:
 				AlbumItem[] albumItems = AlbumInfoUtil.getAlbumInfos(mAlbumObj,
 						msg.obj);
-				if (albumItems == null) {
-					mAlbumObj.createAlbum(ServiceManager.getUserName(),
-							ALBUMNAME_SHARE);
-					break;
-				}
-				int albumid = -1;
-				for (int i = 0; i < albumItems.length; i++) {
-					if (albumItems[i].albumname.equals(ALBUMNAME_SHARE)) {
-						albumid = albumItems[i].albumid;
+				if(ServiceManager.getUserName()!=null){
+					try {
+						if (albumItems == null) {
+							mAlbumObj.createAlbum(ServiceManager.getUserName(),
+									ALBUMNAME_SHARE);
+							break;
+						}
+						int albumid = -1;
+						for (int i = 0; i < albumItems.length; i++) {
+							if (albumItems[i].albumname.equals(ALBUMNAME_SHARE)) {
+								albumid = albumItems[i].albumid;
+							}
+						}
+						if (albumid == -1) {
+							mAlbumObj.createAlbum(ServiceManager.getUserName(),
+									ALBUMNAME_SHARE);
+						} else {
+							if (mPicPathList == null) {
+								dismssProgressBar(R.string.share_failed, false);
+								mReuploadButton.setVisibility(View.VISIBLE);
+								Log.e(TAG, "mPicPathList is null");
+								return;
+							}
+							mAlbumObj.uploadPicFiles(ServiceManager.getUserName(),
+									mPicPathList, mPicnameList, albumid);
+							Log.i(TAG, "albumid：" + albumid);
+						}
+					} catch (Exception e) {
+						// TODO: handle exception
 					}
-				}
-				if (albumid == -1) {
-					mAlbumObj.createAlbum(ServiceManager.getUserName(),
-							ALBUMNAME_SHARE);
-				} else {
-					if (mPicPathList == null) {
-						dismssProgressBar(R.string.share_failed, false);
-						mReuploadButton.setVisibility(View.VISIBLE);
-						Log.e(TAG, "mPicPathList is null");
-						return;
-					}
-					mAlbumObj.uploadPicFiles(ServiceManager.getUserName(),
-							mPicPathList, mPicnameList, albumid);
-					Log.i(TAG, "albumid：" + albumid);
 				}
 				break;
 			case MessageTypes.MESSAGE_UPLOADPIC:
@@ -188,6 +198,9 @@ public class ShareScreen extends Screen implements OnClickListener {
 				} catch (Exception e) {
 					Log.e(TAG, "未找到该笔记图片");
 					ExceptionService.logException(e);
+				}catch (OutOfMemoryError e) {
+					// TODO: handle exception
+					e.printStackTrace();
 				}
 			}
 		}
@@ -254,15 +267,16 @@ public class ShareScreen extends Screen implements OnClickListener {
 
 		@Override
 		protected String doInBackground(String... params) {
-			if (mPicPathList.size() < 2) {
+			String username = ServiceManager.getUserName();
+			if (mPicPathList.size() < 2 || username == null) {
 				return "failed"; // 至少应该包含一个图片路径和压缩包路径，所以size >=2
 			}
-			String fristPicUrl = ServiceManager.getUserName() + "&filename="
+			String fristPicUrl = username + "&filename="
 					+ mPicnameList.get(0) + "&album=" + ALBUMNAME_SHARE;
 			imgurl_renren = ServerInterface.IMG_DOWADING_HEAD + fristPicUrl;
 			Log.i(TAG, "分享的笔记第一张图片url： " + fristPicUrl);
 
-			String contentUrl = ServiceManager.getUserName() + "&filename="
+			String contentUrl = username + "&filename="
 					+ mPicnameList.get(mPicnameList.size() - 1) + "&album="
 					+ ALBUMNAME_SHARE;
 			Log.i(TAG, "分享的笔记压缩包url： " + contentUrl);
@@ -379,11 +393,18 @@ public class ShareScreen extends Screen implements OnClickListener {
 	 */
 	private void uploadNotePic() {
 		showProgressBar(R.string.share_msg_square);
-		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE) {
+		if (NetworkUtils.getNetworkState(this) != NetworkUtils.NETWORN_NONE && ServiceManager.getUserName()!=null) {
 			// AmtApplication.setAmtUserName(ServiceManager.getUserName());
-			mAlbumObj = new AmtAlbumObj();
-			mAlbumObj.setHandler(mHandler);
-			mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
+			try {
+				mAlbumObj = new AmtAlbumObj();
+				mAlbumObj.setHandler(mHandler);
+				mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
+			} catch (Exception e) {
+				// TODO: handle exception
+				ExceptionService.logException(e);
+				dismssProgressBar(R.string.network_none, false);
+				mReuploadButton.setVisibility(View.VISIBLE);
+			}
 		} else {
 			dismssProgressBar(R.string.network_none, false);
 			mReuploadButton.setVisibility(View.VISIBLE);

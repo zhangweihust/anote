@@ -166,6 +166,7 @@ public class AmGesture implements Parcelable {
      * @return the bitmap
      */
     public Bitmap toBitmap(int width, int height, int edge, int numSample, int color) {
+    	try{
         final Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         final Canvas canvas = new Canvas(bitmap);
 
@@ -189,6 +190,14 @@ public class AmGesture implements Parcelable {
         }
 
         return bitmap;
+    	}catch (Exception e) {
+			// TODO: handle exception
+    		return null;
+		}catch (OutOfMemoryError e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return null;
+		}
     }
 
     /**
@@ -201,6 +210,7 @@ public class AmGesture implements Parcelable {
      * @return the bitmap
      */
     public Bitmap toBitmap(int width, int height, int inset, int color) {
+    	try{
         final Bitmap bitmap = Bitmap.createBitmap(width, height,
                 Bitmap.Config.ARGB_8888);
         final Canvas canvas = new Canvas(bitmap);
@@ -240,10 +250,19 @@ public class AmGesture implements Parcelable {
         canvas.drawPath(path, paint);
 
         return bitmap;
+    	}catch (Exception e) {
+			// TODO: handle exception
+    		return null;
+		}catch (OutOfMemoryError e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return null;
+		}
     }
 
     public Bitmap toBitmap(int width, int height, int inset, int color, int overlayHeight, int overlayWidth) {
-        final Bitmap bitmap = Bitmap.createBitmap(width, height,
+        try{
+    	final Bitmap bitmap = Bitmap.createBitmap(width, height,
                 Bitmap.Config.ARGB_8888);
         final Canvas canvas = new Canvas(bitmap);
 
@@ -296,6 +315,14 @@ public class AmGesture implements Parcelable {
         canvas.drawPath(path, paint);
 
         return bitmap;
+        }catch (Exception e) {
+			// TODO: handle exception
+        	return null;
+		}catch (OutOfMemoryError e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return null;
+		}
     }
 
     void serialize(DataOutputStream out,boolean flag) throws IOException {

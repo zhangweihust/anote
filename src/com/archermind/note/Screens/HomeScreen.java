@@ -1150,6 +1150,7 @@ public class HomeScreen extends Screen implements IEventHandler,
 				picPathList.add(diaryFilePath);//将笔记压缩包的路径也传递过去
 				String sid = mCursor.getString((mCursor
 						.getColumnIndex(DatabaseHelper.COLUMN_NOTE_SERVICE_ID)));
+				int pages = mCursor.getInt(mCursor.getColumnIndex(DatabaseHelper.COLUMN_NOTE_PAGES));
 				String action = sid == null ? "A" : "M";
 				Intent intent = new Intent(mContext, ShareScreen.class);
 				intent.putStringArrayListExtra("picpathlist", picPathList);
@@ -1157,6 +1158,7 @@ public class HomeScreen extends Screen implements IEventHandler,
 				intent.putExtra("title", title);
 				intent.putExtra("action", action);
 				intent.putExtra("sid", sid);
+				intent.putExtra("pages", pages);
 				mContext.startActivity(intent);
 			}
 		});

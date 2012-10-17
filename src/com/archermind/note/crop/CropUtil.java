@@ -21,36 +21,45 @@ public class CropUtil {
 	 * @return
 	 */
 	public static byte[] compressPhotoByte(Bitmap b, int len, int maxSize){
-		int w = b.getWidth();
-        int h = b.getHeight();
-        float s;
-        if(w<len && h<len){
-        	s = 1;
-        }
-        if(w>h){
-        	s = (float)len/w; 
-        }else{
-        	s = (float)len/h;
-        }
-    	Matrix matrix = new Matrix();  
-        matrix.postScale(s, s);  
-        //ѹ��ͼƬ
-        Bitmap newB = Bitmap.createBitmap(b , 0, 0, w, h, matrix, false); 
-        //��ѹ�����ͼƬת��Ϊ�ֽ����飬����ֽ������С����200K������ѹ��
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        int qt = 70;
-        newB.compress(CompressFormat.JPEG, qt, bos);
-        int size = bos.size();
-        while(qt!=0 && size>maxSize){
-        	if(qt<0)
-        		qt = 0;
-        	bos.reset();
-        	newB.compress(CompressFormat.JPEG, qt, bos);
-        	size = bos.size();
-    		qt -= 10;
-        }
-        System.out.println("ѹ�����ͼƬ��С��"+bos.size());
-        return bos.toByteArray();
+		try{
+			int w = b.getWidth();
+	        int h = b.getHeight();
+	        float s;
+	        if(w<len && h<len){
+	        	s = 1;
+	        }
+	        if(w>h){
+	        	s = (float)len/w; 
+	        }else{
+	        	s = (float)len/h;
+	        }
+	    	Matrix matrix = new Matrix();  
+	        matrix.postScale(s, s);  
+	        //ѹ��ͼƬ
+	        Bitmap newB = Bitmap.createBitmap(b , 0, 0, w, h, matrix, false); 
+	        //��ѹ�����ͼƬת��Ϊ�ֽ����飬����ֽ������С����200K������ѹ��
+	        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	        int qt = 70;
+	        newB.compress(CompressFormat.JPEG, qt, bos);
+	        int size = bos.size();
+	        while(qt!=0 && size>maxSize){
+	        	if(qt<0)
+	        		qt = 0;
+	        	bos.reset();
+	        	newB.compress(CompressFormat.JPEG, qt, bos);
+	        	size = bos.size();
+	    		qt -= 10;
+	        }
+	        System.out.println("ѹ�����ͼƬ��С��"+bos.size());
+	        return bos.toByteArray();
+		}catch (Exception e) {
+			// TODO: handle exception
+			return null;
+		}catch (OutOfMemoryError e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	/**

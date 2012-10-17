@@ -102,6 +102,7 @@ public class NoteSaveDialog implements OnClickListener {
 			
 			try {
 				// 保存笔记文件等
+				
 				mEditNote.save(mEditText.getEditableText().toString());
 
 				// 保存相关信息至数据库
@@ -131,6 +132,7 @@ public class NoteSaveDialog implements OnClickListener {
 							updateTime);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER,
 							weather);
+					contentValues.put(DatabaseHelper.COLUMN_NOTE_PAGES, mEditNote.getTotalPages());
 					noteId = String.valueOf(ServiceManager.getDbManager()
 							.insertLocalNotes(contentValues));
 					mEditNote.getIntent().putExtra("isNewNote", false);
@@ -145,6 +147,7 @@ public class NoteSaveDialog implements OnClickListener {
 							updateTime);
 					contentValues.put(DatabaseHelper.COLUMN_NOTE_WEATHER,
 							weather);
+					contentValues.put(DatabaseHelper.COLUMN_NOTE_PAGES, mEditNote.getTotalPages());
 					ServiceManager.getDbManager().updateLocalNotes(
 							contentValues, Integer.parseInt(noteId));
 

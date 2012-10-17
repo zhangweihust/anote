@@ -211,6 +211,7 @@ public class ImageCapture {
 	public String createThumbnailFile(String srcFilePath) {
 		String name = srcFilePath.substring(srcFilePath.lastIndexOf("/") + 1, srcFilePath.length());
 		name = name.substring(0, name.lastIndexOf("."));
+		try{
 		String ThumbnailName = IMAGE_CACHE_PATH + "/" + name + "_thumbnail.jpg";
 		
 		Bitmap bitmap = BitmapCache.decodeBitmap(srcFilePath);
@@ -255,8 +256,16 @@ public class ImageCapture {
 			} catch (IOException e) {
 			}
 		}
-		
+
 		return ThumbnailName;
+		}catch (Exception e) {
+			// TODO: handle exception
+			return "";
+		}catch (OutOfMemoryError e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return "";
+		}
 	}
 	
 	/**
@@ -347,7 +356,7 @@ public class ImageCapture {
 	
 	// 将图片的四角圆化
     public static Bitmap getRoundedCornerBitmap(Bitmap bitmap,float roundPx) {
-     
+     try{
         Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), 
             bitmap.getHeight(), Config.ARGB_8888);
 //        bitmap.recycle();
@@ -372,6 +381,15 @@ public class ImageCapture {
         canvas.drawBitmap(bitmap, rect, rect, paint); 
       
         return output; 
+        }
+     catch (Exception e) {
+		// TODO: handle exception
+    	 return null;
+	}catch (OutOfMemoryError e) {
+		// TODO: handle exception
+		e.printStackTrace();
+		return null;
+	}
       } 
     
   //放大缩小图片  
@@ -380,6 +398,7 @@ public class ImageCapture {
     	{
     		return null;
     	}
+    	try{
         int width = bitmap.getWidth();  
         int height = bitmap.getHeight();  
         Matrix matrix = new Matrix();  
@@ -388,5 +407,13 @@ public class ImageCapture {
         matrix.postScale(scaleWidht, scaleHeight);  
         Bitmap newbmp = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);  
         return newbmp;  
+    	}catch (Exception e) {
+			// TODO: handle exception
+    		return null;
+		}catch (OutOfMemoryError e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return null;
+		}
     } 
 }

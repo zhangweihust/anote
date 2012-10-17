@@ -27,6 +27,7 @@ public class Screen extends Activity {
 	 * @param message
 	 */
 	public void showProgress(String title, String message) {
+		try{
 		mProgressDialog = new Dialog(this, R.style.CustomDialog);
 		mProgressDialog.setContentView(R.layout.dialog_progress);
 		TextView textView = (TextView) mProgressDialog.findViewById(R.id.progress_msg);
@@ -36,6 +37,10 @@ public class Screen extends Activity {
 			textView.setTypeface(type);
 		}
 		mProgressDialog.show();
+		}catch (OutOfMemoryError e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
 	}
 
 	/**

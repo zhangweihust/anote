@@ -236,7 +236,9 @@ public class LocalNoteOnedayAdapter extends CursorAdapter {
 								}
                                 }catch (Exception e) {
 									// TODO: handle exception
-								}
+								}catch(OutOfMemoryError e){
+					            	e.printStackTrace();
+					            }
 							}
 						}
 					} else if (line.startsWith("face:")) {

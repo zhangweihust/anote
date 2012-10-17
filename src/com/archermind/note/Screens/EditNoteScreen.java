@@ -698,6 +698,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 	 * @param i
 	 */
 	private void addItemOfEditText(int i) {
+		try{
 		String tempString = mStrList.get(i);
 		isNeedSaveChange = false;
 		if (tempString.startsWith("str:")) {
@@ -820,6 +821,12 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				myEdit.getText().append(spanStr);
 			}
+		}
+		}catch (Exception e) {
+			// TODO: handle exception
+		}catch (OutOfMemoryError e) {
+			// TODO: handle exception
+			e.printStackTrace();
 		}
 
 	}
@@ -1667,10 +1674,12 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 					return BitmapFactory.decodeStream(zip.getInputStream(ze));
 				}
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}//
+		}catch(OutOfMemoryError e){
+        	e.printStackTrace();
+        }
 
 		return null;
 	}
@@ -1976,17 +1985,24 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 
 			break;
 		case R.id.edit_insert_space:
-			Bitmap bmp = Bitmap.createBitmap(dip2px(48), dip2px(48
-					* gestureview.getHeight() / gestureview.getWidth()),
-					Bitmap.Config.ARGB_8888);
-			ImageSpan span = new ImageSpan(bmp);
-			SpannableString spanStr = new SpannableString("sign_space");
-			spanStr.setSpan(span, 0, spanStr.length(),
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			int index = myEdit.getSelectionStart();
-			index = index < 0 ? 0 : index;
-			// myEdit.getText().insert(index, "");
-			myEdit.getText().insert(index, spanStr);
+			try{
+				Bitmap bmp = Bitmap.createBitmap(dip2px(48), dip2px(48
+						* gestureview.getHeight() / gestureview.getWidth()),
+						Bitmap.Config.ARGB_8888);
+				ImageSpan span = new ImageSpan(bmp);
+				SpannableString spanStr = new SpannableString("sign_space");
+				spanStr.setSpan(span, 0, spanStr.length(),
+						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				int index = myEdit.getSelectionStart();
+				index = index < 0 ? 0 : index;
+				// myEdit.getText().insert(index, "");
+				myEdit.getText().insert(index, spanStr);
+			}catch (Exception e) {
+				// TODO: handle exception
+			}catch (OutOfMemoryError e) {
+				// TODO: handle exception
+				e.printStackTrace();
+			}
 			mInsertTypePopupWindow.dismiss();
 			break;
 		case R.id.edit_insert_newline:
@@ -2483,6 +2499,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 	 * 将编辑框中的内容保存为图片
 	 */
 	private void convertDiary2Pic() {
+		try {
 		if ("".equals(mDiaryPath)) {
 			mDiaryPath = preffix + "diary_" + mNoteCreateTime;
 		}
@@ -2590,7 +2607,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			myCaptureFile.getParentFile().mkdir();
 		}
 
-		try {
+		
 			BufferedOutputStream bos = new BufferedOutputStream(
 					new FileOutputStream(myCaptureFile));
 			viewBitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos);
@@ -2598,6 +2615,9 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			bos.close();
 			viewBitmap.recycle();
 		} catch (Exception e) {
+			e.printStackTrace();
+		} catch (OutOfMemoryError e) {
+			// TODO: handle exception
 			e.printStackTrace();
 		}
 	}
@@ -3279,6 +3299,9 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 
 			fis.close();
 		} catch (Exception e) {
+			e.printStackTrace();
+		}catch (OutOfMemoryError e) {
+			// TODO: handle exception
 			e.printStackTrace();
 		}
 		return retBmp;

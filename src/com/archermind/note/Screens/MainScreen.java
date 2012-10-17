@@ -218,6 +218,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 					// TODO Auto-generated method stub
 				/*	mtvTitleBarTitle.setText(MainScreen.this.getResources()
 							.getText(R.string.plaza_screen_title));*/
+					try{
 					mflTabhost
 							.setBackgroundResource(R.drawable.tab_bottom_background_plaza);
 					mbtnBack.setVisibility(View.VISIBLE);
@@ -235,6 +236,9 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 						isPlazaFirst = false;
 						PlazaScreen.eventService.onUpdateEvent(new EventArgs(
 								EventTypes.REFRESH_WEBVIEW).putExtra("url", url));
+					}
+					}catch (OutOfMemoryError e) {
+						// TODO: handle exception
 					}
 				}
 			});
@@ -487,7 +491,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		// " , PlazaScreen.isFirstPage : " + PlazaScreen.isFirstPage);
 		if (event.getKeyCode() == KeyEvent.KEYCODE_BACK
 				&& event.getAction() == KeyEvent.ACTION_UP) {
-			if (HomeScreen.isSubPage()
+			if ((mTabHost.getCurrentTabTag().equalsIgnoreCase(TAB_HOME) && HomeScreen.isSubPage())
 					|| (mTabHost.getCurrentTabTag().equalsIgnoreCase(TAB_PLAZA) && !PlazaScreen.isFirstPage)) {
 				return super.dispatchKeyEvent(event);
 			} else if (mExit_Flag

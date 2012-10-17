@@ -210,11 +210,18 @@ public class MyEditText extends EditText implements
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		// TODO Auto-generated method stub
 		super.onSizeChanged(w, h, oldw, oldh);
-		if (mBmp == null) {
-			mBmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-			mCanvas = new Canvas(mBmp);
+		try{
+			if (mBmp == null) {
+				mBmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+				mCanvas = new Canvas(mBmp);
+			}
+			reloadGraffit("page0");
+		}catch (Exception e) {
+			// TODO: handle exception
+		}catch (OutOfMemoryError e) {
+			// TODO: handle exception
+			e.printStackTrace();
 		}
-		reloadGraffit("page0");
 	}
 
 	public void reload() {
@@ -501,10 +508,14 @@ public class MyEditText extends EditText implements
 	public int getPreSpanStartPos(int curpos)
 	{
 		int ret = 0;
+		try{
 		ImageSpan[] imgspans = getText().getSpans(0,curpos, ImageSpan.class);
 		
 		Arrays.sort(imgspans, new SpanComparator());
 		ret = getText().getSpanEnd(imgspans[imgspans.length -2]);
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 		return ret;
 	}
 	

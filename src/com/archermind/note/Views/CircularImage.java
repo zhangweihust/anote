@@ -21,17 +21,27 @@ public class CircularImage extends MaskedImage {
 	}
 
 	public Bitmap createMask() {
-		int i = getWidth();
-		int j = getHeight();
-		Bitmap.Config localConfig = Bitmap.Config.ARGB_8888;
-		Bitmap localBitmap = Bitmap.createBitmap(i, j, localConfig);
-		Canvas localCanvas = new Canvas(localBitmap);
-		Paint localPaint = new Paint(1);
-		localPaint.setColor(-16777216);
-		float f1 = getWidth();
-		float f2 = getHeight();
-		RectF localRectF = new RectF(0.0F, 0.0F, f1, f2);
-		localCanvas.drawOval(localRectF, localPaint);
-		return localBitmap;
+		try{
+			int i = getWidth();
+			int j = getHeight();
+			Bitmap.Config localConfig = Bitmap.Config.ARGB_8888;
+			Bitmap localBitmap = Bitmap.createBitmap(i, j, localConfig);
+			Canvas localCanvas = new Canvas(localBitmap);
+			Paint localPaint = new Paint(1);
+			localPaint.setColor(-16777216);
+			float f1 = getWidth();
+			float f2 = getHeight();
+			RectF localRectF = new RectF(0.0F, 0.0F, f1, f2);
+			localCanvas.drawOval(localRectF, localPaint);
+			return localBitmap;
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+			return null;
+		}catch (OutOfMemoryError e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

@@ -57,7 +57,9 @@ public abstract class MaskedImage extends ImageView {
 			localDrawable.draw(paramCanvas);
 			if ((this.mask == null) || (this.mask.isRecycled())) {
 				Bitmap localBitmap1 = createMask();
-				this.mask = localBitmap1;
+				if(localBitmap1!=null){
+					this.mask = localBitmap1;
+				}
 			}
 			Bitmap localBitmap2 = this.mask;
 			Paint localPaint3 = this.paint;

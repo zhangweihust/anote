@@ -196,7 +196,14 @@ public class AlbumScreen extends Screen implements OnClickListener {
 						ArrayList<String> picNames = new ArrayList<String>();
 						picNames.add(mAvatarPath.substring(mAvatarPath
 								.lastIndexOf("/") + 1));
-						uploadTask = mAlbumObj.uploadPicFiles(ServiceManager.getUserName(),picPath, picNames, albumid);
+						try {
+							uploadTask = mAlbumObj.uploadPicFiles(ServiceManager.getUserName(),picPath, picNames, albumid);
+						} catch (Exception e) {
+							// TODO: handle exception
+							uploadnewmsg.what = UPLOAD_ALBUM_ERROR;
+							handler.sendMessage(uploadnewmsg);
+							ExceptionService.logException(e);
+						}
 						showProgress(null, getString(R.string.photo_uploading));
 					}
 					break;

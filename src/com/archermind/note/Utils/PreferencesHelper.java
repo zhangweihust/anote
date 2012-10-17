@@ -84,7 +84,7 @@ public class PreferencesHelper {
 	public static Bitmap toRoundCorner(Bitmap bitmap, int pixels) {  
 		if (bitmap == null)
 			return null;
-        
+        try{
         Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Config.ARGB_8888);  
         Canvas canvas = new Canvas(output);  
   
@@ -104,6 +104,14 @@ public class PreferencesHelper {
         bitmap.recycle();
   
         return output;  
+        }catch (Exception e) {
+			// TODO: handle exception
+        	return null;
+		}catch (OutOfMemoryError e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return null;
+		}
     }
 	
 	public static SharedPreferences getSharedPreferences(Context context, int mode) {

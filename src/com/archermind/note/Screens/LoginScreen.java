@@ -402,6 +402,7 @@ public class LoginScreen extends Screen implements OnClickListener {
 	 * 绑定新浪微博账号 Oauth2.0 隐式授权认证方式
 	 */
 	private void boundSinaweibo() {
+		try{
 		Weibo weibo = Weibo.getInstance();
 		weibo.setupConsumerConfig(AccountScreen.APPKEY_SINA,
 				AccountScreen.APPSECRET_SINA);
@@ -444,25 +445,32 @@ public class LoginScreen extends Screen implements OnClickListener {
 			}
 
 		});
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	/*
 	 * 绑定腾讯 OAuth Version 2 授权认证方式
 	 */
 	private void boundQQweibo() {
-		OAuthV2 oAuthV2 = new OAuthV2(ServerInterface.URL_SERVER);
-		oAuthV2.setClientId(AccountScreen.APPKEY_QQ);
-		oAuthV2.setClientSecret(AccountScreen.APPSECRET_QQ);
-		Intent intent = new Intent(this, OAuthV2AuthorizeWebView.class);
-		intent.putExtra("oauth", oAuthV2);
-		startActivityForResult(intent, 1);
-
+		try {
+			OAuthV2 oAuthV2 = new OAuthV2(ServerInterface.URL_SERVER);
+			oAuthV2.setClientId(AccountScreen.APPKEY_QQ);
+			oAuthV2.setClientSecret(AccountScreen.APPSECRET_QQ);
+			Intent intent = new Intent(this, OAuthV2AuthorizeWebView.class);
+			intent.putExtra("oauth", oAuthV2);
+			startActivityForResult(intent, 1);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	/*
 	 * 绑定人人账号
 	 */
 	private void boundRenRen() {
+		try{
 		final Renren renren = new Renren(AccountScreen.APPKEY_RENREN,
 				AccountScreen.APPSECRET_RENREN, AccountScreen.APPID_RENREN,
 				this);
@@ -508,6 +516,9 @@ public class LoginScreen extends Screen implements OnClickListener {
 
 			}
 		});
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	/*

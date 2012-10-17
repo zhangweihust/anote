@@ -376,6 +376,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 	 * 绑定新浪微博 Oauth2.0 隐式授权认证方式
 	 */
 	private void boundSinaweibo() {
+		try{
 		mType = ServerInterface.LOGIN_TYPE_SINA;
 		Weibo weibo = Weibo.getInstance();
 		weibo.setupConsumerConfig(APPKEY_SINA, APPSECRET_SINA);
@@ -424,12 +425,16 @@ public class AccountScreen extends Screen implements OnClickListener {
 			}
 
 		});
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	/*
 	 * 绑定腾讯微博 OAuth Version 2 授权认证方式
 	 */
 	private void boundQQweibo() {
+		try{
 		mType = ServerInterface.LOGIN_TYPE_QQ;
 		OAuthV2 oAuthV2 = new OAuthV2(ServerInterface.URL_SERVER);
 		oAuthV2.setClientId(APPKEY_QQ);
@@ -437,13 +442,16 @@ public class AccountScreen extends Screen implements OnClickListener {
 		Intent intent = new Intent(this, OAuthV2AuthorizeWebView.class);
 		intent.putExtra("oauth", oAuthV2);
 		startActivityForResult(intent, 1);
-
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	/*
 	 * 绑定人人账号
 	 */
 	private void boundRenRen() {
+		try{
 		mType = ServerInterface.LOGIN_TYPE_RENREN;
 		final Renren renren = new Renren(APPKEY_RENREN, APPSECRET_RENREN,
 				APPID_RENREN, this);
@@ -489,6 +497,9 @@ public class AccountScreen extends Screen implements OnClickListener {
 
 			}
 		});
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	// 获取用户新浪，腾讯，人人的昵称
@@ -662,10 +673,13 @@ public class AccountScreen extends Screen implements OnClickListener {
 				editor.putString(PreferencesHelper.XML_USER_PASSWD, mPswd);
 				editor.commit();
                 //将所修改密码更新到user表中
-				ServiceManager.getDbManager().
-					changeUserPassword(mPswd,ServiceManager.getUserName());
-				Toast.makeText(AccountScreen.this, R.string.update_success,
-						Toast.LENGTH_SHORT).show();
+				if(ServiceManager.getUserName()!=null && ServiceManager.getDbManager().changeUserPassword(mPswd,ServiceManager.getUserName())!=0){
+					Toast.makeText(AccountScreen.this, R.string.update_success,
+							Toast.LENGTH_SHORT).show();
+				}else{
+					Toast.makeText(AccountScreen.this, R.string.update_failed,
+							Toast.LENGTH_SHORT).show();
+				}
 			} else if (result.equals("" + ServerInterface.COOKIES_ERROR)) {
 				ServiceManager.setLogin(false);
 				Toast.makeText(NoteApplication.getContext(),

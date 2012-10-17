@@ -64,6 +64,8 @@ public class WebImage implements SmartImage {
             }
         } catch(Exception e) {
             e.printStackTrace();
+        } catch(OutOfMemoryError e){
+        	e.printStackTrace();
         }
 
         return bitmap;

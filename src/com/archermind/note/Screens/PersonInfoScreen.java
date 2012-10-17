@@ -13,6 +13,7 @@ import com.amtcloud.mobile.android.business.MessageTypes;
 import com.amtcloud.mobile.android.business.AmtAlbumObj.AlbumItem;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Services.ExceptionService;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.AlbumInfoUtil;
 import com.archermind.note.Utils.ImageCapture;
@@ -91,57 +92,84 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 				dismissProgress();
 				break;
 			case MessageTypes.MESSAGE_CREATEALBUM:
-				mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
+				try{
+					mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
+				}catch (Exception e) {
+					// TODO: handle exception
+					ExceptionService.logException(e);
+					Toast.makeText(PersonInfoScreen.this, R.string.update_failed,
+							Toast.LENGTH_SHORT).show();
+				}
 				break;
 			case MessageTypes.MESSAGE_GETALBUM:
 				AlbumItem[] albumItems = AlbumInfoUtil.getAlbumInfos(mAlbumObj,
 						msg.obj);
-				if (albumItems == null) {
-					mAlbumObj.createAlbum(ServiceManager.getUserName(),
-							RegisterScreen.ALBUMNAME_AVATAR);
-					break;
-				}
-				int albumid = -1;
-				for (int i = 0; i < albumItems.length; i++) {
-					if (albumItems[i].albumname
-							.equals(RegisterScreen.ALBUMNAME_AVATAR)) {
-						albumid = albumItems[i].albumid;
-					}
-				}
-				if (albumid == -1) {
-					mAlbumObj.createAlbum(ServiceManager.getUserName(),
-							RegisterScreen.ALBUMNAME_AVATAR);
-				} else {
-					// 先保存本地头像，然后上传文件
-					ByteArrayOutputStream stream = new ByteArrayOutputStream();
-					mAvatarBitmap.compress(Bitmap.CompressFormat.PNG, 100,
-							stream);
-					byte[] b = stream.toByteArray();
-					mImgCapture.storeImage(b, null, Bitmap.CompressFormat.PNG);
-					mAvatarPath = getFilepathFromUri(mImgCapture
-							.getLastCaptureUri());
+				String username = ServiceManager.getUserName();
+				if(username != null){
+					try {
+						if (albumItems == null) {
+							mAlbumObj.createAlbum(username,
+									RegisterScreen.ALBUMNAME_AVATAR);
+							break;
+						}
+						int albumid = -1;
+						for (int i = 0; i < albumItems.length; i++) {
+							if (albumItems[i].albumname
+									.equals(RegisterScreen.ALBUMNAME_AVATAR)) {
+								albumid = albumItems[i].albumid;
+							}
+						}
+						if (albumid == -1) {
+							mAlbumObj.createAlbum(username,
+									RegisterScreen.ALBUMNAME_AVATAR);
+						} else {
+							// 先保存本地头像，然后上传文件
+							ByteArrayOutputStream stream = new ByteArrayOutputStream();
+							mAvatarBitmap.compress(Bitmap.CompressFormat.PNG, 100,
+									stream);
+							byte[] b = stream.toByteArray();
+							mImgCapture.storeImage(b, null, Bitmap.CompressFormat.PNG);
+							mAvatarPath = getFilepathFromUri(mImgCapture
+									.getLastCaptureUri());
 
-					ArrayList<String> picPath = new ArrayList<String>();
-					picPath.add(mAvatarPath);
-					ArrayList<String> picNames = new ArrayList<String>();
-					picNames.add(mAvatarPath.substring(mAvatarPath
-							.lastIndexOf("/") + 1));
-					mAlbumObj.uploadPicFiles(ServiceManager.getUserName(),picPath, picNames, albumid);
-					Log.i(TAG, "albumid：" + albumid);
+							ArrayList<String> picPath = new ArrayList<String>();
+							picPath.add(mAvatarPath);
+							ArrayList<String> picNames = new ArrayList<String>();
+							picNames.add(mAvatarPath.substring(mAvatarPath
+									.lastIndexOf("/") + 1));
+							mAlbumObj.uploadPicFiles(username,picPath, picNames, albumid);
+							Log.i(TAG, "albumid：" + albumid);
+						}
+					} catch (Exception e) {
+						// TODO: handle exception
+						ExceptionService.logException(e);
+						Toast.makeText(PersonInfoScreen.this, R.string.update_failed,
+								Toast.LENGTH_SHORT).show();
+					}
+				}else{
+					Toast.makeText(PersonInfoScreen.this, R.string.update_failed,
+							Toast.LENGTH_SHORT).show();
 				}
 				break;
 			case MessageTypes.MESSAGE_UPLOADPIC:// 上传头像文件成功
 				// 开始执行插入数据库操作
-				String url = ServiceManager.getUserName()
-						+ "&filename="
-						+ mAvatarPath
-								.substring(mAvatarPath.lastIndexOf("/") + 1)
-						+ "&album=" + RegisterScreen.ALBUMNAME_AVATAR;
-				UpdateTask updateTask = new UpdateTask();
-				updateTask.execute(String.valueOf(ServiceManager.getUserId()),
-						mNickname.getText().toString(),
-						mSex.getCheckedRadioButtonId() == R.id.radioMale ? "1"
-								: "2", mRegion.getText().toString(), url);
+				if(ServiceManager.getUserName()!=null){
+					try {
+						String url = ServiceManager.getUserName()
+								+ "&filename="
+								+ mAvatarPath
+										.substring(mAvatarPath.lastIndexOf("/") + 1)
+								+ "&album=" + RegisterScreen.ALBUMNAME_AVATAR;
+						UpdateTask updateTask = new UpdateTask();
+						updateTask.execute(String.valueOf(ServiceManager.getUserId()),
+								mNickname.getText().toString(),
+								mSex.getCheckedRadioButtonId() == R.id.radioMale ? "1"
+										: "2", mRegion.getText().toString(), url);
+					} catch (Exception e) {
+						// TODO: handle exception
+						ExceptionService.logException(e);
+					}
+				}
 			default:
 				break;
 			}
@@ -249,9 +277,11 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 				// }
 				mAvatarBitmap = PreferencesHelper.toRoundCorner(
 						BitmapFactory.decodeFile(mImageFilePath), 10);
-				mUserAvatar.setImageBitmap(mAvatarBitmap);
-				ismodifyAvatar = true;
-				mConfirmButton.setEnabled(true);
+				if(mAvatarBitmap != null){
+					mUserAvatar.setImageBitmap(mAvatarBitmap);
+					ismodifyAvatar = true;
+					mConfirmButton.setEnabled(true);
+				}
 				break;
 			case REGION_RESULT:
 				if (data != null) {
@@ -369,11 +399,16 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 //					.show();
 //			mProgressBar.setVisibility(View.VISIBLE);
 			showProgress(null, getString(R.string.update_progress));
-			if (ismodifyAvatar) {
-//				AmtApplication.setAmtUserName(ServiceManager.getUserName());
-				mAlbumObj = new AmtAlbumObj();
-				mAlbumObj.setHandler(mHandler);
-				mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
+			if (ismodifyAvatar && ServiceManager.getUserName()!=null) {
+				try {
+//					AmtApplication.setAmtUserName(ServiceManager.getUserName());
+					mAlbumObj = new AmtAlbumObj();
+					mAlbumObj.setHandler(mHandler);
+					mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
+				} catch (Exception e) {
+					// TODO: handle exception
+					ExceptionService.logException(e);
+				}
 			} else {
 				UpdateTask updateTask = new UpdateTask();
 				updateTask.execute(String.valueOf(ServiceManager.getUserId()),
@@ -479,9 +514,11 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 				bitmap = BitmapFactory
 						.decodeStream(connection.getInputStream());
 				return bitmap;
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
-			}
+			} catch(OutOfMemoryError e){
+            	e.printStackTrace();
+            }
 			return null;
 		}
 

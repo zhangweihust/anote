@@ -105,9 +105,11 @@ public class CropImage extends MonitoredActivity {
                 ContentResolver cr = getContentResolver();
                 is = cr.openInputStream(target);
                 mBitmap = BitmapFactory.decodeStream(is);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
+            }catch(OutOfMemoryError e){
+            	e.printStackTrace();
+            }finally {
                 if (is != null) {
                     try {
                         is.close();
@@ -300,6 +302,7 @@ public class CropImage extends MonitoredActivity {
             return;
         mSaving = true;
 
+        try{
         Bitmap croppedImage;
 
         // If the output is required to a specific size, create an new image
@@ -307,6 +310,7 @@ public class CropImage extends MonitoredActivity {
         if (mOutputX != 0 && mOutputY != 0 && !mScale) {
             // Don't scale the image but instead fill it so it's the
             // required dimension
+        	
             croppedImage = Bitmap.createBitmap(mOutputX, mOutputY,
                     Bitmap.Config.RGB_565);
             Canvas canvas = new Canvas(croppedImage);
@@ -354,22 +358,26 @@ public class CropImage extends MonitoredActivity {
                         mOutputY, mScaleUp, RECYCLE_INPUT);
             }
         }
-
+        
+        if(croppedImage != null){
         mImageView.setImageBitmapResetBase(croppedImage, true);
         mImageView.center(true, true);
         mImageView.HighlightViews.clear();
+        }
 
 //        Bundle extras = new Bundle();
 //        extras.putParcelable("data", croppedImage);
 //        setResult(RESULT_OK, (new Intent()).setAction("inline-data").putExtras(
 //                extras));
         
-        try {
+        
             FileOutputStream out = new FileOutputStream(mOutputPath);
             croppedImage.compress(Bitmap.CompressFormat.JPEG, 100, out);
             setResult(RESULT_OK);
      } catch (Exception e) {
             e.printStackTrace();
+     } catch(OutOfMemoryError e){
+     	e.printStackTrace();
      }
         finish();
     }
@@ -378,80 +386,90 @@ public class CropImage extends MonitoredActivity {
             int targetWidth, int targetHeight, boolean scaleUp, boolean recycle) {
         int deltaX = source.getWidth() - targetWidth;
         int deltaY = source.getHeight() - targetHeight;
-        if (!scaleUp && (deltaX < 0 || deltaY < 0)) {
-            /*
-             * In this case the bitmap is smaller, at least in one dimension,
-             * than the target. Transform it by placing as much of the image as
-             * possible into the target and leaving the top/bottom or left/right
-             * (or both) black.
-             */
-            Bitmap b2 = Bitmap.createBitmap(targetWidth, targetHeight,
-                    Bitmap.Config.ARGB_8888);
-            Canvas c = new Canvas(b2);
+        try {
+        	 if (!scaleUp && (deltaX < 0 || deltaY < 0)) {
+                 /*
+                  * In this case the bitmap is smaller, at least in one dimension,
+                  * than the target. Transform it by placing as much of the image as
+                  * possible into the target and leaving the top/bottom or left/right
+                  * (or both) black.
+                  */
+                 Bitmap b2 = Bitmap.createBitmap(targetWidth, targetHeight,
+                         Bitmap.Config.ARGB_8888);
+                 Canvas c = new Canvas(b2);
 
-            int deltaXHalf = Math.max(0, deltaX / 2);
-            int deltaYHalf = Math.max(0, deltaY / 2);
-            Rect src = new Rect(deltaXHalf, deltaYHalf, deltaXHalf
-                    + Math.min(targetWidth, source.getWidth()), deltaYHalf
-                    + Math.min(targetHeight, source.getHeight()));
-            int dstX = (targetWidth - src.width()) / 2;
-            int dstY = (targetHeight - src.height()) / 2;
-            Rect dst = new Rect(dstX, dstY, targetWidth - dstX, targetHeight
-                    - dstY);
-            c.drawBitmap(source, src, dst, null);
-            if (recycle) {
-                source.recycle();
-            }
-            return b2;
+                 int deltaXHalf = Math.max(0, deltaX / 2);
+                 int deltaYHalf = Math.max(0, deltaY / 2);
+                 Rect src = new Rect(deltaXHalf, deltaYHalf, deltaXHalf
+                         + Math.min(targetWidth, source.getWidth()), deltaYHalf
+                         + Math.min(targetHeight, source.getHeight()));
+                 int dstX = (targetWidth - src.width()) / 2;
+                 int dstY = (targetHeight - src.height()) / 2;
+                 Rect dst = new Rect(dstX, dstY, targetWidth - dstX, targetHeight
+                         - dstY);
+                 c.drawBitmap(source, src, dst, null);
+                 if (recycle) {
+                     source.recycle();
+                 }
+                 return b2;
+                 
+             }
+             float bitmapWidthF = source.getWidth();
+             float bitmapHeightF = source.getHeight();
+
+             float bitmapAspect = bitmapWidthF / bitmapHeightF;
+             float viewAspect = (float) targetWidth / targetHeight;
+
+             if (bitmapAspect > viewAspect) {
+                 float scale = targetHeight / bitmapHeightF;
+                 if (scale < .9F || scale > 1F) {
+                     scaler.setScale(scale, scale);
+                 } else {
+                     scaler = null;
+                 }
+             } else {
+                 float scale = targetWidth / bitmapWidthF;
+                 if (scale < .9F || scale > 1F) {
+                     scaler.setScale(scale, scale);
+                 } else {
+                     scaler = null;
+                 }
+             }
+
+             Bitmap b1;
+             if (scaler != null) {
+                 // this is used for minithumb and crop, so we want to filter here.
+                 b1 = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source
+                         .getHeight(), scaler, true);
+             } else {
+                 b1 = source;
+             }
+
+             if (recycle && b1 != source) {
+                 source.recycle();
+             }
+
+             int dx1 = Math.max(0, b1.getWidth() - targetWidth);
+             int dy1 = Math.max(0, b1.getHeight() - targetHeight);
+
+             Bitmap b2 = Bitmap.createBitmap(b1, dx1 / 2, dy1 / 2, targetWidth,
+                     targetHeight);
+
+             if (b2 != b1) {
+                 if (recycle || b1 != source) {
+                     b1.recycle();
+                 }
+             }
+
+             return b2;
+		} catch (Exception e) {
+			// TODO: handle exception
+			return null;
+		} catch(OutOfMemoryError e){
+			e.printStackTrace();
+			return null;
         }
-        float bitmapWidthF = source.getWidth();
-        float bitmapHeightF = source.getHeight();
-
-        float bitmapAspect = bitmapWidthF / bitmapHeightF;
-        float viewAspect = (float) targetWidth / targetHeight;
-
-        if (bitmapAspect > viewAspect) {
-            float scale = targetHeight / bitmapHeightF;
-            if (scale < .9F || scale > 1F) {
-                scaler.setScale(scale, scale);
-            } else {
-                scaler = null;
-            }
-        } else {
-            float scale = targetWidth / bitmapWidthF;
-            if (scale < .9F || scale > 1F) {
-                scaler.setScale(scale, scale);
-            } else {
-                scaler = null;
-            }
-        }
-
-        Bitmap b1;
-        if (scaler != null) {
-            // this is used for minithumb and crop, so we want to filter here.
-            b1 = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source
-                    .getHeight(), scaler, true);
-        } else {
-            b1 = source;
-        }
-
-        if (recycle && b1 != source) {
-            source.recycle();
-        }
-
-        int dx1 = Math.max(0, b1.getWidth() - targetWidth);
-        int dy1 = Math.max(0, b1.getHeight() - targetHeight);
-
-        Bitmap b2 = Bitmap.createBitmap(b1, dx1 / 2, dy1 / 2, targetWidth,
-                targetHeight);
-
-        if (b2 != b1) {
-            if (recycle || b1 != source) {
-                b1.recycle();
-            }
-        }
-
-        return b2;
+       
     }
 
     @Override

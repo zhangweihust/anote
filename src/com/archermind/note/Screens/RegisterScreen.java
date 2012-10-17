@@ -13,6 +13,7 @@ import com.amtcloud.mobile.android.business.MessageTypes;
 import com.amtcloud.mobile.android.business.AmtAlbumObj.AlbumItem;
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.Services.ExceptionService;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.AlbumInfoUtil;
 import com.archermind.note.Utils.ImageCapture;
@@ -88,49 +89,61 @@ public class RegisterScreen extends Screen implements OnClickListener {
 				dismissProgress();
 				break;
 			case MessageTypes.MESSAGE_CREATEALBUM:
-				mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
+				try {
+					mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
 				break;
 			case MessageTypes.MESSAGE_GETALBUM:
 				AlbumItem[] albumItems = AlbumInfoUtil.getAlbumInfos(mAlbumObj,
 						msg.obj);
-				if (albumItems == null) {
-					mAlbumObj.createAlbum(ServiceManager.getUserName(),
-							ALBUMNAME_AVATAR);
-					break;
-				}
-				int albumid = -1;
-				for (int i = 0; i < albumItems.length; i++) {
-					if (albumItems[i].albumname.equals(ALBUMNAME_AVATAR)) {
-						albumid = albumItems[i].albumid;
-					}
-				}
-				if (albumid == -1) {
-					mAlbumObj.createAlbum(ServiceManager.getUserName(),
-							ALBUMNAME_AVATAR);
-				} else {
-					// 先保存本地头像，然后上传文件
-					ByteArrayOutputStream stream = new ByteArrayOutputStream();
-					mAvatarBitmap.compress(Bitmap.CompressFormat.PNG, 100,
-							stream);
-					byte[] b = stream.toByteArray();
-					mImgCapture.storeImage(b, null, Bitmap.CompressFormat.PNG);
-					mAvatarPath = getFilepathFromUri(mImgCapture
-							.getLastCaptureUri());
-					PreferencesHelper.UpdateAvatar(RegisterScreen.this, "",
-							mAvatarPath);
+				String username = ServiceManager.getUserName();
+				if(username != null){
+					try {
+						if (albumItems == null) {
+							mAlbumObj.createAlbum(username,
+									ALBUMNAME_AVATAR);
+							break;
+						}
+						int albumid = -1;
+						for (int i = 0; i < albumItems.length; i++) {
+							if (albumItems[i].albumname.equals(ALBUMNAME_AVATAR)) {
+								albumid = albumItems[i].albumid;
+							}
+						}
+						if (albumid == -1) {
+							mAlbumObj.createAlbum(username,
+									ALBUMNAME_AVATAR);
+						} else {
+							// 先保存本地头像，然后上传文件
+							ByteArrayOutputStream stream = new ByteArrayOutputStream();
+							mAvatarBitmap.compress(Bitmap.CompressFormat.PNG, 100,
+									stream);
+							byte[] b = stream.toByteArray();
+							mImgCapture.storeImage(b, null, Bitmap.CompressFormat.PNG);
+							mAvatarPath = getFilepathFromUri(mImgCapture
+									.getLastCaptureUri());
+							PreferencesHelper.UpdateAvatar(RegisterScreen.this, "",
+									mAvatarPath);
 
-					ArrayList<String> picPath = new ArrayList<String>();
-					picPath.add(mAvatarPath);
-					ArrayList<String> picNames = new ArrayList<String>();
-					picNames.add(mAvatarPath.substring(mAvatarPath
-							.lastIndexOf("/") + 1));
-					Log.i(TAG,
-							"图片名称："
-									+ mAvatarPath.substring(mAvatarPath
-											.lastIndexOf("/") + 1));
-					mAlbumObj.uploadPicFiles(ServiceManager.getUserName(),
-							picPath, picNames, albumid);
-					Log.i(TAG, "albumid：" + albumid);
+							ArrayList<String> picPath = new ArrayList<String>();
+							picPath.add(mAvatarPath);
+							ArrayList<String> picNames = new ArrayList<String>();
+							picNames.add(mAvatarPath.substring(mAvatarPath
+									.lastIndexOf("/") + 1));
+							Log.i(TAG,
+									"图片名称："
+											+ mAvatarPath.substring(mAvatarPath
+													.lastIndexOf("/") + 1));
+							mAlbumObj.uploadPicFiles(username,
+									picPath, picNames, albumid);
+							Log.i(TAG, "albumid：" + albumid);
+						}
+					} catch (Exception e) {
+						// TODO: handle exception
+						ExceptionService.logException(e);
+					}
 				}
 				break;
 			case MessageTypes.MESSAGE_UPLOADPIC:
@@ -250,7 +263,9 @@ public class RegisterScreen extends Screen implements OnClickListener {
 		case CROP_RESULT:
 			mAvatarBitmap = PreferencesHelper.toRoundCorner(
 					BitmapFactory.decodeFile(mImageFilePath), 10);
-			mUserAvatar.setImageBitmap(mAvatarBitmap);
+			if(mAvatarBitmap!=null){
+				mUserAvatar.setImageBitmap(mAvatarBitmap);
+			}
 			break;
 		case REGION_RESULT:
 			if (data != null) {
@@ -454,13 +469,17 @@ public class RegisterScreen extends Screen implements OnClickListener {
 						ServiceManager.setLogin(true);
 
 						// 文件操作：上传头像文件
-						if (mAvatarBitmap != null) {
-							// AmtApplication.setAmtUserName(ServiceManager
-							// .getUserName());
-							mAlbumObj = new AmtAlbumObj();
-							mAlbumObj.setHandler(mHandler);
-							mAlbumObj.createAlbum(ServiceManager.getUserName(),
-									ALBUMNAME_AVATAR);
+						if (mAvatarBitmap != null && ServiceManager.getUserName()!=null) {
+							try {
+								mAlbumObj = new AmtAlbumObj();
+								mAlbumObj.setHandler(mHandler);
+								mAlbumObj.createAlbum(ServiceManager.getUserName(),
+										ALBUMNAME_AVATAR);
+							} catch (Exception e) {
+								// TODO: handle exception
+								ExceptionService.logException(e);
+							}
+							
 							Log.i(TAG, "register sucess,start upload avatar");
 						} else {
 							Toast.makeText(RegisterScreen.this,
