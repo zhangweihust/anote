@@ -377,7 +377,7 @@ public class MyEditText extends EditText implements
 					} else {
 						if (mEditNote != null) {
 							System.out.println("~~~~~nextPage~~~~~");
-							mEditNote.moveNextPageForRead();
+							mEditNote.moveNextPageForRead(false);
 							imm.hideSoftInputFromWindow(getWindowToken(), 0);
 						}
 					}

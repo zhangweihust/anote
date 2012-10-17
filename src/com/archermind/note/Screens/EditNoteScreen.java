@@ -86,6 +86,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.SlidingDrawer;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -324,9 +325,9 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			public void onTextChanged(CharSequence s, int start, int before,
 					int count) {
 				// TODO Auto-generated method stub
-				Log.e("edittext", "===onTextChanged===");
-				Log.e("edittext", "" + s);
-				Log.e("edittext", "start:" + start + ", before:" + before + ", count:" + count);
+//				Log.e("edittext", "===onTextChanged===");
+//				Log.e("edittext", "" + s);
+//				Log.e("edittext", "start:" + start + ", before:" + before + ", count:" + count);
 				ImageSpan[] imgspans = myEdit.getText().getSpans(start,
 						start + count, ImageSpan.class);
 				if (count == 0) {
@@ -484,10 +485,10 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			@Override
 			public void afterTextChanged(Editable s) {
 				// TODO Auto-generated method stub
-				Log.e("edittext", "edittext length:"
-						+ myEdit.getText().length());
-				Log.e("edittext", "edittext content:" + s.toString());
-				Log.e("edittext", "isInsert:" + isInsert);
+//				Log.e("edittext", "edittext length:"
+//						+ myEdit.getText().length());
+//				Log.e("edittext", "edittext content:" + s.toString());
+//				Log.e("edittext", "isInsert:" + isInsert);
 				if (isInsert) {
 					return;
 				}
@@ -544,9 +545,9 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 		for (i = 0; i < totalLine; i++) {
 			myEdit.getLineBounds(i, rc);
 			int curLineHeight = rc.height();
-			Log.e(TAG, "第" + i + "行的高度为：" + curLineHeight);
+//			Log.e(TAG, "第" + i + "行的高度为：" + curLineHeight);
 			totalHeight += curLineHeight;
-			Log.e(TAG, "myEdit.getHeight" + myEdit.getHeight());
+//			Log.e(TAG, "myEdit.getHeight" + myEdit.getHeight());
 			if (totalHeight > myEdit.getHeight()) {
 				return i;
 			}
@@ -1090,7 +1091,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 	 * 
 	 * @return
 	 */
-	public boolean moveNextPageForRead() {
+	public boolean moveNextPageForRead(boolean isSave) {
 		if (mCurPage < mTotalPage) {
 			System.out.println("==mCurPage : " + mCurPage + ", mTotalPage : " + mTotalPage);
 			System.out.println("==mlastPageEnd : " + mLastPageEnd);
@@ -1138,12 +1139,13 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 				}
 			}*/
 
-			
+			if (!isSave) {
 				myEdit.startAnimation(AnimationUtils.loadAnimation(this,
 						R.anim.push_right_in));
 				Toast.makeText(EditNoteScreen.this,
 						"第" + (mCurPage + 1) + "页, 共" + (mTotalPage + 1) + "页",
 						Toast.LENGTH_SHORT).show();
+			}
 			
 			 Selection.setSelection(myEdit.getEditableText(), myEdit.getText()
 					.length());
@@ -2304,7 +2306,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 		myEdit.setCursorVisible(false);
 		convertDiary2Pic();
 
-		while (moveNextPage(true)) {
+		while (moveNextPageForRead(true)) {
 			myEdit.scrollTo(0, 0);
 			convertDiary2Pic();
 		}
