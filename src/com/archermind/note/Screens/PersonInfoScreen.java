@@ -277,7 +277,10 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 				// }
 				mAvatarBitmap = PreferencesHelper.toRoundCorner(
 						BitmapFactory.decodeFile(mImageFilePath), 10);
-				if(mAvatarBitmap != null){
+				//更新头像图片地址
+				PreferencesHelper.UpdateAvatar(PersonInfoScreen.this, "",
+						mImageFilePath);
+                if(mAvatarBitmap != null){
 					mUserAvatar.setImageBitmap(mAvatarBitmap);
 					ismodifyAvatar = true;
 					mConfirmButton.setEnabled(true);

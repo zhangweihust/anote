@@ -7,6 +7,8 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import com.archermind.note.R;
+import com.archermind.note.Screens.RegisterScreen;
+import com.archermind.note.Services.ServiceManager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -20,6 +22,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.AvoidXfermode.Mode;
 import android.graphics.Bitmap.Config;
+import android.text.TextUtils;
+import android.util.Log;
 
 public class PreferencesHelper {
 	
@@ -58,18 +62,38 @@ public class PreferencesHelper {
 			System.gc();
 		}
 		
-		SharedPreferences preferences = getSharedPreferences(context, Context.MODE_WORLD_WRITEABLE);
-		preferences.edit().putString(XML_USER_AVATAR, newAvatarPath).commit();
+
+		String url = ServiceManager.getUserName()
+				+ "&filename="
+				+ newAvatarPath
+						.substring(newAvatarPath.lastIndexOf("/") + 1)
+				+ "&album=" + RegisterScreen.ALBUMNAME_AVATAR;
+		
+		ServiceManager.setmAvatarurl(url);
 	}
 	
 	public static Bitmap getAvatarBitmap(Context context) {
+		
+		if (mUserAvatarBitmap != null) {
+			mUserAvatarBitmap.recycle();
+			mUserAvatarBitmap = null;
+			System.gc();
+		}
+		
 		if (mUserAvatarBitmap != null) {
 			return mUserAvatarBitmap;
 		}
 		
-		SharedPreferences sharedata = getSharedPreferences(context, 0);
-		String filepath = sharedata.getString(XML_USER_AVATAR, null);
-		
+//		SharedPreferences sharedata = getSharedPreferences(context, 0);
+//		String filepath = sharedata.getString(XML_USER_AVATAR, null);
+		//截取出图像名称进行拼接
+		String avatarurl=ServiceManager.getmAvatarurl();
+		String filepath=null;
+		if(!TextUtils.isEmpty(avatarurl)){
+		String s=avatarurl.substring(avatarurl.indexOf("&filename=")+"&filename=".length());
+		String avatarName=s.substring(0, s.indexOf("&"));
+		filepath=ImageCapture.IMAGE_CACHE_PATH+"/"+avatarName;
+		}
 		if (filepath == null) {
 			return null;
 		}else{
