@@ -752,21 +752,14 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 				if (gesture == null) {
 					return;
 				}
-				Bitmap bmp = Bitmap.createBitmap(dip2px(48), dip2px(48
-						* gesture_height / gesture_width),
-						Bitmap.Config.ARGB_8888);
-				;
-				bmp.eraseColor(0x00000000);
-				Canvas canvas = new Canvas(bmp);
+			
 				Bitmap gestrueBmp = gesture.toBitmapWidthNotAve(dip2px(AmGesture.PIC_HEIGHT), dip2px(AmGesture.INSET),
 						gesture.getGesturePaintColor(), gesture_height,
 						gesture_width);
 				if (gestrueBmp == null || gestrueBmp.isRecycled()) {
 					return;
 				}
-				canvas.drawBitmap(gestrueBmp, 0, 0, null);
-				gestrueBmp.recycle();
-				Drawable drawable = new BitmapDrawable(bmp);
+				Drawable drawable = new BitmapDrawable(gestrueBmp);
 				drawable.setBounds(0, 0, drawable.getIntrinsicWidth(),
 						drawable.getIntrinsicHeight());
 				ImageSpan span = new ImageSpan(drawable, ImageSpan.ALIGN_BOTTOM);
