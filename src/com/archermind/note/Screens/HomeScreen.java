@@ -56,6 +56,7 @@ import com.archermind.note.Events.EventTypes;
 import com.archermind.note.Events.IEventHandler;
 import com.archermind.note.Provider.DatabaseHelper;
 import com.archermind.note.Provider.DatabaseManager;
+import com.archermind.note.Provider.LunarDatesDatabaseHelper;
 import com.archermind.note.Services.EventService;
 import com.archermind.note.Services.ExceptionService;
 import com.archermind.note.Services.ServiceManager;
@@ -276,7 +277,7 @@ public class HomeScreen extends Screen implements IEventHandler,
 		if (height != 0) {
 			calendarHeight = height;
 		}
-		if (Constant.flagType == 1) {
+		if (Constant.Firstday == 1) {
 			tvCalendarWeekday0.setText(R.string.calendar_mon);
 			tvCalendarWeekday1.setText(R.string.calendar_tue);
 			tvCalendarWeekday2.setText(R.string.calendar_wed);
@@ -801,47 +802,52 @@ public class HomeScreen extends Screen implements IEventHandler,
 					DateTimeUtils.time2String("yyyy.MM.dd", mRecentTime)));
 			break;
 		case R.id.btn_back_curmonth:
-			String tag = mListHeader.getTag().toString();
-			Calendar cal = Calendar.getInstance(Locale.CHINA);
-			cal.setTimeInMillis(System.currentTimeMillis());
-			boolean isPre = mCurYear > cal.get(Calendar.YEAR) || (mCurYear >= cal.get(Calendar.YEAR)&& mCurMonth > cal.get(Calendar.MONTH));
-
-			mCurMonth = cal.get(Calendar.MONTH);
-			mCurYear = cal.get(Calendar.YEAR);
-			mBtnBackCurmonth.setVisibility(View.GONE);
-			mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月",
-					System.currentTimeMillis()));
-			if (tag.equals(tagCalendar)) {
-				if (isPre) {
-					showCalendarMonth(PRE_MONTH, true);
-				} else {
-					showCalendarMonth(NEXT_MONTH, true);
-				}
-			} else {
-				mCursor = ServiceManager.getDbManager().queryMonthLocalNOTES(
-						mCurMonth, mCurYear);
-				// startManagingCursor(mCursor);
-				mLocalNoteAdapter.changeCursor(mCursor);
-				mlvMonthNotes.setAdapter(mLocalNoteAdapter);
-				if (mCursor.getCount() == 0) {
-					tvNoNoteCurMonth.setVisibility(View.VISIBLE);
-					ivTrack.setVisibility(View.GONE);
-				} else {
-					ivTrack.setVisibility(View.VISIBLE);
-					tvNoNoteCurMonth.setVisibility(View.GONE);
-				}
-				if(isPre){
-					mflMonthView.setLayoutAnimation(mControllerLeft);
-				}else{
-					mflMonthView.setLayoutAnimation(mControllerRight);
-				}
-			}
+			backToCurMonth();
 			break;
 		default:
 
 		}
 	}
 
+	
+	private void backToCurMonth(){
+		String tag = mListHeader.getTag().toString();
+		Calendar cal = Calendar.getInstance(Locale.CHINA);
+		cal.setTimeInMillis(System.currentTimeMillis());
+		boolean isPre = mCurYear > cal.get(Calendar.YEAR) || (mCurYear >= cal.get(Calendar.YEAR)&& mCurMonth > cal.get(Calendar.MONTH));
+
+		mCurMonth = cal.get(Calendar.MONTH);
+		mCurYear = cal.get(Calendar.YEAR);
+		mBtnBackCurmonth.setVisibility(View.GONE);
+		mTvCurMonth.setText(DateTimeUtils.time2String("yyyy年MM月",
+				System.currentTimeMillis()));
+		if (tag.equals(tagCalendar)) {
+			if (isPre) {
+				showCalendarMonth(PRE_MONTH, true);
+			} else {
+				showCalendarMonth(NEXT_MONTH, true);
+			}
+		} else {
+			mCursor = ServiceManager.getDbManager().queryMonthLocalNOTES(
+					mCurMonth, mCurYear);
+			// startManagingCursor(mCursor);
+			mLocalNoteAdapter.changeCursor(mCursor);
+			mlvMonthNotes.setAdapter(mLocalNoteAdapter);
+			if (mCursor.getCount() == 0) {
+				tvNoNoteCurMonth.setVisibility(View.VISIBLE);
+				ivTrack.setVisibility(View.GONE);
+			} else {
+				ivTrack.setVisibility(View.VISIBLE);
+				tvNoNoteCurMonth.setVisibility(View.GONE);
+			}
+			if(isPre){
+				mflMonthView.setLayoutAnimation(mControllerLeft);
+			}else{
+				mflMonthView.setLayoutAnimation(mControllerRight);
+			}
+		}	
+	}
+	
 	private void gotoPreMonth() {
 		System.out.println("====gotoPreMonth====" + mCurMonth);
 		if (mCurMonth == Calendar.JANUARY) {
@@ -860,7 +866,7 @@ public class HomeScreen extends Screen implements IEventHandler,
 	}
 
 	private void gotoNextMonth() {
-		System.out.println("====gotoNextMonth====" + mCurMonth);
+		System.out.println("====gotoNextMonth====" + mCurMonth);		
 		if (mCurMonth == Calendar.DECEMBER) {
 			mCurMonth = Calendar.JANUARY;
 			mCurYear = mCurYear + 1;
@@ -880,7 +886,10 @@ public class HomeScreen extends Screen implements IEventHandler,
 	private void showCalendarMonth(int preORnext, boolean needAnimation) {
 		System.out.println("====showCalendarMonth====" + mCurMonth + "=="
 				+ needAnimation);
-
+		if(mCurYear < LunarDatesDatabaseHelper.earlistYear || mCurYear > LunarDatesDatabaseHelper.latestYear){
+			backToCurMonth();
+			return;
+		}
 		if (needAnimation) {
 			if (preORnext == NEXT_MONTH) {
 				flipper.setInAnimation(AnimationUtils.loadAnimation(this,
@@ -900,10 +909,9 @@ public class HomeScreen extends Screen implements IEventHandler,
 
 		if (mCalendarAdapter == null) {
 			mCalendarAdapter = new CalendarAdapter(this, getResources(),
-					mCurYear, mCurMonth, calendarHeight, Constant.flagType);
+					mCurYear, mCurMonth, calendarHeight);
 		} else {
-			mCalendarAdapter.changeData(mCurYear, mCurMonth, calendarHeight,
-					Constant.flagType);
+			mCalendarAdapter.changeData(mCurYear, mCurMonth, calendarHeight);
 		}
 
 		if (flipper_flag == 1) {

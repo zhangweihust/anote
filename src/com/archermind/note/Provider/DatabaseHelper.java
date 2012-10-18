@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper{
 	
 	public static final String NAME = "note.db";
-	private static final int version = 4;
+	private static final int version = 5;
 	
 	public static int NOT_SIGN = 0;
 	public static int SIGNED = 1;
@@ -145,7 +145,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	public static final String COLUMN_PHOTO_NAME = "name";//照片名称
 	public static final String COLUMN_PHOTO_FILEPATH = "filepath";//照片filepath
  
-	private static final String CRETAE_TAB_PHOTO = " CREATE TABLE IF NOT EXISTS "
+	private static final String CRETAE_TAB_PHOTO = "CREATE TABLE IF NOT EXISTS "
 	 + TAB_PHOTO 
 	 + " (["+ COLUMN_PHOTO_ID
 	 + "]AUTOINC PRIMARY KEY, ["
@@ -180,7 +180,12 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// TODO Auto-generated method stub
-		db.execSQL(ALTER_TAB_NOTE);
+		try {
+			db.execSQL(CREATE_TAB_USER);
+			db.execSQL(ALTER_TAB_NOTE);		
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	private void createTabs(SQLiteDatabase db) {

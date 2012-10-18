@@ -1,25 +1,30 @@
 package com.archermind.note.Provider;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.archermind.note.Screens.InformationScreen;
-import com.archermind.note.Services.ServiceManager;
-import com.archermind.note.Utils.DateTimeUtils;
-import com.archermind.note.bean.UserLoginInfo;
-
-import android.R.integer;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.archermind.note.Screens.InformationScreen;
+import com.archermind.note.Services.ServiceManager;
+import com.archermind.note.Utils.DateTimeUtils;
+import com.archermind.note.Utils.FileUtils;
+import com.archermind.note.bean.UserLoginInfo;
 
 
 public class DatabaseManager {
 	private Context context;
 	private DatabaseHelper databaseHelper;
 	private SQLiteDatabase database;
+
+	private LunarDatesDatabaseHelper lunarDatesDatabaseHelper;
+	private SQLiteDatabase lunarDatesDatabase;
 	
 	public static int NO_NOTE = 0;
 	public static int HAS_NOTE = 1;
@@ -32,11 +37,29 @@ public class DatabaseManager {
 	public void open() {
 		databaseHelper = new DatabaseHelper(context);
 		database = databaseHelper.getWritableDatabase();
+		File dest = new File(LunarDatesDatabaseHelper.PATH + LunarDatesDatabaseHelper.NAME);
+		System.out.println(dest);
+		if (!dest.exists()) {
+			System.out.println("file not exist !");
+			try {
+				boolean isSuccess = FileUtils.unzipFirstEntryToFile(context.getAssets().open(LunarDatesDatabaseHelper.SRC_FILE), dest);
+				System.out.println("success ? " + isSuccess);
+				if(!isSuccess){
+					ServiceManager.exit();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		lunarDatesDatabaseHelper= new LunarDatesDatabaseHelper(context);
+		lunarDatesDatabase = lunarDatesDatabaseHelper.getWritableDatabase();
 	}
 
 	public void close() {
 		databaseHelper.close();
 		database.close();
+		lunarDatesDatabaseHelper.close();
+		lunarDatesDatabase.close();
 	}
 	
 	public long insertLocalNotes(ContentValues values) {
@@ -271,5 +294,11 @@ public class DatabaseManager {
 		values.put(DatabaseHelper.COLUMN_PASSWORD, pwd);
 		return database.update(DatabaseHelper.TAB_USER, values, 
 				DatabaseHelper.COLUMN_USERNAME+"=?", new String[]{name});
+	}
+	
+	public Cursor queryLunarDate(String month) {
+		return lunarDatesDatabase.query(LunarDatesDatabaseHelper.TAB_CALENDAR_MAP, null,
+				LunarDatesDatabaseHelper.COLUMN_CALENDAR_MONTH + " = ?",
+				new String[]{String.valueOf(month)}, null, null, null);
 	}
 }
