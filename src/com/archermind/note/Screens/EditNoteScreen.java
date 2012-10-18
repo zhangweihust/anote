@@ -93,6 +93,7 @@ import android.widget.ViewFlipper;
 
 import com.archermind.note.NoteApplication;
 import com.archermind.note.R;
+import com.archermind.note.R.string;
 import com.archermind.note.Adapter.FaceAdapter;
 import com.archermind.note.Events.EventArgs;
 import com.archermind.note.Events.EventTypes;
@@ -325,9 +326,9 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			public void onTextChanged(CharSequence s, int start, int before,
 					int count) {
 				// TODO Auto-generated method stub
-//				Log.e("edittext", "===onTextChanged===");
-//				Log.e("edittext", "" + s);
-//				Log.e("edittext", "start:" + start + ", before:" + before + ", count:" + count);
+				Log.e("edittext", "===onTextChanged===");
+				Log.e("edittext", "" + s);
+				Log.e("edittext", "start:" + start + ", before:" + before + ", count:" + count);
 				ImageSpan[] imgspans = myEdit.getText().getSpans(start,
 						start + count, ImageSpan.class);
 				if (count == 0) {
@@ -343,6 +344,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 
 				int position = findstartPosition(start);
 				if (imgspans.length == 0) {// 没有插入图片，即为文本改变（保存文本插入和删除，由于禁用了文本选择，故不存在文本替换）
+					System.out.println("文本变了～～～～～～～～～～～");
 					String strItem = "";
 					if (mStrList.size() > mLastPageEnd + position) {// 获取当前光标所在位置处映射到mStrList的内容
 						strItem = mStrList.get(mLastPageEnd + position);
@@ -485,20 +487,21 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			@Override
 			public void afterTextChanged(Editable s) {
 				// TODO Auto-generated method stub
-//				Log.e("edittext", "edittext length:"
-//						+ myEdit.getText().length());
-//				Log.e("edittext", "edittext content:" + s.toString());
-//				Log.e("edittext", "isInsert:" + isInsert);
+				Log.e("edittext", "edittext length:"
+						+ myEdit.getText().length());
+				Log.e("edittext", "edittext content:" + s.toString());
+				Log.e("edittext", "isInsert:" + isInsert);
 				if (isInsert) {
 					return;
 				}
 				int totalLine = myEdit.getLineCount();
 				Log.e("edittext","totalLine:" + totalLine);
-				int i = countLinesHeight(totalLine);
+				int i = isOutOfView(totalLine);
 				if (i != -1) { // 超出视图边界
 					System.out.println("超出边界了:" + i);
 					int lineStart = myEdit.getLayout().getLineStart(i);
 					int textLength = myEdit.getText().length();
+					System.out.println("lineStart: " + lineStart + " , textLength: " + textLength);
 					if (lineStart < textLength) { // 超出部分
 						processWhenOutofbounds(i, lineStart, textLength);
 
@@ -532,13 +535,13 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 	}
 
 	/**
-	 * 计算编辑框的高度，若超过一页高度则返回超出的那一行行号
+	 * 计算当前内容的高度，若超过一页高度则返回超出的那一行行号
 	 * 
 	 * @param totalLine
 	 *            总行数
 	 * @return 返回超出边界行的行号，若没超出边界则-1。
 	 */
-	private int countLinesHeight(int totalLine) {
+	private int isOutOfView(int totalLine) {
 		int totalHeight = 0;
 		Rect rc = new Rect();
 		int i = 0;
@@ -553,6 +556,28 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			}
 		}
 		return -1;
+	}
+	
+	/**
+	 * 计算当前是否已经是最后一行
+	 * 
+	 * @param totalLine
+	 *            总行数
+	 * @return 是，返回true，否，返回false。
+	 */
+	private boolean isLastLine(int totalLine) {
+		int totalHeight = 0;
+		Rect rc = new Rect();
+		int i = 0;
+		for (i = 0; i < totalLine; i++) {
+			myEdit.getLineBounds(i, rc);
+			int curLineHeight = rc.height();
+			totalHeight += curLineHeight;
+		}
+		if(Math.abs(totalHeight - myEdit.getHeight()) < dip2px(AmGesture.PIC_HEIGHT)){
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -651,7 +676,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			isInsert = true;
 			addItemOfEditText(i);
 			int totalLine = myEdit.getLineCount();
-			int j = countLinesHeight(totalLine);
+			int j = isOutOfView(totalLine);
 			wrapItemOfList(mStrList.indexOf(pageStr), i);
 
 			if (j != -1) {
@@ -700,6 +725,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 	private void addItemOfEditText(int i) {
 		try{
 		String tempString = mStrList.get(i);
+		System.out.println("== tempString ==" + tempString);
 		isNeedSaveChange = false;
 		if (tempString.startsWith("str:")) {
 			String str = tempString.substring("str:".length()).replace("\\n",
@@ -744,6 +770,8 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 				drawable.setBounds(0, 0, drawable.getIntrinsicWidth(),
 						drawable.getIntrinsicHeight());
 				ImageSpan span = new ImageSpan(drawable, ImageSpan.ALIGN_BOTTOM);
+				System.out.println("str is " + value + "====");
+			
 				SpannableString spanStr = new SpannableString(value);
 				spanStr.setSpan(span, 0, spanStr.length(),
 						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -1060,7 +1088,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			myEdit.reloadGraffit("page" + String.valueOf(mCurPage));
 
 			int totalLine = myEdit.getLineCount();
-			int i = countLinesHeight(totalLine);
+			int i = isOutOfView(totalLine);
 
 			if (i != -1) {
 				int lineStart = myEdit.getLayout().getLineStart(i);
@@ -2007,10 +2035,13 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 		case R.id.edit_insert_newline:
 			int index1 = myEdit.getSelectionStart();
 			index1 = index1 < 0 ? 0 : index1;
+			int totalLine = myEdit.getLineCount();
+			if(!isLastLine(totalLine)){
 			try {
 				myEdit.getText().insert(index1, "\n");
 			} catch (Exception e) {
 				Log.e(TAG, "插入换行符错误");
+			}
 			}
 			mInsertTypePopupWindow.dismiss();
 			break;
@@ -3211,10 +3242,10 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 
 					int index = myEdit.getSelectionStart();
 					myEdit.getText().insert(index, spanStr);
-					Log.i(TAG, "插入了一张图片");/*
-				    index = myEdit.getSelectionStart();
+					Log.i(TAG, "插入了一张图片");
+				    /*index = myEdit.getSelectionStart();
 					myEdit.getText().insert(index, "\n");// 插入一张图片后再次插入一个换行
-*/				}
+				*/}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

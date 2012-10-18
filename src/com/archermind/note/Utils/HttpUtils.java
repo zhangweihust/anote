@@ -143,6 +143,9 @@ public class HttpUtils {
 			e.printStackTrace();
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
 		}
 		return Integer.toString(ServerInterface.ERROR_SERVER_INTERNAL);
 	}
