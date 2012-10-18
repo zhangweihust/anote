@@ -145,6 +145,15 @@ public class PlazaScreen extends Screen implements IEventHandler{
 					dismissLoadingProgress();
 					 //System.out.println("====" + getWindowManager().getDefaultDisplay().getHeight());
 
+				}
+
+
+				@Override
+				public void onReceivedError(WebView view, int errorCode,
+						String description, String failingUrl) {
+					// TODO Auto-generated method stub
+					super.onReceivedError(view, errorCode, description, failingUrl);
+					dismissLoadingProgress();
 				}	 
 	            
 	            
