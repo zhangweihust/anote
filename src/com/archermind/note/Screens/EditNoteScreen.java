@@ -732,8 +732,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 				;
 				bmp.eraseColor(0x00000000);
 				Canvas canvas = new Canvas(bmp);
-				Bitmap gestrueBmp = gesture.toBitmap(dip2px(48), dip2px(48
-						* gesture_height / gesture_width), 0,
+				Bitmap gestrueBmp = gesture.toBitmapWidthNotAve(dip2px(AmGesture.PIC_HEIGHT), dip2px(AmGesture.INSET),
 						gesture.getGesturePaintColor(), gesture_height,
 						gesture_width);
 				if (gestrueBmp == null || gestrueBmp.isRecycled()) {
@@ -3058,8 +3057,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			// int lineheight = DensityUtil.dip2px(EditNoteScreen.this,
 			// myEdit.getLineHeight() );
 			System.out.println("===create bitmap");
-			Bitmap gestrueBmp = mGesture.toBitmap(dip2px(48), dip2px(48
-					* gestureview.getHeight() / gestureview.getWidth()), 0,
+			Bitmap gestrueBmp = mGesture.toBitmapWidthNotAve(dip2px(AmGesture.PIC_HEIGHT), dip2px(AmGesture.INSET),
 					mGesture.getGesturePaintColor(), gestureview.getHeight(),
 					gestureview.getWidth());
 			if (gestrueBmp == null || gestrueBmp.isRecycled()) {

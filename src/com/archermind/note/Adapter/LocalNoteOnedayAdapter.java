@@ -207,21 +207,11 @@ public class LocalNoteOnedayAdapter extends CursorAdapter {
 									width = gesture_width;
 								}
                                 try{
-								Bitmap bmp = Bitmap.createBitmap(
-										DensityUtil.dip2px(mContext, 48),
-										DensityUtil.dip2px(mContext, 48
-												* height / width),
-										Bitmap.Config.ARGB_8888);
-								if (bmp != null && !bmp.isRecycled()) {
-									bmp.eraseColor(0x00000000);
-									Canvas canvas = new Canvas(bmp);
-									canvas.drawBitmap(gesture.toBitmap(
-											DensityUtil.dip2px(mContext, 48),
-											DensityUtil.dip2px(mContext, 48
-													* height / width), 0,
+									Bitmap gestrueBmp = gesture.toBitmapWidthNotAve(
+											DensityUtil.dip2px(mContext, AmGesture.PIC_HEIGHT), DensityUtil.dip2px(mContext, AmGesture.INSET),
 											gesture.getGesturePaintColor(),
-											height, width), 0, 0, null);
-									Drawable drawable = new BitmapDrawable(bmp);
+											height, width);
+									Drawable drawable = new BitmapDrawable(gestrueBmp);
 									drawable.setBounds(0, 0,
 											drawable.getIntrinsicWidth(),
 											drawable.getIntrinsicHeight());
@@ -233,7 +223,6 @@ public class LocalNoteOnedayAdapter extends CursorAdapter {
 											Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 									item.tvNoteContent.append(spanStr);
 									wordNum++;
-								}
                                 }catch (Exception e) {
 									// TODO: handle exception
 								}catch(OutOfMemoryError e){
