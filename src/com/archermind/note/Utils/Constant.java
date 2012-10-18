@@ -1,7 +1,7 @@
 package com.archermind.note.Utils;
 
 public class Constant {
-	public static int flagType = 0;
+	public static int Firstday = 7;
 	public static int YEAR;
 	public static int MONTH;
 	public static int DAY;
