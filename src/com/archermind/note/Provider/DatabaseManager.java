@@ -45,9 +45,10 @@ public class DatabaseManager {
 				boolean isSuccess = FileUtils.unzipFirstEntryToFile(context.getAssets().open(LunarDatesDatabaseHelper.SRC_FILE), dest);
 				System.out.println("success ? " + isSuccess);
 				if(!isSuccess){
+					dest.delete();
 					ServiceManager.exit();
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}

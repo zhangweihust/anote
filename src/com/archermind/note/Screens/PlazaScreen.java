@@ -125,7 +125,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 					// TODO Auto-generated method stub
 					super.onPageStarted(view, url, favicon);
 					showLoadingProgress();
-					if(view.getTitle()!=null&&!view.getTitle().equals("")){
+					if(view.getTitle()!=null&&!view.getTitle().equals("") && (view.getTitle().contains("主页")||view.getTitle().contains("相册"))){
 					MainScreen.eventService.onUpdateEvent(new EventArgs(
 							EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra(
 							"title",view.getTitle()));
@@ -137,7 +137,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 				public void onPageFinished(WebView view, String url) {
 					// TODO Auto-generated method stub
 					super.onPageFinished(view, url);
-					if(view.getTitle()!=null&&!view.getTitle().equals("")){
+					if(view.getTitle()!=null&&!view.getTitle().equals("") && (view.getTitle().contains("主页")||view.getTitle().contains("相册"))){
 						MainScreen.eventService.onUpdateEvent(new EventArgs(
 								EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra(
 								"title",view.getTitle()));
@@ -153,6 +153,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 						String description, String failingUrl) {
 					// TODO Auto-generated method stub
 					super.onReceivedError(view, errorCode, description, failingUrl);
+
 					dismissLoadingProgress();
 				}	 
 	            

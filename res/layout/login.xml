@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:layout_marginTop="20dp" >
+        android:layout_marginTop="10dp" >
 
         <TextView
             android:layout_width="wrap_content"
@@ -53,7 +53,7 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:padding="25dp" >
+        android:padding="15dp" >
 
         <TextView
             android:id="@+id/btn_login_sina"
@@ -123,7 +123,7 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="28dp"
+        android:layout_margin="18dp"
         android:background="@drawable/login_edit_background"
         android:orientation="vertical" >
 
@@ -158,8 +158,8 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="28dp"
-        android:layout_marginRight="28dp"
+        android:layout_marginLeft="18dp"
+        android:layout_marginRight="18dp"
         android:layout_marginTop="-12dp"
         android:orientation="vertical" >
 
@@ -176,7 +176,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="5dp"
             android:orientation="horizontal" >
 
             <CheckBox
@@ -206,8 +206,6 @@
                 android:id="@+id/login_savepassword"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
                 android:button="@drawable/checkbox_selector"
                 android:checked="false"
                 android:text="@string/login_savepassword"

@@ -18,8 +18,6 @@ import com.archermind.note.Screens.HomeScreen;
 import com.archermind.note.Services.ServiceManager;
 import com.archermind.note.Utils.Constant;
 import com.archermind.note.Utils.DateTimeUtils;
-import com.archermind.note.calendar.LunarCalendar;
-import com.archermind.note.calendar.SpecialCalendar;
 
 import android.R.integer;
 import android.content.Context;
@@ -73,6 +71,7 @@ public class CalendarAdapter extends BaseAdapter {
 	private int lastClick = -1;
 	private String lastClickPosition = "";
 	private String today = "";
+	public static String suffix = "_";
 
 	public CalendarAdapter(Context context, Resources rs, int year, int month,
 			int height) {
@@ -143,10 +142,10 @@ public class CalendarAdapter extends BaseAdapter {
 		String lunarDay = dayNumber[position].split("\\.")[1];
 		String holiday = null;
 		int length = dayNumber[position].length();
-		if (lunarDay.contains(LunarCalendar.suffix)) {
+		if (lunarDay.contains(suffix)) {
 			length -= 1;
 			holiday = lunarDay.substring(0,
-					lunarDay.indexOf(LunarCalendar.suffix));
+					lunarDay.indexOf(suffix));
 		} else {
 			holiday = lunarDay;
 		}
@@ -165,7 +164,7 @@ public class CalendarAdapter extends BaseAdapter {
 
 		if (position < curMonthEnd && position >= curMonthStart) {
 			if (Constant.Firstday == 7) {
-				if (lunarDay.contains(LunarCalendar.suffix)
+				if (lunarDay.contains(suffix)
 						|| (position + 1) % 7 == 0 || (position + 1) % 7 == 1) {
 					item.tvDate.setTextColor(res
 							.getColor(R.color.holiday_color));
@@ -180,7 +179,7 @@ public class CalendarAdapter extends BaseAdapter {
 					item.tvDate.setText(sp);
 				}
 			} else {
-				if (lunarDay.contains(LunarCalendar.suffix)
+				if (lunarDay.contains(suffix)
 						|| (position + 1) % 7 == 6 || (position + 1) % 7 == 0) {
 					item.tvDate.setTextColor(res
 							.getColor(R.color.holiday_color));
@@ -237,6 +236,7 @@ public class CalendarAdapter extends BaseAdapter {
 		Cursor cursorCurMonth = ServiceManager.getDbManager().queryLunarDate(
 				year + "." + month);
 		if (!cursorCurMonth.moveToFirst()) {
+			cursorCurMonth.close();
 			return;
 		}
 		String lunarDate = cursorCurMonth
@@ -275,6 +275,7 @@ public class CalendarAdapter extends BaseAdapter {
 		Cursor cursorLastMonth = ServiceManager.getDbManager().queryLunarDate(
 				lastYear + "." + lastMonth);
 		if(!cursorLastMonth.moveToFirst()){
+			cursorCurMonth.close();
 			return;
 		}
 		String lastLunarDate = cursorLastMonth
@@ -285,6 +286,7 @@ public class CalendarAdapter extends BaseAdapter {
 						.getColumnIndex(LunarDatesDatabaseHelper.COLUMN_CALENDAR_DAYOFWEEK));
 		cursorLastMonth.close();
 		if (lastLunarDate == null || lastWeekDate == null) {
+			cursorLastMonth.close();
 			return;
 		}
 		lastLunarDate = lastLunarDate.substring(0, lastLunarDate.length() - 1);
@@ -293,6 +295,7 @@ public class CalendarAdapter extends BaseAdapter {
 				nextYear + "." + nextMonth);
 		System.out.println("" + nextYear + "." + nextMonth + " " + cursorNextMonth.getCount());
 		if(!cursorNextMonth.moveToFirst()){
+			cursorNextMonth.close();
 			return;
 		}
 		String nextLunarDate = cursorNextMonth
@@ -381,9 +384,11 @@ public class CalendarAdapter extends BaseAdapter {
 			}
 		}
 		
-		if(cursorNote == null || cursorNote.getCount()==0){
+		if(cursorNote == null || cursorNote.getCount()==0){		
+			cursorNote.close();
 			return;
 		}
+		cursorNote.close();
 		
 		int day=1;
 		for(int i=curMonthStart; i< curMonthEnd; i++){
