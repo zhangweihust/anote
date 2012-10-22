@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -177,7 +178,10 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 
 	private final int CAMERA_RESULT = 8888;
 	private final int ALBUM_RESULT = 9999;
-
+	public static final int ROTATE_RESULT = 1111;
+	
+	public static final int INTENT_ID=1;
+	//public static final int ROTATE_CAMERA = 2222;
 	private String mImageFilePath = null;// 插入图片的绝对路径
 
 	public int mState = HANDWRITINGSTATE;// 当前的状态值
@@ -3189,18 +3193,24 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 							myEdit.getWidth(), myEdit.getHeight());
 					deletefiles(new String[] { mImageFilePath });
 					String pName = picName.generateName();
-					comPressBmp(bmp, preffix + "pic/" + pName);
-					mPicMap.put(pName, "pic/" + pName);
-					ImageSpan span = new ImageSpan(bmp);
-				/*	int index = myEdit.getSelectionStart();
-					if (index > 0) {
-					myEdit.getText().insert(index, "\n");
-					}*/
-					SpannableString spanStr = new SpannableString(pName);
-					spanStr.setSpan(span, 0, spanStr.length(),
-							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-					int index = myEdit.getSelectionStart();
-					myEdit.getText().insert(index, spanStr);
+					Intent intent = new Intent(EditNoteScreen.this,RotateImageScreen.class);
+					intent.putExtra("pName", pName);
+					intent.putExtra("bm", PreferencesHelper.Bitmap2Bytes(bmp));
+					intent.putExtra("id", INTENT_ID);
+					//startActivity(intent);
+					startActivityForResult(intent,ROTATE_RESULT);
+//					comPressBmp(bmp, preffix + "pic/" + pName);
+//					mPicMap.put(pName, "pic/" + pName);
+//					ImageSpan span = new ImageSpan(bmp);
+//				/*	int index = myEdit.getSelectionStart();
+//					if (index > 0) {
+//					myEdit.getText().insert(index, "\n");
+//					}*/
+//					SpannableString spanStr = new SpannableString(pName);
+//					spanStr.setSpan(span, 0, spanStr.length(),
+//							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//					int index = myEdit.getSelectionStart();
+//					myEdit.getText().insert(index, spanStr);
 					Log.i(TAG, "插入了一张图片");
 					/*index = myEdit.getSelectionStart();
 					myEdit.getText().insert(index, "\n");// 插入一张图片后再次插入一个换行
@@ -3224,6 +3234,36 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 					Bitmap bmp = decodeFile(new File(mImageFilePath),
 							myEdit.getWidth(), myEdit.getHeight());
 					String pName = picName.generateName();
+					
+					Intent intent = new Intent(EditNoteScreen.this,RotateImageScreen.class);
+					intent.putExtra("pName", pName);
+					intent.putExtra("bm", PreferencesHelper.Bitmap2Bytes(bmp));
+					intent.putExtra("id", INTENT_ID);
+					startActivityForResult(intent,ROTATE_RESULT);
+//					comPressBmp(bmp, preffix + "pic/" + pName);
+//					mPicMap.put(pName, "pic/" + pName);
+//					ImageSpan span = new ImageSpan(bmp);
+//					/*int index = myEdit.getSelectionStart();
+//					if (index > 0) {
+//					myEdit.getText().insert(index, "\n");
+//					}*/
+//					SpannableString spanStr = new SpannableString(pName);
+//					spanStr.setSpan(span, 0, spanStr.length(),
+//							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//
+//					int index = myEdit.getSelectionStart();
+//					myEdit.getText().insert(index, spanStr);
+					Log.i(TAG, "插入了一张图片");/*
+				    index = myEdit.getSelectionStart();
+					myEdit.getText().insert(index, "\n");// 插入一张图片后再次插入一个换行
+*/				}
+			}
+			if(requestCode==ROTATE_RESULT){
+				String pName = data.getStringExtra("pName");
+				byte buff[] = data.getByteArrayExtra("bm");
+				Log.i("d", "pName = "+pName);
+				if (pName!=null&&buff != null) {
+					Bitmap bmp = BitmapFactory.decodeByteArray(buff, 0, buff.length);
 					comPressBmp(bmp, preffix + "pic/" + pName);
 					mPicMap.put(pName, "pic/" + pName);
 					ImageSpan span = new ImageSpan(bmp);

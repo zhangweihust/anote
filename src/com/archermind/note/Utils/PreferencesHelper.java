@@ -1,5 +1,6 @@
 package com.archermind.note.Utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -635,4 +636,11 @@ public class PreferencesHelper {
 		
 		return mProvinceLists;
 	}
+	//将bitmap转换，intent发送
+	public static byte[] Bitmap2Bytes(Bitmap bm){     
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();       
+        bm.compress(Bitmap.CompressFormat.PNG, 100, baos);       
+        return baos.toByteArray();     
+    }
+	
 }

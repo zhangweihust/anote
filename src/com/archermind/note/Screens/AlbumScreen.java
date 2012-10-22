@@ -106,6 +106,8 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	private static final int ALBUM_RESULT = 1;
 	private static final int CAMERA_RESULT = 2;
 	private static final int CROP_RESULT = 3;
+	private static final int ROTATE_RESULT = 4;
+	public static final int INTENT_ID=3;
 	
 	private static final int ALBUM_COOKIES_ERROR = -600;
 	private static final int ALBUM_NO_INTERNET = 101;
@@ -505,7 +507,15 @@ public class AlbumScreen extends Screen implements OnClickListener {
 				}
 			}
 			break;
-			
+		case ROTATE_RESULT:
+			Message msg = new Message();
+			msg.getData().putString("name", data.getStringExtra("name"));
+			msg.getData().putString("expandname", data.getStringExtra("expandname"));
+			msg.getData().putString("filelocalpath", data.getStringExtra("filepath"));
+			msg.getData().putInt("uploadcount", data.getIntExtra("uploadcount", 0));
+			msg.what = UPLOAD_ALBUM;
+			handler.sendMessage(msg);
+			break;
 		default:
 			break;
 
@@ -583,15 +593,15 @@ public class AlbumScreen extends Screen implements OnClickListener {
 	// return ServiceManager.getDbManager().insertLocalPhoto(cValue);
 	// }
 
-	private void uploadImage(String name, String expandname, String filepath, int uploadcount) {
-		Message msg = new Message();
-		msg.getData().putString("name", name);
-		msg.getData().putString("expandname", expandname);
-		msg.getData().putString("filelocalpath", filepath);
-		msg.getData().putInt("uploadcount", uploadcount);
-		msg.what = UPLOAD_ALBUM;
-		
-		handler.sendMessage(msg);
+	private void uploadImage(String name, String expandname, String filepath, int uploadcount) {		
+		Bitmap bmp= BitmapFactory.decodeFile(filepath);
+		Intent intent = new Intent(AlbumScreen.this,RotateImageScreen.class);
+		intent.putExtra("bm", PreferencesHelper.Bitmap2Bytes(bmp));
+		intent.putExtra("name", name);
+		intent.putExtra("expandname", expandname);
+		intent.putExtra("uploadcount", uploadcount);
+		intent.putExtra("id", INTENT_ID);
+		startActivityForResult(intent,ROTATE_RESULT);
 	}
 
 

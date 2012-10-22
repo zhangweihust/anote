@@ -56,7 +56,7 @@
         </activity>
         <activity android:name=".crop.CropImage" >
         </activity>
-
+        <activity android:name=".Screens.RotateImageScreen" />
         <service android:name=".Services.CrashReportService" />
         <service android:name=".Services.ServiceManager" />
     </application>

@@ -727,4 +727,7 @@
 	<string name="reply_hint">请输入您的回复内容</string>
 	<string name="reply_success">回复成功</string>
 	<string name="reply_failure">回复失败，请重试</string>
+	
+	<string name="rotate_title">旋转图片</string>
+	<string name="rotate_ok">确认</string>
 </resources>

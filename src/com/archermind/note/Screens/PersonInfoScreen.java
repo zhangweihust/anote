@@ -66,6 +66,7 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 	private static final int CAMERA_RESULT = 2;
 	private static final int CROP_RESULT = 3;
 	private static final int REGION_RESULT = 4;
+	public static final int ROTATE_RESULT=5;
 	private SharedPreferences mPreferences;
 	private ContentResolver mContentResolver;
 	private String mImageFilePath;
@@ -77,6 +78,8 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 //	private ProgressBar mProgressBar;
 	private boolean ismodifyAvatar = false;
 	private static final String TAG = "PersonInfoScreen";
+	
+	public static final int INTENT_ID=2;
 	private Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -275,16 +278,23 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 				// ismodifyAvatar = true;
 				// }
 				// }
-				mAvatarBitmap = PreferencesHelper.toRoundCorner(
-						BitmapFactory.decodeFile(mImageFilePath), 10);
+				
+				Bitmap bmp= BitmapFactory.decodeFile(mImageFilePath);
+				Intent intent = new Intent(PersonInfoScreen.this,RotateImageScreen.class);
+				intent.putExtra("bm", PreferencesHelper.Bitmap2Bytes(bmp));
+				intent.putExtra("id", INTENT_ID);
+				//startActivity(intent);
+				startActivityForResult(intent,ROTATE_RESULT);
+//				mAvatarBitmap = PreferencesHelper.toRoundCorner(
+//						BitmapFactory.decodeFile(mImageFilePath), 10);
 				//更新头像图片地址
-				PreferencesHelper.UpdateAvatar(PersonInfoScreen.this, "",
-						mImageFilePath);
-                if(mAvatarBitmap != null){
-					mUserAvatar.setImageBitmap(mAvatarBitmap);
-					ismodifyAvatar = true;
-					mConfirmButton.setEnabled(true);
-				}
+//				PreferencesHelper.UpdateAvatar(PersonInfoScreen.this, "",
+//						mImageFilePath);
+//                if(mAvatarBitmap != null){
+//					mUserAvatar.setImageBitmap(mAvatarBitmap);
+//					ismodifyAvatar = true;
+//					mConfirmButton.setEnabled(true);
+//				}
 				break;
 			case REGION_RESULT:
 				if (data != null) {
@@ -295,6 +305,20 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 					String city = PreferencesHelper.getCityName(this,
 							ProvinceId, CityId);
 					mRegion.setText(province + " " + city);
+				}
+				break;
+			case ROTATE_RESULT:
+				byte buff[] = data.getByteArrayExtra("bm");
+				if(buff!=null){
+					mAvatarBitmap = PreferencesHelper.toRoundCorner(
+							BitmapFactory.decodeByteArray(buff, 0, buff.length), 10);
+					PreferencesHelper.UpdateAvatar(PersonInfoScreen.this, "",
+							mImageFilePath);
+					 if(mAvatarBitmap != null){
+							mUserAvatar.setImageBitmap(mAvatarBitmap);
+							ismodifyAvatar = true;
+							mConfirmButton.setEnabled(true);
+						}
 				}
 				break;
 			default:
