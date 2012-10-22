@@ -2178,7 +2178,9 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			mWeather = getString(R.string.weather_snow);
 			break;
 		case R.id.screen_top_play_control_back:
-			if (!hasChanged) {
+			String notePath = getIntent().getStringExtra("notePath");
+			System.out.println(mStrList.size() + ", " + mStrList.isEmpty());
+			if (!hasChanged ||(notePath == null && (mStrList == null || mStrList.isEmpty()))) {
 				finish();
 				break;
 			}
@@ -3333,7 +3335,9 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 	public void onBackPressed() {
 		// TODO Auto-generated method stub
 		// super.onBackPressed();
-		if (!hasChanged) {
+		String notePath = getIntent().getStringExtra("notePath");
+		System.out.println(mStrList.size() + ", " + mStrList.isEmpty());
+		if (!hasChanged ||(notePath == null && (mStrList == null || mStrList.isEmpty()))) {
 			finish();
 			return;
 		}
