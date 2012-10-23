@@ -153,7 +153,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 		ServerInterface.initAmtCloud(this);// 初始化云服务
 		mflTabhost = (FrameLayout) findViewById(R.id.fl_tabhost);
 		if(NetworkUtils.getNetworkState(NoteApplication.getContext()) != NetworkUtils.NETWORN_NONE){
-			System.out.println("======= MainScreen ===========");
+			//System.out.println("======= MainScreen ===========");
 			SendCrashReportsTask task = new SendCrashReportsTask();
 			task.execute();
 		}     
@@ -252,9 +252,9 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		System.out.println("==main screen resumed");
+		//System.out.println("==main screen resumed");
 		if(getIntent().getExtras() != null && getIntent().getExtras().containsKey("url")){
-			System.out.println("====== jump to plaza");
+			//System.out.println("====== jump to plaza");
 			mTabHost.setCurrentTab(1);
 			String url = getIntent().getExtras().getString("url");			
 			mtvTitleBarTitle.setText(MainScreen.this.getResources()
@@ -318,7 +318,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 					 * mScrollMenu.scrollBy(MENU_RIGHT_WIDTH_PX, 0);
 					 * mScrollMenu.MenuOut(true); }
 					 */
-					System.out.println("more is clicked");
+					//System.out.println("more is clicked");
 					if (mMorePopupWindow.isShowing()) {
 						mMorePopupWindow.dismiss();
 					} else {
@@ -351,7 +351,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	public boolean onFling(MotionEvent arg0, MotionEvent arg1, float arg2,
 			float arg3) {
 		// TODO Auto-generated method stub
-		System.out.println("==mainscreen onfling " + (arg0.getX() - arg1.getX()));
+		//System.out.println("==mainscreen onfling " + (arg0.getX() - arg1.getX()));
 		if (mTabHost.getCurrentTabTag().equalsIgnoreCase(TAB_HOME)) {
 			String direction = null;
 			if (arg0.getX() - arg1.getX() > 130) {
@@ -379,7 +379,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	@Override
 	public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2,
 			float arg3) {
-		System.out.println("==mainscreen onScroll ");
+		//System.out.println("==mainscreen onScroll ");
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -393,7 +393,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 	@Override
 	public boolean onSingleTapUp(MotionEvent arg0) {
 		// TODO Auto-generated method stub
-		System.out.println("==mainscreen onSingleTapUp ");
+		//System.out.println("==mainscreen onSingleTapUp ");
 		if(mTabHost.getCurrentTabTag().equals(TAB_HOME)){
 		 HomeScreen.setIsClicked();
 		}
@@ -483,10 +483,10 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
-		System.out.println("=====mainscreen==dispatchKeyEvent=====");
+		/*System.out.println("=====mainscreen==dispatchKeyEvent=====");
 		System.out.println("mainscreen ondispatchKeyEvent" + event.getKeyCode()
 				+ ", " + event.getAction() + ", " + mExit_time + ", "
-				+ mExit_Flag);
+				+ mExit_Flag);*/
 		// System.out.println(mTabHost.getCurrentTabTag() +
 		// " , PlazaScreen.isFirstPage : " + PlazaScreen.isFirstPage);
 		if (event.getKeyCode() == KeyEvent.KEYCODE_BACK
@@ -508,7 +508,7 @@ public class MainScreen extends TabActivity implements OnTabChangeListener,
 			return true;
 		} else if (event.getKeyCode() == KeyEvent.KEYCODE_MENU
 				&& event.getAction() == KeyEvent.ACTION_UP) {
-			System.out.println("on menu click");
+			//System.out.println("on menu click");
 
 			MainScreen.this.runOnUiThread(new Runnable() {
 				@Override

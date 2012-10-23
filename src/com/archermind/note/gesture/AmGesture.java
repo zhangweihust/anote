@@ -238,7 +238,7 @@ public class AmGesture implements Parcelable {
         path.offset(-bounds.left + (width - bounds.width() * scale) / 2.0f,
                 -bounds.top + (height - bounds.height() * scale) / 2.0f);
         path.computeBounds(bounds, true);
-        System.out.println("==path.computeBounds=2= left : " + bounds.left + ", top : " + bounds.top + ", bottom : " + bounds.bottom + ", Right : " + bounds.right );
+       // System.out.println("==path.computeBounds=2= left : " + bounds.left + ", top : " + bounds.top + ", bottom : " + bounds.bottom + ", Right : " + bounds.right );
         if (sx < sy && bounds.width() > bounds.height()) {
         	float top = (height / scale - bounds.height()) / 2.0f;
         	path.offset(0, -bounds.top + top);
@@ -281,16 +281,16 @@ public class AmGesture implements Parcelable {
         final Path path = toPath();
         final RectF bounds = new RectF();
         path.computeBounds(bounds, true);
-        System.out.println("==path.computeBounds=1= left : " + bounds.left + ", top : " + bounds.top + ", bottom : " + bounds.bottom + ", Right : " + bounds.right );
+        /*System.out.println("==path.computeBounds=1= left : " + bounds.left + ", top : " + bounds.top + ", bottom : " + bounds.bottom + ", Right : " + bounds.right );
         System.out.println("==path.computeBounds=1= width : " + bounds.width());
         System.out.println("overlay height : " + overlayHeight + ", width " + overlayWidth);
-        System.out.println("bitmap height : " + height + ", width " + width);
+        System.out.println("bitmap height : " + height + ", width " + width);*/
 
        final float scale = ((float)height - 2* inset)/overlayHeight;
         paint.setStrokeWidth((mGesturePaintWidth / scale) / 3.0f);
-        System.out.println("===" + mGesturePaintWidth + ", scale : " + scale );
+        //System.out.println("===" + mGesturePaintWidth + ", scale : " + scale );
         path.offset(0, 0);
-        System.out.println("==path.computeBounds=2= left : " + bounds.left + ", top : " + bounds.top + ", bottom : " + bounds.bottom + ", Right : " + bounds.right );
+        //System.out.println("==path.computeBounds=2= left : " + bounds.left + ", top : " + bounds.top + ", bottom : " + bounds.bottom + ", Right : " + bounds.right );
 
         canvas.translate(inset, inset);
         canvas.scale(scale, scale);
@@ -316,13 +316,13 @@ public class AmGesture implements Parcelable {
 		 final Path path = toPath();
 		 final RectF bounds = new RectF();
 		 path.computeBounds(bounds, true);
-		 System.out.println("==path.computeBounds=1= left : " + bounds.left + ", top : " + bounds.top + ", bottom : " + bounds.bottom + ", Right : " + bounds.right );
+		/* System.out.println("==path.computeBounds=1= left : " + bounds.left + ", top : " + bounds.top + ", bottom : " + bounds.bottom + ", Right : " + bounds.right );
 		 System.out.println("==path.computeBounds=1= width : " + bounds.width());
 		 System.out.println("overlay height : " + overlayHeight + ", width " + overlayWidth);
-		 System.out.println("bitmap height : " + height + ", inset " + inset);
+		 System.out.println("bitmap height : " + height + ", inset " + inset);*/
 		 int width = (int)(bounds.width() * scale) + inset * 2;
-		 System.out.println("s" + (float)height/overlayHeight);
-		 System.out.println("bitmap height : " + height + ", width " + width);
+	/*	 System.out.println("s" + (float)height/overlayHeight);
+		 System.out.println("bitmap height : " + height + ", width " + width);*/
     	final Bitmap bitmap = Bitmap.createBitmap(width, height,
                 Bitmap.Config.ARGB_8888);
         final Canvas canvas = new Canvas(bitmap);
@@ -340,10 +340,10 @@ public class AmGesture implements Parcelable {
       
 
         paint.setStrokeWidth((mGesturePaintWidth / scale) / 3.0f);
-        System.out.println("===" + mGesturePaintWidth + ", scale : " + scale );
+       // System.out.println("===" + mGesturePaintWidth + ", scale : " + scale );
         path.offset(-bounds.left, 0);
         path.computeBounds(bounds, true);
-        System.out.println("==path.computeBounds=2= left : " + bounds.left + ", top : " + bounds.top + ", bottom : " + bounds.bottom + ", Right : " + bounds.right );
+        //System.out.println("==path.computeBounds=2= left : " + bounds.left + ", top : " + bounds.top + ", bottom : " + bounds.bottom + ", Right : " + bounds.right );
 
         
         canvas.translate(inset, 0);

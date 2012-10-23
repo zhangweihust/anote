@@ -232,7 +232,7 @@ public class CalendarAdapter extends BaseAdapter {
 
 	// 得到某年的某月的天数且这月的第一天是星期几
 	public void getCalendar(int year, int month) {
-		System.out.println("getCalendar : " + year + ", " + month);
+		//System.out.println("getCalendar : " + year + ", " + month);
 		Cursor cursorCurMonth = ServiceManager.getDbManager().queryLunarDate(
 				year + "." + month);
 		if (!cursorCurMonth.moveToFirst()) {
@@ -293,7 +293,7 @@ public class CalendarAdapter extends BaseAdapter {
 
 		Cursor cursorNextMonth = ServiceManager.getDbManager().queryLunarDate(
 				nextYear + "." + nextMonth);
-		System.out.println("" + nextYear + "." + nextMonth + " " + cursorNextMonth.getCount());
+		//System.out.println("" + nextYear + "." + nextMonth + " " + cursorNextMonth.getCount());
 		if(!cursorNextMonth.moveToFirst()){
 			cursorNextMonth.close();
 			return;

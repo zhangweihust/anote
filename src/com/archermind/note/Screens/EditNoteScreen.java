@@ -382,19 +382,19 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 					String[] arrayStr = spanStr.split("_");
 					String beforeStr = "";
 					String afterStr = getNewString(end_index);
-					System.out.println("=== afterStr:" + afterStr);
+					//System.out.println("=== afterStr:" + afterStr);
 					if (afterStr.length() != 0 && findEndIndex(start) < start) {// 若end_index后面有文本
 						beforeStr = getNewString(start_index); // start_index前方的文本,若长度不为零，则插入ImageSpan把以前的文本分割
 					}
-					System.out.println("=== beforeStr:" + before);
-					System.out.println("=== mLastPageEnd:" + mLastPageEnd);
-					System.out.println("=== position:" + position);
+					//System.out.println("=== beforeStr:" + before);
+					//System.out.println("=== mLastPageEnd:" + mLastPageEnd);
+					//System.out.println("=== position:" + position);
 					int picindex = mLastPageEnd + position;// ImageSpan在mStrList的映射Index
 
 					if (findEndIndex(start) < start && afterStr.length() == 0) {
 						picindex = mLastPageEnd + position + 1;
 					}
-					if(mStrList.size()>picindex){
+					if(mStrList.size() < picindex){
 						picindex = mStrList.size();
 					}
 
@@ -495,6 +495,9 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 						+ myEdit.getText().length());
 				Log.e("edittext", "edittext content:" + s.toString());
 				Log.e("edittext", "isInsert:" + isInsert);
+				if(mCurPage != mTotalPage){
+					isInsert = true;
+				}
 				if (isInsert) {
 					return;
 				}
@@ -666,10 +669,10 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 		int position = findstartPosition(textLength);
 
 		int pageStart = findNextPage(mLastPageEnd + position);
-		String pageStr = mStrList.get(pageStart);
 		if (pageStart == -1) {
 			return;
 		}
+		String pageStr = mStrList.get(pageStart);
 		pageStart = pageStart + 1;
 		int pageEnd = findNextPage(pageStart);
 		if (pageEnd == -1) {
@@ -1094,7 +1097,6 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 					processWhenOutofbounds(i, lineStart, textLength);
 					myEdit.getText().delete(lineStart, textLength);
 				}
-				System.out.println("");
 			} else {
 				if (mCurPage < mTotalPage) {
 					processWhenInBounds();
@@ -1954,6 +1956,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			gestureview.setVisibility(View.GONE);
 			myEdit.setFocusable(true);
 			myEdit.setFocusableInTouchMode(true);
+			myEdit.setCursorVisible(false);
 			// myEdit.setErase(false);
 			// if (isgraffit_erase) {
 			// // myEdit.setFingerStrokeWidth((int) mStrokeWidth);
@@ -3027,12 +3030,12 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 		public void onGestureStarted(AmGestureOverlayView overlay,
 				MotionEvent event) {
 			mGesture = null;
-			System.out.println("==onGestureStarted== left : "
+		/*	System.out.println("==onGestureStarted== left : "
 					+ overlay.getLeft() + ", top : " + overlay.getTop()
 					+ ", bottom : " + overlay.getBottom() + ", Right : "
 					+ overlay.getRight());
 			System.out.println("==onGestureStarted== x : " + event.getX()
-					+ ", y : " + event.getY());
+					+ ", y : " + event.getY());*/
 			mColorFullRectView.setVisibility(View.VISIBLE);
 		}
 
@@ -3086,7 +3089,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 
 			// int lineheight = DensityUtil.dip2px(EditNoteScreen.this,
 			// myEdit.getLineHeight() );
-			System.out.println("===create bitmap");
+			//System.out.println("===create bitmap");
 			Bitmap gestrueBmp = mGesture.toBitmapWidthNotAve(dip2px(AmGesture.PIC_HEIGHT), dip2px(AmGesture.INSET),
 					mGesture.getGesturePaintColor(), gestureview.getHeight(),
 					gestureview.getWidth());
@@ -3376,7 +3379,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 		// TODO Auto-generated method stub
 		// super.onBackPressed();
 		String notePath = getIntent().getStringExtra("notePath");
-		System.out.println(mStrList.size() + ", " + mStrList.isEmpty());
+		//System.out.println(mStrList.size() + ", " + mStrList.isEmpty());
 		if (!hasChanged ||(notePath == null && (mStrList == null || mStrList.isEmpty()))) {
 			finish();
 			return;
