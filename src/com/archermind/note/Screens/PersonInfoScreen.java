@@ -312,8 +312,8 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 				if(buff!=null){
 					mAvatarBitmap = PreferencesHelper.toRoundCorner(
 							BitmapFactory.decodeByteArray(buff, 0, buff.length), 10);
-					PreferencesHelper.UpdateAvatar(PersonInfoScreen.this, "",
-							mImageFilePath);
+//					PreferencesHelper.UpdateAvatar(PersonInfoScreen.this, "",
+//							mImageFilePath);
 					 if(mAvatarBitmap != null){
 							mUserAvatar.setImageBitmap(mAvatarBitmap);
 							ismodifyAvatar = true;
@@ -432,6 +432,9 @@ public class PersonInfoScreen extends Screen implements OnClickListener {
 					mAlbumObj = new AmtAlbumObj();
 					mAlbumObj.setHandler(mHandler);
 					mAlbumObj.requestAlbumidInfo(ServiceManager.getUserName());
+					//修改成功再修改temp图片
+					PreferencesHelper.UpdateAvatar(PersonInfoScreen.this, "",
+							mImageFilePath);
 				} catch (Exception e) {
 					// TODO: handle exception
 					ExceptionService.logException(e);
