@@ -120,12 +120,11 @@ public class RotateImageScreen extends Activity implements OnClickListener {
 	}
 	
 	private void bitmapToFile(Bitmap bm) throws IOException{
-    	File fo=new File(NoteApplication.savePath+"Album/");
-    	if(!fo.exists()){
-    		fo.mkdir();
-    	}
-    	String p=NoteApplication.savePath+"Album/r"+mName+"."+mExpandName;
+    	String p=NoteApplication.savePath+"image_cache/"+mName+"."+mExpandName;
     	File f=new File(p);
+    	if(f.exists()){
+    		f.delete();
+    	}
     	if(f.createNewFile()){
     		FileOutputStream fOut = null;
     		fOut = new FileOutputStream(f);
@@ -137,7 +136,9 @@ public class RotateImageScreen extends Activity implements OnClickListener {
 				intent3.putExtra("expandname", mExpandName);
 				intent3.putExtra("uploadcount", mUploadcount);
     		}else{
-    			Log.i("a","fail");
+    			Toast.makeText(RotateImageScreen.this, 
+    					R.string.image_create_cache_file_failed_unknown, 
+    					Toast.LENGTH_SHORT).show();
     		}
     		setResult(RESULT_OK, intent3);
 			finish();
