@@ -3103,7 +3103,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			spanStr.setSpan(span, 0, spanStr.length(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			int index = myEdit.getSelectionStart();
-			index = index < 0 ? 0 : index;
+			index = (index < 0 || index > myEdit.length()) ? 0 : index;
 			myEdit.getEditableText().insert(index, spanStr);
 			overlay.clear(false);
 		}
