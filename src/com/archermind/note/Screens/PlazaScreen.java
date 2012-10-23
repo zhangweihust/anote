@@ -292,6 +292,11 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		@Override
 		public void onBackPressed() {
 			// TODO Auto-generated method stub
+			if(mTextView.getVisibility() == View.VISIBLE){
+				isFirstPage = true;
+				super.onBackPressed();
+				return;
+			}
 			WebBackForwardList wl = mWebView.copyBackForwardList();
 			System.out.println("wl.getCurrentIndex() : " + wl.getCurrentIndex());
 			if(wl.getCurrentIndex() > 1){
@@ -320,6 +325,10 @@ public class PlazaScreen extends Screen implements IEventHandler{
 		
 	 	@Override
 		public boolean dispatchKeyEvent(KeyEvent event) {
+	 		if(event.getKeyCode() == KeyEvent.KEYCODE_BACK && mTextView.getVisibility() == View.VISIBLE){
+	 			isFirstPage = true;
+	 			return super.dispatchKeyEvent(event);
+	 		}
 			System.out.println("plazascreen dispatchKeyEvent : " + event.getKeyCode() + ", " + event.getAction());
 			WebBackForwardList wl = mWebView.copyBackForwardList();
 			System.out.println("wl.getCurrentIndex() : " + wl.getCurrentIndex());
