@@ -9,14 +9,18 @@ import com.archermind.note.R;
 import com.archermind.note.Utils.BitmapCache;
 import com.archermind.note.Utils.ImageCapture;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -47,6 +51,7 @@ public class PhotoAdapter extends BaseAdapter {
 		} else {
 			mList.addAll(list);
 		}
+		
 	}
 	
 	public int getCount() {
@@ -94,7 +99,9 @@ public class PhotoAdapter extends BaseAdapter {
 			} else {
 				convertView = LayoutInflater.from(mContext).inflate(
 						R.layout.photo_item, null);
-
+				//获取屏幕宽与高，设置预览图片时框架的大小
+                int w=((Activity)mContext).getWindowManager().getDefaultDisplay().getWidth();
+                int h=((Activity)mContext).getWindowManager().getDefaultDisplay().getHeight();
 				viewHolder = new ViewHolder();
 				viewHolder.title = (TextView) convertView
 						.findViewById(R.id.photo_name);
@@ -102,6 +109,8 @@ public class PhotoAdapter extends BaseAdapter {
 						.findViewById(R.id.photo_icon);
 				viewHolder.selectedImage = (ImageView) convertView
 						.findViewById(R.id.photo_selected);
+				viewHolder.layout = (FrameLayout)convertView.findViewById(R.id.p_icon);
+				viewHolder.layout.setLayoutParams(new FrameLayout.LayoutParams(w, h-46));
 			}			
 			viewHolder.finalfilepath = "";
 			viewHolder.isLoading = false;
@@ -299,5 +308,6 @@ public class PhotoAdapter extends BaseAdapter {
 		public boolean isLoading;
 		public boolean isWebImage;
 		public LinearLayout loadprogress;
+		public FrameLayout layout;
 	}
 }
