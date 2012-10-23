@@ -9,13 +9,17 @@
       xmlns:android="http://schemas.android.com/apk/res/android"
       android:layout_width="match_parent"
       android:layout_height="match_parent" >
+    <FrameLayout android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"
+	        android:id="@+id/p_icon">  
 	      <ImageView 
 	        android:id="@+id/photo_icon"
-	        android:layout_width="450dp"
-	        android:layout_height="450dp"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
 			android:layout_gravity="center"
 	        android:scaleType="centerCrop"
 	        />
+	</FrameLayout> 
 	     <ImageView
 	        android:id="@+id/photo_selected"
 	        android:layout_width="450dp"
