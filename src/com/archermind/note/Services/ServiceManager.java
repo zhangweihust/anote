@@ -27,14 +27,14 @@ public class ServiceManager extends Service {
 	private static boolean _isLogin = false;
 
 	private static int _mUserId;
-	private static String _mUserName;
-	private static String _mAvatarurl;
-	private static String _mNickname;
-	private static String _mSex;
-	private static String _mRegion;
-	private static String _mSina_nickname;
-	private static String _mQQ_nickname;
-	private static String _mRenren_nickname;
+	private static String _mUserName = "";
+	private static String _mAvatarurl = "";
+	private static String _mNickname = "";
+	private static String _mSex = "";
+	private static String _mRegion = "";
+	private static String _mSina_nickname = "";
+	private static String _mQQ_nickname = "";
+	private static String _mRenren_nickname = "";
 	private static Context _mTopWindowContext;
 
 	private static Handler _mHandler;

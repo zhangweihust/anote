@@ -166,19 +166,19 @@ public class ShareScreen extends Screen implements OnClickListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (!ServiceManager.getmSina_nickname().equals("")) {
+		if (ServiceManager.getmSina_nickname() != null && !ServiceManager.getmSina_nickname().equals("")) {
 			mSinaButton.setBackgroundResource(R.drawable.btn_sina_selector);
 		} else {
 			mSinaButton.setBackgroundResource(R.drawable.sina_gray);
 		}
 
-		if (!ServiceManager.getmQQ_nickname().equals("")) {
+		if (ServiceManager.getmQQ_nickname() != null && !ServiceManager.getmQQ_nickname().equals("")) {
 			mQQButton.setBackgroundResource(R.drawable.btn_qq_selector);
 		} else {
 			mQQButton.setBackgroundResource(R.drawable.qq_gray);
 		}
 
-		if (!ServiceManager.getmRenren_nickname().equals("")) {
+		if (ServiceManager.getmRenren_nickname() != null && !ServiceManager.getmRenren_nickname().equals("")) {
 			mRenrenButton.setBackgroundResource(R.drawable.btn_renren_selector);
 		} else {
 			mRenrenButton.setBackgroundResource(R.drawable.renren_gray);

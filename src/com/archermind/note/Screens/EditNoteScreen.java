@@ -120,8 +120,8 @@ import com.archermind.note.gesture.AmGestureOverlayView;
 public class EditNoteScreen extends Screen implements OnClickListener {
 
 	private AmGestureOverlayView gestureview = null;
-	private int gesture_width = 480;
-	private int gesture_height = 580; // 手势区域的大小(默认宽480，高580）
+	public int gesture_width = 480;
+	public int gesture_height = 580; // 手势区域的大小(默认宽480，高580）
 	private MyEditText myEdit = null;
 
 	// 最底下一排的按钮
@@ -232,6 +232,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 	private SharedPreferences mPreferences;
 	private static final String TAG = "EditNoteScreen";
 
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -246,7 +247,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 			gestureview.removeAllOnGestureListeners();
 			gestureview.addOnGestureListener(handWriteListener);
 		}
-
+		
 		// 手写模式时的边框
 		mColorFullRectView = (ColorFullRectView) findViewById(R.id.colorfull_rect);
 		// EditText
@@ -1236,6 +1237,7 @@ public class EditNoteScreen extends Screen implements OnClickListener {
 	 */
 	private void reInsert(int start, int end) {
 		isInsert = true;
+		System.out.println("=== start:" + start + ", end:" + end);
 		for (int i = start; i < end; i++) {
 			addItemOfEditText(i);
 		}

@@ -25,6 +25,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.RectF;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
 import android.text.InputType;
@@ -118,6 +119,9 @@ public class MyEditText extends EditText implements
 
 	private boolean isErasing = false;
 
+	private int mWidth = 0;
+	private int mHeight = 0;
+	
 	// we need this constructor for LayoutInflater
 	public MyEditText(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -215,6 +219,8 @@ public class MyEditText extends EditText implements
 				mBmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
 				mCanvas = new Canvas(mBmp);
 			}
+			mWidth = w;
+			mHeight = h;
 			reloadGraffit("page0");
 		}catch (Exception e) {
 			// TODO: handle exception
@@ -320,24 +326,47 @@ public class MyEditText extends EditText implements
 
 		mCurrentGesture = null;
 		mCurrentGesture = new AmGesture();
-
-		if (mStore.getGestures(name) != null) {
-			mCurrentGesture = mStore.getGestures(name).get(0);
-			ArrayList<AmGestureStroke> mStrokes = mCurrentGesture.getStrokes();
-			for (AmGestureStroke stroke : mStrokes) {
-				mTempPaint.setColor(stroke.getFingerColor());
-				mTempPaint.setStrokeWidth(stroke.getFingerStrokeWidth());
-				if (stroke.getFingerColor() == 0x00000000) {
-					mTempPaint.setXfermode(new PorterDuffXfermode(
-							PorterDuff.Mode.CLEAR));
-				} else {
-					mTempPaint.setXfermode(null);
+		if(mEditNote.mState == EditNoteScreen.NETNOTESTATE ){
+			Bitmap bitmap = Bitmap.createBitmap(mEditNote.gesture_width, mEditNote.gesture_height, Bitmap.Config.ARGB_8888);
+			Canvas canvas = new Canvas(bitmap);
+			
+			if (mStore.getGestures(name) != null) {
+				mCurrentGesture = mStore.getGestures(name).get(0);
+				ArrayList<AmGestureStroke> mStrokes = mCurrentGesture.getStrokes();
+				for (AmGestureStroke stroke : mStrokes) {
+					mTempPaint.setColor(stroke.getFingerColor());
+					mTempPaint.setStrokeWidth(stroke.getFingerStrokeWidth());
+					if (stroke.getFingerColor() == 0x00000000) {
+						mTempPaint.setXfermode(new PorterDuffXfermode(
+								PorterDuff.Mode.CLEAR));
+					} else {
+						mTempPaint.setXfermode(null);
+					}
+					stroke.draw(canvas, mTempPaint);				
 				}
-				stroke.draw(mCanvas, mTempPaint);
+			}
+			mBmp = Bitmap.createScaledBitmap(bitmap, mWidth, mHeight, false);
+		}
+		else{
+			if (mStore.getGestures(name) != null) {
+				mCurrentGesture = mStore.getGestures(name).get(0);
+				ArrayList<AmGestureStroke> mStrokes = mCurrentGesture.getStrokes();
+				for (AmGestureStroke stroke : mStrokes) {
+					mTempPaint.setColor(stroke.getFingerColor());
+					mTempPaint.setStrokeWidth(stroke.getFingerStrokeWidth());
+					if (stroke.getFingerColor() == 0x00000000) {
+						mTempPaint.setXfermode(new PorterDuffXfermode(
+								PorterDuff.Mode.CLEAR));
+					} else {
+						mTempPaint.setXfermode(null);
+					}
+					stroke.draw(mCanvas, mTempPaint);				
+				}
 			}
 		}
 	}
 
+	 
 	@Override
 	public void setInputType(int type) {
 		// TODO Auto-generated method stub

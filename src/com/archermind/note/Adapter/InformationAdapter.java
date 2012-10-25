@@ -36,7 +36,7 @@ public class InformationAdapter extends BaseAdapter
 {
 	private Context mCtx;
 	private ArrayList<InformationData> mDatas = new ArrayList<InformationData>();;
-	private boolean existsPrompt = false;
+	public boolean existsPrompt = false;
 	
 	public InformationAdapter(Context ctx, ArrayList<InformationData> datas)
 	{

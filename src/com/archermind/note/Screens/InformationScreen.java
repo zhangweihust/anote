@@ -146,7 +146,7 @@ public class InformationScreen extends Screen implements IXListViewListener,
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
 				// TODO Auto-generated method stub
-				if(mInformationAdapter.getCount() != 0){
+				if(!mInformationAdapter.existsPrompt){
 					System.out.println("==== index === " + arg2);
 					InformationData  data = (InformationData)mInformationAdapter.getItem(arg2 -1);					
 					System.out.println(data.nid + ", " + data.time);
@@ -155,7 +155,6 @@ public class InformationScreen extends Screen implements IXListViewListener,
 					Intent intent = new Intent();
 					intent.putExtra("url", url);
 					intent.setClass(InformationScreen.this, MainScreen.class);
-					
 					startActivity(intent);
 					finish();
 				}

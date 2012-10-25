@@ -40,6 +40,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	public static boolean isFirstPage = true;
 	private int mNetwork;
 	private boolean mIsLogin = false;
+	private int mUserId = -1;
 	public static final EventService eventService = ServiceManager
 			.getEventservice();
 	private JsResult mResult = null;
@@ -103,10 +104,12 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	 		        CookieSyncManager.getInstance().startSync();
 	 		        CookieManager.getInstance().setCookie(ServerInterface.URL_WEBSITE, "userid=" + ServiceManager.getUserId() + ";");
 	 		        mIsLogin = true;
+	 		        mUserId = ServiceManager.getUserId();
 	 		    }else{
 	 		    	CookieSyncManager.getInstance().startSync();
 	 			    CookieManager.getInstance().removeSessionCookie();
 	 			    mIsLogin = false;
+	 			    mUserId = -1;
 	 		    }
 		        
 		        mWebView.setWebViewClient(new WebViewClient(){
@@ -125,7 +128,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 					// TODO Auto-generated method stub
 					super.onPageStarted(view, url, favicon);
 					showLoadingProgress();
-					if(view.getTitle()!=null&&!view.getTitle().equals("") && (view.getTitle().contains("主页")||view.getTitle().contains("相册"))){
+					if(view.getTitle()!=null&&!view.getTitle().equals("") && (view.getTitle().contains("主页")||view.getTitle().contains("相册")||view.getTitle().contains("广场")||view.getTitle().contains("作品"))){
 					MainScreen.eventService.onUpdateEvent(new EventArgs(
 							EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra(
 							"title",view.getTitle()));
@@ -137,7 +140,7 @@ public class PlazaScreen extends Screen implements IEventHandler{
 				public void onPageFinished(WebView view, String url) {
 					// TODO Auto-generated method stub
 					super.onPageFinished(view, url);
-					if(view.getTitle()!=null&&!view.getTitle().equals("") && (view.getTitle().contains("主页")||view.getTitle().contains("相册"))){
+					if(view.getTitle()!=null&&!view.getTitle().equals("") && (view.getTitle().contains("主页")||view.getTitle().contains("相册")||view.getTitle().contains("广场")||view.getTitle().contains("作品"))){
 						MainScreen.eventService.onUpdateEvent(new EventArgs(
 								EventTypes.MAIN_SCREEN_UPDATE_TITLE).putExtra(
 								"title",view.getTitle()));
@@ -373,10 +376,12 @@ public class PlazaScreen extends Screen implements IEventHandler{
 	 		        CookieSyncManager.getInstance().startSync();
 	 		        CookieManager.getInstance().setCookie(ServerInterface.URL_WEBSITE, "userid=" + ServiceManager.getUserId() + ";");
 	 		        mIsLogin = true;
+	 		        mUserId = ServiceManager.getUserId();
  		        }else{
  		        	CookieSyncManager.getInstance().startSync();
  			        CookieManager.getInstance().removeSessionCookie();
  			        mIsLogin = false;
+ 			        mUserId = -1;
  		        }
 	        	mNetwork = NetworkUtils.getNetworkState(PlazaScreen.this);
 		        mWebView.requestFocus();		        
@@ -410,17 +415,19 @@ public class PlazaScreen extends Screen implements IEventHandler{
 			if(mResult!=null){ 
 				mResult.confirm();
 			}
-		 	 
-		 	 if(mWebView.getUrl()!= null && ServiceManager.isLogin() != mIsLogin && (mWebView.getUrl().equals(ServerInterface.URL_WEBSITE)||mWebView.getUrl().startsWith(ServerInterface.URL_WEBSITE_NOTE))){
+
+		 	 if(mWebView.getUrl()!= null && (ServiceManager.isLogin() != mIsLogin ||(ServiceManager.isLogin()==true && mUserId != ServiceManager.getUserId())) && (mWebView.getUrl().equals(ServerInterface.URL_WEBSITE)||mWebView.getUrl().startsWith(ServerInterface.URL_WEBSITE_NOTE))){
 		 		 if(ServiceManager.isLogin()){
 				 		System.out.println("===== logined =====");
 				        CookieSyncManager.getInstance().startSync();
 				        CookieManager.getInstance().setCookie(ServerInterface.URL_WEBSITE, "userid=" + ServiceManager.getUserId() + ";");
 				        mIsLogin = true;
+				        mUserId = ServiceManager.getUserId();
 				    }else{
 				    	CookieSyncManager.getInstance().startSync();
 					    CookieManager.getInstance().removeSessionCookie();
 					    mIsLogin = false;
+					    mUserId = -1;
 				    }
 		 		 try {
 					Thread.sleep(50);
