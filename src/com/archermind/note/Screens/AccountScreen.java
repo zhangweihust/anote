@@ -614,7 +614,7 @@ public class AccountScreen extends Screen implements OnClickListener {
 			oAuthV2.setClientId(AccountScreen.APPKEY_QQ);
 			oAuthV2.setAccessToken(params[0]);
 			oAuthV2.setOpenid(params[1]);
-			UserAPI userAPI = new UserAPI(OAuthConstants.OAUTH_VERSION_2_A);
+			UserAPI userAPI = new UserAPI(OAuthConstants.OAUTH_VERSION_1);
 			String response;
 			try {
 				response = userAPI.info(oAuthV2, "json");// 调用QWeiboSDK获取用户信息

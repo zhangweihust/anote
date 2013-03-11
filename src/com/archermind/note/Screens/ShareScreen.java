@@ -518,7 +518,7 @@ public class ShareScreen extends Screen implements OnClickListener {
 			oAuthV2.setClientId(AccountScreen.APPKEY_QQ);
 			oAuthV2.setAccessToken(params[0]);
 			oAuthV2.setOpenid(params[1]);
-			TAPI tapi = new TAPI(OAuthConstants.OAUTH_VERSION_2_A);
+			TAPI tapi = new TAPI(OAuthConstants.OAUTH_VERSION_1);
 			String response = null;
 			try {
 				response = tapi.addPic(oAuthV2, "json", params[2], "127.0.0.1",
