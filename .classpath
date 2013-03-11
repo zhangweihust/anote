@@ -9,6 +9,5 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry exported="true" kind="lib" path="libs/sinav2.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/tenxun_SDK_v1.2_Fix.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
